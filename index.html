@@ -104,6 +104,22 @@ header{flex:0 0 auto;display:flex;gap:4px;align-items:center;padding:5px 4px;bac
 .rcp span{display:inline-flex;align-items:center;gap:2px;white-space:nowrap}
 .rcp img{width:20px;height:20px}.mini-sw{width:10px;height:10px;border:2px solid #2a1a12;display:inline-block}
 .rq.cor{cursor:pointer;text-decoration:underline dotted}
+/* árvore de espécies (tela cheia) */
+#tv{position:fixed;inset:0;z-index:210;background:#f5efe0;display:none;flex-direction:column}#tv.on{display:flex}
+.tvh{flex:0 0 auto;display:flex;gap:5px;align-items:center;padding:6px;background:#4a2e1c;border-bottom:3px solid #2a1a12;color:#ffe9b8;font-size:.8rem}
+.tvh .btn.on{background:#f7c331;color:#2a1a12}.tvh .cnt{flex:1;text-align:center}
+#tvb{flex:1 1 auto;overflow:auto;position:relative;background:repeating-linear-gradient(0deg,#f5efe0 0 109px,#eadfc9 109px 110px)}
+#tvs{position:relative}#tvc{position:absolute;left:0;top:0;transform-origin:0 0}#tvc svg{position:absolute;left:0;top:0}
+.sp{position:absolute;width:76px;text-align:center;font-size:.56rem;line-height:1.1;cursor:pointer;color:#2a1a12}
+.sp .ic{width:58px;height:58px;margin:0 auto 2px;background:#fff;border:3px solid #2a1a12;display:flex;align-items:center;justify-content:center;box-shadow:inset -3px -3px 0 #0001}
+.sp .ic img{width:48px;height:48px}.sp .no{position:absolute;top:-6px;left:6px;background:#2a1a12;color:#ffe9b8;font-size:.5rem;padding:0 3px}
+.sp.q .ic{background:#00000010;border-style:dashed;border-color:#8a6a50}.sp.q .ic img{filter:brightness(0);opacity:.28}.sp.q{color:#8a6a50}
+.sp.cur .ic{outline:3px solid #f7c331;outline-offset:2px}.sp.new .ic{background:#fff6cf}
+.rowlab{position:absolute;left:6px;font-size:.62rem;color:#8a6a50;font-weight:700}
+#tvd{flex:0 0 auto;background:#e9dcc3;border-top:3px solid #2a1a12;padding:8px 10px;font-size:.8rem;max-height:40vh;overflow:auto;line-height:1.35}
+#tvd img{width:28px;height:28px;display:inline-block;vertical-align:middle}#tvd .bigi{width:56px;height:56px;float:left;margin-right:8px}
+.sug{display:flex;align-items:center;gap:3px;margin:3px 0;background:#f5efe0;padding:3px 5px;border:2px solid #2a1a1230;font-size:.74rem}
+#tvb .cgw{padding:10px;max-width:520px;margin:0 auto}
 /* modais */
 #modal{position:fixed;inset:0;background:#2a1a12cc;display:none;align-items:center;justify-content:center;z-index:200;padding:14px}
 #modal.on{display:flex}
@@ -124,11 +140,12 @@ header{flex:0 0 auto;display:flex;gap:4px;align-items:center;padding:5px 4px;bac
 .pt{position:fixed;width:6px;height:6px;z-index:120;pointer-events:none}
 .fc{position:fixed;width:12px;height:12px;z-index:120;pointer-events:none;background:#f7c331;box-shadow:inset -2px -2px 0 #b7841a,inset 2px 2px 0 #fff3a0}
 </style></head><body>
-<header><span class="tag" id="cointag"><span class="coin" id="hudcoin"></span><span id="coins"></span></span><span class="tag grow timer" id="day"></span><button class="btn" id="corb">CORES</button><button class="btn" id="dexb">ÁRVORE</button><button class="btn" id="pauseb">II</button><button class="btn" id="menub">≡</button></header>
+<header><span class="tag" id="cointag"><span class="coin" id="hudcoin"></span><span id="coins"></span></span><span class="tag grow timer" id="day"></span><button class="btn" id="dexb">ÁRVORE</button><button class="btn" id="pauseb">II</button><button class="btn" id="menub">≡</button></header>
 <div id="scene"><div id="props"></div><div id="custs"></div><div id="counter"></div><div id="cprops"></div></div>
 <div id="table"><div class="tip" id="tip">Compre frutas na feira.<br>Jogue 2 frutas no CALDEIRÃO: CRUZAR<br>Arraste até o cliente: ENTREGAR<br>Toque na fruta: VER ATRIBUTOS</div><div id="bin" class="px"><span class="coin" style="width:16px;height:16px;margin-bottom:3px"></span>Arraste<br>pra vender</div><div id="pot"><div id="potslots"></div><img id="potimg"><div id="potlab">CALDEIRÃO</div></div></div>
 <div id="market"></div>
 <div id="info" class="px"></div>
+<div id="tv"><div class="tvh"><button class="btn on" id="tabT">ÁRVORE</button><button class="btn" id="tabC">CORES</button><span class="cnt" id="tvcnt"></span><button class="btn" id="zm">−</button><button class="btn" id="zp">+</button><button class="btn" id="tvx">X</button></div><div id="tvb"></div><div id="tvd"></div></div>
 <div id="modal"><div class="box px" id="mbox"></div></div>
 <div class="toast" id="toast"></div>
 <script>
@@ -270,7 +287,7 @@ let S,running=false,modalOpen=false;const sk=k=>false;const dayLen=()=>150000+(s
 function level(){return 1+Math.floor(S.delivered/3)}
 const now=()=>S.clock;
 function baseFruit(b){const c=typeof b[4]=="string"?COLORS[b[4]].slice():b[4].slice();return{id:"f"+(S.id++),tip:b[0]=="Banana"?"#6b4423":b[0]=="Pimenta-Dragão"?"#3f9a3a":null,root:b[0].split(/[ -]/)[0],shape:b[1],pat:b[2],top:b[3],rgb:c,doce:b[5],az:b[6],tam:b[7],gen:0,mut:false,el:b[10]||null,hero:false,base:b[0]}}
-function fresh(){S={coins:25,delivered:0,id:1,fruits:[],pot:[],cust:[null,null,null],clock:0,day:1,dayT:0,ds:{earn:0,served:0,best:0,dex:0},dex:{},started:false,ess:0,sk:{}};
+function fresh(){S={coins:25,delivered:0,id:1,fruits:[],pot:[],cust:[null,null,null],clock:0,day:1,dayT:0,ds:{earn:0,served:0,best:0,dex:0},dex:{},tree:{},started:false,ess:0,sk:{}};
 [0,1,2,4,5,6].forEach((bi,i)=>{const f=baseFruit(BASE[bi]);f.x=14+(i%3)*104;f.y=12+Math.floor(i/3)*92;S.fruits.push(f)})}
 try{S=JSON.parse(localStorage.getItem("frutodromo9"))}catch(e){}if(!S||!S.fruits)fresh();
 const save=()=>{try{localStorage.setItem("frutodromo9",JSON.stringify(S))}catch(e){}};
@@ -288,18 +305,21 @@ return c}
 function fname(f){let n=(f.hero?"Super ":"")+f.root+(f.gen>=3?" "+["","","","Nobre","Rara","Ancestral","Lendária"][Math.min(6,f.gen)]:"");if(f.el)n+=" "+ELEM[f.el].adj;return n}
 const sizeName=t=>t==0?"Microscópica":t==1?"Mini":t<=3?"Pequena":t<=7?"Média":t<=10?"Grande":t==11?"Enorme":"Gigantesca";
 /* ================= Frutódex ================= */
-// Frutódex em árvore: [id, coluna, nível, nome, receita, teste, ligações]
-const DEXT=[
-["peq",0,0,"Pequena","Uva ou Morango",f=>f.tam>=2&&f.tam<=3,[]],["mini",0,1,"Mini","Pequena + Pequena",f=>f.tam==1,["peq"]],["micro",0,2,"Microscópica","Mini + Mini",f=>f.tam==0,["mini"]],
-["gra",1,0,"Grande","Melancia, Coco...",f=>f.tam>=8&&f.tam<=10,[]],["eno",1,1,"Enorme","Grande + Grande",f=>f.tam==11,["gra"]],["giga",1,2,"Gigantesca","Enorme + Enorme",f=>f.tam==12,["eno"]],
-["doce",2,0,"Docinha","Manga, Banana...",f=>f.doce>=8&&f.doce<10,[]],["mel",2,1,"Mel Puro","Docinha + Docinha",f=>f.doce==10,["doce"]],["azeda",2,2,"Azeda","Limão",f=>f.az>=8&&f.az<10,[]],["acida",2,3,"Azedíssima","Azeda + Azeda",f=>f.az==10,["azeda"]],
-["fogo",3,0,"Fogo","Pimenta-Dragão (feira)",f=>f.el=="fogo",[]],["gelo",3,1,"Gelo","Fruta Glacial (feira)",f=>f.el=="gelo",[]],["raio",3,2,"Raio","Carambola Elétrica (feira)",f=>f.el=="raio",[]],
-["super",3,3,"Super-fruta","Dois elementos diferentes",f=>f.hero,["fogo","gelo","raio"]],
-["smicro",.5,4,"Super Micro","Super + Microscópica",f=>f.hero&&f.tam==0,["micro","super"]],["stita",2,4,"Super Titã","Super + Gigantesca",f=>f.hero&&f.tam==12,["giga","super"]]];
-const DEXN=BASE.length+DEXT.length;
-function dexKeys(f){const k=[];if(f.base)k.push("b:"+f.base);DEXT.forEach(n=>{if(n[5](f))k.push(n[0])});return k}
-function dexCheck(f,silent){let nw=0;dexKeys(f).forEach(k=>{if(!S.dex[k]){S.dex[k]={shape:f.shape,mask:f.mask,tip:f.tip,pat:f.pat,top:f.top,rgb:f.rgb,hero:f.hero,cape:f.cape,name:fname(f),tam:f.tam,el:f.el};nw++}});
-if(nw&&!silent){S.ds.dex+=nw;setTimeout(()=>{toast(`<b>ÁRVORE</b>: +${nw} descoberta${nw>1?"s":""}!`);SFX.dex()},900)}}
+// ===== Árvore de espécies: infinita, cresce a cada combinação nova =====
+const taste=f=>f.doce>=6&&f.az>=6?"agridoce":f.doce>=8?"doce":f.az>=8?"azeda":"suave";
+const spKey=f=>[sizeName(f.tam),colorName(f.rgb),taste(f),f.el||"",f.hero?"S":""].join("|");
+function spLabel(k){const[sz,c,t,el,h]=k.split("|");return (h?"Super · ":"")+sz+" · "+c+" · "+t+(el?" · "+ELEM[el].n:"")}
+function treeAdd(f,parents,silent){S.tree=S.tree||{};const k=spKey(f);f.sp=k;if(S.tree[k])return false;
+const pk=parents?[...new Set(parents.map(p=>p.sp||spKey(p)))]:[];const d=pk.length?Math.max(...pk.map(x=>(S.tree[x]||{d:0}).d))+1:0;
+S.tree[k]={n:Object.keys(S.tree).length+1,name:f.base||fname(f),d,par:pk,t:Date.now(),img:{shape:f.shape,mask:f.mask,tip:f.tip,pat:f.pat,top:f.top,rgb:f.rgb,hero:f.hero,cape:f.cape},st:{doce:f.doce,az:f.az,tam:f.tam,rgb:f.rgb,el:f.el,hero:f.hero}};
+if(!silent){S.ds.dex++;const n=S.tree[k].n;setTimeout(()=>{toast(`<b>NOVA ESPÉCIE nº ${n}!</b><br>${spLabel(k)}`);SFX.dex()},900)}return true}
+const dexCheck=(f,silent)=>treeAdd(f,null,silent);
+function predictSt(a,b){const e=a.el&&b.el&&a.el!=b.el?{el:a.el,hero:true}:{el:a.el||b.el||null,hero:!!(a.hero||b.hero)};
+return{doce:inh(a.doce,b.doce,10),az:inh(a.az,b.az,10),tam:inh(a.tam,b.tam,12),rgb:a.rgb.map((x,q)=>(x+b.rgb[q])/2),el:e.el,hero:e.hero}}
+function suggestions(max,only){const ks=Object.keys(S.tree||{}),out=[],seen=new Set();
+for(let i=0;i<ks.length;i++)for(let j=i;j<ks.length;j++){if(only&&ks[i]!=only&&ks[j]!=only)continue;const c=predictSt(S.tree[ks[i]].st,S.tree[ks[j]].st),k=spKey(c);if(S.tree[k]||seen.has(k))continue;seen.add(k);
+out.push({k,a:ks[i],b:ks[j],c,score:Math.abs(c.tam-6)*1.5+(c.hero?5:0)+(c.el?1:0)+(c.doce==10||c.az==10?3:0)+((i*7+j*13)%10)/10})}
+return out.sort((x,y)=>y.score-x.score).slice(0,max)}
 /* ================= clientes ================= */
 function newCust(){const L=level(),vip=L>=(sk('t4')?2:3)&&Math.random()<(sk('t4')?.3:.15);let n=Math.min(3,1+Math.floor((L-1)/2)+(Math.random()<.3?1:0));if(vip)n=Math.min(4,n+1);
 const reqs=[],used=new Set(),hard=Math.min(3,Math.floor(L/2));
@@ -418,7 +438,7 @@ const make=()=>{let c=cross(ing[0],ing[1]);if(ing[2]){c=cross(c,ing[2]);c.gen=Ma
 const kids=[make()];if(sk("c2")&&Math.random()<.2)kids.push(make());
 kids.forEach((c,ki)=>{gainEss(1+(c.mut?2:0)+(c.hero?3:0));
 const tr=tbl.getBoundingClientRect(),pr=$("pot").getBoundingClientRect();c.x=pr.right-tr.left+8+ki*70;c.y=pr.top-tr.top-fsize(c)/3-ki*20;clampPos(c);
-S.fruits.push(c);sel=c.id;dexCheck(c);save();renderTable(c.id);renderPot();renderCounter();showInfo(c);
+S.fruits.push(c);sel=c.id;treeAdd(c,ing);save();renderTable(c.id);renderPot();renderCounter();showInfo(c);
 const er=tbl.querySelector(`[data-id="${c.id}"]`).getBoundingClientRect(),ex=er.left+er.width/2,ey=er.top+er.height/2;burst(ex,ey,c.rgb,24);
 if(c.mut||c.hero){burst(ex,ey,[180,155,255],18);SFX.mut()}else SFX.pop();if(c.el=="fogo")SFX.fire();
 toast((kids.length>1?"<b>GÊMEOS!</b> ":"")+(c.hero?`<b>SUPER-FRUTA!</b> ${fname(c)}`:c.mut?`<b>MUTAÇÃO!</b> ${fname(c)}`:`Nasceu: <b>${fname(c)}</b>`))})},sk("c1")?550:1100)}
@@ -450,7 +470,7 @@ function startDay(){running=true;S.started=true;S.cust.forEach((c,i)=>{if(!c)set
 function endDay(){running=false;SFX.day();S.cust.forEach(c=>{if(c)c.leaving=true});renderCounter();
 setTimeout(()=>{S.cust=[null,null,null];renderCounter();save();showSummary()},900)}
 function showSummary(){const d=S.ds;openModal(`<h2>FIM DO DIA ${S.day}</h2><div class="row">${[...S.fruits].sort((a,b)=>b.gen-a.gen).slice(0,3).map(f=>`<img src="${fruitImg(f)}">`).join("")}</div>
-<div class="sum"><span>Lucro do dia</span><b>${d.earn} moedas</b><span>Clientes atendidos</span><b>${d.served}</b><span>Maior pagamento</span><b>${d.best}</b><span>Novas no Frutódex</span><b>${d.dex}</b><span>Nível</span><b>${level()}</b></div>
+<div class="sum"><span>Lucro do dia</span><b>${d.earn} moedas</b><span>Clientes atendidos</span><b>${d.served}</b><span>Maior pagamento</span><b>${d.best}</b><span>Novas espécies</span><b>${d.dex}</b><span>Nível</span><b>${level()}</b></div>
 <p>${d.served>=6?"Dia incrível! A quitanda está famosa.":d.served>=3?"Bom dia de trabalho!":"Dia fraco... amanhã é outro dia!"}</p><button class="big" id="nextd">ABRIR DIA ${S.day+1}</button>`);
 $("nextd").onclick=()=>{S.day++;S.dayT=0;S.ds={earn:0,served:0,best:0,dex:0};save();closeModal();startDay()}}
 /* ================= modais ================= */
@@ -459,7 +479,7 @@ function closeModal(){modalOpen=false;$("modal").classList.remove("on")}
 function startScreen(){const demo=[{shape:"heart",pat:"seeds",top:"leaf",rgb:COLORS.vermelha},{shape:"round",pat:"stripes",top:"stem",rgb:[243,140,32],hero:true,cape:"#2d6cdf"},{shape:"tall",pat:"hatch",top:"crown",rgb:COLORS.amarela}];
 const cont=S.started;let armed=false;
 openModal(`<div class="logo">FRUTÓDROMO</div><p style="margin-top:0">A quitanda das frutas que a natureza não teve coragem de criar</p><div class="row">${demo.map(f=>`<img src="${fruitImg(f)}">`).join("")}</div>
-<p style="font-size:.8rem;text-align:left">• Jogue 2 frutas no <b>caldeirão</b> pra criar híbridos<br>• <b>Parecidos se intensificam</b>: pequena + pequena encolhe, grande + grande cresce, doce + doce fica mais doce<br>• Entregue o que os clientes pedem nos balões<br>• Complete a <b>Árvore de Frutas</b>: chegue na Microscópica, na Gigantesca e nas <b>super-frutas</b></p>
+<p style="font-size:.8rem;text-align:left">• Jogue 2 frutas no <b>caldeirão</b> pra criar híbridos<br>• <b>Parecidos se intensificam</b>: pequena + pequena encolhe, grande + grande cresce, doce + doce fica mais doce<br>• Entregue o que os clientes pedem nos balões<br>• Expanda a <b>Árvore de Espécies</b>: cada combinação nova vira uma espécie, e ela não tem fim</p>
 <button class="big" id="go">${cont?"CONTINUAR · DIA "+S.day:"ABRIR A QUITANDA"}</button><br><button class="big alt" id="sndb" onclick="toggleSnd()"></button>${cont?'<button class="big alt" id="newg">NOVO JOGO</button>':""}`);sndLabel();
 $("go").onclick=()=>{ac();closeModal();if(!running)startDay()};
 if(cont)$("newg").onclick=e=>{if(!armed){armed=true;e.target.textContent="TOQUE DE NOVO PRA APAGAR TUDO";return}fresh();S.fruits.forEach(f=>dexCheck(f,true));save();sel=null;showInfo(null);ac();closeModal();renderAll();startDay()}}
@@ -467,33 +487,50 @@ function gainEss(){}
 function predict(a,b){const e=elOut(a,b),t=inh(a.tam,b.tam,12);return `Doce ${inh(a.doce,b.doce,10)} · Azedo ${inh(a.az,b.az,10)} · ${sizeName(t)} (${t}) · cor ${colorName(a.rgb.map((x,i)=>(x+b.rgb[i])/2))}${e.el?" · "+ELEM[e.el].n:""}${e.hero?" · <b>SUPER!</b>":""}`}
 /* ================= guia de cores ================= */
 const CORDER=["vermelha","laranja","amarela","verde","azul","roxa","marrom","cinza","rosa","branca"];
-function colorGuide(hi){const L=level(),rep={};
+function colorGuideHTML(hi){const L=level(),rep={};
 BASE.forEach(b=>{const c=typeof b[4]=="string"?b[4]:colorName(b[4]);const cur=rep[c];if(!cur||(b[9]<cur[9]))rep[c]=b});
 const img=b=>`<img src="${fruitImg({shape:b[1],pat:b[2],top:b[3],rgb:COLORS[b[4]],tip:b[0]=="Banana"?"#6b4423":b[0]=="Pimenta-Dragão"?"#3f9a3a":null})}">`;
 const recipes={};const cols=Object.keys(rep);
 cols.forEach((a,i)=>cols.slice(i).forEach(b=>{const r=colorName(COLORS[a].map((x,k)=>(x+COLORS[b][k])/2));(recipes[r]=recipes[r]||[]).push([a,b])}));
-let h=`<h2>GUIA DE CORES</h2><p style="font-size:.8rem;margin-top:0">A cor do filho é a <b>mistura das cores dos pais</b>, como tinta. Híbridos podem ser misturados de novo pra chegar em outras cores.</p>`;
+const have=new Set(Object.keys(S.tree||{}).map(k=>k.split("|")[1]));let h=`<div class="cgw"><p style="font-size:.8rem;margin-top:0">A cor do filho é a <b>mistura das cores dos pais</b>, como tinta. Híbridos podem ser misturados de novo pra chegar em outras cores.</p>`;
 CORDER.forEach(c=>{const rs=(recipes[c]||[]).filter(([a,b])=>a!=b||rep[a]).sort((x,y)=>(x[0]==x[1])-(y[0]==y[1])).slice(0,4);
 const lock=b=>b[9]>L?` <i style="opacity:.6">(nível ${b[9]})</i>`:"";
 let body;if(MUT_ONLY.includes(c))body=`<div style="white-space:normal">Só por <b>mutação</b>: chance pequena ao cruzar qualquer fruta</div>`;
 else body=rs.map(([a,b])=>a==b?`<span>${img(rep[a])}${rep[a][0]}${lock(rep[a])}</span>`:`<span>${img(rep[a])}<span class="mini-sw" style="background:${hex(COLORS[a])}"></span>+${img(rep[b])}<span class="mini-sw" style="background:${hex(COLORS[b])}"></span>${lock(rep[a])}${lock(rep[b])}</span>`).join("")||"<span>—</span>";
-h+=`<div class="cg ${hi==c?"hi":""}" id="cg-${c}"><span class="big-sw" style="background:${hex(COLORS[c])}"></span><span class="nm2">${c.toUpperCase()}</span><div class="rcp">${body}</div></div>`});
-openModal(h+`<button class="big alt" id="cl">FECHAR</button>`);$("cl").onclick=closeModal;
-if(hi){const e=$("cg-"+hi);if(e)setTimeout(()=>e.scrollIntoView({block:"center"}),30)}}
-$("corb").onclick=()=>colorGuide(null);
-let dexSel=null;
-function dexScreen(){const got=Object.keys(S.dex).length,RH=92,top=22,H=top+5*RH-14,X=n=>(n[1]+.5)*100,Y=n=>top+n[2]*RH+24;
-const generic={shape:"round",pat:"none",top:"stem",rgb:[200,200,200]};
-let h=`<h2>ÁRVORE DE FRUTAS</h2><p style="margin:0">${got} / ${DEXN} descobertas</p><p style="font-size:.72rem;opacity:.75;margin:2px 0 6px">Regra: parecidos se intensificam. Pequena + pequena encolhe, grande + grande cresce.</p>
-<div class="dxh">Feira</div><div style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin:4px 0">${BASE.map(b=>{const e=S.dex["b:"+b[0]],f={shape:b[1],pat:b[2],top:b[3],rgb:typeof b[4]=="string"?COLORS[b[4]]:b[4]};return `<div class="dx ${e?"":"lk"}" style="width:62px"><img src="${fruitImg(f)}" style="width:34px;height:34px">${e?b[0].split(/[ -]/)[0]:"???"}</div>`}).join("")}</div>`;
-let lines="";DEXT.forEach(n=>n[6].forEach(r=>{const q=DEXT.find(x=>x[0]==r),ok=S.dex[r];lines+=`<line x1="${X(q)}" y1="${Y(q)}" x2="${X(n)}" y2="${Y(n)}" stroke="${ok?"#3ca55c":"#8a6a50"}" stroke-width="5" ${ok?"":'stroke-dasharray="6 6"'}/>`}));
-h+=`<div class="tree" style="height:${H}px"><svg viewBox="0 0 400 ${H}" preserveAspectRatio="none" style="height:${H}px" shape-rendering="crispEdges">${lines}</svg>`;
-[["MENORES","#3fa7e0"],["MAIORES","#e67e22"],["SABORES","#ff5f9e"],["PODERES","#9b6bff"]].forEach(([b,c],i)=>h+=`<span class="bl" style="left:${(i+.5)*25}%;color:${c};text-shadow:1px 1px 0 #2a1a12">${b}</span>`);
-DEXT.forEach(n=>{const e=S.dex[n[0]];h+=`<div class="nd ${e?"own":"lk"} ${dexSel==n[0]?"cur":""}" style="left:${(n[1]+.5)*25}%;top:${top+n[2]*RH}px" onclick="dexSel='${n[0]}';dexScreen()"><div class="ic" style="${e?"background:#f5efe0":""}"><img src="${fruitImg(e||generic)}"></div>${e?n[3]:"???"}</div>`});
-h+="</div>";const n=DEXT.find(x=>x[0]==dexSel);
-h+=n?`<div class="det"><b>${S.dex[n[0]]?n[3]:"??? ("+n[3]+")"}</b><br>Como conseguir: <b>${n[4]}</b>${S.dex[n[0]]?`<br><span style="opacity:.7">Sua primeira: ${S.dex[n[0]].name}</span>`:""}</div>`:`<div class="det">Toque numa fruta da árvore pra ver a receita.</div>`;
-openModal(h+`<button class="big alt" id="cl">FECHAR</button>`);$("cl").onclick=()=>{dexSel=null;closeModal()}}
-$("dexb").onclick=()=>{dexSel=null;dexScreen()};$("pauseb").onclick=()=>{if(!running)return;openModal(`<h2>PAUSADO</h2><p>O tempo e a paciência dos clientes estão congelados.</p><button class="big" id="resume">CONTINUAR</button><br><button class="big alt" id="sndb" onclick="toggleSnd()"></button>`);sndLabel();$("resume").onclick=closeModal};$("menub").onclick=startScreen;
+h+=`<div class="cg ${hi==c?"hi":""}" id="cg-${c}"><span class="big-sw" style="background:${hex(COLORS[c])}"></span><span class="nm2">${c.toUpperCase()}${have.has(c)?"<br><span style='font-size:.6rem;color:#3ca55c'>✔ já tem</span>":""}</span><div class="rcp">${body}</div></div>`});
+return h+"</div>"}
+function colorGuide(hi){openTree("cores",hi)}
+let tvTab="tree",tvSel=null,tvZoom=1;
+function openTree(tab,hi){tvTab=tab||"tree";modalOpen=true;$("tv").classList.add("on");renderTree(hi);if(tvTab=="tree")setTimeout(()=>{const b=$("tvb"),e=b.querySelector(".sp.new")||b.querySelector(".sp");if(e&&!hi){b.scrollLeft=Math.max(0,e.offsetLeft*tvZoom-b.clientWidth/2)}},30)}
+function closeTree(){$("tv").classList.remove("on");modalOpen=false;tvSel=null}
+function renderTree(hi){const T=S.tree||{},ks=Object.keys(T);$("tabT").classList.toggle("on",tvTab=="tree");$("tabC").classList.toggle("on",tvTab=="cores");
+$("tvcnt").textContent=`${ks.length} espécies · ∞`;$("zm").style.display=$("zp").style.display=tvTab=="tree"?"":"none";
+if(tvTab=="cores"){$("tvb").innerHTML=colorGuideHTML(hi);$("tvd").innerHTML="Toque no requisito de COR de um cliente pra abrir direto aqui.";if(hi){const e=$("cg-"+hi);if(e)setTimeout(()=>e.scrollIntoView({block:"center"}),30)}return}
+const rows={};ks.forEach(k=>{(rows[T[k].d]=rows[T[k].d]||[]).push(k)});Object.values(rows).forEach(r=>r.sort((a,b)=>T[a].n-T[b].n));
+const maxD=ks.length?Math.max(...ks.map(k=>T[k].d)):0,sug=suggestions(8);const qRow=maxD+1;
+const CW=86,RH=110,PADL=40;const widest=Math.max(4,...Object.values(rows).map(r=>r.length),sug.length);const Wd=PADL+widest*CW+20,H=(qRow+1)*RH+30;
+const pos={};for(let d=0;d<=maxD;d++){const r=rows[d]||[],off=PADL+(widest-r.length)*CW/2;r.forEach((k,i)=>pos[k]=[off+i*CW+CW/2,d*RH+14])}
+const qoff=PADL+(widest-sug.length)*CW/2;sug.forEach((q,i)=>pos["?"+i]=[qoff+i*CW+CW/2,qRow*RH+14]);
+const newest=ks.slice().sort((a,b)=>T[b].n-T[a].n)[0];
+let lines="";const ln=(a,b,dash,col)=>{const[x1,y1]=pos[a],[x2,y2]=pos[b];lines+=`<path d="M${x1} ${y1+64} C${x1} ${y1+92},${x2} ${y2-24},${x2} ${y2+2}" stroke="${col}" stroke-width="3" fill="none" ${dash?'stroke-dasharray="5 5"':""}/>`};
+ks.forEach(k=>T[k].par.forEach(p=>{if(pos[p])ln(p,k,false,tvSel&&(tvSel==k||tvSel==p)?"#e67e22":"#6b4a33")}));
+sug.forEach((q,i)=>{if(tvSel!="?"+i)return;ln(q.a,"?"+i,true,"#e67e22");if(q.b!=q.a)ln(q.b,"?"+i,true,"#e67e22")});
+let h=`<div id="tvs" style="width:${Wd*tvZoom}px;height:${H*tvZoom}px"><div id="tvc" style="width:${Wd}px;height:${H}px;transform:scale(${tvZoom})"><svg width="${Wd}" height="${H}">${lines}</svg>`;
+for(let d=0;d<=qRow;d++)h+=`<span class="rowlab" style="top:${d*RH+2}px">${d==0?"FEIRA":d==qRow?"???":"G"+d}</span>`;
+ks.forEach(k=>{const[x,y]=pos[k],t=T[k];h+=`<div class="sp ${tvSel==k?"cur":""} ${k==newest&&t.d>0?"new":""}" style="left:${x-38}px;top:${y}px" onclick="tvSel='${k.replace(/'/g,"")}';renderTree()"><span class="no">${t.n}</span><div class="ic"><img src="${fruitImg(t.img)}"></div>${t.d==0?t.name:spLabel(k).split(" · ").slice(0,2).join(" · ")}</div>`});
+sug.forEach((q,i)=>{const[x,y]=pos["?"+i],A=T[q.a];h+=`<div class="sp q ${tvSel=="?"+i?"cur":""}" style="left:${x-38}px;top:${y}px" onclick="tvSel='?${i}';renderTree()"><div class="ic"><img src="${fruitImg({...A.img,rgb:q.c.rgb,mask:A.img.mask,shape:A.img.shape})}"></div>?</div>`});
+$("tvb").innerHTML=h+"</div></div>";
+// painel de detalhe
+const nm=k=>T[k].d==0?T[k].name:spLabel(k),im=k=>`<img src="${fruitImg(T[k].img)}">`;let det;
+if(tvSel&&tvSel[0]=="?"){const q=sug[+tvSel.slice(1)];det=q?`<b>Espécie desconhecida</b><br>Receita provável: ${im(q.a)} <b>${nm(q.a)}</b> + ${im(q.b)} <b>${nm(q.b)}</b><br>Deve sair: <b>${spLabel(q.k)}</b>`:""}
+else if(tvSel&&T[tvSel]){const t=T[tvSel],my=suggestions(4,tvSel);
+det=`<img class="bigi" src="${fruitImg(t.img)}"><b>nº ${t.n} · ${t.d==0?t.name:"Geração "+t.d}</b><br>${spLabel(tvSel)}<br>${t.par.length?"Pais: "+t.par.map(p=>T[p]?im(p)+" "+nm(p):"?").join(" + "):"Fruta da feira"}<br>Primeira: ${t.name}<div style="clear:both"></div>
+${my.length?"<b>Experimente cruzar com:</b>"+my.map(q=>{const o=q.a==tvSel?q.b:q.a;return `<div class="sug">${im(tvSel)}+${im(o)} ${nm(o)} → <b>${spLabel(q.k)}</b></div>`}).join(""):"<i>Essa espécie já gerou tudo que dava com as que você tem. Descubra outras!</i>"}`}
+else det=`<b>Árvore de espécies</b> · cada combinação nova de tamanho, cor, sabor e poder vira uma espécie. Ela não tem fim.<br>Regra: <b>parecidos se intensificam</b> (pequena + pequena encolhe, grande + grande cresce). Toque num <b>?</b> pra ver a receita da próxima descoberta.`;
+$("tvd").innerHTML=det}
+$("tabT").onclick=()=>{tvTab="tree";renderTree()};$("tabC").onclick=()=>{tvTab="cores";renderTree()};$("tvx").onclick=closeTree;
+$("zm").onclick=()=>{tvZoom=Math.max(.4,tvZoom-.2);renderTree()};$("zp").onclick=()=>{tvZoom=Math.min(1.6,tvZoom+.2);renderTree()};
+$("dexb").onclick=()=>{tvSel=null;openTree("tree")};$("pauseb").onclick=()=>{if(!running)return;openModal(`<h2>PAUSADO</h2><p>O tempo e a paciência dos clientes estão congelados.</p><button class="big" id="resume">CONTINUAR</button><br><button class="big alt" id="sndb" onclick="toggleSnd()"></button>`);sndLabel();$("resume").onclick=closeModal};$("menub").onclick=startScreen;
 /* ================= laço ================= */
 let tt;function toast(h){const t=$("toast");t.innerHTML=h;t.classList.add("on");clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("on"),2600)}
 function renderAll(n){hud();renderPot();renderCounter();renderTable(n);renderMarket()}
@@ -506,5 +543,5 @@ if((left<.2?"1":"0")!=el.dataset.low&&!document.querySelector(".fr.drag"))render
 if((saveT+=dt)>4000){saveT=0;save()}}hud()},250);
 window.addEventListener("resize",()=>{S.fruits.forEach(clampPos);renderTable();renderProps()});
 S.pot=S.pot||[];if(S.pot.length==2){S.fruits.push(...S.pot);S.pot=[]}
-S.ess=S.ess||0;S.sk=S.sk||{};S.fruits.forEach(f=>{clampPos(f);dexCheck(f,true)});renderProps();renderAll();startScreen();
+S.ess=S.ess||0;S.sk=S.sk||{};S.tree=S.tree||{};S.fruits.forEach(f=>{clampPos(f);treeAdd(f,null,true)});renderProps();renderAll();startScreen();
 </script></body></html>

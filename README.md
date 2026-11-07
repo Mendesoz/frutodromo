@@ -39,8 +39,8 @@ O formato do filho é uma **fusão dos contornos dos pais**, então cada linhage
 
 - 🎨 Pixel art gerada no código (frutas, clientes, cenário e caldeirão)
 - 🔥 Frutas de **Fogo**, **Gelo** e **Raio** com efeitos animados
-- 🌳 **Árvore de Frutas** (Frutódex) com a receita de cada descoberta
-- 🖌️ **Guia de Cores** com as combinações possíveis
+- 🌳 **Árvore de Espécies** infinita: cada combinação nova vira uma espécie ligada aos pais, com sugestões das próximas descobertas
+- 🖌️ **Guia de Cores** dentro da árvore, com as combinações possíveis
 - 👑 Clientes VIP, níveis e frutas raras que vão liberando
 - 🎵 Efeitos e música em chiptune (Web Audio)
 - ⏸️ Pausa, e progresso salvo no navegador
