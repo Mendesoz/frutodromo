@@ -147,6 +147,27 @@ header{flex:0 0 auto;display:flex;gap:4px;align-items:center;padding:5px 4px;bac
 #pot.brew .bb{animation-duration:.6s}#pot.brew .stm{animation-duration:1s}
 .combo{position:fixed;right:8px;top:44px;z-index:20;background:#f7c331;color:#2a1a12;border:3px solid #2a1a12;padding:2px 8px;font-weight:700;display:none;box-shadow:inset -2px -2px 0 #0003}
 .combo.on{display:block;animation:hb .3s steps(2)}.combo i{display:block;height:3px;background:#2a1a12;margin-top:2px;transition:width .25s linear}
+/* rodada 2 */
+.bn{position:absolute;top:-12px;left:4px;background:#2a1a12;color:#ffe9b8;font-size:.6rem;padding:1px 5px;white-space:nowrap;max-width:110px;overflow:hidden;text-overflow:ellipsis}
+.cust.vip .bn{background:#d4a017;color:#2a1a12}
+.pw{cursor:pointer}.cust.happy .pw{animation:jump .5s steps(4) 2}@keyframes jump{50%{transform:translateY(-10px)}}
+.cust.angry .pw{animation:shake .3s steps(2) infinite}
+.puff{position:absolute;top:96px;left:20%;width:14px;height:14px;z-index:2;pointer-events:none;animation:puff 1s steps(2) infinite}
+.puff i{position:absolute;background:#e74c3c;width:4px;height:10px;left:5px;top:2px}.puff i+i{width:10px;height:4px;left:2px;top:5px}
+@keyframes puff{50%{transform:scale(1.3)}}
+#sky{position:absolute;inset:0;z-index:4;pointer-events:none;mix-blend-mode:multiply;transition:background 2s}
+#lamp{position:absolute;z-index:4;pointer-events:none;left:50%;top:22px;width:260px;height:210px;margin-left:-130px;background:radial-gradient(#ffd87a 0,#ffd87a00 65%);mix-blend-mode:screen;opacity:0;transition:opacity 2s}
+.win{position:absolute;top:28px;width:44px;height:34px;border:3px solid #6b4423;box-shadow:inset 0 0 0 2px #8a5a34;overflow:hidden}
+.win:before,.win:after{content:"";position:absolute;background:#6b4423}.win:before{left:50%;top:0;bottom:0;width:3px;margin-left:-1px}.win:after{top:50%;left:0;right:0;height:3px;margin-top:-1px}
+.win .sun{position:absolute;width:10px;height:10px;transition:top 2s,background 2s}
+.prt{width:176px;height:228px;margin:4px auto;border:4px solid #6b4423;box-shadow:inset 0 0 0 3px #b8794a,0 0 0 3px #2a1a12;background:repeating-linear-gradient(90deg,#e9d3a6 0 14px,#dfc394 14px 16px);display:flex;align-items:flex-end;justify-content:center;overflow:hidden}
+.prt img{width:160px;height:208px}
+.say{background:#fff;border:3px solid #2a1a12;padding:8px 10px;margin:8px 0;text-align:left;min-height:52px;font-size:.92rem;line-height:1.35;position:relative}
+.say:before{content:"";position:absolute;top:-10px;left:40px;border:7px solid transparent;border-bottom-color:#2a1a12;border-top:0}
+/* tela inicial */
+.fall{position:fixed;top:-60px;z-index:239;pointer-events:none;width:44px;height:44px;animation:fall linear infinite;opacity:.9}
+@keyframes fall{to{transform:translateY(110vh) rotate(360deg)}}
+.logo{animation:lgo 1.2s steps(4) infinite}@keyframes lgo{50%{transform:translateY(-4px) scale(1.04)}}
 /* modais */
 #modal{position:fixed;inset:0;background:#2a1a12cc;display:none;align-items:center;justify-content:center;z-index:240;padding:14px}
 #modal.on{display:flex}
@@ -168,7 +189,7 @@ header{flex:0 0 auto;display:flex;gap:4px;align-items:center;padding:5px 4px;bac
 .fc{position:fixed;width:12px;height:12px;z-index:120;pointer-events:none;background:#f7c331;box-shadow:inset -2px -2px 0 #b7841a,inset 2px 2px 0 #fff3a0}
 </style></head><body>
 <header><span class="tag" id="cointag"><span class="coin" id="hudcoin"></span><span id="coins"></span></span><span class="tag grow timer" id="day"></span><button class="btn" id="dexb">ÁRVORE</button><button class="btn" id="pauseb">II</button><button class="btn" id="menub">≡</button></header>
-<div id="scene"><div id="props"></div><div id="custs"></div><div id="counter"></div><div id="cprops"></div></div>
+<div id="scene"><div id="props"></div><div id="custs"></div><div id="counter"></div><div id="cprops"></div><div id="sky"></div><div id="lamp"></div></div>
 <div id="table"><div class="tip" id="tip">Compre frutas na feira.<br>Jogue 2 frutas no CALDEIRÃO: CRUZAR<br>Arraste até o cliente: ENTREGAR<br>Toque na fruta: VER ATRIBUTOS</div><div id="bin" class="px"><span class="coin" style="width:16px;height:16px;margin-bottom:3px"></span>Arraste<br>pra vender</div><div id="pot"><div id="potslots"></div><span class="bb" style="--dx:-14px;margin-left:-18px;animation-delay:0s"></span><span class="bb" style="--dx:6px;margin-left:2px;animation-delay:-.6s"></span><span class="bb" style="--dx:12px;margin-left:14px;animation-delay:-1.2s"></span><span class="stm" style="--dx:-10px"></span><span class="stm" style="--dx:12px;animation-delay:-1.3s"></span><img id="potimg"><div id="potlab">CALDEIRÃO</div></div></div>
 <div id="market"></div>
 <div id="info" class="px"></div><div class="combo" id="combo"></div>
@@ -481,8 +502,8 @@ const ok=f&&c.reqs.every(r=>meets(f,r)),mood=c.mood||(left<.2?"sad":"ok"),pk=i+m
 if(!pcache[pk])pcache[pk]=personImg(c,mood);if(!pcache[pk+"b"])pcache[pk+"b"]=personImg(c,mood,true);const on=Math.ceil(left*10),pc=left>.5?"#3ce06f":left>.2?"#f4a261":"#e74c3c";
 let pat="";for(let s=0;s<10;s++)pat+=`<i style="${s<on?"background:"+pc:""}"></i>`;
 const cls=(hoverCust==i||ok?"hot ":"")+(c.leaving?"leave ":"")+(c.come?"come ":"")+(c.mood=="sad"?"sad ":"")+(c.vip?"vip":"");
-return `<div class="cust ${cls}" data-i="${i}" data-low="${left<.2?1:0}"><div class="bub px">${c.vip?'<span class="vipb">VIP x3</span>':""}${c.reqs.map(r=>reqHTML(r,f)).join("")}
-<div class="pay"><span class="coin"></span><b>${pay(c)}</b><span class="hint" onclick="event.stopPropagation();showHint(${i})">?</span></div><div class="pat">${pat}</div></div><div class="pw"><img class="p" src="${pcache[pk]}"><img class="p blk" src="${pcache[pk+"b"]}" style="animation-delay:-${(c.blinkD||0).toFixed(2)}s"></div>${left<.2&&!c.leaving?'<span class="sweat"></span>':""}<span class="nm">${c.name}</span></div>`}).join("");
+return `<div class="cust ${cls} ${c.mood=="happy"?"happy":""} ${left<.12&&!c.mood?"angry":""}" data-i="${i}" data-low="${left<.2?1:0}"><div class="bub px"><span class="bn">${c.name}</span>${c.vip?'<span class="vipb">VIP x3</span>':""}${c.reqs.map(r=>reqHTML(r,f)).join("")}
+<div class="pay"><span class="coin"></span><b>${pay(c)}</b><span class="hint" onclick="event.stopPropagation();showHint(${i})">?</span></div><div class="pat">${pat}</div></div><div class="pw" onclick="showPortrait(${i})"><img class="p" src="${pcache[pk]}"><img class="p blk" src="${pcache[pk+"b"]}" style="animation-delay:-${(c.blinkD||0).toFixed(2)}s"></div>${left<.2&&!c.leaving?'<span class="sweat"></span>':""}${left<.12&&!c.leaving?'<span class="puff"><i></i><i></i></span>':""}</div>`}).join("");
 S.cust.forEach(c=>{if(c)c.come=false})}
 /* ================= mesa ================= */
 const tbl=$("table");
@@ -542,7 +563,7 @@ const CLOCK=[".www.","wwkww","wwkkw","wwwww",".www."];
 function renderProps(){const jam=[[214,48,49],[243,140,32],[118,56,150],[247,205,55],[106,176,58],[214,48,49],[133,88,50],[247,143,179],[243,140,32]];
 let h=`<div style="position:absolute;left:0;right:0;top:150px;height:9px;background:#8a5a34;border-top:3px solid #2a1a12;border-bottom:3px solid #2a1a12;box-shadow:inset 0 2px 0 #b97c4a"></div>`;
 const Wd=$("scene").clientWidth;for(let x=6,k=0;x<Wd-20;x+=Math.round(Wd/9),k++){const lid=k%2?"#c0392b":"#e9e2d0";h+=`<img src="${art(JAR,{c:lid,g:"#cfe6ee",j:hex(jam[k%jam.length]),w:"#ffffff"})}" style="left:${x}px;top:117px;width:30px;height:33px">`}
-h+=`<img src="${art(CLOCK,{w:"#f5efe0",k:"#2a1a12"})}" style="left:${Wd/2-10}px;top:30px;width:21px;height:21px">`;$("props").innerHTML=h;
+h+=`<img src="${art(CLOCK,{w:"#f5efe0",k:"#2a1a12"})}" style="left:${Wd/2-10}px;top:30px;width:21px;height:21px">`;h+=`<div class="win" style="left:${Math.round(Wd*.18)}px"><div class="sun" id="sun1"></div></div><div class="win" style="left:${Math.round(Wd*.82)-44}px"><div class="sun" id="sun2"></div></div>`;$("props").innerHTML=h;updateSky()
 $("cprops").innerHTML=`<img src="${art(PLANT,{l:"#5fb33a",L:"#2f7a2a",p:"#c0603a",P:"#e07a4a"})}" style="left:2px;bottom:0;width:42px;height:42px"><img src="${art(REG,{d:"#3a3a44",w:"#9be7a6",m:"#c9c9d1",k:"#6a6a78",b:"#7a7a88",B:"#5a5a66"})}" style="right:2px;bottom:0;width:48px;height:36px">`}
 /* ================= caldeirão ================= */
 let brewing=false;
@@ -606,7 +627,13 @@ function sndLabel(){const b=$("sndb");if(b)b.textContent=muted?"SOM: DESLIGADO":
 function toggleSnd(){muted=!muted;try{localStorage.setItem("frutodromo_mute",muted?"1":"0")}catch(e){}ac();sndLabel()}
 /* ================= dias ================= */
 const fmt=ms=>{const s=Math.max(0,Math.ceil(ms/1000));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")};
-function hud(){$("coins").textContent=S.coins;const rem=dayLen()-S.dayT;$("day").textContent=`D${S.day} · NV${level()} · ${running?fmt(rem):"--:--"}`;$("day").classList.toggle("low",running&&rem<20000)}
+function updateSky(){const t=running||S.started?cl(S.dayT/dayLen(),0,1):0;const sk=$("sky");if(!sk)return;
+const lerp=(a,b,u)=>a.map((x,i)=>Math.round(x+(b[i]-x)*u));let skyC,tint,lamp=0;
+if(t<.5){skyC=lerp([140,205,245],[120,190,240],t*2);tint="#ffffff"}else if(t<.8){const u=(t-.5)/.3;skyC=lerp([120,190,240],[250,150,90],u);tint=hex(lerp([255,255,255],[255,196,150],u))}
+else{const u=(t-.8)/.2;skyC=lerp([250,150,90],[40,40,90],u);tint=hex(lerp([255,196,150],[105,105,175],u));lamp=u}
+sk.style.background=tint;$("lamp").style.opacity=lamp*.8;
+[["sun1",0],["sun2",.1]].forEach(([id,o])=>{const e=$(id);if(!e)return;e.parentElement.style.background=hex(skyC);const night=t>.88;e.style.background=night?"#f5efe0":t>.6?"#ffb347":"#ffe84a";e.style.left=(night?24:14)+"px";e.style.top=Math.round(4+Math.sin(Math.min(1,t)*Math.PI*.9)*-0+t*18)+"px";e.style.boxShadow=night?"inset -3px 0 0 #c8c0a8":"none"})}
+function hud(){updateSky();$("coins").textContent=S.coins;const rem=dayLen()-S.dayT;$("day").textContent=`D${S.day} · NV${level()} · ${running?fmt(rem):"--:--"}`;$("day").classList.toggle("low",running&&rem<20000)}
 function startDay(){running=true;S.started=true;S.cust.forEach((c,i)=>{if(!c)setTimeout(()=>{if(running&&!S.cust[i]){S.cust[i]=newCust();save();renderCounter()}},300+i*1400)});renderCounter();hud()}
 function endDay(){running=false;SFX.day();S.cust.forEach(c=>{if(c)c.leaving=true});renderCounter();
 setTimeout(()=>{S.cust=[null,null,null];renderCounter();save();showSummary()},900)}
@@ -617,14 +644,28 @@ $("nextd").onclick=()=>{S.day++;S.dayT=0;S.ds={earn:0,served:0,best:0,dex:0};sav
 /* ================= modais ================= */
 function openModal(h){modalOpen=true;$("mbox").innerHTML=h;$("modal").classList.add("on")}
 function closeModal(){modalOpen=$("tv").classList.contains("on")||$("rv").classList.contains("on");$("modal").classList.remove("on")}
-function startScreen(){const demo=[{shape:"heart",pat:"seeds",top:"leaf",rgb:COLORS.vermelha},{shape:"round",pat:"stripes",top:"stem",rgb:[243,140,32],hero:true,cape:"#2d6cdf"},{shape:"tall",pat:"hatch",top:"crown",rgb:COLORS.amarela}];
+function rainFruits(on){document.querySelectorAll(".fall").forEach(e=>e.remove());if(!on)return;
+for(let i=0;i<12;i++){const b=BASE[i%8],f={shape:b[1],pat:b[2],top:b[3],rgb:COLORS[b[4]],tip:b[0]=="Banana"?"#6b4423":null},im=document.createElement("img");im.className="fall";im.src=fruitImg(f);
+im.style.left=(Math.random()*95)+"vw";im.style.animationDuration=(5+Math.random()*6)+"s";im.style.animationDelay=(-Math.random()*10)+"s";im.style.width=im.style.height=(30+Math.random()*30)+"px";document.body.appendChild(im)}}
+function startScreen(){rainFruits(true);const demo=[{shape:"heart",pat:"seeds",top:"leaf",rgb:COLORS.vermelha},{shape:"round",pat:"stripes",top:"stem",rgb:[243,140,32],hero:true,cape:"#2d6cdf"},{shape:"tall",pat:"hatch",top:"crown",rgb:COLORS.amarela}];
 const cont=S.started;let armed=false;
 openModal(`<div class="logo">FRUTÓDROMO</div><p style="margin-top:0">A quitanda das frutas que a natureza não teve coragem de criar</p><div class="row">${demo.map(f=>`<img src="${fruitImg(f)}">`).join("")}</div>
 <p style="font-size:.8rem;text-align:left">• Jogue 2 frutas no <b>caldeirão</b> pra criar híbridos<br>• <b>Parecidos se intensificam</b>: pequena + pequena encolhe, grande + grande cresce, doce + doce fica mais doce<br>• Entregue o que os clientes pedem nos balões<br>• Expanda a <b>Árvore de Espécies</b>: cada combinação nova vira uma espécie, e ela não tem fim</p>
 <button class="big" id="go">${cont?"CONTINUAR · DIA "+S.day:"ABRIR A QUITANDA"}</button><br><button class="big alt" id="sndb" onclick="toggleSnd()"></button>${cont?'<button class="big alt" id="newg">NOVO JOGO</button>':""}`);sndLabel();
-$("go").onclick=()=>{ac();closeModal();if(!running)startDay()};
-if(cont)$("newg").onclick=e=>{if(!armed){armed=true;e.target.textContent="TOQUE DE NOVO PRA APAGAR TUDO";return}fresh();S.fruits.forEach(f=>dexCheck(f,true));const pe=$("pot");pe.style.left="10px";pe.style.top="";pe.style.bottom="8px";save();sel=null;showInfo(null);ac();closeModal();renderAll();startDay()}}
+$("go").onclick=()=>{ac();rainFruits(false);closeModal();if(!running)startDay()};
+if(cont)$("newg").onclick=e=>{if(!armed){armed=true;e.target.textContent="TOQUE DE NOVO PRA APAGAR TUDO";return}fresh();S.fruits.forEach(f=>dexCheck(f,true));const pe=$("pot");pe.style.left="10px";pe.style.top="";pe.style.bottom="8px";save();sel=null;showInfo(null);ac();rainFruits(false);closeModal();renderAll();startDay()}}
 function gainEss(){}
+const HELLO={person:["Olá! ","Oi, tudo bem? ","Boa tarde! ","E aí! "],cat:["Miau... ","Mrrr... "],dog:["Au au! ","Oi oi oi! "],bear:["Hmm... ","Grrr, oi! "],bunny:["Oi oi! ","Hihi! "],frog:["Croac! "],penguin:["Brrr! "],robot:["BIP-BOP. SOLICITAÇÃO: "],alien:["Saudações, terráqueo. "],ghost:["Buuu... "]};
+function sayReq(r){switch(r.k){case"doceMin":return r.v>=8?"bem docinha":"docinha";case"doceMax":return "sem muito açúcar";case"azMin":return r.v>=8?"bem azedinha":"azedinha";case"azMax":return "nada azeda";
+case"tamMin":return "grandona";case"tamMax":return "pequenininha";case"cor":return "da cor "+r.v;case"el":return "de "+ELEM[r.v].n.toUpperCase();case"micro":return "MICROSCÓPICA";case"mini":return "mini";case"enorme":return "ENORME";case"giga":return "GIGANTESCA";case"hero":return "SUPER-FRUTA";default:return ""}}
+function showPortrait(i){const c=S.cust[i];if(!c||c.leaving)return;const left=leftOf(c),mood=c.mood||(left<.2?"sad":"ok");
+const parts=c.reqs.map(sayReq).filter(Boolean),last=parts.length>1?parts.slice(0,-1).join(", ")+" e "+parts[parts.length-1]:parts[0]||"especial";
+const hi=R(HELLO[c.kind||"person"]||HELLO.person),tail=c.kind=="robot"?" FIM DA TRANSMISSÃO.":left<.2?" E rápido, por favor!":c.vip?" Pago bem, viu?":"";
+const txt=`${hi}Quero uma fruta ${last}.${tail}`;
+openModal(`<h2>${c.name}${c.vip?' <span style="background:#d4a017;color:#2a1a12;font-size:.7rem;padding:1px 5px">VIP</span>':""}</h2><div class="prt"><img src="${personImg(c,mood)}"></div><div class="say" id="sayt"></div>
+<div style="display:flex;align-items:center;justify-content:center;gap:6px;font-weight:700"><span class="coin"></span>${pay(c)} moedas</div><button class="big" id="phint">COMO FAZER?</button><button class="big alt" id="cl">FECHAR</button>`);
+$("cl").onclick=closeModal;$("phint").onclick=()=>{closeModal();showHint(i)};
+let n=0;const el=$("sayt"),tick=()=>{if(!el.isConnected)return;el.textContent=txt.slice(0,++n);if(n%3==0)tone(c.kind=="robot"?880:c.kind=="ghost"?300:520+Math.random()*120,.03,"square",.02);if(n<txt.length)setTimeout(tick,22)};tick()}
 function predict(a,b){const e=elOut(a,b),t=inh(a.tam,b.tam,12);return `Doce ${inh(a.doce,b.doce,10)} · Azedo ${inh(a.az,b.az,10)} · ${sizeName(t)} (${t}) · cor ${colorName(a.rgb.map((x,i)=>(x+b.rgb[i])/2))}${e.el?" · "+ELEM[e.el].n:""}${e.hero?" · <b>SUPER!</b>":""}`}
 /* ================= guia de cores ================= */
 const CORDER=["vermelha","laranja","amarela","verde","azul","roxa","marrom","cinza","rosa","branca"];
