@@ -123,8 +123,20 @@ header{flex:0 0 auto;display:flex;gap:4px;align-items:center;padding:5px 4px;bac
 .hint{margin-left:auto;background:#2a1a12;color:#ffe9b8;width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;font-size:.75rem;cursor:pointer;border:2px solid #2a1a12}
 .rstep{display:flex;align-items:center;gap:4px;justify-content:center;background:#e9dcc3;border:2px solid #2a1a1230;margin:5px 0;padding:4px;font-size:.75rem;flex-wrap:wrap}.rstep img{width:34px;height:34px}.rstep .nn{font-size:.6rem;opacity:.7;display:block}
 .rstep .fi{display:inline-flex;flex-direction:column;align-items:center;min-width:44px}
+/* brilhante */
+.fr.shiny>img{animation:shn 1.6s steps(8) infinite}@keyframes shn{0%,100%{filter:drop-shadow(0 0 3px #fff6a0) drop-shadow(0 0 2px #ff8ad8)}50%{filter:drop-shadow(0 0 6px #8af0ff) drop-shadow(0 0 3px #b48cff) brightness(1.12)}}
+.spk{position:absolute;width:6px;height:6px;background:#fff;pointer-events:none;z-index:5;animation:spk 1.2s steps(3) infinite;box-shadow:0 0 0 2px #ffe84a80}
+@keyframes spk{0%{transform:scale(0);opacity:0}50%{transform:scale(1) rotate(45deg);opacity:1}100%{transform:scale(0);opacity:0}}
+/* revelação */
+#rv{position:fixed;inset:0;z-index:260;display:none;align-items:center;justify-content:center;flex-direction:column;background:#120a06e6;color:#ffe9b8;text-align:center;padding:16px;overflow:hidden}
+#rv.on{display:flex}#rv .rays{position:absolute;width:900px;height:900px;left:50%;top:42%;margin:-450px 0 0 -450px;background:repeating-conic-gradient(var(--rc) 0 10deg,#0000 10deg 20deg);opacity:.35;animation:spin 8s steps(48) infinite}
+@keyframes spin{to{transform:rotate(360deg)}}#rv>*{position:relative}
+#rv .t1{font-size:1rem;letter-spacing:2px}#rv .t2{font-size:1.6rem;font-weight:700;color:#fff;text-shadow:3px 3px 0 #2a1a12;margin:4px 0}
+#rv .big{margin-top:14px}#rv .fimg{width:200px;height:200px;animation:rin .8s steps(8) both}@keyframes rin{0%{transform:scale(0) rotate(-30deg)}70%{transform:scale(1.15)}100%{transform:none}}
+.stars{font-size:1.5rem;letter-spacing:4px;margin:4px 0}.rar{display:inline-block;padding:2px 10px;border:3px solid #2a1a12;color:#fff;font-weight:700}
+#cardimg{width:min(300px,78vw);image-rendering:pixelated;border:3px solid #2a1a12;margin:8px auto;display:block}
 /* modais */
-#modal{position:fixed;inset:0;background:#2a1a12cc;display:none;align-items:center;justify-content:center;z-index:200;padding:14px}
+#modal{position:fixed;inset:0;background:#2a1a12cc;display:none;align-items:center;justify-content:center;z-index:240;padding:14px}
 #modal.on{display:flex}
 #modal .box{background:#f5efe0;width:100%;max-width:420px;max-height:92vh;overflow:auto;padding:14px;text-align:center}
 #modal h2{margin:0 0 6px;font-size:1.4rem;letter-spacing:1px}
@@ -149,6 +161,7 @@ header{flex:0 0 auto;display:flex;gap:4px;align-items:center;padding:5px 4px;bac
 <div id="market"></div>
 <div id="info" class="px"></div>
 <div id="tv"><div class="tvh"><button class="btn on" id="tabT">ÁRVORE</button><button class="btn" id="tabC">CORES</button><span class="cnt" id="tvcnt"></span><button class="btn" id="zm">−</button><button class="btn" id="zp">+</button><button class="btn" id="tvx">X</button></div><div id="tvb"></div><div id="tvd"></div></div>
+<div id="rv"></div>
 <div id="modal"><div class="box px" id="mbox"></div></div>
 <div class="toast" id="toast"></div>
 <script>
@@ -191,7 +204,7 @@ function blurG(g){const o=new Array(W*W).fill(0);for(let y=0;y<W;y++)for(let x=0
 // funde os formatos dos pais: borra os dois, tira a média e corta
 function morph(a,b){let A=blurG(blurG(maskGrid(a))),B=blurG(blurG(maskGrid(b)));const o=A.map((v,i)=>(v+B[i])/2>=.45?1:0);
 for(let y=0;y<W;y++)for(let x=0;x<W;x++)if(x==0||y==0||x==W-1||y==W-1)o[y*W+x]=0;if(o.reduce((s,v)=>s+v,0)<20)return maskGrid(a).join("");return o.join("")}
-function fruitImg(f){const key=[f.mask||f.shape,f.tip||"",f.pat,f.top,f.rgb.map(Math.round).join("."),f.hero?f.cape||1:0].join("|");if(cache[key])return cache[key];
+function fruitImg(f){const key=[f.mask||f.shape,f.tip||"",f.pat,f.top,f.rgb.map(Math.round).join("."),f.rgb2?f.rgb2.join("."):"",f.hero?f.cape||1:0].join("|");if(cache[key])return cache[key];
 const MG=maskGrid(f),m=(x,y)=>x>=0&&y>=0&&x<W&&y<W&&MG[y*W+x]==1,grid=blank(W,W),base=f.rgb,L=hex(lift(base,.45)),B=hex(base),D=hex(mul(base,.7)),D2=hex(mul(base,.5));
 let minx=99,miny=99,maxx=0,maxy=0;for(let y=0;y<W;y++)for(let x=0;x<W;x++)if(m(x,y)){minx=Math.min(minx,x);miny=Math.min(miny,y);maxx=Math.max(maxx,x);maxy=Math.max(maxy,y)}
 const cx=(minx+maxx)/2,cy=(miny+maxy)/2,sp=(maxx-minx+maxy-miny)/4;
@@ -202,12 +215,14 @@ let t=(x-cx+y-cy)/sp,col=t<-.7?L:t>.75?D:B;
 if(f.shape=="banana"){const inE=!m(x+1,y-1)||!m(x+1,y),outE=!m(x-1,y+1)||!m(x,y+1);col=inE?L:outE?D:((x+y)%7==0?L:B)}
 if(f.shape=="cluster"){let best,bd=99;GRAPES.forEach(g=>{const d=(x-g[0])**2+(y-g[1])**2;if(d<bd){bd=d;best=g}});const o=(x-best[0])+(y-best[1]);col=o<-1?L:o>.9?D:B;if(bd>2.4)col=D2}
 const inner=m(x-1,y)&&m(x+1,y)&&m(x,y-1)&&m(x,y+1);
-if(inner){if(f.pat=="seeds"&&y%2==0&&(x+y)%4==0)col="#f6e27a";
-if(f.pat=="stripes"&&(x+Math.round(Math.sin(y*.5)))%3==0)col=D2;
+const A2=f.rgb2?hex(f.rgb2):null,A2D=f.rgb2?hex(mul(f.rgb2,.8)):null,A2L=f.rgb2?hex(lift(f.rgb2,.35)):null;
+if(f.pat=="marble"&&A2){const v=Math.sin(x*.9+Math.sin(y*.7)*2.2)+Math.cos(y*.55-x*.3);if(v>.9)col=A2;else if(v>.55)col=A2L}
+if(inner){if(f.pat=="seeds"&&y%2==0&&(x+y)%4==0)col=A2L||"#f6e27a";
+if(f.pat=="stripes"&&(x+Math.round(Math.sin(y*.5)))%3==0)col=A2D||D2;
 if(f.pat=="hatch"&&((x+y)%3==0||(x-y+30)%3==0))col=D;
 if(f.pat=="pores"&&(x*7+y*3)%11==0)col=D;
 if(f.pat=="fibers"&&(x*5+y*3)%4==0)col=D2;
-if(f.pat=="spots"&&(x*3+y*5)%7==0)col=D2;
+if(f.pat=="spots"&&(x*3+y*5)%7==0)col=A2D||D2;
 if(f.pat=="blush"&&(x-cx)+(y-cy)<-2&&(x+y)%2==0)col="#e5533d"}
 grid[y][x]=col}
 if(f.tip){for(let y=0;y<W;y++)for(let x=0;x<W;x++)if(m(x,y)&&(y<=miny+1||(x>=maxx-1&&y>=maxy-3)))grid[y][x]=f.tip}
@@ -302,9 +317,13 @@ function elOut(a,b){if(a.el&&b.el&&a.el!=b.el)return{el:R([a.el,b.el]),hero:true
 function cross(a,b){const fa=Math.random()<.5,P=fa?a:b,Q=fa?b:a,e=elOut(a,b);
 const c={id:"f"+(S.id++),gen:Math.max(a.gen,b.gen)+1,mut:false,root:portmanteau(P.root,Q.root),shape:"mix",mask:a.shape==b.shape&&!a.mask&&!b.mask?null:morph(a,b),pat:Math.random()<.5?Q.pat:P.pat,top:R([a.top,b.top]),
 doce:inh(a.doce,b.doce,10),az:inh(a.az,b.az,10),tam:inh(a.tam,b.tam,12),rgb:a.rgb.map((x,i)=>Math.round((x+b.rgb[i])/2)),el:e.el,hero:e.hero};
+{const da=a.rgb.reduce((s,x,i)=>s+(x-c.rgb[i])**2,0),db=b.rgb.reduce((s,x,i)=>s+(x-c.rgb[i])**2,0),far=da>db?a:b;if(Math.max(da,db)>1500){c.rgb2=far.rgb.map(Math.round);if(Math.random()<.35)c.pat="marble";else if(c.pat=="none"||c.pat=="pores"||c.pat=="fibers")c.pat=R(["spots","stripes","seeds"])}}
+c.shiny=Math.random()<((a.shiny||b.shiny)?.25:.04);
 if(!c.mask)c.shape=a.shape;if(c.hero)c.cape=(a.hero&&a.cape)||(b.hero&&b.cape)||R(["#d63031","#2d6cdf","#8e44ad","#16a085","#f39c12"]);
 if(Math.random()<.08){c.mut=true;if(Math.random()<.6)c.rgb=COLORS[R(["rosa","branca","azul","cinza"])].slice();else c.pat=R(["spots","stripes","seeds","none","blush"])}
 return c}
+function stars(t){let s=1;if(t.d>=2)s++;if(t.d>=4)s++;if(t.st.el)s++;if(t.st.hero)s++;if(t.st.tam==0||t.st.tam>=11)s++;if(t.shiny)s++;return Math.min(5,s)}
+const RAR=[null,["COMUM","#8d99ae"],["INCOMUM","#3ca55c"],["RARA","#2d6cdf"],["ÉPICA","#9b5de5"],["LENDÁRIA","#f39c12"]];
 function fname(f){let n=(f.hero?"Super ":"")+f.root+(f.gen>=3?" "+["","","","Nobre","Rara","Ancestral","Lendária"][Math.min(6,f.gen)]:"");if(f.el)n+=" "+ELEM[f.el].adj;return n}
 const sizeName=t=>t==0?"Microscópica":t==1?"Mini":t<=3?"Pequena":t<=7?"Média":t<=10?"Grande":t==11?"Enorme":"Gigantesca";
 /* ================= Frutódex ================= */
@@ -312,10 +331,11 @@ const sizeName=t=>t==0?"Microscópica":t==1?"Mini":t<=3?"Pequena":t<=7?"Média":
 const taste=f=>f.doce>=6&&f.az>=6?"agridoce":f.doce>=8?"doce":f.az>=8?"azeda":"suave";
 const spKey=f=>[sizeName(f.tam),colorName(f.rgb),taste(f),f.el||"",f.hero?"S":""].join("|");
 function spLabel(k){const[sz,c,t,el,h]=k.split("|");return (h?"Super · ":"")+sz+" · "+c+" · "+t+(el?" · "+ELEM[el].n:"")}
-function treeAdd(f,parents,silent){S.tree=S.tree||{};const k=spKey(f);f.sp=k;if(S.tree[k])return false;
+function treeAdd(f,parents,silent){S.tree=S.tree||{};const k=spKey(f);f.sp=k;if(S.tree[k]){if(f.shiny&&!S.tree[k].shiny){S.tree[k].shiny=true;S.tree[k].img={...S.tree[k].img,rgb2:f.rgb2,pat:f.pat};if(!silent)setTimeout(()=>reveal(k,true),1000)}return false}
 const pk=parents?[...new Set(parents.map(p=>p.sp||spKey(p)))]:[];const d=pk.length?Math.max(...pk.map(x=>(S.tree[x]||{d:0}).d))+1:0;
-S.tree[k]={n:Object.keys(S.tree).length+1,name:f.base||fname(f),d,par:pk,t:Date.now(),img:{shape:f.shape,mask:f.mask,tip:f.tip,pat:f.pat,top:f.top,rgb:f.rgb,hero:f.hero,cape:f.cape},st:{doce:f.doce,az:f.az,tam:f.tam,rgb:f.rgb,el:f.el,hero:f.hero}};
-if(!silent){S.ds.dex++;const n=S.tree[k].n;setTimeout(()=>{toast(`<b>NOVA ESPÉCIE nº ${n}!</b><br>${spLabel(k)}`);SFX.dex()},900)}return true}
+S.tree[k]={n:Object.keys(S.tree).length+1,name:f.base||fname(f),d,par:pk,t:Date.now(),img:{shape:f.shape,mask:f.mask,tip:f.tip,pat:f.pat,top:f.top,rgb:f.rgb,rgb2:f.rgb2,hero:f.hero,cape:f.cape},shiny:!!f.shiny,day:S.day,st:{doce:f.doce,az:f.az,tam:f.tam,rgb:f.rgb,el:f.el,hero:f.hero}};
+if(!silent){S.ds.dex++;const t=S.tree[k],n=t.n,st=stars(t);if(st>=3||t.d>=2||t.shiny)setTimeout(()=>reveal(k),1000);else setTimeout(()=>{toast(`<b>NOVA ESPÉCIE nº ${n}!</b><br>${spLabel(k)}`);SFX.dex()},900)}
+else if(f.shiny&&!S.tree[k].shiny){S.tree[k].shiny=true}return true}
 const dexCheck=(f,silent)=>treeAdd(f,null,silent);
 function predictSt(a,b){const e=a.el&&b.el&&a.el!=b.el?{el:a.el,hero:true}:{el:a.el||b.el||null,hero:!!(a.hero||b.hero)};
 return{doce:inh(a.doce,b.doce,10),az:inh(a.az,b.az,10),tam:inh(a.tam,b.tam,12),rgb:a.rgb.map((x,q)=>(x+b.rgb[q])/2),el:e.el,hero:e.hero}}
@@ -390,8 +410,8 @@ if(f.el=="fogo"){o.push(`<img class="fx fx-fogo" src="${src}" style="left:${s*.3
 else{const cls=f.el=="veneno"?"fx-rise":"fx-tw",pos=[[.05,.05],[.78,.12],[.12,.72],[.82,.7],[.46,-.08]];pos.forEach(([x,y],k)=>o.push(`<img class="fx ${cls}" src="${src}" style="left:${s*x}px;top:${s*y}px;width:${Math.max(10,s*.18)}px;height:${Math.max(10,s*.18)}px;animation-delay:-${k*.27}s">`))}
 return o.join("")}
 function renderTable(newId){tbl.querySelectorAll(".fr").forEach(e=>e.remove());$("tip").style.display=S.fruits.length?"none":"";
-S.fruits.forEach(f=>{const d=document.createElement("div");d.className="fr"+(f.id==newId?" new":"")+(f.id==sel?" sel":"")+(f.tam==0?" micro":"")+(f.el?" el-"+f.el:"");d.dataset.id=f.id;const s=fsize(f);
-d.style.width=d.style.height=s+"px";d.style.left=f.x+"px";d.style.top=f.y+"px";d.innerHTML=`<img src="${fruitImg(f)}">`+fxHTML(f,s)+(f.mut?'<span class="mut">MUT</span>':"");tbl.appendChild(d);drag(d,f)})}
+S.fruits.forEach(f=>{const d=document.createElement("div");d.className="fr"+(f.id==newId?" new":"")+(f.id==sel?" sel":"")+(f.tam==0?" micro":"")+(f.el?" el-"+f.el:"")+(f.shiny?" shiny":"");d.dataset.id=f.id;const s=fsize(f);
+d.style.width=d.style.height=s+"px";d.style.left=f.x+"px";d.style.top=f.y+"px";d.innerHTML=`<img src="${fruitImg(f)}">`+fxHTML(f,s)+(f.shiny?[[.1,.15],[.75,.05],[.85,.65],[.2,.8]].map(([x,y],k)=>`<span class="spk" style="left:${s*x}px;top:${s*y}px;animation-delay:-${k*.3}s"></span>`).join(""):"")+(f.mut?'<span class="mut">MUT</span>':"");tbl.appendChild(d);drag(d,f)})}
 function clampPos(f){const s=fsize(f);f.x=cl(f.x,0,Math.max(0,tbl.clientWidth-s));f.y=cl(f.y,0,Math.max(0,tbl.clientHeight-s))}
 function center(el){const r=el.getBoundingClientRect();return[r.left+r.width/2,r.top+r.height/2]}
 function inside(x,y,el){const r=el.getBoundingClientRect();return x>r.left&&x<r.right&&y>r.top&&y<r.bottom}
@@ -426,7 +446,7 @@ function showInfo(f){const p=$("info");if(!f){p.classList.remove("on");return}
 const st=(l,v,c)=>`<div class="st"><span>${l}</span>${cells(i=>i<=v,c)}<b>${v}</b></div>`;
 const tamTxt=f.tam==0?`<div class="st"><span>Tamanho</span><b>MICROSCÓPICA</b></div>`:f.tam>=11?`<div class="st"><span>Tamanho</span>${cells(()=>1,"#3fa7e0")}<b>${f.tam}!</b></div>`:st("Tamanho",f.tam,"#3fa7e0");
 p.innerHTML=`<span class="x" onclick="sel=null;showInfo(null);renderCounter();renderTable()">X</span><img src="${fruitImg(f)}"><div style="flex:1"><div class="t">${fname(f)}</div>
-<div class="g">${f.gen?"Geração "+f.gen:"Da feira"} · cor ${colorName(f.rgb)} · ${sizeName(f.tam)}${f.mut?'<span class="chip" style="background:#7b5cff">MUTANTE</span>':""}${f.el?`<span class="chip" style="background:${ELEM[f.el].c}">${ELEM[f.el].n.toUpperCase()}</span>`:""}${f.hero?'<span class="chip" style="background:#d63031">SUPER</span>':""}</div>
+<div class="g">${f.gen?"Geração "+f.gen:"Da feira"} · cor ${colorName(f.rgb)} · ${sizeName(f.tam)}${f.mut?'<span class="chip" style="background:#7b5cff">MUTANTE</span>':""}${f.el?`<span class="chip" style="background:${ELEM[f.el].c}">${ELEM[f.el].n.toUpperCase()}</span>`:""}${f.hero?'<span class="chip" style="background:#d63031">SUPER</span>':""}${f.shiny?'<span class="chip" style="background:linear-gradient(90deg,#ff8ad8,#ffe84a,#8af0ff);color:#2a1a12">BRILHANTE</span>':""}</div>
 ${st("Doce",f.doce,"#ff5f9e")}${st("Azedo",f.az,"#9ccc2e")}${tamTxt}${S.pot.length==1&&!S.pot.includes(f)?`<div style="font-size:.68rem;margin-top:4px;background:#e4dbff;padding:3px 5px"><b>PREVISÃO</b> com ${fname(S.pot[0])}:<br>${predict(f,S.pot[0])}</div>`:""}</div>`;p.classList.add("on")}
 function renderMarket(){const L=level();$("market").innerHTML=BASE.map((b,i)=>{const f={shape:b[1],pat:b[2],top:b[3],rgb:typeof b[4]=="string"?COLORS[b[4]]:b[4],tip:b[0]=="Banana"?"#6b4423":b[0]=="Pimenta-Dragão"?"#3f9a3a":null};const lock=L<b[9],rare=b[9]>1;
 return `<div class="mk px ${lock?"lock":S.coins<b[8]?"off":""} ${rare&&!lock?"rare":""}" onclick="buy(${i})"><img src="${fruitImg(f)}">${lock?"???":b[0]}<div class="pr">${lock?"NÍVEL "+b[9]:`<span class="coin"></span>${b[8]}`}</div></div>`}).join("")}
@@ -506,7 +526,7 @@ function showSummary(){const d=S.ds;openModal(`<h2>FIM DO DIA ${S.day}</h2><div 
 $("nextd").onclick=()=>{S.day++;S.dayT=0;S.ds={earn:0,served:0,best:0,dex:0};save();closeModal();startDay()}}
 /* ================= modais ================= */
 function openModal(h){modalOpen=true;$("mbox").innerHTML=h;$("modal").classList.add("on")}
-function closeModal(){modalOpen=false;$("modal").classList.remove("on")}
+function closeModal(){modalOpen=$("tv").classList.contains("on")||$("rv").classList.contains("on");$("modal").classList.remove("on")}
 function startScreen(){const demo=[{shape:"heart",pat:"seeds",top:"leaf",rgb:COLORS.vermelha},{shape:"round",pat:"stripes",top:"stem",rgb:[243,140,32],hero:true,cape:"#2d6cdf"},{shape:"tall",pat:"hatch",top:"crown",rgb:COLORS.amarela}];
 const cont=S.started;let armed=false;
 openModal(`<div class="logo">FRUTÓDROMO</div><p style="margin-top:0">A quitanda das frutas que a natureza não teve coragem de criar</p><div class="row">${demo.map(f=>`<img src="${fruitImg(f)}">`).join("")}</div>
@@ -531,6 +551,31 @@ else body=rs.map(([a,b])=>a==b?`<span>${img(rep[a])}${rep[a][0]}${lock(rep[a])}<
 h+=`<div class="cg ${hi==c?"hi":""}" id="cg-${c}"><span class="big-sw" style="background:${hex(COLORS[c])}"></span><span class="nm2">${c.toUpperCase()}${have.has(c)?"<br><span style='font-size:.6rem;color:#3ca55c'>✔ já tem</span>":""}</span><div class="rcp">${body}</div></div>`});
 return h+"</div>"}
 function colorGuide(hi){openTree("cores",hi)}
+function reveal(k,shinyOnly){const t=S.tree[k];if(!t)return;const st=stars(t),[lab,col]=RAR[st];const wasOpen=modalOpen;modalOpen=true;SFX.mut();
+$("rv").style.setProperty("--rc",col);$("rv").innerHTML=`<div class="rays"></div><div class="t1">${shinyOnly?"VERSÃO BRILHANTE!":"NOVA ESPÉCIE DESCOBERTA"}</div><div class="t2">nº ${t.n} · ${t.name}</div>
+<img class="fimg" src="${fruitImg(t.img)}" style="${t.shiny?"filter:drop-shadow(0 0 8px #fff6a0) drop-shadow(0 0 4px #ff8ad8)":""}"><div class="stars" style="color:${col}">${"★".repeat(st)}<span style="opacity:.25">${"★".repeat(5-st)}</span></div>
+<span class="rar" style="background:${col}">${lab}</span><p style="margin:8px 0 0">${spLabel(k)}</p><p style="font-size:.8rem;opacity:.8;margin:4px 0">Geração ${t.d} · descoberta no dia ${t.day||S.day}${t.shiny?" · ✦ brilhante":""}</p>
+<div><button class="big" id="rvc">VER CARTA</button><button class="big alt" id="rvx">CONTINUAR</button></div>`;
+$("rv").classList.add("on");const r=$("rv").querySelector(".fimg").getBoundingClientRect();setTimeout(()=>{burst(r.left+r.width/2,r.top+r.height/2,t.img.rgb,36);burst(r.left+r.width/2,r.top+r.height/2,[255,240,160],20)},500);
+const close=()=>{$("rv").classList.remove("on");if(!wasOpen)modalOpen=false};$("rvx").onclick=close;$("rvc").onclick=()=>{close();showCard(k)}}
+function cardCanvas(k){const t=S.tree[k],st=stars(t),[lab,col]=RAR[st],c=document.createElement("canvas");c.width=300;c.height=420;const g=c.getContext("2d");g.imageSmoothingEnabled=false;
+g.fillStyle="#2a1a12";g.fillRect(0,0,300,420);g.fillStyle=col;g.fillRect(6,6,288,408);g.fillStyle="#f5efe0";g.fillRect(14,14,272,392);
+for(let i=0;i<24;i++){g.fillStyle=i%2?hex(lift(hexToRgb(col),.75)):"#efe4cf";g.beginPath();g.moveTo(150,150);g.arc(150,150,260,i*Math.PI/12,(i+1)*Math.PI/12);g.fill()}
+g.fillStyle="#f5efe0";g.fillRect(14,262,272,144);g.fillStyle="#2a1a12";g.fillRect(14,258,272,4);
+return new Promise(res=>{const im=new Image();im.onload=()=>{g.drawImage(im,60,40,180,180);
+g.fillStyle="#2a1a12";g.font="bold 18px 'Pixelify Sans',monospace";g.textAlign="center";g.fillText(`nº ${t.n} · ${t.name}`.slice(0,26),150,32);
+g.font="bold 22px 'Pixelify Sans',monospace";g.fillStyle=col;g.fillText("★".repeat(st)+"☆".repeat(5-st),150,248);
+g.textAlign="left";g.fillStyle="#2a1a12";g.font="14px 'Pixelify Sans',monospace";const ls=[lab+(t.shiny?" · BRILHANTE ✦":""),spLabel(k),`Doce ${t.st.doce} · Azedo ${t.st.az} · Tamanho ${t.st.tam}`,`Geração ${t.d} · Dia ${t.day||S.day}`];
+ls.forEach((l,i)=>{g.font=(i==0?"bold ":"")+"14px 'Pixelify Sans',monospace";let y=284+i*24;g.fillText(l.slice(0,36),26,y)});
+g.font="bold 10px 'Pixelify Sans',monospace";g.fillStyle="#8a6a50";g.textAlign="center";g.fillText("FRUTÓDROMO · mendesoz.github.io/frutodromo",150,396);res(c)};im.src=fruitImg(t.img)})}
+async function showCard(k){const c=await cardCanvas(k),url=c.toDataURL("image/png"),t=S.tree[k];
+openModal(`<h2>CARTA DA ESPÉCIE</h2><img id="cardimg" src="${url}"><p style="font-size:.78rem;opacity:.75;margin:4px 0">Mostre pros amigos! Se o botão não funcionar aqui, faça um print da carta.</p>
+<button class="big" id="cdl">BAIXAR</button><button class="big" id="csh">COMPARTILHAR</button><br><button class="big alt" id="cl">FECHAR</button>`);
+$("cl").onclick=closeModal;
+$("cdl").onclick=()=>{try{const a=document.createElement("a");a.href=url;a.download=`frutodromo-especie-${t.n}.png`;document.body.appendChild(a);a.click();a.remove();toast("Carta baixada!")}catch(e){toast("Não deu pra baixar aqui. Faça um print!")}};
+$("csh").onclick=async()=>{try{const blob=await (await fetch(url)).blob(),file=new File([blob],`frutodromo-${t.n}.png`,{type:"image/png"});
+if(navigator.canShare&&navigator.canShare({files:[file]}))await navigator.share({files:[file],title:"Frutódromo",text:`Olha a fruta que eu descobri no Frutódromo: ${t.name}! mendesoz.github.io/frutodromo`});
+else{await navigator.clipboard.writeText(`Olha a fruta que eu descobri no Frutódromo: ${t.name} (${spLabel(k)})! mendesoz.github.io/frutodromo`);toast("Texto copiado! Cole junto com o print.")}}catch(e){toast("Compartilhar não funciona aqui. Abra pelo link do GitHub Pages!")}}}
 let tvTab="tree",tvSel=null,tvZoom=1;
 function openTree(tab,hi){tvTab=tab||"tree";modalOpen=true;$("tv").classList.add("on");renderTree(hi);if(tvTab=="tree")setTimeout(()=>{const b=$("tvb"),e=b.querySelector(".sp.new")||b.querySelector(".sp");if(e&&!hi){b.scrollLeft=Math.max(0,e.offsetLeft*tvZoom-b.clientWidth/2)}},30)}
 function closeTree(){$("tv").classList.remove("on");modalOpen=false;tvSel=null}
@@ -548,14 +593,14 @@ ks.forEach(k=>T[k].par.forEach(p=>{if(pos[p])ln(p,k,false,tvSel&&(tvSel==k||tvSe
 sug.forEach((q,i)=>{if(tvSel!="?"+i)return;ln(q.a,"?"+i,true,"#e67e22");if(q.b!=q.a)ln(q.b,"?"+i,true,"#e67e22")});
 let h=`<div id="tvs" style="width:${Wd*tvZoom}px;height:${H*tvZoom}px"><div id="tvc" style="width:${Wd}px;height:${H}px;transform:scale(${tvZoom})"><svg width="${Wd}" height="${H}">${lines}</svg>`;
 for(let d=0;d<=qRow;d++)h+=`<span class="rowlab" style="top:${d*RH+2}px">${d==0?"FEIRA":d==qRow?"???":"G"+d}</span>`;
-ks.forEach(k=>{const[x,y]=pos[k],t=T[k];h+=`<div class="sp ${tvSel==k?"cur":""} ${k==newest&&t.d>0?"new":""}" style="left:${x-38}px;top:${y}px" onclick="tvSel='${k.replace(/'/g,"")}';renderTree()"><span class="no">${t.n}</span><div class="ic"><img src="${fruitImg(t.img)}"></div>${t.d==0?t.name:spLabel(k).split(" · ").slice(0,2).join(" · ")}</div>`});
+ks.forEach(k=>{const[x,y]=pos[k],t=T[k];h+=`<div class="sp ${tvSel==k?"cur":""} ${k==newest&&t.d>0?"new":""}" style="left:${x-38}px;top:${y}px" onclick="tvSel='${k.replace(/'/g,"")}';renderTree()"><span class="no" style="background:${RAR[stars(t)][1]}">${t.n}${t.shiny?"✦":""}</span><div class="ic"><img src="${fruitImg(t.img)}"></div>${t.d==0?t.name:spLabel(k).split(" · ").slice(0,2).join(" · ")}</div>`});
 sug.forEach((q,i)=>{const[x,y]=pos["?"+i],A=T[q.a];h+=`<div class="sp q ${tvSel=="?"+i?"cur":""}" style="left:${x-38}px;top:${y}px" onclick="tvSel='?${i}';renderTree()"><div class="ic"><img src="${fruitImg({...A.img,rgb:q.c.rgb,mask:A.img.mask,shape:A.img.shape})}"></div>?</div>`});
 $("tvb").innerHTML=h+"</div></div>";
 // painel de detalhe
 const nm=k=>T[k].d==0?T[k].name:spLabel(k),im=k=>`<img src="${fruitImg(T[k].img)}">`;let det;
 if(tvSel&&tvSel[0]=="?"){const q=sug[+tvSel.slice(1)];det=q?`<b>Espécie desconhecida</b><br>Receita provável: ${im(q.a)} <b>${nm(q.a)}</b> + ${im(q.b)} <b>${nm(q.b)}</b><br>Deve sair: <b>${spLabel(q.k)}</b>`:""}
 else if(tvSel&&T[tvSel]){const t=T[tvSel],my=suggestions(4,tvSel);
-det=`<img class="bigi" src="${fruitImg(t.img)}"><b>nº ${t.n} · ${t.d==0?t.name:"Geração "+t.d}</b><br>${spLabel(tvSel)}<br>${t.par.length?"Pais: "+t.par.map(p=>T[p]?im(p)+" "+nm(p):"?").join(" + "):"Fruta da feira"}<br>Primeira: ${t.name}<div style="clear:both"></div>
+const sr=stars(t),[rl,rc]=RAR[sr];det=`<img class="bigi" src="${fruitImg(t.img)}"><b>nº ${t.n} · ${t.d==0?t.name:"Geração "+t.d}</b> <span style="color:${rc};font-weight:700">${"★".repeat(sr)} ${rl}</span>${t.shiny?" ✦":""}<br>${spLabel(tvSel)}<br><button class="btn" style="background:#3ca55c;margin:3px 0" onclick="showCard('${tvSel}')">VER CARTA</button><br>${t.par.length?"Pais: "+t.par.map(p=>T[p]?im(p)+" "+nm(p):"?").join(" + "):"Fruta da feira"}<br>Primeira: ${t.name}<div style="clear:both"></div>
 ${my.length?"<b>Experimente cruzar com:</b>"+my.map(q=>{const o=q.a==tvSel?q.b:q.a;return `<div class="sug">${im(tvSel)}+${im(o)} ${nm(o)} → <b>${spLabel(q.k)}</b></div>`}).join(""):"<i>Essa espécie já gerou tudo que dava com as que você tem. Descubra outras!</i>"}`}
 else det=`<b>Árvore de espécies</b> · cada combinação nova de tamanho, cor, sabor e poder vira uma espécie. Ela não tem fim.<br>Regra: <b>parecidos se intensificam</b> (pequena + pequena encolhe, grande + grande cresce). Toque num <b>?</b> pra ver a receita da próxima descoberta.`;
 $("tvd").innerHTML=det}

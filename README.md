@@ -41,6 +41,7 @@ O formato do filho é uma **fusão dos contornos dos pais**, então cada linhage
 ## Recursos
 
 - 🎨 Pixel art gerada no código (frutas, clientes, cenário e caldeirão)
+- ✨ Frutas **brilhantes** raras, revelação de espécie nova com raridade (Comum → Lendária) e **carta colecionável** pra baixar e compartilhar
 - 🔥 Frutas de **Fogo**, **Gelo** e **Raio** com efeitos animados
 - 🌳 **Árvore de Espécies** infinita: cada combinação nova vira uma espécie ligada aos pais, com sugestões das próximas descobertas
 - 🖌️ **Guia de Cores** dentro da árvore, com as combinações possíveis
