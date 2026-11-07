@@ -134,6 +134,7 @@ header{flex:0 0 auto;display:flex;gap:4px;align-items:center;padding:5px 4px;bac
 #rv .t1{font-size:1rem;letter-spacing:2px}#rv .t2{font-size:1.6rem;font-weight:700;color:#fff;text-shadow:3px 3px 0 #2a1a12;margin:4px 0}
 #rv .big{margin-top:14px}#rv .fimg{width:200px;height:200px;animation:rin .8s steps(8) both}@keyframes rin{0%{transform:scale(0) rotate(-30deg)}70%{transform:scale(1.15)}100%{transform:none}}
 .stars{font-size:1.5rem;letter-spacing:4px;margin:4px 0}.rar{display:inline-block;padding:2px 10px;border:3px solid #2a1a12;color:#fff;font-weight:700}
+#cardimg.cin{animation:cin .6s steps(6) both}@keyframes cin{0%{transform:scale(.2) rotate(-12deg);opacity:0}70%{transform:scale(1.06) rotate(2deg);opacity:1}100%{transform:none}}
 #cardimg{width:min(300px,78vw);image-rendering:pixelated;border:3px solid #2a1a12;margin:8px auto;display:block}
 /* modais */
 #modal{position:fixed;inset:0;background:#2a1a12cc;display:none;align-items:center;justify-content:center;z-index:240;padding:14px}
@@ -551,13 +552,7 @@ else body=rs.map(([a,b])=>a==b?`<span>${img(rep[a])}${rep[a][0]}${lock(rep[a])}<
 h+=`<div class="cg ${hi==c?"hi":""}" id="cg-${c}"><span class="big-sw" style="background:${hex(COLORS[c])}"></span><span class="nm2">${c.toUpperCase()}${have.has(c)?"<br><span style='font-size:.6rem;color:#3ca55c'>✔ já tem</span>":""}</span><div class="rcp">${body}</div></div>`});
 return h+"</div>"}
 function colorGuide(hi){openTree("cores",hi)}
-function reveal(k,shinyOnly){const t=S.tree[k];if(!t)return;const st=stars(t),[lab,col]=RAR[st];const wasOpen=modalOpen;modalOpen=true;SFX.mut();
-$("rv").style.setProperty("--rc",col);$("rv").innerHTML=`<div class="rays"></div><div class="t1">${shinyOnly?"VERSÃO BRILHANTE!":"NOVA ESPÉCIE DESCOBERTA"}</div><div class="t2">nº ${t.n} · ${t.name}</div>
-<img class="fimg" src="${fruitImg(t.img)}" style="${t.shiny?"filter:drop-shadow(0 0 8px #fff6a0) drop-shadow(0 0 4px #ff8ad8)":""}"><div class="stars" style="color:${col}">${"★".repeat(st)}<span style="opacity:.25">${"★".repeat(5-st)}</span></div>
-<span class="rar" style="background:${col}">${lab}</span><p style="margin:8px 0 0">${spLabel(k)}</p><p style="font-size:.8rem;opacity:.8;margin:4px 0">Geração ${t.d} · descoberta no dia ${t.day||S.day}${t.shiny?" · ✦ brilhante":""}</p>
-<div><button class="big" id="rvc">VER CARTA</button><button class="big alt" id="rvx">CONTINUAR</button></div>`;
-$("rv").classList.add("on");const r=$("rv").querySelector(".fimg").getBoundingClientRect();setTimeout(()=>{burst(r.left+r.width/2,r.top+r.height/2,t.img.rgb,36);burst(r.left+r.width/2,r.top+r.height/2,[255,240,160],20)},500);
-const close=()=>{$("rv").classList.remove("on");if(!wasOpen)modalOpen=false};$("rvx").onclick=close;$("rvc").onclick=()=>{close();showCard(k)}}
+function reveal(k,shinyOnly){SFX.mut();showCard(k,true,shinyOnly)}
 function cardCanvas(k){const t=S.tree[k],st=stars(t),[lab,col]=RAR[st],c=document.createElement("canvas");c.width=300;c.height=420;const g=c.getContext("2d");g.imageSmoothingEnabled=false;
 g.fillStyle="#2a1a12";g.fillRect(0,0,300,420);g.fillStyle=col;g.fillRect(6,6,288,408);g.fillStyle="#f5efe0";g.fillRect(14,14,272,392);
 for(let i=0;i<24;i++){g.fillStyle=i%2?hex(lift(hexToRgb(col),.75)):"#efe4cf";g.beginPath();g.moveTo(150,150);g.arc(150,150,260,i*Math.PI/12,(i+1)*Math.PI/12);g.fill()}
@@ -568,9 +563,10 @@ g.font="bold 22px 'Pixelify Sans',monospace";g.fillStyle=col;g.fillText("★".re
 g.textAlign="left";g.fillStyle="#2a1a12";g.font="14px 'Pixelify Sans',monospace";const ls=[lab+(t.shiny?" · BRILHANTE ✦":""),spLabel(k),`Doce ${t.st.doce} · Azedo ${t.st.az} · Tamanho ${t.st.tam}`,`Geração ${t.d} · Dia ${t.day||S.day}`];
 ls.forEach((l,i)=>{g.font=(i==0?"bold ":"")+"14px 'Pixelify Sans',monospace";let y=284+i*24;g.fillText(l.slice(0,36),26,y)});
 g.font="bold 10px 'Pixelify Sans',monospace";g.fillStyle="#8a6a50";g.textAlign="center";g.fillText("FRUTÓDROMO · mendesoz.github.io/frutodromo",150,396);res(c)};im.src=fruitImg(t.img)})}
-async function showCard(k){const c=await cardCanvas(k),url=c.toDataURL("image/png"),t=S.tree[k];
-openModal(`<h2>CARTA DA ESPÉCIE</h2><img id="cardimg" src="${url}"><p style="font-size:.78rem;opacity:.75;margin:4px 0">Mostre pros amigos! Se o botão não funcionar aqui, faça um print da carta.</p>
-<button class="big" id="cdl">BAIXAR</button><button class="big" id="csh">COMPARTILHAR</button><br><button class="big alt" id="cl">FECHAR</button>`);
+async function showCard(k,isNew,shinyOnly){const c=await cardCanvas(k),url=c.toDataURL("image/png"),t=S.tree[k];
+openModal(`<h2>${isNew?(shinyOnly?"✦ VERSÃO BRILHANTE!":"NOVA ESPÉCIE!"):"CARTA DA ESPÉCIE"}</h2><img id="cardimg" class="${isNew?"cin":""}" src="${url}">
+<button class="big" id="cdl">BAIXAR</button><button class="big" id="csh">COMPARTILHAR</button><br><button class="big alt" id="cl">${isNew?"CONTINUAR":"FECHAR"}</button>`);
+if(isNew)setTimeout(()=>{const r=$("cardimg").getBoundingClientRect();burst(r.left+r.width/2,r.top+r.height*.35,t.img.rgb,30);burst(r.left+r.width/2,r.top+r.height*.35,[255,240,160],16)},450);
 $("cl").onclick=closeModal;
 $("cdl").onclick=()=>{if(window.self!==window.top)return toast("Aqui não dá pra baixar. Faça um print, ou abra mendesoz.github.io/frutodromo");try{const a=document.createElement("a");a.href=url;a.download=`frutodromo-especie-${t.n}.png`;document.body.appendChild(a);a.click();a.remove();toast("Carta baixada!")}catch(e){toast("Não deu pra baixar aqui. Faça um print!")}};
 $("csh").onclick=async()=>{try{const blob=await (await fetch(url)).blob(),file=new File([blob],`frutodromo-${t.n}.png`,{type:"image/png"});
