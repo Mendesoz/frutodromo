@@ -2,6 +2,8 @@
 
 **A quitanda das frutas que a natureza não teve coragem de criar.**
 
+### 🎮 [Jogar agora → mendesoz.github.io/frutodromo](https://mendesoz.github.io/frutodromo/)
+
 Frutódromo é um jogo de navegador em pixel art: você cruza frutas num caldeirão, cria híbridos com formato, cor e sabor herdados dos pais e atende os pedidos dos clientes que aparecem no balcão — gente, bichos, robôs, aliens e fantasminhas.
 
 <p align="center">
