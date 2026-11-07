@@ -120,6 +120,9 @@ header{flex:0 0 auto;display:flex;gap:4px;align-items:center;padding:5px 4px;bac
 #tvd img{width:28px;height:28px;display:inline-block;vertical-align:middle}#tvd .bigi{width:56px;height:56px;float:left;margin-right:8px}
 .sug{display:flex;align-items:center;gap:3px;margin:3px 0;background:#f5efe0;padding:3px 5px;border:2px solid #2a1a1230;font-size:.74rem}
 #tvb .cgw{padding:10px;max-width:520px;margin:0 auto}
+.hint{margin-left:auto;background:#2a1a12;color:#ffe9b8;width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;font-size:.75rem;cursor:pointer;border:2px solid #2a1a12}
+.rstep{display:flex;align-items:center;gap:4px;justify-content:center;background:#e9dcc3;border:2px solid #2a1a1230;margin:5px 0;padding:4px;font-size:.75rem;flex-wrap:wrap}.rstep img{width:34px;height:34px}.rstep .nn{font-size:.6rem;opacity:.7;display:block}
+.rstep .fi{display:inline-flex;flex-direction:column;align-items:center;min-width:44px}
 /* modais */
 #modal{position:fixed;inset:0;background:#2a1a12cc;display:none;align-items:center;justify-content:center;z-index:200;padding:14px}
 #modal.on{display:flex}
@@ -321,18 +324,40 @@ for(let i=0;i<ks.length;i++)for(let j=i;j<ks.length;j++){if(only&&ks[i]!=only&&k
 out.push({k,a:ks[i],b:ks[j],c,score:Math.abs(c.tam-6)*1.5+(c.hero?5:0)+(c.el?1:0)+(c.doce==10||c.az==10?3:0)+((i*7+j*13)%10)/10})}
 return out.sort((x,y)=>y.score-x.score).slice(0,max)}
 /* ================= clientes ================= */
+// ===== pedidos sempre possíveis: o cliente escolhe uma fruta que dá pra fazer com a feira =====
+const reach={};const rk=f=>[f.doce,f.az,f.tam,colorName(f.rgb),f.el||"",f.hero?1:0].join(",");
+function reachPool(L){const maxD=L<=2?1:L<=4?2:3,key=L+"_"+maxD;if(reach[key])return reach[key];
+const all=new Map();BASE.filter(b=>b[9]<=L).forEach(b=>{const f=baseFruit(b);S.id--;const o={doce:f.doce,az:f.az,tam:f.tam,rgb:f.rgb,el:f.el,hero:f.hero,d:0,name:b[0],img:{shape:f.shape,pat:f.pat,top:f.top,rgb:f.rgb,tip:f.tip}};all.set(rk(o),o)});
+for(let d=1;d<=maxD;d++){const arr=[...all.values()],lo=arr.filter(x=>x.d<=1),hiA=arr.filter(x=>x.d==d-1),add=[];
+const src=d<3?arr:lo;for(const a of hiA)for(const b of src){if(d<3&&b.d<a.d&&b.d<d-1)continue;const c=predictSt(a,b);c.d=d;c.p=[a,b];const k=rk(c);if(!all.has(k))add.push([k,c])}
+add.forEach(([k,c])=>{if(!all.has(k))all.set(k,c)})}
+return reach[key]=[...all.values()]}
+function recipeOf(t){const steps=[];const walk=x=>{if(!x.p)return;walk(x.p[0]);walk(x.p[1]);if(!steps.includes(x))steps.push(x)};walk(t);return steps}
+function reqsFrom(t,n,L){const out=[],c=colorName(t.rgb);
+const sz=t.tam==0?{k:"micro"}:t.tam<=1?{k:"mini"}:t.tam>=12?{k:"giga"}:t.tam>=11?{k:"enorme"}:t.tam>=7?{k:"tamMin",v:t.tam-N(0,1)}:t.tam<=3?{k:"tamMax",v:t.tam+N(0,1)}:null;
+const special=[];if(t.hero)special.push({k:"hero"});if(t.el)special.push({k:"el",v:t.el});if(sz&&["micro","giga","mini","enorme"].includes(sz.k))special.push(sz);
+const normal=[{k:"cor",v:c}];if(sz&&!special.includes(sz))normal.push(sz);
+if(t.doce>=6)normal.push({k:"doceMin",v:cl(t.doce-N(0,1),3,10)});else if(t.doce<=4)normal.push({k:"doceMax",v:cl(t.doce+N(0,1),1,8)});
+if(t.az>=6)normal.push({k:"azMin",v:cl(t.az-N(0,1),3,10)});else if(t.az<=4)normal.push({k:"azMax",v:cl(t.az+N(0,1),1,8)});
+special.sort(()=>Math.random()-.5);normal.sort(()=>Math.random()-.5);
+for(const r of [...special,...normal]){if(out.length>=n)break;out.push(r)}return out}
 function newCust(){const L=level(),vip=L>=(sk('t4')?2:3)&&Math.random()<(sk('t4')?.3:.15);let n=Math.min(3,1+Math.floor((L-1)/2)+(Math.random()<.3?1:0));if(vip)n=Math.min(4,n+1);
-const reqs=[],used=new Set(),hard=Math.min(3,Math.floor(L/2));
-const kinds=["doce","az","tam","cor"];if(L>=2)kinds.push("size");if(L>=3)kinds.push("el");if(L>=5)kinds.push("hero");
-let guard=0;while(reqs.length<n&&guard++<40){const k=R(kinds);if(used.has(k)||(k=="size"&&used.has("tam"))||(k=="tam"&&used.has("size")))continue;used.add(k);
-if(k=="cor"){const o=Object.keys(COLORS).filter(c=>L>=4||!MUT_ONLY.includes(c)&&c!="azul");reqs.push({k:"cor",v:R(o)})}
-else if(k=="el"){const o=["fogo"];if(L>=4)o.push("gelo");if(L>=5)o.push("raio");reqs.push({k:"el",v:R(o)})}
-else if(k=="size")reqs.push({k:R(L>=5?["mini","enorme","micro","giga"]:["mini","enorme"])});
-else if(k=="hero")reqs.push({k:"hero"});
-else{const hi=Math.random()<.6;reqs.push({k:k+(hi?"Min":"Max"),v:hi?cl(5+hard+N(0,2),3,10):cl(5-hard-N(0,2),1,8)})}}
-let rw=4+reqs.length*5+L*2;reqs.forEach(r=>{if(r.k=="el")rw+=12;if(r.k=="mini"||r.k=="enorme")rw+=10;if(r.k=="micro"||r.k=="giga")rw+=22;if(r.k=="hero")rw+=30;if(r.k=="cor"&&MUT_ONLY.includes(r.v))rw+=15});if(vip)rw*=3;
+const pool=reachPool(L),maxD=Math.max(...pool.map(x=>x.d));
+// alvo: nível baixo pede coisas perto da feira; VIP pede o mais fundo
+const want=vip?maxD:Math.min(maxD,R([0,1,1,2,2,3].filter(d=>d<=maxD))),cand=pool.filter(x=>x.d==want&&(L>=5||!x.hero)&&(L>=3||!x.el));
+const t=R(cand.length?cand:pool),reqs=reqsFrom(t,n,L);
+let rw=4+reqs.length*5+L*2+t.d*6;reqs.forEach(r=>{if(r.k=="el")rw+=12;if(r.k=="mini"||r.k=="enorme")rw+=10;if(r.k=="micro"||r.k=="giga")rw+=22;if(r.k=="hero")rw+=30});if(vip)rw*=3;
 const kd=Math.random()<.45?R(KINDS):null;
-return{name:vip?R(VIPS):kd?R(kd[2]):R(NAMES),kind:kd?kd[0]:"person",fur:kd?R(kd[1]):null,vip,skin:R(SKIN),hair:R(HAIR),hs:N(0,5),shirt:R(SHIRT),gl:Math.random()<.25,reqs,rw,t0:now(),pat:(110000+n*35000)*(vip?.8:1)*(sk('t1')?1.3:1),come:true}}
+return{name:vip?R(VIPS):kd?R(kd[2]):R(NAMES),kind:kd?kd[0]:"person",fur:kd?R(kd[1]):null,vip,skin:R(SKIN),hair:R(HAIR),hs:N(0,5),shirt:R(SHIRT),gl:Math.random()<.25,reqs,rw,t0:now(),
+pat:(95000+t.d*45000+reqs.length*15000)*(vip?.85:1),come:true,tg:rk(t),td:t.d}}
+function stImg(x){if(x.img)return x.img;let a=x;while(a.p)a=a.p[0];return {...a.img,rgb:x.rgb,hero:x.hero,cape:x.hero?"#d63031":null}}
+function stLabel(x){return x.d==0?x.name:(x.hero?"Super ":"")+sizeName(x.tam)+" "+colorName(x.rgb)+(x.el?" "+ELEM[x.el].n:"")}
+function showHint(i){const c=S.cust[i];if(!c)return;const L=level(),pool=reachPool(L);const ok=pool.filter(x=>c.reqs.every(r=>meets(x,r))).map(x=>[x,recipeOf(x).length]).sort((a,b)=>a[1]-b[1]);let t=ok.length?ok[0][0]:null;
+let h=`<h2>COMO FAZER?</h2><p style="margin-top:0">Pedido de <b>${c.name}</b></p>`;
+if(!t)h+="<p>Hmm, esse pedido ficou difícil. Pode trocar por outro cliente esperando ele ir embora.</p>";
+else if(t.d==0)h+=`<p>É só comprar na feira:</p><div class="rstep"><span class="fi"><img src="${fruitImg(stImg(t))}"><span class="nn">${t.name}</span></span></div>`;
+else{const st=recipeOf(t);h+=`<p>${st.length} cruzamento${st.length>1?"s":""} no caldeirão:</p>`+st.map((x,k)=>{const[a,b]=x.p,fi=y=>`<span class="fi"><img src="${fruitImg(stImg(y))}"><span class="nn">${stLabel(y)}</span></span>`;return `<div class="rstep"><b>${k+1}.</b>${fi(a)}<b>+</b>${fi(b)}<b>=</b>${fi(x)}</div>`}).join("")+`<p style="font-size:.75rem;opacity:.75">As frutas da feira estão lá embaixo. Use o resultado de cada passo no passo seguinte.</p>`}
+openModal(h+`<button class="big" id="cl">ENTENDI</button>`);$("cl").onclick=closeModal}
 function meets(f,r){switch(r.k){case"cor":return colorName(f.rgb)==r.v;case"doceMin":return f.doce>=r.v;case"doceMax":return f.doce<=r.v;case"azMin":return f.az>=r.v;case"azMax":return f.az<=r.v;
 case"tamMin":return f.tam>=r.v;case"tamMax":return f.tam<=r.v;case"mini":return f.tam<=1;case"micro":return f.tam==0;case"enorme":return f.tam>=11;case"giga":return f.tam==12;case"el":return f.el==r.v;case"hero":return !!f.hero}}
 const LAB={doce:["DOCE","#ff5f9e"],az:["AZEDO","#9ccc2e"],tam:["TAM.","#3fa7e0"]};
@@ -355,7 +380,7 @@ if(!pcache[pk])pcache[pk]=personImg(c,mood);const on=Math.ceil(left*10),pc=left>
 let pat="";for(let s=0;s<10;s++)pat+=`<i style="${s<on?"background:"+pc:""}"></i>`;
 const cls=(hoverCust==i||ok?"hot ":"")+(c.leaving?"leave ":"")+(c.come?"come ":"")+(c.mood=="sad"?"sad ":"")+(c.vip?"vip":"");
 return `<div class="cust ${cls}" data-i="${i}" data-low="${left<.2?1:0}"><div class="bub px">${c.vip?'<span class="vipb">VIP x3</span>':""}${c.reqs.map(r=>reqHTML(r,f)).join("")}
-<div class="pay"><span class="coin"></span><b>${pay(c)}</b></div><div class="pat">${pat}</div></div><div class="pw"><img class="p" src="${pcache[pk]}"></div>${left<.2&&!c.leaving?'<span class="sweat"></span>':""}<span class="nm">${c.name}</span></div>`}).join("");
+<div class="pay"><span class="coin"></span><b>${pay(c)}</b><span class="hint" onclick="event.stopPropagation();showHint(${i})">?</span></div><div class="pat">${pat}</div></div><div class="pw"><img class="p" src="${pcache[pk]}"></div>${left<.2&&!c.leaving?'<span class="sweat"></span>':""}<span class="nm">${c.name}</span></div>`}).join("");
 S.cust.forEach(c=>{if(c)c.come=false})}
 /* ================= mesa ================= */
 const tbl=$("table");

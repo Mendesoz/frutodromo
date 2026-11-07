@@ -18,7 +18,8 @@ Frutódromo é um jogo de navegador em pixel art: você cruza frutas num caldeir
 2. **Jogue 2 frutas no caldeirão** para cruzar e criar um híbrido. O caldeirão pode ser arrastado pra qualquer lugar da mesa.
 3. **Arraste a fruta até um cliente** que pediu algo parecido no balão.
 4. Arraste para o canto da mesa para **vender**.
-5. Toque numa fruta para ver os atributos — com 1 fruta no caldeirão, aparece a **previsão** do filho.
+5. Ficou perdido? Toque no **?** do balão do cliente para ver a **receita passo a passo**.
+6. Toque numa fruta para ver os atributos — com 1 fruta no caldeirão, aparece a **previsão** do filho.
 
 Cada dia de trabalho dura 2 minutos e meio. No fim, aparece o resumo do dia.
 
@@ -44,6 +45,7 @@ O formato do filho é uma **fusão dos contornos dos pais**, então cada linhage
 - 🌳 **Árvore de Espécies** infinita: cada combinação nova vira uma espécie ligada aos pais, com sugestões das próximas descobertas
 - 🖌️ **Guia de Cores** dentro da árvore, com as combinações possíveis
 - 👑 Clientes VIP, níveis e frutas raras que vão liberando
+- ✅ Todo pedido é possível: o cliente escolhe uma fruta que dá pra fazer com a feira do seu nível
 - 🎵 Efeitos e música em chiptune (Web Audio)
 - ⏸️ Pausa, e progresso salvo no navegador
 
