@@ -240,110 +240,126 @@ raio:()=>art(["..yy",".yy.","yyy.","..yy",".yy.",".y.."],{y:"#ffe84a"},"#8a6a00"
 veneno:()=>art([".gg.","gwgg","gggg",".gg."],{g:"#7dff6a",w:"#e8ffe0"},"#1f6a1a"),
 cosmico:()=>art(["..s..","..s..","sswss","..s..","..s.."],{s:"#c9a7ff",w:"#ffffff"},"#4a2a8a")};
 /* ================= pessoas ================= */
-const SKIN=[[246,210,180],[232,180,142],[201,141,99],[162,104,63],[122,74,42],[90,53,32]],HAIR=[[43,26,16],[74,44,23],[122,74,34],[196,138,60],[227,194,122],[150,150,150],[178,58,42],[30,30,50]],SHIRT=[[214,48,49],[69,123,157],[42,157,143],[244,162,97],[109,89,122],[233,196,106],[38,70,83],[255,122,162],[138,177,125]];
+const SKIN=[[246,210,180],[232,180,142],[201,141,99],[162,104,63],[122,74,42],[90,53,32]],HAIR=[[43,26,16],[74,44,23],[74,44,23],[122,74,34],[122,74,34],[196,138,60],[227,194,122],[150,150,150],[178,58,42],[30,30,50],[30,30,50],[110,60,150],[40,90,160]],SHIRT=[[214,48,49],[69,123,157],[42,157,143],[244,162,97],[109,89,122],[233,196,106],[38,70,83],[255,122,162],[138,177,125]];
 const NAMES=["Dona Cida","Seu Jorge","Paulão","Lia","Rafa","Tânia","Zé","Morgana","Kenji","Bruna","Lurdes","Barbosa","Nico","Jana","Otávio","Bia","Duda","Caio","Sol","Vini"];
 const VIPS=["Chef Estrelado","Crítica Gourmet","Cientista Maluca","Prefeito","Influencer Fit","Colecionador"];
-// ===== personagens com o mesmo carinho das frutas: luz/sombra por peça, contorno colorido, olhos com brilho =====
-function charImg(p,mood,blink){const PW=20,PH=26,col=blank(PW,PH),mat=blank(PW,PH),k=p.kind||"person";
-const put=(x,y,c,m)=>{if(x<0||y<0||x>=PW||y>=PH)return;col[y][x]=c;mat[y][x]=m||c};
+// ===== Retratos em alta resolução (40x52): pele/cabelo com 3 tons, olhos com íris, nariz, lábios, blush =====
+const EYEC=[[70,110,190],[60,140,90],[120,80,50],[60,40,30],[140,90,170],[50,150,160]];
+function charImg(p,mood,blink){const PW=40,PH=52,col=blank(PW,PH),mat=blank(PW,PH),k=p.kind||"person";
+const put=(x,y,c,m)=>{x=Math.round(x);y=Math.round(y);if(x<0||y<0||x>=PW||y>=PH)return;col[y][x]=c;mat[y][x]=m||c};
 const fill=(fn,c,m)=>{for(let y=0;y<PH;y++)for(let x=0;x<PW;x++)if(fn(x,y))put(x,y,typeof c=="function"?c(x,y):c,m)};
-const H_=p.hair?hex(p.hair):"#333",HL=p.hair?hex(lift(p.hair,.3)):"#555",SK=p.skin?hex(p.skin):"#eee",SKD=p.skin?hex(mul(p.skin,.85)):"#ddd",
-F=p.fur?hex(p.fur):SK,FD=p.fur?hex(mul(p.fur,.82)):SKD,FL=p.fur?hex(lift(p.fur,.5)):SK,SH=hex(p.shirt||[69,123,157]),SH2=hex(lift(p.shirt||[69,123,157],.55)),SHD=hex(mul(p.shirt||[69,123,157],.7));
-const head=ell(9.5,9.5,5.7,5.9);let eyeY=10,eyeX=[6,12],mouthY=13,face=true,brows=k=="person";
-// ---------- corpo / roupa ----------
-const body=(c,c2,pat)=>fill((x,y)=>y>=18&&Math.abs(x-9.5)<=4+Math.min(5.5,(y-18)*1.3),(x,y)=>{
- if(pat==1&&y%2==0)return c2;if(pat==2&&(x+(y%4<2?0:2))%4==0&&y%2==1)return c2;
- if(pat==3&&((x==7||x==12)&&y<=21||y>=22&&Math.abs(x-9.5)<=3.5))return "#3d5a8a";
- if(pat==4&&y==18&&Math.abs(x-9.5)<=2.5)return c2;return c},"shirt");
-if(k=="ghost"){fill((x,y)=>ell(9.5,11,7,8)(x,y)&&y<=19||(y>=19&&y<=21&&Math.abs(x-9.5)<=6.5&&(Math.floor((x+2)/3)%2==0||y<=19)),"#f4f1ff","body")}
-else if(k=="penguin")body("#26263a","#26263a",0);
-else if(k=="robot")body("#9aa0ad","#c8ccd6",4);
-else if(k=="frog")body(F,FL,0);
-else body(SH,SH2,p.sp||0);
-if(k=="penguin")fill((x,y)=>y>=18&&Math.abs(x-9.5)<=2.5+(y-18)*.45,"#f2f2fa","belly");
-if(k=="frog")fill((x,y)=>y>=19&&Math.abs(x-9.5)<=2+(y-19)*.4,FL,"belly");
+const rgb=(a,d)=>hex(a||d);
+const SKc=p.skin||[232,180,142],FUc=p.fur||SKc,HAc=p.hair||[74,44,23],SHc=p.shirt||[69,123,157];
+const SK=hex(SKc),F=hex(FUc),FD=hex(mul(FUc,.8)),FL=hex(lift(FUc,.55)),HA=hex(HAc),SH=hex(SHc),SH2=hex(lift(SHc,.6));
+const dx=x=>Math.abs(x-19.5),furry=["cat","dog","bear","bunny"].includes(k);
+const head=(x,y)=>(ell(19.5,19.5,11,12)(x,y)&&y<=30)||ell(19.5,25,8.6,7)(x,y);
+let eyes=[[14.5,22],[24.5,22]],face=true,mouthY=29,human=k=="person";
+// ---------- roupa / corpo ----------
+const shoulders=(x,y)=>y>=37&&dx(x)<=8.5+Math.min(11.5,(y-37)*1.7);
+const sp=p.sp||0;
+const cloth=(x,y)=>{if(sp==1&&Math.floor(y/2)%2==0)return SH2;if(sp==2&&(x+(Math.floor(y/3)%2)*2)%4==0&&y%3==1)return SH2;
+ if(sp==3&&((dx(x)>=4&&dx(x)<=6&&y<=43)||(y>=43&&dx(x)<=7)))return "#3d5a8a";return SH};
+if(k=="ghost")fill((x,y)=>(ell(19.5,22,14,15)(x,y)&&y<=37)||(y>37&&y<=42&&dx(x)<=13.5&&(Math.floor((x+3)/5)%2==0||y<=38)),"#f4f1ff","body");
+else if(k=="penguin"){fill(shoulders,"#2b2b40","shirt");fill((x,y)=>y>=37&&dx(x)<=5+(y-37)*.9,"#f2f2fa","belly")}
+else if(k=="robot")fill(shoulders,"#9aa0ad","shirt");
+else if(k=="frog"){fill(shoulders,F,"shirt");fill((x,y)=>y>=39&&dx(x)<=4+(y-39)*.8,FL,"belly")}
+else fill(shoulders,cloth,"shirt");
+// gola
+if(human||furry||k=="alien"){if(sp==4){fill((x,y)=>y>=37&&y<=40&&dx(x)<=5&&dx(x)>=y-37,"#f5efe0","collar")}
+ else fill((x,y)=>y>=36&&y<=38&&dx(x)<=4.5,hex(mul(SHc,.75)),"collar")}
 // pescoço
-if(k=="person")fill((x,y)=>y>=15&&y<=18&&x>=8&&x<=11,SKD,"neck");
+if(human)fill((x,y)=>y>=29&&y<=38&&dx(x)<=3.6,hex(mul(SKc,.86)),"neck");
 // ---------- cabeça ----------
-const furry=["cat","dog","bear","bunny"].includes(k);
-if(k=="person"){fill(head,SK,"skin");put(3,10,SK,"skin");put(3,11,SK,"skin");put(16,10,SK,"skin");put(16,11,SK,"skin")}
+if(human){fill(ell(8.6,22,2.2,3.2),SK,"ear");fill(ell(30.4,22,2.2,3.2),SK,"ear");fill(head,SK,"skin")}
 if(furry){
- if(k=="bunny")fill((x,y)=>y<=8&&((x>=5&&x<=7)||(x>=12&&x<=14)),F,"ear");
- if(k=="bear")fill((x,y)=>(x-4.5)**2+(y-5)**2<=4.8||(x-14.5)**2+(y-5)**2<=4.8,F,"ear");
- if(k=="cat")fill((x,y)=>y>=2&&y<=7&&(Math.abs(x-5)<=(y-2)*.65||Math.abs(x-14)<=(y-2)*.65),F,"ear");
- fill(head,F,"head");
- if(k=="dog")fill((x,y)=>y>=6&&y<=14&&((x>=2&&x<=4)||(x>=15&&x<=17)),FD,"ear2");
- fill(ell(9.5,13,3.2,2.1),FL,"muzzle")}
-if(k=="frog"){fill(ell(9.5,11.5,7.6,4.8),F,"head");fill((x,y)=>(x-5.5)**2+(y-7)**2<=5.8||(x-13.5)**2+(y-7)**2<=5.8,F,"head");eyeY=6;eyeX=[5,13];mouthY=13}
-if(k=="penguin"){fill(ell(9.5,10,6.2,6),"#26263a","head");fill(ell(9.5,11,4.7,4.3),"#f2f2fa","face");mouthY=14}
-if(k=="robot"){fill((x,y)=>x>=4&&x<=15&&y>=4&&y<=15,"#b8bdc8","head");fill((x,y)=>(x==9||x==10)&&y>=1&&y<=3,"#7d8392","ant");put(3,9,"#7d8392","ant");put(16,9,"#7d8392","ant");
- fill((x,y)=>x>=5&&x<=14&&y>=7&&y<=12,"#1e2a3a","screen");face=false}
-if(k=="alien"){fill((x,y)=>(x==5||x==14)&&y>=1&&y<=4,F,"ant");fill(ell(9.5,9.5,6.4,6.2),F,"head");face=false}
-// ---------- cabelo (gente) ----------
-if(k=="person"){const hs=p.hs||0,inH=(x,y)=>head(x,y)||ell(9.5,8.6,6.5,6.3)(x,y),dx=x=>Math.abs(x-9.5);
- const hair=(fn)=>fill((x,y)=>fn(x,y),(x,y)=>(x+y*3)%7==0?HL:H_,"hair");
- if(hs==0)hair((x,y)=>inH(x,y)&&(y<=6||(y<=8&&dx(x)>=4.6)));
- if(hs==1)hair((x,y)=>(inH(x,y)&&y<=6)||(y>=5&&y<=18&&dx(x)>=5&&dx(x)<=7.2));
- if(hs==2)hair((x,y)=>(inH(x,y)&&y<=6)||(x-9.5)**2+(y-1.8)**2<=5.2);
- if(hs==3)hair((x,y)=>ell(9.5,7.2,7.8,6.6)(x,y)&&y<=9&&!(y>=7&&dx(x)<4.2)||((x-3)**2+(y-9)**2<=3||(x-16)**2+(y-9)**2<=3));
- if(hs==4)hair((x,y)=>(inH(x,y)&&y<=6)||(y>=2&&y<=4&&x%3==1&&x>=4&&x<=15&&y>=4-(x%2)));
- if(hs==5)hair((x,y)=>(inH(x,y)&&y<=6)||(y==7&&x>=4&&x<=10)||(y==8&&x>=4&&x<=7));
- if(hs==7)hair((x,y)=>(inH(x,y)&&y<=6)||(x>=15&&x<=17&&y>=6&&y<=14&&!(x==17&&y>=13)));
- // chapéus
- const hat=p.hat||0;
- if(hat==1){fill((x,y)=>y>=2&&y<=5&&x>=4&&x<=15,SH,"hat");fill((x,y)=>y==6&&x>=4&&x<=18,SHD,"hat2")}
- if(hat==2){fill((x,y)=>ell(9.5,5,6.4,3.6)(x,y)&&y<=6,SH2=="#fff"?SH:hex(p.hat2||[200,60,80]),"hat");fill((x,y)=>(x-9.5)**2+(y-0.8)**2<=2.5,"#f5efe0","pom");fill((x,y)=>y==6&&x>=4&&x<=15,hex(lift(p.hat2||[200,60,80],.3)),"hat2")}
- if(hat==3){fill((x,y)=>x>=6&&x<=13&&y>=0&&y<=4,"#22222e","hat");fill((x,y)=>y==5&&x>=3&&x<=16,"#22222e","hat2");fill((x,y)=>y==4&&x>=6&&x<=13,"#c0392b","band")}
+ if(k=="bunny")fill((x,y)=>y<=16&&(ell(14,6,3,9)(x,y)||ell(25,6,3,9)(x,y)),F,"ear");
+ if(k=="bear")fill((x,y)=>(x-8.5)**2+(y-9)**2<=18||(x-30.5)**2+(y-9)**2<=18,F,"ear");
+ if(k=="cat")fill((x,y)=>y>=2&&y<=15&&(Math.abs(x-10)<=(y-2)*.55||Math.abs(x-29)<=(y-2)*.55),F,"ear");
+ fill((x,y)=>ell(19.5,21,12,11.5)(x,y),F,"head");
+ if(k=="dog")fill((x,y)=>(ell(7,21,3.4,8)(x,y)||ell(32,21,3.4,8)(x,y)),FD,"ear2");
+ fill(ell(19.5,27.5,6,4),FL,"muzzle");eyes=[[14,21],[25,21]];mouthY=31}
+if(k=="frog"){fill(ell(19.5,25,15,9.5),F,"head");fill((x,y)=>(x-11)**2+(y-14)**2<=26||(x-28)**2+(y-14)**2<=26,F,"head");eyes=[[11,14],[28,14]];mouthY=29}
+if(k=="penguin"){fill(ell(19.5,20,12.5,12),"#2b2b40","head");fill(ell(19.5,23,9.5,8.5),"#f2f2fa","face");eyes=[[15,21],[24,21]];mouthY=31}
+if(k=="robot"){fill((x,y)=>x>=7&&x<=32&&y>=6&&y<=31,"#b8bdc8","head");fill((x,y)=>(x==19||x==20)&&y>=1&&y<=5,"#7d8392","ant");fill((x,y)=>(x>=4&&x<=6||x>=33&&x<=35)&&y>=15&&y<=21,"#7d8392","ant");
+ fill((x,y)=>x>=10&&x<=29&&y>=12&&y<=26,"#1a2433","screen");face=false}
+if(k=="alien"){fill((x,y)=>(x==11||x==28)&&y>=2&&y<=9,F,"ant");fill(ell(19.5,20,12.5,12.5),F,"head");face=false}
+// ---------- cabelo ----------
+if(human){const hs=p.hs||0,cap=(x,y)=>ell(19.5,16.5,12.6,11)(x,y),fr=(x,y)=>y>=8&&y<=13+((Math.floor(x/3))%2)&&dx(x)<=10.5;
+ const H=(fn)=>fill(fn,HA,"hair");
+ if(hs==0)H((x,y)=>cap(x,y)&&(y<=12||(dx(x)>=10&&y<=22))||fr(x,y)&&y<=11);
+ if(hs==1)H((x,y)=>(cap(x,y)&&y<=14)||(y>=12&&y<=44&&dx(x)>=9.5&&dx(x)<=14.5-((y>40)?(y-40):0))||fr(x,y));
+ if(hs==2)H((x,y)=>(cap(x,y)&&y<=14)||(y>=12&&y<=29&&dx(x)>=9.5&&dx(x)<=13.5)||fr(x,y));
+ if(hs==3)H((x,y)=>(cap(x,y)&&y<=13)||(x-19.5)**2+(y-3.5)**2<=22||(dx(x)>=10&&y<=20&&cap(x,y)));
+ if(hs==4)H((x,y)=>ell(19.5,15,16,13.5)(x,y)&&y<=25&&!(ell(19.5,24,10,10)(x,y)&&y>=14));
+ if(hs==5)H((x,y)=>(cap(x,y)&&y<=14)||fr(x,y)||ell(33,20,3.4,10,-.3)(x,y));
+ if(hs==6)H((x,y)=>cap(x,y)&&y>=14&&y<=22&&dx(x)>=10);
+ if(hs==7)H((x,y)=>(cap(x,y)&&y<=14)||fr(x,y)||((dx(x)>=10&&dx(x)<=13)&&y>=14&&y<=42&&!(y%5==0&&dx(x)>12)));
+ if(hs==8)H((x,y)=>(cap(x,y)&&y<=12)||(y>=2&&y<=9&&dx(x)<=11&&(x%5<3)&&y>=9-(x%5)*2.2));
+ const hat=p.hat||0,HT=hex(p.hat2||SHc),HTD=hex(mul(p.hat2||SHc,.75));
+ if(hat==1){fill((x,y)=>y>=3&&y<=11&&cap(x,y),HT,"hat");fill((x,y)=>y>=11&&y<=12&&x>=8&&x<=37,HTD,"hat2")}
+ if(hat==2){fill((x,y)=>ell(19.5,11,13,8)(x,y)&&y<=12,HT,"hat");fill((x,y)=>y>=11&&y<=13&&dx(x)<=12.5,hex(lift(p.hat2||SHc,.35)),"hat2");fill((x,y)=>(x-19.5)**2+(y-2.5)**2<=8,"#f5efe0","pom")}
+ if(hat==3){fill((x,y)=>dx(x)<=8&&y>=0&&y<=9,"#26263a","hat");fill((x,y)=>dx(x)<=13&&y>=9&&y<=10,"#26263a","hat2");fill((x,y)=>dx(x)<=8&&y>=7&&y<=8,"#c0392b","band")}
 }
-// ---------- sombreamento por peça (luz de cima-esquerda) ----------
-const out=col.map(r=>r.slice()),flat=new Set(["screen","pom","band"]);
-for(let y=0;y<PH;y++)for(let x=0;x<PW;x++){const m=mat[y][x];if(!m||flat.has(m))continue;const c=hexToRgb(col[y][x]);
- const same=(X,Y)=>Y>=0&&Y<PH&&X>=0&&X<PW&&mat[Y][X]==m;const lt=!same(x-1,y)||!same(x,y-1),dk=!same(x+1,y)||!same(x,y+1);
- if(dk&&!lt)out[y][x]=hex(mul(c,.78));else if(lt&&!dk)out[y][x]=hex(lift(c,.28));else if(dk&&lt)out[y][x]=hex(mul(c,.9))}
-const put2=(x,y,c)=>{if(x>=0&&y>=0&&x<PW&&y<PH)out[y][x]=c};
-// ---------- detalhes do rosto ----------
-const E="#2a1a12",W_="#ffffff",PK="#f59aa8";
-if(face){eyeX.forEach(ex=>{
- if(k=="frog"){put2(ex-1,eyeY,W_);put2(ex,eyeY,W_);put2(ex-1,eyeY+1,W_);put2(ex,eyeY+1,blink?W_:E);if(blink){put2(ex-1,eyeY+1,E);put2(ex,eyeY+1,E)}return}
- if(blink){put2(ex,eyeY+1,E);put2(ex+1,eyeY+1,E)}
- else if(mood=="happy"){put2(ex,eyeY+1,E);put2(ex+1,eyeY,E);put2(ex+1,eyeY+1,null);if(ex>9){put2(ex,eyeY,E);put2(ex,eyeY+1,null);put2(ex+1,eyeY+1,E);put2(ex+1,eyeY,null)}}
- else{put2(ex,eyeY,W_);put2(ex+1,eyeY,E);put2(ex,eyeY+1,E);put2(ex+1,eyeY+1,E)}});
- // sobrancelhas
- if(brows){const BR=hex(mul(p.hair||[60,40,20],.8));eyeX.forEach((ex,i)=>{const inner=i==0?ex+1:ex,outer=i==0?ex:ex+1;
-  if(mood=="sad"){put2(inner,eyeY-3,BR);put2(outer,eyeY-2,BR)}else{put2(ex,eyeY-2,BR);put2(ex+1,eyeY-2,BR)}})}
- // bochechas
- [eyeX[0]-1,eyeX[1]+2].forEach(x=>put2(x,eyeY+2,PK));
- // focinho / nariz
- if(furry){put2(9,12,k=="cat"?"#ff8fa3":E);put2(10,12,k=="cat"?"#ff8fa3":E)}
- if(k=="penguin"){put2(9,12,"#f5a623");put2(10,12,"#f5a623");put2(9,13,"#d68910");put2(10,13,"#d68910")}
- if(k=="cat")[[2,12],[3,12],[16,12],[17,12]].forEach(([x,y])=>put2(x,y,E));
+// ---------- sombreamento em 3 tons com pontilhado ----------
+const out=col.map(r=>r.slice()),noShade=new Set(["screen","pom","band"]),bb={};
+for(let y=0;y<PH;y++)for(let x=0;x<PW;x++){const m=mat[y][x];if(!m)continue;const b=bb[m]||(bb[m]=[99,99,0,0]);b[0]=Math.min(b[0],x);b[1]=Math.min(b[1],y);b[2]=Math.max(b[2],x);b[3]=Math.max(b[3],y)}
+for(let y=0;y<PH;y++)for(let x=0;x<PW;x++){const m=mat[y][x];if(!m||noShade.has(m))continue;const c=hexToRgb(col[y][x]),b=bb[m];
+ const w=Math.max(1,b[2]-b[0]),h=Math.max(1,b[3]-b[1]),rx=(x-(b[0]+w*.32))/w,ry=(y-(b[1]+h*.24))/h,r=Math.sqrt(rx*rx+ry*ry);
+ const same=(X,Y)=>Y>=0&&Y<PH&&X>=0&&X<PW&&mat[Y][X]==m;
+ let v=c;if(r<.26)v=lift(c,.2);else if(r>.8)v=mul(c,.84);
+ if(!same(x+1,y)||!same(x,y+1))v=mul(v,.88);else if(!same(x-1,y)||!same(x,y-1))v=lift(v,.1);out[y][x]=hex(v)}
+const P=(x,y,c)=>{x=Math.round(x);y=Math.round(y);if(x>=0&&y>=0&&x<PW&&y<PH)out[y][x]=c};
+// brilho do cabelo (arco)
+if(human)for(let y=0;y<PH;y++)for(let x=0;x<PW;x++){if(mat[y][x]!="hair")continue;const e=((x-16)/8)**2+((y-9)/4.5)**2;if(e>.78&&e<1.05&&(x+y)%3!=0)out[y][x]=hex(lift(HAc,.42));else if(y>13&&(x*7+Math.floor(y/3))%5==0&&mat[y-1]&&mat[y-1][x]=="hair")out[y][x]=hex(mul(HAc,.72))}
+// ---------- rosto ----------
+const E="#2a1a12",WH="#ffffff",EC=hex(EYEC[(p.eyeC||0)%EYEC.length]),PK="#f2909f",SKD=hex(mul(SKc,.78));
+const blushC=furry||k=="ghost"||k=="frog"?"#f7a1b0":hex([Math.min(255,SKc[0]+20),SKc[1]*.72,SKc[2]*.75]);
+if(face){eyes.forEach(([cx,cy],i)=>{
+ if(blink||mood=="happy"){const up=mood=="happy";for(let d=-2;d<=2;d++)P(cx+d,cy+(up?(Math.abs(d)==2?1:0):1)-(up?0:0),E);return}
+ const big=!human;// bichos: olhão
+ if(!human){for(let y=-2;y<=2;y++)for(let x=-3;x<=3;x++)if((x/2.6)**2+(y/2.4)**2<=1)P(cx+x,cy+y,E);P(cx-1,cy-1,WH);P(cx,cy-1,WH);P(cx+1,cy+1,"#8a8aa8");return}
+ const ix=Math.round(cx),iy=Math.round(cy);
+ for(let y=-1;y<=2;y++)for(let x=-2;x<=2;x++)if((x/2.5)**2+((y-.5)/1.9)**2<=1)P(ix+x,iy+y,WH);
+ const ECD=hex(mul(EYEC[(p.eyeC||0)%EYEC.length],.45));[[0,-1],[1,-1],[0,0],[1,0],[0,1],[1,1]].forEach(([x,y])=>P(ix+x-(i?1:0),iy+y,EC));
+ P(ix-(i?1:0),iy,ECD);P(ix+1-(i?1:0),iy,ECD);P(ix-(i?1:0),iy+1,ECD);P(ix-(i?1:0),iy-1,WH);
+ for(let x=-2;x<=2;x++)P(ix+x,iy-2,E);P(i?ix+3:ix-3,iy-2,E);P(i?ix+3:ix-3,iy-3,E)});
+ if(human){const BR=hex(mul(HAc,.7));eyes.forEach(([cx,cy],i)=>{for(let d=-2;d<=2;d++){const tilt=mood=="sad"?(i?-d:d)*.45:0;P(cx+d,cy-5+tilt-(Math.abs(d)<=1?1:0)*(mood=="happy"?1:0),BR)}})}
+ // blush
+ eyes.forEach(([cx,cy],i)=>{for(let y=0;y<=1;y++)for(let x=-2;x<=2;x++)if((x+y)%2==0)P(cx+(i?1:-1)+x,cy+4+y,blushC)});
+ // nariz
+ if(human){P(19,25,SKD);P(20,26,SKD);P(19,26,SKD);P(18,24,hex(lift(SKc,.3)))}
+ if(furry){const nc=k=="cat"?"#ff8fa3":"#2a1a12";[[18,25],[19,25],[20,25],[21,25],[19,26],[20,26]].forEach(([x,y])=>P(x,y,nc));P(19,25,"#ffffff")}
+ if(k=="penguin"){[[17,26],[18,26],[19,26],[20,26],[21,26],[22,26],[18,27],[19,27],[20,27],[21,27],[19,28],[20,28]].forEach(([x,y],i)=>P(x,y,i<6?"#f5a623":"#d68910"))}
+ if(k=="cat")[[3,26],[4,26],[5,26],[6,26],[33,26],[34,26],[35,26],[36,26],[4,28],[5,28],[34,28],[35,28]].forEach(([x,y])=>P(x,y,E));
  // boca
- const my=furry?14:mouthY;
- if(k=="frog"){for(let x=6;x<=13;x++)put2(x,my,E);if(mood=="happy"){put2(5,my-1,E);put2(14,my-1,E)}if(mood=="sad"){put2(5,my+1,E);put2(14,my+1,E)}}
- else if(mood=="happy"){put2(8,my,E);put2(11,my,E);put2(9,my+1,E);put2(10,my+1,"#e0556b")}
- else if(mood=="sad"){put2(8,my+1,E);put2(9,my,E);put2(10,my,E);put2(11,my+1,E)}
- else if(p.mouth==1&&furry){put2(8,my,E);put2(9,my+1,E);put2(10,my,E);put2(11,my+1,E)}// :3
- else{put2(8,my,E);put2(9,my+1,E);put2(10,my+1,E);put2(11,my,E)}
+ const my=mouthY,LIP=human?hex([Math.min(255,SKc[0]*.9+40),SKc[1]*.55,SKc[2]*.6]):"#e0556b";
+ if(k=="frog"){for(let x=10;x<=29;x++)P(x,my+(mood=="happy"?(Math.abs(x-19.5)>7?-1:0):mood=="sad"?(Math.abs(x-19.5)>7?1:0):0),E)}
+ else if(mood=="happy"){for(let x=-3;x<=3;x++)P(19.5+x,my+(Math.abs(x)==3?-1:0),E);for(let x=-2;x<=2;x++)P(19.5+x,my+1,x==0||Math.abs(x)==1?"#c0394f":E);P(19,my+1,"#ff8fa3");P(20,my+1,"#ff8fa3");for(let x=-1;x<=1;x++)P(19.5+x,my+2,E)}
+ else if(mood=="sad"){for(let x=-2;x<=2;x++)P(19.5+x,my+(Math.abs(x)==2?1:0),E)}
+ else if(furry&&p.mouth==1){P(17,my,E);P(18,my+1,E);P(19,my,E);P(20,my,E);P(21,my+1,E);P(22,my,E)}
+ else{for(let x=-2;x<=2;x++)P(19.5+x,my,E);if(human)for(let x=-1;x<=1;x++)P(19.5+x,my+1,LIP);P(17,my-1,E);P(22,my-1,E)}
 }
-if(k=="robot"){const sc=mood=="sad"?"#ff5a4e":"#4ef0ff";[[6,7],[12,13]].forEach(([a,b])=>{for(let x=a;x<=b;x++){put2(x,9,blink?"#1e2a3a":sc);put2(x,8,blink?"#1e2a3a":(mood=="happy"?sc:"#1e2a3a"))}});
- for(let x=7;x<=12;x++)put2(x,11,mood=="sad"?(x==7||x==12?"#1e2a3a":"#ff5a4e"):(x%2?"#4ef0ff":"#1e2a3a"));put2(9,0,"#ff5a4e");put2(10,0,"#ff5a4e")}
-if(k=="alien"){[[6.5,10,.4],[12.5,10,-.4]].forEach(([cx,cy,r])=>{for(let y=7;y<=13;y++)for(let x=4;x<=15;x++)if(ell(cx,cy,1.7,2.5,r)(x,y))put2(x,y,blink?hex(mul(p.fur,.8)):"#141420")});
- if(!blink){put2(6,9,W_);put2(12,9,W_)}put2(5,0,"#f7c331");put2(14,0,"#f7c331");
- if(mood=="happy"){put2(8,14,E);put2(9,15,E);put2(10,15,E);put2(11,14,E)}else if(mood=="sad"){put2(8,15,E);put2(9,14,E);put2(10,14,E);put2(11,15,E)}else{put2(9,14,E);put2(10,14,E)}}
+if(k=="robot"){const sc=mood=="sad"?"#ff5a4e":"#4ef0ff",scD=mood=="sad"?"#a8302a":"#1f8fa0";
+ [[13,16],[23,16]].forEach(([x0,y0])=>{for(let y=0;y<4;y++)for(let x=0;x<4;x++)P(x0+x,y0+y,blink?(y==3?sc:"#1a2433"):(mood=="happy"&&y>=2?"#1a2433":(x==0&&y==0?"#ffffff":sc)))});
+ for(let x=14;x<=25;x++)P(x,23,mood=="sad"?(x<16||x>23?"#1a2433":sc):(x%2?sc:scD));P(19,0,"#ff5a4e");P(20,0,"#ff5a4e");[[9,9],[30,9],[9,28],[30,28]].forEach(([x,y])=>P(x,y,"#6f7584"))}
+if(k=="alien"){[[14,21,.45],[25,21,-.45]].forEach(([cx,cy,r],i)=>{for(let y=13;y<=29;y++)for(let x=6;x<=33;x++)if(ell(cx,cy,3,4.6,r)(x,y))P(x,y,blink?hex(mul(FUc,.8)):"#141420");if(!blink){P(cx-1,cy-2,WH);P(cx,cy-2,WH);P(cx-1,cy-1,WH);P(cx+1,cy+2,"#5a5a80")}});
+ P(11,1,"#f7c331");P(28,1,"#f7c331");P(10,1,"#f7c331");P(29,1,"#f7c331");const my=30;
+ if(mood=="happy"){for(let x=-2;x<=2;x++)P(19.5+x,my+(Math.abs(x)==2?-1:0),E)}else if(mood=="sad"){for(let x=-2;x<=2;x++)P(19.5+x,my+(Math.abs(x)==2?0:-1),E)}else{P(19,my,E);P(20,my,E)}}
+if(k=="ghost"){P(9,27,"#f7a1b0");P(10,27,"#f7a1b0");P(29,27,"#f7a1b0");P(30,27,"#f7a1b0")}
 // ---------- acessórios ----------
-const acc=p.acc||[];
-if(acc.includes("freck")&&k=="person")[[6,12],[7,13],[13,12],[12,13]].forEach(([x,y])=>put2(x,y,hex(mul(p.skin,.7))));
-if(acc.includes("must")&&k=="person"){for(let x=8;x<=11;x++)put2(x,12,H_);put2(7,13,H_);put2(12,13,H_)}
-if(acc.includes("glass")&&k=="person")eyeX.forEach(ex=>{for(let x=ex-1;x<=ex+2;x++){put2(x,eyeY-1,"#2a2a3a");put2(x,eyeY+2,"#2a2a3a")}put2(ex-1,eyeY,"#2a2a3a");put2(ex-1,eyeY+1,"#2a2a3a");put2(ex+2,eyeY,"#2a2a3a");put2(ex+2,eyeY+1,"#2a2a3a")});
-if(acc.includes("ear")&&k=="person"){put2(3,12,"#f7c331");put2(16,12,"#f7c331")}
-if(acc.includes("scarf")&&k!="ghost"){const sc=hex(p.acc2||[214,48,49]),sd=hex(mul(p.acc2||[214,48,49],.75));for(let x=6;x<=13;x++){put2(x,17,sc);put2(x,18,x%2?sd:sc)}put2(13,19,sc);put2(13,20,sd);put2(14,19,sd)}
-if(acc.includes("neck")&&k=="person")[7,9,11,13].forEach(x=>put2(x,19,"#f7c331"));
-if(acc.includes("bow")){const b=hex(p.acc2||[255,122,162]),bd=hex(mul(p.acc2||[255,122,162],.75));[[13,3],[14,3],[13,4],[15,2],[15,3],[15,4],[16,3],[16,4],[17,2],[17,3],[17,4]].forEach(([x,y],i)=>put2(x,y,i==3?bd:b))}
-if(acc.includes("flower")&&k=="person"){[[5,4,"#ff7aa2"],[8,3,"#ffe84a"],[11,3,"#ff7aa2"],[14,4,"#8af0ff"]].forEach(([x,y,c])=>{put2(x,y,c);put2(x+1,y,"#5fb33a")})}
-if(acc.includes("tie")&&k!="ghost"&&k!="person"){const t=hex(p.acc2||[214,48,49]);[[8,18],[9,18],[10,18],[11,18],[9,19],[10,19],[8,19],[11,19]].forEach(([x,y],i)=>put2(x,y,i<2||i>5?t:hex(mul(p.acc2||[214,48,49],.7))))}
-if(k=="person"&&(p.sp==4))[[9,21],[9,23]].forEach(([x,y])=>put2(x,y,SH2));
-if(k=="ghost"){put2(4,12,PK);put2(15,12,PK)}
-if(p.vip){[[6,1],[9,0],[13,1]].forEach(([x,y])=>{put2(x,y,"#ffe27a");put2(x,y+1,"#f7c331")});for(let x=6;x<=13;x++){put2(x,2,"#f7c331");put2(x,3,"#d4a017")}put2(9,2,"#e74c3c");put2(10,2,"#e74c3c")}
+const acc=p.acc||[],AC=hex(p.acc2||[214,48,49]),ACD=hex(mul(p.acc2||[214,48,49],.72));
+if(human&&acc.includes("freck"))[[11,26],[13,27],[12,28],[26,26],[28,27],[27,28]].forEach(([x,y])=>P(x,y,hex(mul(SKc,.68))));
+if(human&&acc.includes("must")){for(let x=-4;x<=4;x++)P(19.5+x,27+(Math.abs(x)>=3?1:0),HA);for(let x=-3;x<=3;x++)P(19.5+x,26,HA)}
+if(human&&acc.includes("glass"))eyes.forEach(([cx,cy])=>{for(let a=0;a<24;a++){const t=a/24*Math.PI*2;P(cx+Math.cos(t)*4,cy+Math.sin(t)*3.3,"#3a3a4a")}P(19,22,"#3a3a4a");P(20,22,"#3a3a4a")});
+if(human&&acc.includes("ear")){[[8,26],[8,27],[31,26],[31,27]].forEach(([x,y])=>P(x,y,"#f7c331"));P(8,28,"#ffe27a");P(31,28,"#ffe27a")}
+if(acc.includes("scarf")&&k!="ghost"){for(let y=34;y<=38;y++)for(let x=-9;x<=9;x++)if(Math.abs(x)<=9-(y-34)*.3)P(19.5+x,y,(x+y)%4<2?AC:ACD);for(let y=38;y<=44;y++){P(26,y,AC);P(27,y,ACD)}}
+if(human&&acc.includes("neck"))for(let x=-5;x<=5;x+=2)P(19.5+x,39+(Math.abs(x)<2?1:0),"#f7c331");
+if(acc.includes("bow")){const c=AC;[[27,4],[28,3],[29,4],[28,5],[27,5],[26,4],[30,5],[31,4],[32,3],[33,4],[32,5],[31,5],[29,5],[30,4]].forEach(([x,y],i)=>P(x,y,i<6?c:ACD));P(29,4,ACD)}
+if(human&&acc.includes("flower"))[[9,8,"#ff7aa2"],[13,5,"#ffe84a"],[19,4,"#ff7aa2"],[25,5,"#8af0ff"],[29,8,"#ffe84a"]].forEach(([x,y,c])=>{P(x,y,c);P(x+1,y,c);P(x,y+1,c);P(x+1,y+1,"#fff");P(x+2,y+1,"#5fb33a")});
+if(human&&acc.includes("leaf")){[[27,6],[28,5],[29,5],[30,4],[31,4],[28,6],[29,6],[30,5],[32,3],[26,7]].forEach(([x,y],i)=>P(x,y,i%3?"#5fb33a":"#3f8a2e"));P(27,7,"#c0392b");P(26,7,"#c0392b")}
+if(!human&&acc.includes("tie")&&k!="ghost"){[[16,37],[17,37],[18,38],[17,38],[16,39],[17,39],[21,38],[22,37],[23,37],[22,38],[22,39],[23,39],[19,38],[20,38]].forEach(([x,y],i)=>P(x,y,i>=12?ACD:AC))}
+if(human&&sp==4)[[19,41],[19,45],[19,49]].forEach(([x,y])=>P(x,y,"#f5efe0"));
+if(p.vip){const top=human?(p.hat==3?0:3):k=="robot"?2:4;for(let x=-6;x<=6;x++){P(19.5+x,top+3,"#f7c331");P(19.5+x,top+4,"#d4a017")}[[-6,0],[-3,1],[0,-1],[3,1],[6,0]].forEach(([x,y])=>{P(19.5+x,top+y+1,"#ffe27a");P(19.5+x,top+y+2,"#f7c331")});P(19,top+3,"#e74c3c");P(20,top+3,"#e74c3c")}
 return toImg(PW,PH,out,null)}
 function personImg(p,mood,blink){return charImg(p,mood,blink)}
 const KINDS=[["cat",[[240,160,80],[120,120,130],[60,50,50],[250,240,230]],["Sr. Bigode","Mia","Felino Félix","Pantufa"]],["dog",[[190,130,80],[120,80,50],[230,210,170]],["Totó","Bolinha","Paçoca","Caramelo"]],
@@ -422,8 +438,8 @@ const want=vip?maxD:Math.min(maxD,R([0,1,1,2,2,3].filter(d=>d<=maxD))),cand=pool
 const t=R(cand.length?cand:pool),reqs=reqsFrom(t,n,L);
 let rw=4+reqs.length*5+L*2+t.d*6;reqs.forEach(r=>{if(r.k=="el")rw+=12;if(r.k=="mini"||r.k=="enorme")rw+=10;if(r.k=="micro"||r.k=="giga")rw+=22;if(r.k=="hero")rw+=30});if(vip)rw*=3;
 const kd=Math.random()<.45?R(KINDS):null;
-const ACC=["freck","must","glass","ear","scarf","neck","bow","flower","tie"],acc=[];for(let q=0;q<N(0,2);q++)acc.push(R(ACC));
-return{name:vip?R(VIPS):kd?R(kd[2]):R(NAMES),kind:kd?kd[0]:"person",fur:kd?R(kd[1]):null,vip,skin:R(SKIN),hair:R(HAIR),hs:R([0,0,1,1,2,3,4,5,6,7]),hat:Math.random()<.25?N(1,3):0,hat2:R(SHIRT),sp:N(0,4),acc,acc2:R(SHIRT),mouth:N(0,1),blinkD:Math.random()*4,shirt:R(SHIRT),gl:false,reqs,rw,t0:now(),
+const ACC=["freck","must","glass","ear","scarf","neck","bow","flower","tie","leaf"],acc=[];for(let q=0;q<N(0,2);q++)acc.push(R(ACC));
+return{name:vip?R(VIPS):kd?R(kd[2]):R(NAMES),kind:kd?kd[0]:"person",fur:kd?R(kd[1]):null,vip,skin:R(SKIN),hair:R(HAIR),hs:R([0,0,1,1,2,2,3,4,5,6,7,8]),eyeC:N(0,5),hat:Math.random()<.25?N(1,3):0,hat2:R(SHIRT),sp:N(0,4),acc,acc2:R(SHIRT),mouth:N(0,1),blinkD:Math.random()*4,shirt:R(SHIRT),gl:false,reqs,rw,t0:now(),
 pat:(95000+t.d*45000+reqs.length*15000)*(vip?.85:1),come:true,tg:rk(t),td:t.d}}
 function stImg(x){if(x.img)return x.img;let a=x;while(a.p)a=a.p[0];return {...a.img,rgb:x.rgb,hero:x.hero,cape:x.hero?"#d63031":null}}
 function stLabel(x){return x.d==0?x.name:(x.hero?"Super ":"")+sizeName(x.tam)+" "+colorName(x.rgb)+(x.el?" "+ELEM[x.el].n:"")}
