@@ -572,7 +572,7 @@ async function showCard(k){const c=await cardCanvas(k),url=c.toDataURL("image/pn
 openModal(`<h2>CARTA DA ESPÉCIE</h2><img id="cardimg" src="${url}"><p style="font-size:.78rem;opacity:.75;margin:4px 0">Mostre pros amigos! Se o botão não funcionar aqui, faça um print da carta.</p>
 <button class="big" id="cdl">BAIXAR</button><button class="big" id="csh">COMPARTILHAR</button><br><button class="big alt" id="cl">FECHAR</button>`);
 $("cl").onclick=closeModal;
-$("cdl").onclick=()=>{try{const a=document.createElement("a");a.href=url;a.download=`frutodromo-especie-${t.n}.png`;document.body.appendChild(a);a.click();a.remove();toast("Carta baixada!")}catch(e){toast("Não deu pra baixar aqui. Faça um print!")}};
+$("cdl").onclick=()=>{if(window.self!==window.top)return toast("Aqui não dá pra baixar. Faça um print, ou abra mendesoz.github.io/frutodromo");try{const a=document.createElement("a");a.href=url;a.download=`frutodromo-especie-${t.n}.png`;document.body.appendChild(a);a.click();a.remove();toast("Carta baixada!")}catch(e){toast("Não deu pra baixar aqui. Faça um print!")}};
 $("csh").onclick=async()=>{try{const blob=await (await fetch(url)).blob(),file=new File([blob],`frutodromo-${t.n}.png`,{type:"image/png"});
 if(navigator.canShare&&navigator.canShare({files:[file]}))await navigator.share({files:[file],title:"Frutódromo",text:`Olha a fruta que eu descobri no Frutódromo: ${t.name}! mendesoz.github.io/frutodromo`});
 else{await navigator.clipboard.writeText(`Olha a fruta que eu descobri no Frutódromo: ${t.name} (${spLabel(k)})! mendesoz.github.io/frutodromo`);toast("Texto copiado! Cole junto com o print.")}}catch(e){toast("Compartilhar não funciona aqui. Abra pelo link do GitHub Pages!")}}}
