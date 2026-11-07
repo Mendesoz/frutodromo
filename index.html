@@ -48,7 +48,7 @@ header{flex:0 0 auto;display:flex;gap:4px;align-items:center;padding:5px 4px;bac
 #table{position:relative;flex:1 1 auto;overflow:hidden;touch-action:none;background:repeating-linear-gradient(0deg,#b8794a 0 34px,#a86a3d 34px 37px,#2a1a1240 37px 39px);border-top:3px solid #2a1a12}
 #table:after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(90deg,#0000 0 120px,#00000014 120px 123px)}
 .tip{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;color:#ffe9b8;font-size:.9rem;pointer-events:none;text-shadow:2px 2px 0 #2a1a12;line-height:1.5;z-index:1}
-.fr{position:absolute;touch-action:none;user-select:none;cursor:grab;z-index:2}
+.fr{position:absolute;touch-action:none;user-select:none;cursor:grab;z-index:4}
 .fr>img{width:100%;height:100%;pointer-events:none}
 .fr:before{content:"";position:absolute;left:18%;right:18%;bottom:-2px;height:8px;background:#0003}
 .fr.drag{z-index:40;transform:translateY(-6px)}
@@ -64,7 +64,7 @@ header{flex:0 0 auto;display:flex;gap:4px;align-items:center;padding:5px 4px;bac
 .fx-rise{animation:rise 1.4s steps(5) infinite}@keyframes rise{from{transform:translateY(0);opacity:1}to{transform:translateY(-20px);opacity:0}}
 #bin{position:absolute;right:8px;bottom:8px;width:60px;height:60px;background:#5b3a22;color:#ffe9b8;font-size:.6rem;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.15;pointer-events:none;z-index:1}
 #bin.hot{background:#c0392b}
-#pot{position:absolute;left:10px;bottom:8px;width:96px;z-index:3;cursor:pointer;touch-action:none}
+#pot{position:absolute;left:10px;bottom:8px;width:96px;z-index:3;cursor:grab;touch-action:none;user-select:none}#pot.mv{z-index:45;cursor:grabbing;transform:translateY(-4px);filter:drop-shadow(0 8px 0 #0004)}#pot img{pointer-events:none}
 #pot img{width:96px;height:88px}#pot.hot img{filter:drop-shadow(3px 0 0 #b49bff) drop-shadow(-3px 0 0 #b49bff) drop-shadow(0 -3px 0 #b49bff)}
 #pot.brew img{animation:brew .12s steps(2) infinite}@keyframes brew{50%{transform:translate(3px,-2px) rotate(2deg)}}
 #potslots{display:flex;gap:4px;justify-content:center;margin-bottom:2px;min-height:30px}
@@ -287,7 +287,7 @@ let S,running=false,modalOpen=false;const sk=k=>false;const dayLen=()=>150000+(s
 function level(){return 1+Math.floor(S.delivered/3)}
 const now=()=>S.clock;
 function baseFruit(b){const c=typeof b[4]=="string"?COLORS[b[4]].slice():b[4].slice();return{id:"f"+(S.id++),tip:b[0]=="Banana"?"#6b4423":b[0]=="Pimenta-Dragão"?"#3f9a3a":null,root:b[0].split(/[ -]/)[0],shape:b[1],pat:b[2],top:b[3],rgb:c,doce:b[5],az:b[6],tam:b[7],gen:0,mut:false,el:b[10]||null,hero:false,base:b[0]}}
-function fresh(){S={coins:25,delivered:0,id:1,fruits:[],pot:[],cust:[null,null,null],clock:0,day:1,dayT:0,ds:{earn:0,served:0,best:0,dex:0},dex:{},tree:{},started:false,ess:0,sk:{}};
+function fresh(){S={potPos:null,coins:25,delivered:0,id:1,fruits:[],pot:[],cust:[null,null,null],clock:0,day:1,dayT:0,ds:{earn:0,served:0,best:0,dex:0},dex:{},tree:{},started:false,ess:0,sk:{}};
 [0,1,2,4,5,6].forEach((bi,i)=>{const f=baseFruit(BASE[bi]);f.x=14+(i%3)*104;f.y=12+Math.floor(i/3)*92;S.fruits.push(f)})}
 try{S=JSON.parse(localStorage.getItem("frutodromo9"))}catch(e){}if(!S||!S.fruits)fresh();
 const save=()=>{try{localStorage.setItem("frutodromo9",JSON.stringify(S))}catch(e){}};
@@ -406,7 +406,7 @@ ${st("Doce",f.doce,"#ff5f9e")}${st("Azedo",f.az,"#9ccc2e")}${tamTxt}${S.pot.leng
 function renderMarket(){const L=level();$("market").innerHTML=BASE.map((b,i)=>{const f={shape:b[1],pat:b[2],top:b[3],rgb:typeof b[4]=="string"?COLORS[b[4]]:b[4],tip:b[0]=="Banana"?"#6b4423":b[0]=="Pimenta-Dragão"?"#3f9a3a":null};const lock=L<b[9],rare=b[9]>1;
 return `<div class="mk px ${lock?"lock":S.coins<b[8]?"off":""} ${rare&&!lock?"rare":""}" onclick="buy(${i})"><img src="${fruitImg(f)}">${lock?"???":b[0]}<div class="pr">${lock?"NÍVEL "+b[9]:`<span class="coin"></span>${b[8]}`}</div></div>`}).join("")}
 function buy(i){const b=BASE[i];if(level()<b[9])return toast(`Libera no nível ${b[9]}`);if(S.coins<b[8])return toast("Moedas insuficientes");S.coins-=b[8];const f=baseFruit(b);
-f.x=N(110,Math.max(110,tbl.clientWidth-150));f.y=N(10,Math.max(10,tbl.clientHeight-170));clampPos(f);S.fruits.push(f);dexCheck(f);SFX.buy();save();$("coins").textContent=S.coins;renderTable(f.id);renderMarket()}
+{const pr=$("pot"),pw={x:pr.offsetLeft,y:pr.offsetTop,w:pr.offsetWidth,h:pr.offsetHeight};let k=0;do{f.x=N(10,Math.max(10,tbl.clientWidth-110));f.y=N(10,Math.max(10,tbl.clientHeight-110));k++}while(k<30&&f.x+fsize(f)>pw.x&&f.x<pw.x+pw.w&&f.y+fsize(f)>pw.y&&f.y<pw.y+pw.h)}clampPos(f);S.fruits.push(f);dexCheck(f);SFX.buy();save();$("coins").textContent=S.coins;renderTable(f.id);renderMarket()}
 /* ================= cenário ================= */
 const JAR=["cccccc","cccccc",".gggg.","gjjjjg","gwjjjg","gwjjjg","gjjjjg","gjjjjg",".gggg."];
 const PLANT=["....l..l....","..l.ll.l.l..","...lLLll....",".l.lLllLl.l.","..lLLllLLl..","...lLllLl...",".....ll.....","..pppppppp..","..pPPPPPPp..","...pppppp...","...pppppp...","....pppp...."];
@@ -442,7 +442,13 @@ S.fruits.push(c);sel=c.id;treeAdd(c,ing);save();renderTable(c.id);renderPot();re
 const er=tbl.querySelector(`[data-id="${c.id}"]`).getBoundingClientRect(),ex=er.left+er.width/2,ey=er.top+er.height/2;burst(ex,ey,c.rgb,24);
 if(c.mut||c.hero){burst(ex,ey,[180,155,255],18);SFX.mut()}else SFX.pop();if(c.el=="fogo")SFX.fire();
 toast((kids.length>1?"<b>GÊMEOS!</b> ":"")+(c.hero?`<b>SUPER-FRUTA!</b> ${fname(c)}`:c.mut?`<b>MUTAÇÃO!</b> ${fname(c)}`:`Nasceu: <b>${fname(c)}</b>`))})},sk("c1")?550:1100)}
-$("pot").addEventListener("click",()=>{if(brewing||!S.pot.length||modalOpen)return;if(S.pot.length>=2)return brew();const f=S.pot.pop();const tr=tbl.getBoundingClientRect(),pr=$("pot").getBoundingClientRect();f.x=pr.right-tr.left+8;f.y=pr.top-tr.top;clampPos(f);S.fruits.push(f);save();renderTable(f.id);renderPot()});
+function potTap(){if(brewing||!S.pot.length||modalOpen)return;if(S.pot.length>=2)return brew();const f=S.pot.pop();const tr=tbl.getBoundingClientRect(),pr=$("pot").getBoundingClientRect();f.x=pr.right-tr.left+8;f.y=pr.top-tr.top;clampPos(f);S.fruits.push(f);save();renderTable(f.id);renderPot()}
+function placePot(){const p=$("pot");if(!S.potPos)return;const w=p.offsetWidth,h=p.offsetHeight;S.potPos.x=cl(S.potPos.x,0,Math.max(0,tbl.clientWidth-w));S.potPos.y=cl(S.potPos.y,0,Math.max(0,tbl.clientHeight-h));p.style.left=S.potPos.x+"px";p.style.top=S.potPos.y+"px";p.style.bottom="auto"}
+(()=>{const p=$("pot");let sx,sy,ox,oy,on=false,mv=false;
+p.addEventListener("pointerdown",e=>{if(modalOpen)return;e.preventDefault();p.setPointerCapture(e.pointerId);sx=e.clientX;sy=e.clientY;ox=p.offsetLeft;oy=p.offsetTop;on=true;mv=false});
+p.addEventListener("pointermove",e=>{if(!on)return;const dx=e.clientX-sx,dy=e.clientY-sy;if(!mv&&Math.abs(dx)+Math.abs(dy)<6)return;if(!mv){mv=true;p.classList.add("mv")}
+S.potPos={x:ox+dx,y:oy+dy};placePot()});
+const up=()=>{if(!on)return;on=false;p.classList.remove("mv");if(mv){save();return}potTap()};p.addEventListener("pointerup",up);p.addEventListener("pointercancel",up)})();
 /* ================= efeitos ================= */
 function burst(x,y,rgb,n){for(let i=0;i<n;i++){const d=document.createElement("div");d.className="pt";d.style.background=i%3==0?"#ffffff":hex(i%2?rgb:lift(rgb,.4));d.style.left=x+"px";d.style.top=y+"px";document.body.appendChild(d);
 const a=Math.random()*Math.PI*2,r=28+Math.random()*50;d.animate([{transform:"translate(0,0)",opacity:1},{transform:`translate(${Math.cos(a)*r}px,${Math.sin(a)*r-18}px)`,opacity:0}],{duration:600+Math.random()*300,easing:"steps(6)"}).onfinish=()=>d.remove()}}
@@ -482,7 +488,7 @@ openModal(`<div class="logo">FRUTÓDROMO</div><p style="margin-top:0">A quitanda
 <p style="font-size:.8rem;text-align:left">• Jogue 2 frutas no <b>caldeirão</b> pra criar híbridos<br>• <b>Parecidos se intensificam</b>: pequena + pequena encolhe, grande + grande cresce, doce + doce fica mais doce<br>• Entregue o que os clientes pedem nos balões<br>• Expanda a <b>Árvore de Espécies</b>: cada combinação nova vira uma espécie, e ela não tem fim</p>
 <button class="big" id="go">${cont?"CONTINUAR · DIA "+S.day:"ABRIR A QUITANDA"}</button><br><button class="big alt" id="sndb" onclick="toggleSnd()"></button>${cont?'<button class="big alt" id="newg">NOVO JOGO</button>':""}`);sndLabel();
 $("go").onclick=()=>{ac();closeModal();if(!running)startDay()};
-if(cont)$("newg").onclick=e=>{if(!armed){armed=true;e.target.textContent="TOQUE DE NOVO PRA APAGAR TUDO";return}fresh();S.fruits.forEach(f=>dexCheck(f,true));save();sel=null;showInfo(null);ac();closeModal();renderAll();startDay()}}
+if(cont)$("newg").onclick=e=>{if(!armed){armed=true;e.target.textContent="TOQUE DE NOVO PRA APAGAR TUDO";return}fresh();S.fruits.forEach(f=>dexCheck(f,true));const pe=$("pot");pe.style.left="10px";pe.style.top="";pe.style.bottom="8px";save();sel=null;showInfo(null);ac();closeModal();renderAll();startDay()}}
 function gainEss(){}
 function predict(a,b){const e=elOut(a,b),t=inh(a.tam,b.tam,12);return `Doce ${inh(a.doce,b.doce,10)} · Azedo ${inh(a.az,b.az,10)} · ${sizeName(t)} (${t}) · cor ${colorName(a.rgb.map((x,i)=>(x+b.rgb[i])/2))}${e.el?" · "+ELEM[e.el].n:""}${e.hero?" · <b>SUPER!</b>":""}`}
 /* ================= guia de cores ================= */
@@ -541,7 +547,7 @@ S.cust.forEach((c,i)=>{if(!c||c.leaving)return;const el=document.querySelector(`
 el.querySelectorAll(".pat i").forEach((x,k)=>x.style.background=k<on?pc:"");const pb=el.querySelector(".pay b");if(pb)pb.textContent=pay(c);
 if((left<.2?"1":"0")!=el.dataset.low&&!document.querySelector(".fr.drag"))renderCounter()});
 if((saveT+=dt)>4000){saveT=0;save()}}hud()},250);
-window.addEventListener("resize",()=>{S.fruits.forEach(clampPos);renderTable();renderProps()});
+window.addEventListener("resize",()=>{S.fruits.forEach(clampPos);renderTable();renderProps();placePot()});
 S.pot=S.pot||[];if(S.pot.length==2){S.fruits.push(...S.pot);S.pot=[]}
-S.ess=S.ess||0;S.sk=S.sk||{};S.tree=S.tree||{};S.fruits.forEach(f=>{clampPos(f);treeAdd(f,null,true)});renderProps();renderAll();startScreen();
+S.ess=S.ess||0;S.sk=S.sk||{};S.tree=S.tree||{};S.fruits.forEach(f=>{clampPos(f);treeAdd(f,null,true)});renderProps();renderAll();placePot();startScreen();
 </script></body></html>

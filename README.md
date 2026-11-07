@@ -15,7 +15,7 @@ Frutódromo é um jogo de navegador em pixel art: você cruza frutas num caldeir
 ## Como jogar
 
 1. **Compre frutas** na feira (parte de baixo da tela).
-2. **Jogue 2 frutas no caldeirão** para cruzar e criar um híbrido.
+2. **Jogue 2 frutas no caldeirão** para cruzar e criar um híbrido. O caldeirão pode ser arrastado pra qualquer lugar da mesa.
 3. **Arraste a fruta até um cliente** que pediu algo parecido no balão.
 4. Arraste para o canto da mesa para **vender**.
 5. Toque numa fruta para ver os atributos — com 1 fruta no caldeirão, aparece a **previsão** do filho.
