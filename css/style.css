@@ -27,7 +27,7 @@ header{flex:0 0 auto;display:flex;gap:4px;align-items:center;padding:5px 4px;bac
 .cust.hot img.p{filter:drop-shadow(2px 0 0 #3ce06f) drop-shadow(-2px 0 0 #3ce06f) drop-shadow(0 -2px 0 #3ce06f)}
 .cust.come .pw{animation:walkin 1.5s linear both;animation-delay:var(--wd)}.cust.come img.p,.cust.leave img.p{animation:stepb .24s steps(2) infinite}@keyframes stepb{50%{transform:translateY(-3px)}}@keyframes walkin{from{transform:translateX(var(--fx))}to{transform:none}}
 .cust.come .bub{animation:popin .3s steps(3) var(--bd) both}@keyframes popin{from{transform:scale(0)}}
-.cust.leave .pw{animation:walkout 1s ease-in forwards;animation-delay:var(--ld)}@keyframes walkout{to{transform:translateX(var(--fx))}}
+.cust.cust.leave .pw{animation:walkout 1s ease-in forwards;animation-delay:var(--ld)}.cust.cust.come .pw{animation:walkin 1.5s linear both;animation-delay:var(--wd)}@keyframes walkout{to{transform:translateX(var(--fx))}}
 .cust.leave .bub{visibility:hidden}
 .cust.sad .pw{animation:shake .15s steps(2) infinite}@keyframes shake{50%{transform:translateX(2px)}}
 .cust.vip .bub{background:#fff6cf}
