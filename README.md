@@ -48,7 +48,8 @@ O formato do filho é uma **fusão dos contornos dos pais**, então cada linhage
 - 👑 Clientes VIP, níveis e frutas raras que vão liberando
 - ✅ Todo pedido é possível: o cliente escolhe uma fruta que dá pra fazer com a feira do seu nível
 - 🎵 Efeitos e música em chiptune (Web Audio)
-- ⏸️ Pausa, e progresso salvo no navegador
+- ⏸️ Pausa, **Modo Zen** (sem relógio), volumes separados, tutorial, botão de arrumar a mesa e desfazer venda
+- 💾 Progresso salvo no navegador
 
 ## Rodando
 
