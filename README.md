@@ -54,17 +54,33 @@ O formato do filho é uma **fusão dos contornos dos pais**, então cada linhage
 - 📱 **Instalável como app** (PWA): no celular, abra o link e toque em "Adicionar à tela inicial". Funciona offline
 - 💾 Progresso salvo no navegador, com **código de backup** pra levar pra outro aparelho
 
+## Estrutura
+
+```
+frutodromo/
+├── index.html        # estrutura da página
+├── css/style.css     # visual: pixel art, cena, mesa, árvore e cartas
+├── js/game.js        # lógica: sprites gerados por código, genética, clientes, som e interface
+├── manifest.json     # dados do app instalável (PWA)
+├── sw.js             # service worker: funciona offline
+├── icon-192.png      # ícones do app
+├── icon-512.png
+├── docs/             # prints do README
+└── tools/split.py    # separa a versão de arquivo único em html/css/js
+```
+
 ## Rodando
 
-É um arquivo único, sem dependências nem build:
+Sem dependências nem build. Como o jogo carrega arquivos separados, rode com um servidor local:
 
 ```bash
 git clone https://github.com/Mendesoz/frutodromo.git
 cd frutodromo
-# abra o index.html no navegador
+python3 -m http.server 8000
+# abra http://localhost:8000
 ```
 
-Também roda direto pelo **GitHub Pages** (Settings → Pages → branch `main`).
+Ou jogue direto pelo **GitHub Pages**: [mendesoz.github.io/frutodromo](https://mendesoz.github.io/frutodromo/).
 
 ## Tecnologias
 
