@@ -2,6 +2,17 @@
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%;overflow:hidden;font-family:"Pixelify Sans",monospace;color:#2a1a12}
 body{display:flex;flex-direction:column;background:#2a1a12}
+:root{--fx:0px;--fy:0px}
+/* navegador no computador: jogo numa moldura de tamanho fixo, centralizada (como em sites de jogos) */
+@media (min-width:1200px) and (min-height:600px){
+ :root{--fw:min(calc(100vw - 48px),1100px);--fh:min(calc(100vh - 32px),860px);--fx:calc((100vw - var(--fw)) / 2);--fy:calc((100vh - var(--fh)) / 2)}
+ html{background:#1c120c;background-image:linear-gradient(45deg,#24170f 25%,#0000 25%,#0000 75%,#24170f 75%),linear-gradient(45deg,#24170f 25%,#0000 25%,#0000 75%,#24170f 75%);background-size:32px 32px;background-position:0 0,16px 16px}
+ body{width:var(--fw);height:var(--fh);margin:var(--fy) auto 0;border:4px solid #2a1a12;outline:4px solid #6b4423;box-shadow:0 0 0 8px #2a1a12,0 18px 40px #000a}
+ html #info{top:calc(var(--fy) + 326px)}
+ html .combo{right:calc(var(--fx) + 8px);top:calc(var(--fy) + 44px)}
+ html .armtip,html #undo{bottom:calc(var(--fy) + 92px)}
+ html #tv{inset:var(--fy) var(--fx)}
+}
 img{image-rendering:pixelated;image-rendering:crisp-edges;display:block}
 .px{border:3px solid #2a1a12;box-shadow:inset -3px -3px 0 #0002,inset 3px 3px 0 #fff5}
 header{flex:0 0 auto;display:flex;gap:4px;align-items:center;padding:5px 4px;background:#4a2e1c;border-bottom:3px solid #2a1a12;color:#ffe9b8;font-size:.82rem}
