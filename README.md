@@ -49,7 +49,10 @@ O formato do filho é uma **fusão dos contornos dos pais**, então cada linhage
 - ✅ Todo pedido é possível: o cliente escolhe uma fruta que dá pra fazer com a feira do seu nível
 - 🎵 Efeitos e música em chiptune (Web Audio)
 - ⏸️ Pausa, **Modo Zen** (sem relógio), volumes separados, tutorial, botão de arrumar a mesa e desfazer venda
-- 💾 Progresso salvo no navegador
+- 🃏 **Álbum de cartas** com molduras por raridade (borda arco-íris pras brilhantes, cantos dourados pras lendárias)
+- 🏆 **17 troféus** com recompensa e painel de recordes
+- 📱 **Instalável como app** (PWA): no celular, abra o link e toque em "Adicionar à tela inicial". Funciona offline
+- 💾 Progresso salvo no navegador, com **código de backup** pra levar pra outro aparelho
 
 ## Rodando
 

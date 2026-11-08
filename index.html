@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <title>Frutódromo — Randomizador de Frutas Doidas</title>
+<link rel="manifest" href="manifest.json"><meta name="theme-color" content="#4a2e1c"><link rel="apple-touch-icon" href="icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes">
 <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -179,6 +180,13 @@ header{flex:0 0 auto;display:flex;gap:4px;align-items:center;padding:5px 4px;bac
 .flt span{flex:0 0 auto;padding:2px 7px;border:2px solid #2a1a12;background:#f5efe0;font-size:.7rem;cursor:pointer;display:flex;align-items:center;gap:3px}
 .flt span.on{background:#f7c331}.flt .dt{width:10px;height:10px;border:2px solid #2a1a12}
 .sp.dim{opacity:.15}
+/* álbum e conquistas */
+.alb{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px;padding:10px}
+.ac{position:relative;background:#f5efe0;border:4px solid;box-shadow:0 0 0 2px #2a1a12;padding:6px 4px;text-align:center;font-size:.6rem;line-height:1.15;cursor:pointer}
+.ac img{width:64px;height:64px;margin:2px auto}.ac b{display:block;font-size:.8rem}.ac .no{position:absolute;top:2px;left:4px;font-size:.55rem;opacity:.6}
+.ac.shn{background:linear-gradient(135deg,#fff0fb,#fffbe0,#e8fdff);animation:shn 1.6s steps(8) infinite}
+.recs{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px}.recs div{background:#e9dcc3;border:2px solid #2a1a1240;padding:6px;text-align:left;font-size:.72rem}.recs b{display:block;font-size:1.05rem}
+.tvh .btn{padding:2px 5px}
 /* modais */
 #modal{position:fixed;inset:0;background:#2a1a12cc;display:none;align-items:center;justify-content:center;z-index:240;padding:14px}
 #modal.on{display:flex}
@@ -204,7 +212,7 @@ header{flex:0 0 auto;display:flex;gap:4px;align-items:center;padding:5px 4px;bac
 <div id="table"><div class="tip" id="tip">Compre frutas na feira.<br>Jogue 2 frutas no CALDEIRÃO: CRUZAR<br>Arraste até o cliente: ENTREGAR<br>Toque na fruta: VER ATRIBUTOS</div><button class="btn" id="tidy" style="position:absolute;right:6px;top:6px;z-index:5">ARRUMAR</button><div id="bin" class="px"><span class="coin" style="width:16px;height:16px;margin-bottom:3px"></span>Arraste<br>pra vender</div><div id="pot"><div id="potslots"></div><span class="bb" style="--dx:-14px;margin-left:-18px;animation-delay:0s"></span><span class="bb" style="--dx:6px;margin-left:2px;animation-delay:-.6s"></span><span class="bb" style="--dx:12px;margin-left:14px;animation-delay:-1.2s"></span><span class="stm" style="--dx:-10px"></span><span class="stm" style="--dx:12px;animation-delay:-1.3s"></span><img id="potimg"><div id="potlab">CALDEIRÃO</div></div></div>
 <div id="market"></div>
 <div id="info" class="px"></div><div class="combo" id="combo"></div><div id="undo"></div><div id="tut"></div>
-<div id="tv"><div class="tvh"><button class="btn on" id="tabT">ÁRVORE</button><button class="btn" id="tabC">CORES</button><span class="cnt" id="tvcnt"></span><button class="btn" id="zm">−</button><button class="btn" id="zp">+</button><button class="btn" id="tvx">X</button></div><div class="flt" id="tvf"></div><div id="tvb"></div><div id="tvd"></div></div>
+<div id="tv"><div class="tvh"><button class="btn on" id="tabT">ÁRVORE</button><button class="btn" id="tabC">CORES</button><button class="btn" id="tabA">ÁLBUM</button><button class="btn" id="tabQ">TROFÉUS</button><span class="cnt" id="tvcnt"></span><button class="btn" id="zm">−</button><button class="btn" id="zp">+</button><button class="btn" id="tvx">X</button></div><div class="flt" id="tvf"></div><div id="tvb"></div><div id="tvd"></div></div>
 <div id="rv"></div>
 <div id="modal"><div class="box px" id="mbox"></div></div>
 <div class="toast" id="toast"></div>
@@ -552,7 +560,7 @@ S.fruits=S.fruits.filter(x=>x!=f);sel=null;showInfo(null);save();renderTable();r
 function deliver(f,i,ox,oy){const c=S.cust[i];
 if(!c.reqs.every(r=>meets(f,r))){f.x=ox;f.y=oy;renderTable();c.mood="sad";renderCounter();SFX.bad();buzz(120);{const ce=document.querySelector(`.cust[data-i="${i}"] .bub`);if(ce){const r=ce.getBoundingClientRect();floatText(r.left+r.width/2,r.top+20,"✗","#ff5a4e")}}setTimeout(()=>{if(S.cust[i]==c){c.mood=null;renderCounter()}},1200);return toast(`${c.name}: "Não foi isso que eu pedi..."`)}
 const cb=comboHit(),bonus=cb>=2?Math.round(pay(c)*Math.min(.5,(cb-1)*.1)):0,v=pay(c)+bonus,L0=level();const ce=document.querySelector(`.cust[data-i="${i}"] .bub`).getBoundingClientRect();flyCoins(ce.left+ce.width/2,ce.top+ce.height/2,v,v);floatText(ce.left+ce.width/2,ce.top+10,"+"+v);if(cb>=2)setTimeout(()=>floatText(ce.left+ce.width/2,ce.top+40,`COMBO x${cb}!`,"#ff8ad8"),250);buzz([20,40,30]);
-S.delivered++;S.ds.served++;tutDone("t2");gainEss(c.vip?3:1);S.ds.earn+=v;S.ds.best=Math.max(S.ds.best,v);S.fruits=S.fruits.filter(x=>x!=f);sel=null;showInfo(null);c.mood="happy";renderTable();renderCounter();renderMarket();
+S.delivered++;S.ds.served++;if(c.vip)rec("vips",1);tutDone("t2");gainEss(c.vip?3:1);S.ds.earn+=v;S.ds.best=Math.max(S.ds.best,v);S.fruits=S.fruits.filter(x=>x!=f);sel=null;showInfo(null);c.mood="happy";renderTable();renderCounter();renderMarket();
 toast(`${c.name} adorou! <b>+${v}</b> moedas${level()>L0?`<br><b>NÍVEL ${level()}!</b>${newUnlock(level())}`:""}`);if(level()>L0){SFX.lvl();shake(5);buzz([40,60,40,60,80])}
 setTimeout(()=>{c.leaving=true;renderCounter();setTimeout(()=>{S.cust[i]=null;renderCounter();setTimeout(()=>{if(running&&!S.cust[i]){S.cust[i]=newCust();save();renderCounter()}},700)},700)},900)}
 function newUnlock(L){const u=BASE.filter(b=>b[9]==L).map(b=>b[0]);const extra={2:"Clientes pedem frutas MINI e ENORMES",3:"Pedidos de FOGO e clientes VIP",4:"Pedidos de GELO e cores raras",5:"Microscópicas, Gigantescas e SUPER-FRUTAS"}[L];
@@ -596,10 +604,10 @@ brew()}
 function brew(){brewing=true;$("pot").classList.add("brew");toast("Misturando...");SFX.brew();
 setTimeout(()=>{$("pot").classList.remove("brew");const ing=S.pot;S.pot=[];brewing=false;
 const make=()=>{let c=cross(ing[0],ing[1]);if(ing[2]){c=cross(c,ing[2]);c.gen=Math.max(...ing.map(x=>x.gen))+1}return c};
-const kids=[make()];if(sk("c2")&&Math.random()<.2)kids.push(make());
+rec("crosses",1);const kids=[make()];if(sk("c2")&&Math.random()<.2)kids.push(make());
 kids.forEach((c,ki)=>{gainEss(1+(c.mut?2:0)+(c.hero?3:0));
 const tr=tbl.getBoundingClientRect(),pr=$("pot").getBoundingClientRect();c.x=pr.right-tr.left+8+ki*70;c.y=pr.top-tr.top-fsize(c)/3-ki*20;clampPos(c);
-S.fruits.push(c);sel=c.id;treeAdd(c,ing);tutDone("t1");save();renderTable(c.id);renderPot();renderCounter();showInfo(c);
+S.fruits.push(c);sel=c.id;treeAdd(c,ing);if(c.shiny)rec("shiny",1);tutDone("t1");save();renderTable(c.id);renderPot();renderCounter();showInfo(c);
 const er=tbl.querySelector(`[data-id="${c.id}"]`).getBoundingClientRect(),ex=er.left+er.width/2,ey=er.top+er.height/2;burst(ex,ey,c.rgb,24);
 if(c.mut||c.hero||c.shiny){burst(ex,ey,[180,155,255],18);SFX.mut();shake(c.hero?7:4);buzz([40,30,80])}else{SFX.pop();buzz(35)}if(c.el=="fogo")SFX.fire();
 toast((kids.length>1?"<b>GÊMEOS!</b> ":"")+(c.hero?`<b>SUPER-FRUTA!</b> ${fname(c)}`:c.mut?`<b>MUTAÇÃO!</b> ${fname(c)}`:`Nasceu: <b>${fname(c)}</b>`))})},sk("c1")?550:1100)}
@@ -627,7 +635,19 @@ function floatText(x,y,t,c){const d=document.createElement("div");d.className="f
 d.animate([{transform:"translate(-50%,-50%) scale(.6)",opacity:0},{transform:"translate(-50%,-90%) scale(1.15)",opacity:1,offset:.25},{transform:"translate(-50%,-260%) scale(1)",opacity:0}],{duration:1100,easing:"steps(10)"}).onfinish=()=>d.remove()}
 function shake(n){const a=document.body.animate([{transform:"translate(0,0)"},{transform:`translate(${n}px,${-n/2}px)`},{transform:`translate(${-n}px,${n/2}px)`},{transform:`translate(${n/2}px,${n}px)`},{transform:"translate(0,0)"}],{duration:320,easing:"steps(4)"})}
 let combo=0,comboT=0;const COMBO_WIN=25000;
-function comboHit(){combo=now()-comboT<COMBO_WIN?combo+1:1;comboT=now();renderCombo();return combo}
+function comboHit(){combo=now()-comboT<COMBO_WIN?combo+1:1;comboT=now();renderCombo();rec("maxCombo",combo,1);return combo}
+function rec(k,v,isMax){S.rec=S.rec||{};if(isMax)S.rec[k]=Math.max(S.rec[k]||0,v);else S.rec[k]=(S.rec[k]||0)+v;checkAch()}
+const ACH=[["cross10","Aprendiz de alquimista","Cruze 10 frutas",()=>S.rec.crosses>=10,10],["cross50","Alquimista","Cruze 50 frutas",()=>S.rec.crosses>=50,30],["cross200","Mestre do caldeirão","Cruze 200 frutas",()=>S.rec.crosses>=200,100],
+["del10","Quitandeiro","Atenda 10 clientes",()=>S.delivered>=10,10],["del50","Freguesia fiel","Atenda 50 clientes",()=>S.delivered>=50,40],["del200","Lenda da feira","Atenda 200 clientes",()=>S.delivered>=200,120],
+["sp10","Curioso","Descubra 10 espécies",()=>Object.keys(S.tree||{}).length>=10,15],["sp30","Naturalista","Descubra 30 espécies",()=>Object.keys(S.tree||{}).length>=30,40],["sp100","Árvore infinita","Descubra 100 espécies",()=>Object.keys(S.tree||{}).length>=100,150],
+["micro","Microscópio","Crie uma fruta Microscópica",()=>spAny(k=>k.startsWith("Microscópica")),20],["giga","Titã","Crie uma fruta Gigantesca",()=>spAny(k=>k.startsWith("Gigantesca")),20],
+["super","Herói da feira","Crie uma super-fruta",()=>spAny(k=>k.endsWith("|S")),30],["shiny","Brilho raro","Encontre uma fruta brilhante",()=>(S.rec.shiny||0)>=1,25],
+["leg","Lendária!","Descubra uma espécie Lendária",()=>Object.values(S.tree||{}).some(t=>stars(t)>=5),60],["vip5","Clientela VIP","Atenda 5 VIPs",()=>(S.rec.vips||0)>=5,30],
+["combo5","Combo x5","Faça um combo de 5 entregas",()=>(S.rec.maxCombo||0)>=5,25],["day100","Dia de ouro","Lucre 100 moedas num dia",()=>(S.rec.bestDay||0)>=100,30]];
+const TROPHY=()=>art(["y.yyy.y","yyyyyyy",".yyyyy.","..yyy..","...y...","..yyy..",".ddddd."],{y:"#f7c331",d:"#a87b00"},"#6b4a10");
+const spAny=fn=>Object.keys(S.tree||{}).some(fn);
+function checkAch(){S.ach=S.ach||{};S.rec=S.rec||{};ACH.forEach(([id,n,d,ok,rw])=>{if(S.ach[id]||!ok())return;S.ach[id]=Date.now();S.coins+=rw;save();
+ setTimeout(()=>{toast(`<img src="${TROPHY()}" style="width:18px;height:18px;display:inline-block;vertical-align:-3px;image-rendering:pixelated"> <b>CONQUISTA!</b> ${n}<br>+${rw} moedas`);SFX.lvl();buzz([30,40,30]);hud()},1600)})}
 function renderCombo(){const e=$("combo");if(!e)return;const left=combo>=2?1-(now()-comboT)/COMBO_WIN:0;if(left<=0){e.classList.remove("on");if(left<=0&&combo>=2&&now()-comboT>=COMBO_WIN)combo=0;return}
 if(!e.classList.contains("on")){e.classList.add("on")}e.innerHTML=`COMBO x${combo}<i style="width:${Math.max(0,left*100)}%"></i>`}
 function flyCoins(x,y,n,total){const t=$("hudcoin").getBoundingClientRect(),k=cl(n,1,10);let done=false;
@@ -663,10 +683,16 @@ const tg=(id,lab,on,desc)=>`<div class="cg" style="cursor:pointer" id="${id}"><s
 openModal(`<h2>AJUSTES</h2>${sl("smus","Música",CFG.mus)}${sl("ssfx","Efeitos",CFG.sfx)}
 ${tg("svib","Vibração",CFG.vib,"Vibra o celular ao cruzar, entregar e descobrir")}
 ${tg("szen","Modo Zen",CFG.zen,"Sem relógio e sem pressa: o dia não acaba e os clientes esperam pra sempre")}
-<button class="big alt" id="stut">REVER TUTORIAL</button><br><button class="big" id="cl">PRONTO</button>`);
+<button class="big alt" id="stut">REVER TUTORIAL</button><br><button class="big alt" id="sexp">EXPORTAR PROGRESSO</button><button class="big alt" id="simp">IMPORTAR</button><br><button class="big" id="cl">PRONTO</button>`);
 ["smus","ssfx"].forEach(id=>{$(id).oninput=e=>{const v=+e.target.value;$(id+"v").textContent=v;if(id=="smus")CFG.mus=v;else{CFG.sfx=v;SFX.coin()}saveCfg()}});
 $("svib").onclick=()=>{CFG.vib=!CFG.vib;saveCfg();buzz(40);settings(back)};$("szen").onclick=()=>{CFG.zen=!CFG.zen;saveCfg();hud();renderCounter();settings(back)};
-$("stut").onclick=()=>{S.tut={};save();closeModal();tutStep()};$("cl").onclick=()=>{closeModal();if(back)back()}}
+$("stut").onclick=()=>{S.tut={};save();closeModal();tutStep()};
+$("sexp").onclick=()=>{save();const code="FRUTO1:"+btoa(unescape(encodeURIComponent(JSON.stringify(S))));
+ openModal(`<h2>SEU CÓDIGO</h2><p style="font-size:.8rem">Guarde esse código (num bloco de notas ou mande pra você mesmo). Ele leva tudo: frutas, espécies, cartas e conquistas.</p><textarea id="bk" readonly style="width:100%;height:140px;font-size:.6rem;font-family:monospace">${code}</textarea><button class="big" id="bkc">COPIAR</button><button class="big alt" id="cl">VOLTAR</button>`);
+ $("bkc").onclick=async()=>{try{await navigator.clipboard.writeText(code);toast("Código copiado!")}catch(e){$("bk").select();toast("Selecionei o código. Copie manualmente.")}};$("cl").onclick=()=>settings(back)};
+$("simp").onclick=()=>{openModal(`<h2>IMPORTAR</h2><p style="font-size:.8rem">Cole o código do seu progresso. Isso <b>substitui</b> o jogo atual deste aparelho.</p><textarea id="bk" style="width:100%;height:140px;font-size:.6rem;font-family:monospace"></textarea><button class="big" id="bki">CARREGAR</button><button class="big alt" id="cl">VOLTAR</button>`);
+ $("cl").onclick=()=>settings(back);$("bki").onclick=()=>{try{const v=$("bk").value.trim();if(!v.startsWith("FRUTO1:"))throw 0;const d=JSON.parse(decodeURIComponent(escape(atob(v.slice(7)))));if(!d.fruits||!d.tree)throw 0;
+  S=d;S.pot=S.pot||[];save();closeModal();running=false;renderAll();placePot();toast("Progresso carregado!");startScreen()}catch(e){toast("Código inválido. Confira se copiou inteiro.")}}};$("cl").onclick=()=>{closeModal();if(back)back()}}
 const TUT=[["pot","Arraste <b>duas frutas</b> até o <b>caldeirão</b> pra criar uma nova!","t1"],["cust","Agora arraste uma fruta até o <b>cliente</b> que pediu algo parecido. Toque no <b>?</b> do balão se precisar da receita.","t2"],["dexb","Toque numa fruta pra ver os atributos. Na <b>ÁRVORE</b> ficam todas as espécies que você descobriu!","t3"]];
 function tutStep(){S.tut=S.tut||{};const st=TUT.find(t=>!S.tut[t[2]]);const box=$("tut");if(!st||modalOpen||!running){box.classList.remove("on");return}
 if(box.dataset.k==st[2]&&box.classList.contains("on"))return;box.dataset.k=st[2];
@@ -678,7 +704,7 @@ box.style.left=x+"px";box.style.top=y+"px"}
 function tutDone(k){S.tut=S.tut||{};if(!S.tut[k]){S.tut[k]=1;save();$("tut").classList.remove("on");setTimeout(tutStep,900)}}
 function hud(){updateSky();$("coins").textContent=S.coins;const rem=dayLen()-S.dayT;$("day").textContent=`D${S.day} · NV${level()} · ${CFG.zen?"ZEN ∞":running?fmt(rem):"--:--"}`;$("day").classList.toggle("low",running&&!CFG.zen&&rem<20000)}
 function startDay(){setTimeout(tutStep,2500);running=true;S.started=true;S.cust.forEach((c,i)=>{if(!c)setTimeout(()=>{if(running&&!S.cust[i]){S.cust[i]=newCust();save();renderCounter()}},300+i*1400)});renderCounter();hud()}
-function endDay(){running=false;SFX.day();S.cust.forEach(c=>{if(c)c.leaving=true});renderCounter();
+function endDay(){running=false;rec("bestDay",S.ds.earn,1);SFX.day();S.cust.forEach(c=>{if(c)c.leaving=true});renderCounter();
 setTimeout(()=>{S.cust=[null,null,null];renderCounter();save();showSummary()},900)}
 function showSummary(){const d=S.ds;openModal(`<h2>FIM DO DIA ${S.day}</h2><div class="row">${[...S.fruits].sort((a,b)=>b.gen-a.gen).slice(0,3).map(f=>`<img src="${fruitImg(f)}">`).join("")}</div>
 <div class="sum"><span>Lucro do dia</span><b>${d.earn} moedas</b><span>Clientes atendidos</span><b>${d.served}</b><span>Maior pagamento</span><b>${d.best}</b><span>Novas espécies</span><b>${d.dex}</b><span>Nível</span><b>${level()}</b></div>
@@ -726,15 +752,23 @@ h+=`<div class="cg ${hi==c?"hi":""}" id="cg-${c}"><span class="big-sw" style="ba
 return h+"</div>"}
 function colorGuide(hi){openTree("cores",hi)}
 function reveal(k,shinyOnly){SFX.mut();showCard(k,true,shinyOnly)}
+function cardFrame(g,st,col,shiny){const px=(x,y,c,s=4)=>{g.fillStyle=c;g.fillRect(x,y,s,s)};
+if(shiny){const rb=["#ff8ad8","#ffe84a","#8af0ff","#b48cff"];for(let i=0;i<300;i+=6){g.fillStyle=rb[(i/6|0)%4];g.fillRect(i,6,6,8);g.fillRect(i,406,6,8)}for(let i=0;i<420;i+=6){g.fillStyle=rb[(i/6|0)%4];g.fillRect(6,i,8,6);g.fillRect(286,i,8,6)}}
+if(st>=4){const gem=st>=5?"#e74c3c":"#8af0ff",gold=st>=5?"#f7c331":"#c9a7ff",dk=st>=5?"#a87b00":"#6a3fd0";
+ [[6,6,1,1],[294,6,-1,1],[6,414,1,-1],[294,414,-1,-1]].forEach(([x,y,sx,sy])=>{for(let i=0;i<7;i++){px(x+sx*i*4-(sx<0?4:0),y+sy*0-(sy<0?4:0),gold);px(x-(sx<0?4:0),y+sy*i*4-(sy<0?4:0),gold)}
+  px(x+sx*4-(sx<0?4:0),y+sy*4-(sy<0?4:0),gem,8);px(x+sx*8-(sx<0?4:0),y+sy*8-(sy<0?4:0),dk)});
+ if(st>=5)for(let x=110;x<=190;x+=8){px(x,2,"#f7c331");if((x/8|0)%2)px(x,-2,"#ffe27a")}}
+if(st==3)[[18,18],[278,18],[18,398],[278,398]].forEach(([x,y])=>{px(x,y,col);px(x+4,y+4,"#fff")})}
 function cardCanvas(k){const t=S.tree[k],st=stars(t),[lab,col]=RAR[st],c=document.createElement("canvas");c.width=300;c.height=420;const g=c.getContext("2d");g.imageSmoothingEnabled=false;
 g.fillStyle="#2a1a12";g.fillRect(0,0,300,420);g.fillStyle=col;g.fillRect(6,6,288,408);g.fillStyle="#f5efe0";g.fillRect(14,14,272,392);
 for(let i=0;i<24;i++){g.fillStyle=i%2?hex(lift(hexToRgb(col),.75)):"#efe4cf";g.beginPath();g.moveTo(150,150);g.arc(150,150,260,i*Math.PI/12,(i+1)*Math.PI/12);g.fill()}
 g.fillStyle="#f5efe0";g.fillRect(14,262,272,144);g.fillStyle="#2a1a12";g.fillRect(14,258,272,4);
+cardFrame(g,st,col,t.shiny);
 return new Promise(res=>{const im=new Image();im.onload=()=>{g.drawImage(im,60,40,180,180);
 g.fillStyle="#2a1a12";g.font="bold 18px 'Pixelify Sans',monospace";g.textAlign="center";g.fillText(`nº ${t.n} · ${t.name}`.slice(0,26),150,32);
 g.font="bold 22px 'Pixelify Sans',monospace";g.fillStyle=col;g.fillText("★".repeat(st)+"☆".repeat(5-st),150,248);
 g.textAlign="left";g.fillStyle="#2a1a12";g.font="14px 'Pixelify Sans',monospace";const ls=[lab+(t.shiny?" · BRILHANTE ✦":""),spLabel(k),`Doce ${t.st.doce} · Azedo ${t.st.az} · Tamanho ${t.st.tam}`,`Geração ${t.d} · Dia ${t.day||S.day}`];
-ls.forEach((l,i)=>{g.font=(i==0?"bold ":"")+"14px 'Pixelify Sans',monospace";let y=284+i*24;g.fillText(l.slice(0,36),26,y)});
+ls.forEach((l,i)=>{g.font=(i==0?"bold ":"")+(i==1?"12px":"14px")+" 'Pixelify Sans',monospace";let y=284+i*24;g.fillText(l.slice(0,36),26,y)});
 g.font="bold 10px 'Pixelify Sans',monospace";g.fillStyle="#8a6a50";g.textAlign="center";g.fillText("FRUTÓDROMO · mendesoz.github.io/frutodromo",150,396);res(c)};im.src=fruitImg(t.img)})}
 async function showCard(k,isNew,shinyOnly){const c=await cardCanvas(k),url=c.toDataURL("image/png"),t=S.tree[k];
 openModal(`<h2>${isNew?(shinyOnly?"✦ VERSÃO BRILHANTE!":"NOVA ESPÉCIE!"):"CARTA DA ESPÉCIE"}</h2><img id="cardimg" class="${isNew?"cin":""}" src="${url}">
@@ -753,8 +787,15 @@ const chip=(id,lab)=>`<span class="${tvFilter==id||(!tvFilter&&!id)?"on":""}" on
 f.innerHTML=chip(null,"TODAS")+chip("rare","★3+")+chip("shiny","✦ BRILHANTES")+chip("super","SUPER")+chip("extreme","TAMANHO EXTREMO")+Object.keys(ELEM).filter(e=>Object.keys(S.tree||{}).some(k=>k.split("|")[3]==e)).map(e=>chip("e:"+e,ELEM[e].n.toUpperCase())).join("")+CORDER.filter(c=>have.has(c)).map(c=>chip("c:"+c,`<i class="dt" style="background:${hex(COLORS[c])}"></i>${c}`)).join("")}
 function openTree(tab,hi){SFX.open();if(S.tut&&S.tut.t2)tutDone("t3");$("tut").classList.remove("on");tvTab=tab||"tree";modalOpen=true;$("tv").classList.add("on");renderTree(hi);if(tvTab=="tree")setTimeout(()=>{const b=$("tvb"),e=b.querySelector(".sp.new")||b.querySelector(".sp");if(e&&!hi){b.scrollLeft=Math.max(0,e.offsetLeft*tvZoom-b.clientWidth/2)}},30)}
 function closeTree(){SFX.close();$("tv").classList.remove("on");modalOpen=false;tvSel=null}
-function renderTree(hi){const T=S.tree||{},ks=Object.keys(T);renderFilter();$("tabT").classList.toggle("on",tvTab=="tree");$("tabC").classList.toggle("on",tvTab=="cores");
-$("tvcnt").textContent=tvFilter?`${ks.filter(k=>spMatch(k,tvFilter)).length} de ${ks.length}`:`${ks.length} espécies · ∞`;$("zm").style.display=$("zp").style.display=tvTab=="tree"?"":"none";
+function renderTree(hi){const T=S.tree||{},ks=Object.keys(T);renderFilter();$("tabT").classList.toggle("on",tvTab=="tree");$("tabC").classList.toggle("on",tvTab=="cores");$("tabA").classList.toggle("on",tvTab=="album");$("tabQ").classList.toggle("on",tvTab=="ach");
+$("tvcnt").textContent=tvFilter?`${ks.filter(k=>spMatch(k,tvFilter)).length} de ${ks.length}`:`${ks.length} espécies · ∞`;$("zm").style.display=$("zp").style.display=tvTab=="tree"?"":"none";$("tvcnt").style.display=tvTab=="tree"||tvTab=="cores"?"":"none";
+if(tvTab=="album"){const ord=ks.slice().sort((a,b)=>stars(T[b])-stars(T[a])||(T[b].shiny?1:0)-(T[a].shiny?1:0)||T[a].n-T[b].n);
+ $("tvb").innerHTML=`<div class="alb">${ord.map(k=>{const t=T[k],st=stars(t),[rl,rc]=RAR[st];return `<div class="ac ${t.shiny?"shn":""}" style="border-color:${rc}" onclick="showCard('${k}')"><span class="no">${t.n}</span><img src="${fruitImg(t.img)}"><b style="color:${rc}">${"★".repeat(st)}</b><span>${t.d==0?t.name:spLabel(k).split(" · ").slice(0,2).join(" · ")}</span></div>`}).join("")}</div>`;
+ $("tvd").innerHTML=`<b>${ks.length} cartas</b> · ${ks.filter(k=>T[k].shiny).length} brilhantes · ${ks.filter(k=>stars(T[k])>=5).length} lendárias. Toque numa carta pra abrir, baixar ou compartilhar.`;return}
+if(tvTab=="ach"){S.rec=S.rec||{};S.ach=S.ach||{};const done=ACH.filter(a=>S.ach[a[0]]).length;
+ $("tvb").innerHTML=`<div class="cgw"><div class="recs">${[["Espécies",ks.length],["Clientes atendidos",S.delivered],["Cruzamentos",S.rec.crosses||0],["Brilhantes achadas",S.rec.shiny||0],["Maior combo","x"+(S.rec.maxCombo||0)],["Melhor dia",(S.rec.bestDay||0)+" moedas"],["VIPs atendidos",S.rec.vips||0],["Dias jogados",S.day]].map(([a,b])=>`<div><span>${a}</span><b>${b}</b></div>`).join("")}</div>
+ ${ACH.map(([id,n,d,ok,rw])=>`<div class="cg ${S.ach[id]?"hi":""}"><span class="big-sw" style="background:${S.ach[id]?"#f7c331":"#c9b99a"};display:flex;align-items:center;justify-content:center;font-size:1rem">${S.ach[id]?`<img src="${TROPHY()}" style="width:22px;height:22px">`:"?"}</span><div style="flex:1;text-align:left"><b>${n}</b><br><span style="font-size:.74rem">${d}</span></div><span style="font-size:.72rem;font-weight:700">+${rw}</span></div>`).join("")}</div>`;
+ $("tvd").innerHTML=`<b>${done} de ${ACH.length} conquistas</b> · cada uma dá moedas de presente.`;return}
 if(tvTab=="cores"){$("tvb").innerHTML=colorGuideHTML(hi);$("tvd").innerHTML="Toque no requisito de COR de um cliente pra abrir direto aqui.";if(hi){const e=$("cg-"+hi);if(e)setTimeout(()=>e.scrollIntoView({block:"center"}),30)}return}
 const rows={};ks.forEach(k=>{(rows[T[k].d]=rows[T[k].d]||[]).push(k)});Object.values(rows).forEach(r=>r.sort((a,b)=>T[a].n-T[b].n));
 const maxD=ks.length?Math.max(...ks.map(k=>T[k].d)):0,sug=suggestions(8);const qRow=maxD+1;
@@ -778,7 +819,7 @@ const sr=stars(t),[rl,rc]=RAR[sr];det=`<img class="bigi" src="${fruitImg(t.img)}
 ${my.length?"<b>Experimente cruzar com:</b>"+my.map(q=>{const o=q.a==tvSel?q.b:q.a;return `<div class="sug">${im(tvSel)}+${im(o)} ${nm(o)} → <b>${spLabel(q.k)}</b></div>`}).join(""):"<i>Essa espécie já gerou tudo que dava com as que você tem. Descubra outras!</i>"}`}
 else det=`<b>Árvore de espécies</b> · cada combinação nova de tamanho, cor, sabor e poder vira uma espécie. Ela não tem fim.<br>Regra: <b>parecidos se intensificam</b> (pequena + pequena encolhe, grande + grande cresce). Toque num <b>?</b> pra ver a receita da próxima descoberta.`;
 $("tvd").innerHTML=det}
-$("tabT").onclick=()=>{tvTab="tree";renderTree()};$("tabC").onclick=()=>{tvTab="cores";renderTree()};$("tvx").onclick=closeTree;
+$("tabT").onclick=()=>{tvTab="tree";renderTree()};$("tabA").onclick=()=>{tvTab="album";renderTree()};$("tabQ").onclick=()=>{tvTab="ach";renderTree()};$("tabC").onclick=()=>{tvTab="cores";renderTree()};$("tvx").onclick=closeTree;
 $("zm").onclick=()=>{tvZoom=Math.max(.4,tvZoom-.2);renderTree()};$("zp").onclick=()=>{tvZoom=Math.min(1.6,tvZoom+.2);renderTree()};
 $("dexb").onclick=()=>{tvSel=null;openTree("tree")};$("pauseb").onclick=()=>{if(!running)return;openModal(`<h2>PAUSADO</h2><p>O tempo e a paciência dos clientes estão congelados.</p><button class="big" id="resume">CONTINUAR</button><br><button class="big alt" id="sndb" onclick="toggleSnd()"></button><button class="big alt" onclick="settings()">AJUSTES</button>`);sndLabel();$("resume").onclick=closeModal};$("menub").onclick=startScreen;
 /* ================= laço ================= */
@@ -795,5 +836,6 @@ window.addEventListener("resize",()=>{S.fruits.forEach(clampPos);renderTable();r
 S.pot=S.pot||[];if(S.pot.length==2){S.fruits.push(...S.pot);S.pot=[]}
 document.addEventListener("pointerdown",e=>{const t=e.target.closest("button,.btn,.big,.hint,.flt span,.sp,.cg,.tvh .btn,#pot,.pw");if(!t)return;ac();
  if(t.id=="go"||t.id=="cl"||t.id=="tvx"||t.id=="resume"||t.id=="nextd"||t.id=="rvx"||t.id=="pot")return;SFX.sel()},true);
+if("serviceWorker" in navigator&&location.hostname.endsWith("github.io"))navigator.serviceWorker.register("sw.js").catch(()=>{});
 S.ess=S.ess||0;S.sk=S.sk||{};S.tree=S.tree||{};S.fruits.forEach(f=>{clampPos(f);treeAdd(f,null,true)});renderProps();renderAll();placePot();startScreen();
 </script></body></html>
