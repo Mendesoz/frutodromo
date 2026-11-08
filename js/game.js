@@ -285,7 +285,7 @@ const lvl=(v,k)=>v>=8?{k:k+"Min",v:8}:v>=6?{k:k+"Min",v:6}:v<=2?{k:k+"Max",v:2}:
 [lvl(t.doce,"doce"),lvl(t.az,"az")].forEach(r=>{if(r)normal.push(r)});
 special.sort(()=>Math.random()-.5);normal.sort(()=>Math.random()-.5);
 for(const r of [...special,...normal]){if(out.length>=n)break;out.push(r)}return out}
-function newCust(){const L=level(),vip=L>=(sk('t4')?2:3)&&Math.random()<(sk('t4')?.3:.15);let n=Math.min(3,1+Math.floor((L-1)/2)+(Math.random()<.3?1:0));if(vip)n=Math.min(4,n+1);
+function newCust(){if(running)setTimeout(()=>SFX.bell(),200);const L=level(),vip=L>=(sk('t4')?2:3)&&Math.random()<(sk('t4')?.3:.15);let n=Math.min(3,1+Math.floor((L-1)/2)+(Math.random()<.3?1:0));if(vip)n=Math.min(4,n+1);
 const pool=reachPool(L),maxD=Math.max(...pool.map(x=>x.d));
 // alvo: nível baixo pede coisas perto da feira; VIP pede o mais fundo
 const want=vip?maxD:Math.min(maxD,R([0,1,1,2,2,3].filter(d=>d<=maxD))),cand=pool.filter(x=>x.d==want&&(L>=5||!x.hero)&&(L>=3||!x.el));
@@ -296,7 +296,7 @@ const vipN=vip?R(VIPS):null,kdN=kd?R(kd[2]):null,gen=vip?VIPG[vipN]:kd?(/^(Dona|
 const ACC=gen=="f"?["freck","glass","ear","scarf","neck","bow","flower","leaf","ear","bow"]:gen=="m"?["freck","must","glass","scarf","neck","tie","leaf","tie"]:["freck","glass","scarf","neck","leaf"],acc=[];for(let q=0;q<N(0,2);q++)acc.push(R(ACC));
 const hsG=gen=="f"?[1,1,2,2,3,5,7,4]:gen=="m"?[0,0,0,6,8,4,0,8]:[0,2,4,8,6];
 return{name:vipN||(kd?kdN:R(gen=="f"?NAMESF:gen=="m"?NAMESM:NAMESN)),gen,kind:kd?kd[0]:"person",fur:kd?R(kd[1]):null,vip,skin:R(SKIN),hair:R(HAIR),hs:R(hsG),eyeC:N(0,5),hat:Math.random()<.25?N(1,3):0,hat2:R(SHIRT),sp:N(0,4),acc,acc2:R(SHIRT),mouth:N(0,1),blinkD:Math.random()*4,shirt:R(SHIRT),gl:false,reqs,rw,t0:now(),
-pat:(95000+t.d*45000+reqs.length*15000)*(vip?.85:1),come:true,tg:rk(t),td:t.d}}
+pat:(95000+t.d*45000+reqs.length*15000)*(vip?.85:1),come:true,ct:Date.now(),tg:rk(t),td:t.d}}
 function stImg(x){if(x.img)return x.img;let a=x;while(a.p)a=a.p[0];return {...a.img,rgb:x.rgb,hero:x.hero,cape:x.hero?"#d63031":null}}
 function stLabel(x){return x.d==0?x.name:(x.hero?"Super ":"")+sizeName(x.tam)+" "+colorName(x.rgb)+(x.el?" "+ELEM[x.el].n:"")}
 function showHint(i){const c=S.cust[i];if(!c)return;const L=level(),pool=reachPool(L);const ok=pool.filter(x=>c.reqs.every(r=>meets(x,r))).map(x=>[x,recipeOf(x).length]).sort((a,b)=>a[1]-b[1]);let t=ok.length?ok[0][0]:null;
@@ -321,17 +321,19 @@ function reqHTML(r,f){const ok=f?meets(f,r):null,[w,n,ic]=reqWord(r);
 const icon=ic=="cor"?`<span class="sw" style="background:${hex(COLORS[r.v])}"></span>`:ic=="el"?`<img class="ico" src="${SPR[r.v]()}">`:`<img class="ico" src="${RICO[ic]()}">`;
 return `<div class="rq ${ok===true?"y":ok===false?"n":""} ${ic=="cor"?"cor":""}" ${ic=="cor"?`onclick="colorGuide('${r.v}')"`:""}>${icon}<b style="${w.length>9?"font-size:.56rem;letter-spacing:-.4px":""}">${w}</b>${n?`<span class="nb">${n}</span>`:""}${ok===null?"":`<i class="ck">${ok?"✓":"✗"}</i>`}</div>`}
 const leftOf=c=>CFG.zen?1:cl(1-(now()-c.t0)/c.pat,0,1),pay=c=>Math.round(c.rw*(.5+.5*leftOf(c))*(sk('cap')?1.5:1));
-let sel=null,hoverCust=-1;const pcache={};
+const WALK_IN=1500,WALK_OUT=1000;let sel=null,hoverCust=-1;const pcache={};
 function renderCounter(){const f=sel?S.fruits.find(x=>x.id==sel):null;
 if(!running&&S.cust.every(c=>!c)){$("custs").innerHTML=`<div class="closed">${S.started?'<span class="px" style="background:#f5efe0;padding:4px 10px">QUITANDA FECHADA</span>':""}</div>`;return}
 $("custs").innerHTML=S.cust.map((c,i)=>{if(!c)return `<div class="cust"></div>`;const left=leftOf(c);
 const ok=f&&c.reqs.every(r=>meets(f,r)),mood=c.mood||(left<.2?"sad":"ok"),pk=i+mood+c.t0+c.name;
 if(!pcache[pk])pcache[pk]=personImg(c,mood);if(!pcache[pk+"b"])pcache[pk+"b"]=personImg(c,mood,true);const on=Math.ceil(left*10),pc=left>.5?"#3ce06f":left>.2?"#f4a261":"#e74c3c";
 let pat="";for(let s=0;s<10;s++)pat+=`<i style="${s<on?"background:"+pc:""}"></i>`;
-const cls=(hoverCust==i||ok?"hot ":"")+(c.leaving?"leave ":"")+(c.come?"come ":"")+(c.mood=="sad"?"sad ":"")+(c.vip?"vip":"");
-return `<div class="cust ${cls} ${c.mood=="happy"?"happy":""} ${left<.12&&!c.mood?"angry":""}" data-i="${i}" data-low="${left<.2?1:0}"><div class="bub px"><span class="bn">${c.name}</span>${c.vip?'<span class="vipb">VIP x3</span>':""}${c.reqs.map(r=>reqHTML(r,f)).join("")}
+const nowR=Date.now(),inT=nowR-(c.ct||0),outT=nowR-(c.lt||0),coming=!c.leaving&&inT<WALK_IN,Wsc=$("scene").clientWidth,cx=(i+.5)*Wsc/3,dir=i==0?-1:i==2?1:((c.ct||0)%2?1:-1),fx=Math.round(dir<0?-(cx+70):(Wsc-cx+70));
+const cls=(hoverCust==i||ok?"hot ":"")+(c.leaving?"leave ":"")+(coming?"come ":"")+(c.mood=="sad"?"sad ":"")+(c.vip?"vip":"");
+return `<div class="cust ${cls} ${c.mood=="happy"?"happy":""} ${left<.12&&!c.mood?"angry":""}" data-i="${i}" data-low="${left<.2?1:0}" style="--fx:${fx}px;--wd:-${Math.min(inT,WALK_IN)}ms;--bd:${Math.max(0,WALK_IN-inT)}ms;--ld:-${Math.min(outT,WALK_OUT)}ms"><div class="bub px"><span class="bn">${c.name}</span>${c.vip?'<span class="vipb">VIP x3</span>':""}${c.reqs.map(r=>reqHTML(r,f)).join("")}
 <div class="pay"><span class="coin"></span><b>${pay(c)}</b><span class="hint" onclick="event.stopPropagation();showHint(${i})">?</span></div><div class="pat">${pat}</div></div><div class="pw" onclick="showPortrait(${i})"><img class="p" src="${pcache[pk]}"><img class="p blk" src="${pcache[pk+"b"]}" style="animation-delay:-${(c.blinkD||0).toFixed(2)}s"></div>${left<.2&&!c.leaving?'<span class="sweat"></span>':""}${left<.12&&!c.leaving?'<span class="puff"><i></i><i></i></span>':""}</div>`}).join("");
-S.cust.forEach(c=>{if(c)c.come=false})}
+S.cust.forEach(c=>{if(c)c.come=false});
+ const wl=S.cust.map(c=>c&&!c.leaving?WALK_IN-(Date.now()-(c.ct||0)):-1).filter(t=>t>0);if(wl.length){clearTimeout(renderCounter.wt);renderCounter.wt=setTimeout(renderCounter,Math.max(...wl)+60)}}
 /* ================= mesa ================= */
 const tbl=$("table");
 const scale=f=>f.tam==0?1:f.tam==1?2:f.tam<=3?3:f.tam<=7?4:f.tam<=10?5:f.tam==11?6:7,fsize=f=>f.tam==0?40:W*scale(f);
@@ -369,7 +371,7 @@ const cb=comboHit(),bonus=cb>=2?Math.round(pay(c)*Math.min(.5,(cb-1)*.1)):0,v=pa
 S.delivered++;S.ds.served++;if(c.vip)rec("vips",1);tutDone("t2");gainEss(c.vip?3:1);S.ds.earn+=v;S.ds.best=Math.max(S.ds.best,v);S.fruits=S.fruits.filter(x=>x!=f);sel=null;showInfo(null);c.mood="happy";renderTable();renderCounter();renderMarket();
 toast(`${c.name} adorou! <b>+${v}</b> moedas${level()>L0?`<br><b>NÍVEL ${level()}!</b>${newUnlock(level())}`:""}`);if(level()>L0){SFX.lvl();shake(5);buzz([40,60,40,60,80])}
 {const first=!(S.rec&&S.rec.gifts),n=c.vip?2:(first||Math.random()<.35)?1:0;for(let g=0;g<n;g++)setTimeout(()=>giveItem(rollItem(),ce.left+ce.width/2,ce.top+ce.height/2,c.name),600+g*700);if(n)rec("gifts",n)}
-setTimeout(()=>{c.leaving=true;renderCounter();setTimeout(()=>{S.cust[i]=null;renderCounter();setTimeout(()=>{if(running&&!S.cust[i]){S.cust[i]=newCust();save();renderCounter()}},700)},700)},900)}
+setTimeout(()=>{c.leaving=true;c.lt=Date.now();renderCounter();setTimeout(()=>{S.cust[i]=null;renderCounter();setTimeout(()=>{if(running&&!S.cust[i]){S.cust[i]=newCust();save();renderCounter()}},700)},WALK_OUT)},900)}
 function newUnlock(L){const u=[];const extra={2:"Clientes pedem frutas MINI e ENORMES",3:"Pedidos de FOGO e clientes VIP",4:"Pedidos de GELO e cores raras",5:"Microscópicas, Gigantescas e SUPER-FRUTAS"}[L];
 return (u.length?"<br>Nova na feira: "+u.join(", "):"")+(extra?"<br>"+extra:"")}
 /* ================= info / feira ================= */
@@ -598,6 +600,7 @@ mut:()=>[392,523,659,784,1047,1319].forEach((f,i)=>tone(f,.08,"square",.045,i*.0
 day:()=>[784,659,523,659,784,1047].forEach((f,i)=>tone(f,.16,"square",.05,i*.14)),buy:()=>tone(660,.06,"square",.04),
 sel:()=>{tone(1047,.035,"square",.035);tone(1568,.05,"square",.03,.035)},
 bag:()=>{bagAnim=1;setTimeout(()=>bagAnim=0,400);tone(180,.07,"square",.04,0,420);tone(523,.05,"square",.035,.07);tone(784,.05,"square",.035,.11);tone(1175,.09,"square",.03,.15)},
+bell:()=>{tone(1568,.09,"triangle",.045);tone(1319,.22,"triangle",.04,.1)},
 bagc:()=>{tone(1175,.04,"square",.03);tone(784,.04,"square",.03,.04);tone(392,.08,"square",.035,.08,-180)},
 open:()=>[523,659,784,1047].forEach((f,i)=>tone(f,.06,"square",.035,i*.035)),
 close:()=>[988,784,587].forEach((f,i)=>tone(f,.05,"square",.03,i*.035)),fire:()=>tone(110,.35,"sawtooth",.03,0,240)};
@@ -676,7 +679,7 @@ box.style.left=x+"px";box.style.top=y+"px"}
 function tutDone(k){S.tut=S.tut||{};if(!S.tut[k]){S.tut[k]=1;save();$("tut").classList.remove("on");setTimeout(tutStep,900)}}
 function hud(){updateSky();$("coins").textContent=S.coins;const rem=dayLen()-S.dayT;$("day").textContent=`D${S.day} · NV${level()} · ${CFG.zen?"ZEN ∞":running?fmt(rem):"--:--"}`;$("day").classList.toggle("low",running&&!CFG.zen&&rem<20000)}
 function startDay(){setTimeout(tutStep,2500);running=true;S.started=true;S.cust.forEach((c,i)=>{if(!c)setTimeout(()=>{if(running&&!S.cust[i]){S.cust[i]=newCust();save();renderCounter()}},300+i*1400)});renderCounter();hud()}
-function endDay(){running=false;rec("bestDay",S.ds.earn,1);SFX.day();S.cust.forEach(c=>{if(c)c.leaving=true});renderCounter();
+function endDay(){running=false;rec("bestDay",S.ds.earn,1);SFX.day();S.cust.forEach(c=>{if(c){c.leaving=true;c.lt=Date.now()}});renderCounter();
 setTimeout(()=>{S.cust=[null,null,null];renderCounter();save();showSummary()},900)}
 function showSummary(){const d=S.ds;openModal(`<h2>FIM DO DIA ${S.day}</h2><div class="row">${[...S.fruits].sort((a,b)=>b.gen-a.gen).slice(0,3).map(f=>`<img src="${fruitImg(f)}">`).join("")}</div>
 <div class="sum"><span>Lucro do dia</span><b>${d.earn} moedas</b><span>Clientes atendidos</span><b>${d.served}</b><span>Maior pagamento</span><b>${d.best}</b><span>Novas espécies</span><b>${d.dex}</b><span>Nível</span><b>${level()}</b></div>
