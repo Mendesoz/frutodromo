@@ -100,6 +100,14 @@ else fill(shoulders,cloth,"shirt");
 // gola
 if(human||furry||k=="alien"){if(sp==4){fill((x,y)=>y>=37&&y<=40&&dx(x)<=5&&dx(x)>=y-37,"#f5efe0","collar")}
  else fill((x,y)=>y>=36&&y<=38&&dx(x)<=4.5,hex(mul(SHc,.75)),"collar")}
+// cabelo (trás) — fica atrás da cabeça e cai sobre os ombros
+if(human){const hs=p.hs||0,HB=(fn)=>fill(fn,HA,"hairb");
+ if(hs==1)HB((x,y)=>y>=10&&y<=44&&dx(x)<=14.5-(y>40?(y-40)*1.2:0)&&!(y>=29&&dx(x)<=7.5));
+ if(hs==2)HB((x,y)=>y>=10&&y<=29&&dx(x)<=13.5-(y>27?(y-27):0));
+ if(hs==3)HB((x,y)=>(x-19.5)**2+(y-3.5)**2<=22);
+ if(hs==4)HB((x,y)=>ell(19.5,15,16,13.5)(x,y)&&y<=27);
+ if(hs==5)HB((x,y)=>ell(31.5,25,3.2,10,-.25)(x,y)||(x>=28&&x<=31&&y>=12&&y<=17));
+ if(hs==7)HB((x,y)=>dx(x)>=9&&dx(x)<=13&&y>=14&&y<=43&&!((y%6==0)&&dx(x)>12));}
 // pescoço
 if(human)fill((x,y)=>y>=29&&y<=38&&dx(x)<=3.6,hex(mul(SKc,.86)),"neck");
 // ---------- cabeça ----------
@@ -116,19 +124,16 @@ if(k=="penguin"){fill(ell(19.5,20,12.5,12),"#2b2b40","head");fill(ell(19.5,23,9.
 if(k=="robot"){fill((x,y)=>x>=7&&x<=32&&y>=6&&y<=31,"#b8bdc8","head");fill((x,y)=>(x==19||x==20)&&y>=1&&y<=5,"#7d8392","ant");fill((x,y)=>(x>=4&&x<=6||x>=33&&x<=35)&&y>=15&&y<=21,"#7d8392","ant");
  fill((x,y)=>x>=10&&x<=29&&y>=12&&y<=26,"#1a2433","screen");face=false}
 if(k=="alien"){fill((x,y)=>(x==11||x==28)&&y>=2&&y<=9,F,"ant");fill(ell(19.5,20,12.5,12.5),F,"head");face=false}
-// ---------- cabelo ----------
+// ---------- cabelo (frente) ----------
 if(human){const hs=p.hs||0,cap=(x,y)=>ell(19.5,16.5,12.6,11)(x,y),fr=(x,y)=>y>=8&&y<=13+((Math.floor(x/3))%2)&&dx(x)<=10.5;
  const H=(fn)=>fill(fn,HA,"hair");
  if(hs==0)H((x,y)=>cap(x,y)&&(y<=12||(dx(x)>=10&&y<=22))||fr(x,y)&&y<=11);
- if(hs==1)H((x,y)=>(cap(x,y)&&y<=14)||(y>=12&&y<=44&&dx(x)>=9.5&&dx(x)<=14.5-((y>40)?(y-40):0))||fr(x,y));
- if(hs==2)H((x,y)=>(cap(x,y)&&y<=14)||(y>=12&&y<=29&&dx(x)>=9.5&&dx(x)<=13.5)||fr(x,y));
- if(hs==3)H((x,y)=>(cap(x,y)&&y<=13)||(x-19.5)**2+(y-3.5)**2<=22||(dx(x)>=10&&y<=20&&cap(x,y)));
- if(hs==4)H((x,y)=>ell(19.5,15,16,13.5)(x,y)&&y<=25&&!(ell(19.5,24,10,10)(x,y)&&y>=14));
- if(hs==5)H((x,y)=>(cap(x,y)&&y<=14)||fr(x,y)||ell(33,20,3.4,10,-.3)(x,y));
+ if(hs==1||hs==2||hs==5||hs==7)H((x,y)=>(cap(x,y)&&y<=14)||fr(x,y)||(cap(x,y)&&dx(x)>=10&&y<=20));
+ if(hs==3)H((x,y)=>(cap(x,y)&&y<=13)||(dx(x)>=10&&y<=20&&cap(x,y)));
+ if(hs==4)H((x,y)=>ell(19.5,15,16,13.5)(x,y)&&y<=11);
  if(hs==6)H((x,y)=>cap(x,y)&&y>=14&&y<=22&&dx(x)>=10);
- if(hs==7)H((x,y)=>(cap(x,y)&&y<=14)||fr(x,y)||((dx(x)>=10&&dx(x)<=13)&&y>=14&&y<=42&&!(y%5==0&&dx(x)>12)));
  if(hs==8)H((x,y)=>(cap(x,y)&&y<=12)||(y>=2&&y<=9&&dx(x)<=11&&(x%5<3)&&y>=9-(x%5)*2.2));
- const hat=p.hat||0,HT=hex(p.hat2||SHc),HTD=hex(mul(p.hat2||SHc,.75));
+ const hat=p.vip?0:(p.hat||0),HT=hex(p.hat2||SHc),HTD=hex(mul(p.hat2||SHc,.75));
  if(hat==1){fill((x,y)=>y>=3&&y<=11&&cap(x,y),HT,"hat");fill((x,y)=>y>=11&&y<=12&&x>=8&&x<=37,HTD,"hat2")}
  if(hat==2){fill((x,y)=>ell(19.5,11,13,8)(x,y)&&y<=12,HT,"hat");fill((x,y)=>y>=11&&y<=13&&dx(x)<=12.5,hex(lift(p.hat2||SHc,.35)),"hat2");fill((x,y)=>(x-19.5)**2+(y-2.5)**2<=8,"#f5efe0","pom")}
  if(hat==3){fill((x,y)=>dx(x)<=8&&y>=0&&y<=9,"#26263a","hat");fill((x,y)=>dx(x)<=13&&y>=9&&y<=10,"#26263a","hat2");fill((x,y)=>dx(x)<=8&&y>=7&&y<=8,"#c0392b","band")}
@@ -143,7 +148,7 @@ for(let y=0;y<PH;y++)for(let x=0;x<PW;x++){const m=mat[y][x];if(!m||noShade.has(
  if(!same(x+1,y)||!same(x,y+1))v=mul(v,.88);else if(!same(x-1,y)||!same(x,y-1))v=lift(v,.1);out[y][x]=hex(v)}
 const P=(x,y,c)=>{x=Math.round(x);y=Math.round(y);if(x>=0&&y>=0&&x<PW&&y<PH)out[y][x]=c};
 // brilho do cabelo (arco)
-if(human)for(let y=0;y<PH;y++)for(let x=0;x<PW;x++){if(mat[y][x]!="hair")continue;const e=((x-16)/8)**2+((y-9)/4.5)**2;if(e>.78&&e<1.05&&(x+y)%3!=0)out[y][x]=hex(lift(HAc,.42));else if(y>13&&(x*7+Math.floor(y/3))%5==0&&mat[y-1]&&mat[y-1][x]=="hair")out[y][x]=hex(mul(HAc,.72))}
+if(human)for(let y=0;y<PH;y++)for(let x=0;x<PW;x++){if(mat[y][x]=="hairb"&&y>14&&(x*7+Math.floor(y/3))%5==0)out[y][x]=hex(mul(HAc,.7));if(mat[y][x]!="hair")continue;const e=((x-16)/8)**2+((y-9)/4.5)**2;if(e>.78&&e<1.05&&(x+y)%3!=0)out[y][x]=hex(lift(HAc,.42));else if(y>13&&(x*7+Math.floor(y/3))%5==0&&mat[y-1]&&mat[y-1][x]=="hair")out[y][x]=hex(mul(HAc,.72))}
 // ---------- rosto ----------
 const E="#2a1a12",WH="#ffffff",EC=hex(EYEC[(p.eyeC||0)%EYEC.length]),PK="#f2909f",SKD=hex(mul(SKc,.78));
 const blushC=furry||k=="ghost"||k=="frog"?"#f7a1b0":hex([Math.min(255,SKc[0]+20),SKc[1]*.72,SKc[2]*.75]);
@@ -153,8 +158,8 @@ if(face){eyes.forEach(([cx,cy],i)=>{
  if(!human){for(let y=-2;y<=2;y++)for(let x=-3;x<=3;x++)if((x/2.6)**2+(y/2.4)**2<=1)P(cx+x,cy+y,E);P(cx-1,cy-1,WH);P(cx,cy-1,WH);P(cx+1,cy+1,"#8a8aa8");return}
  const ix=Math.round(cx),iy=Math.round(cy);
  for(let y=-1;y<=2;y++)for(let x=-2;x<=2;x++)if((x/2.5)**2+((y-.5)/1.9)**2<=1)P(ix+x,iy+y,WH);
- const ECD=hex(mul(EYEC[(p.eyeC||0)%EYEC.length],.45));[[0,-1],[1,-1],[0,0],[1,0],[0,1],[1,1]].forEach(([x,y])=>P(ix+x-(i?1:0),iy+y,EC));
- P(ix-(i?1:0),iy,ECD);P(ix+1-(i?1:0),iy,ECD);P(ix-(i?1:0),iy+1,ECD);P(ix-(i?1:0),iy-1,WH);
+ const ECD=hex(mul(EYEC[(p.eyeC||0)%EYEC.length],.45));[[0,-1],[1,-1],[0,0],[1,0],[0,1],[1,1]].forEach(([x,y])=>P(ix+x-1+(i?1:0)*0,iy+y,EC));
+ P(ix-1,iy,ECD);P(ix,iy,ECD);P(ix-1,iy+1,ECD);P(ix-1,iy-1,WH);
  for(let x=-2;x<=2;x++)P(ix+x,iy-2,E);P(i?ix+3:ix-3,iy-2,E);P(i?ix+3:ix-3,iy-3,E)});
  if(human){const BR=hex(mul(HAc,.7));eyes.forEach(([cx,cy],i)=>{for(let d=-2;d<=2;d++){const tilt=mood=="sad"?(i?-d:d)*.45:0;P(cx+d,cy-5+tilt-(Math.abs(d)<=1?1:0)*(mood=="happy"?1:0),BR)}})}
  // blush
@@ -187,9 +192,9 @@ if(human&&acc.includes("glass"))eyes.forEach(([cx,cy])=>{for(let a=0;a<24;a++){c
 if(human&&acc.includes("ear")){[[8,26],[8,27],[31,26],[31,27]].forEach(([x,y])=>P(x,y,"#f7c331"));P(8,28,"#ffe27a");P(31,28,"#ffe27a")}
 if(acc.includes("scarf")&&k!="ghost"){for(let y=34;y<=38;y++)for(let x=-9;x<=9;x++)if(Math.abs(x)<=9-(y-34)*.3)P(19.5+x,y,(x+y)%4<2?AC:ACD);for(let y=38;y<=44;y++){P(26,y,AC);P(27,y,ACD)}}
 if(human&&acc.includes("neck"))for(let x=-5;x<=5;x+=2)P(19.5+x,39+(Math.abs(x)<2?1:0),"#f7c331");
-if(acc.includes("bow")){const c=AC;[[27,4],[28,3],[29,4],[28,5],[27,5],[26,4],[30,5],[31,4],[32,3],[33,4],[32,5],[31,5],[29,5],[30,4]].forEach(([x,y],i)=>P(x,y,i<6?c:ACD));P(29,4,ACD)}
-if(human&&acc.includes("flower"))[[9,8,"#ff7aa2"],[13,5,"#ffe84a"],[19,4,"#ff7aa2"],[25,5,"#8af0ff"],[29,8,"#ffe84a"]].forEach(([x,y,c])=>{P(x,y,c);P(x+1,y,c);P(x,y+1,c);P(x+1,y+1,"#fff");P(x+2,y+1,"#5fb33a")});
-if(human&&acc.includes("leaf")){[[27,6],[28,5],[29,5],[30,4],[31,4],[28,6],[29,6],[30,5],[32,3],[26,7]].forEach(([x,y],i)=>P(x,y,i%3?"#5fb33a":"#3f8a2e"));P(27,7,"#c0392b");P(26,7,"#c0392b")}
+if(acc.includes("bow")&&!(human&&(p.hat||p.vip))){const c=AC;[[27,4],[28,3],[29,4],[28,5],[27,5],[26,4],[30,5],[31,4],[32,3],[33,4],[32,5],[31,5],[29,5],[30,4]].forEach(([x,y],i)=>P(x,y,i<6?c:ACD));P(29,4,ACD)}
+if(human&&acc.includes("flower")&&!p.hat&&!p.vip)[[9,8,"#ff7aa2"],[13,5,"#ffe84a"],[19,4,"#ff7aa2"],[25,5,"#8af0ff"],[29,8,"#ffe84a"]].forEach(([x,y,c])=>{P(x,y,c);P(x+1,y,c);P(x,y+1,c);P(x+1,y+1,"#fff");P(x+2,y+1,"#5fb33a")});
+if(human&&acc.includes("leaf")&&!p.hat&&!p.vip){[[27,6],[28,5],[29,5],[30,4],[31,4],[28,6],[29,6],[30,5],[32,3],[26,7]].forEach(([x,y],i)=>P(x,y,i%3?"#5fb33a":"#3f8a2e"));P(27,7,"#c0392b");P(26,7,"#c0392b")}
 if(!human&&acc.includes("tie")&&k!="ghost"){[[16,37],[17,37],[18,38],[17,38],[16,39],[17,39],[21,38],[22,37],[23,37],[22,38],[22,39],[23,39],[19,38],[20,38]].forEach(([x,y],i)=>P(x,y,i>=12?ACD:AC))}
 if(human&&sp==4)[[19,41],[19,45],[19,49]].forEach(([x,y])=>P(x,y,"#f5efe0"));
 if(p.vip){const top=human?(p.hat==3?0:3):k=="robot"?2:4;for(let x=-6;x<=6;x++){P(19.5+x,top+3,"#f7c331");P(19.5+x,top+4,"#d4a017")}[[-6,0],[-3,1],[0,-1],[3,1],[6,0]].forEach(([x,y])=>{P(19.5+x,top+y+1,"#ffe27a");P(19.5+x,top+y+2,"#f7c331")});P(19,top+3,"#e74c3c");P(20,top+3,"#e74c3c")}
@@ -259,11 +264,11 @@ add.forEach(([k,c])=>{if(!all.has(k))all.set(k,c)})}
 return reach[key]=[...all.values()]}
 function recipeOf(t){const steps=[];const walk=x=>{if(!x.p)return;walk(x.p[0]);walk(x.p[1]);if(!steps.includes(x))steps.push(x)};walk(t);return steps}
 function reqsFrom(t,n,L){const out=[],c=colorName(t.rgb);
-const sz=t.tam==0?{k:"micro"}:t.tam<=1?{k:"mini"}:t.tam>=12?{k:"giga"}:t.tam>=11?{k:"enorme"}:t.tam>=7?{k:"tamMin",v:t.tam-N(0,1)}:t.tam<=3?{k:"tamMax",v:t.tam+N(0,1)}:null;
+const sz=t.tam==0?{k:"micro"}:t.tam<=1?{k:"mini"}:t.tam>=12?{k:"giga"}:t.tam>=11?{k:"enorme"}:t.tam>=8?{k:"tamMin",v:8}:t.tam<=3?{k:"tamMax",v:3}:{k:"media"};
 const special=[];if(t.hero)special.push({k:"hero"});if(t.el)special.push({k:"el",v:t.el});if(sz&&["micro","giga","mini","enorme"].includes(sz.k))special.push(sz);
 const normal=[{k:"cor",v:c}];if(sz&&!special.includes(sz))normal.push(sz);
-if(t.doce>=6)normal.push({k:"doceMin",v:cl(t.doce-N(0,1),3,10)});else if(t.doce<=4)normal.push({k:"doceMax",v:cl(t.doce+N(0,1),1,8)});
-if(t.az>=6)normal.push({k:"azMin",v:cl(t.az-N(0,1),3,10)});else if(t.az<=4)normal.push({k:"azMax",v:cl(t.az+N(0,1),1,8)});
+const lvl=(v,k)=>v>=8?{k:k+"Min",v:8}:v>=6?{k:k+"Min",v:6}:v<=2?{k:k+"Max",v:2}:v<=4?{k:k+"Max",v:4}:null;
+[lvl(t.doce,"doce"),lvl(t.az,"az")].forEach(r=>{if(r)normal.push(r)});
 special.sort(()=>Math.random()-.5);normal.sort(()=>Math.random()-.5);
 for(const r of [...special,...normal]){if(out.length>=n)break;out.push(r)}return out}
 function newCust(){const L=level(),vip=L>=(sk('t4')?2:3)&&Math.random()<(sk('t4')?.3:.15);let n=Math.min(3,1+Math.floor((L-1)/2)+(Math.random()<.3?1:0));if(vip)n=Math.min(4,n+1);
@@ -285,17 +290,20 @@ else if(t.d==0)h+=`<p>É só comprar na feira:</p><div class="rstep"><span class
 else{const st=recipeOf(t);h+=`<p>${st.length} cruzamento${st.length>1?"s":""} no caldeirão:</p>`+st.map((x,k)=>{const[a,b]=x.p,fi=y=>`<span class="fi"><img src="${fruitImg(stImg(y))}"><span class="nn">${stLabel(y)}</span></span>`;return `<div class="rstep"><b>${k+1}.</b>${fi(a)}<b>+</b>${fi(b)}<b>=</b>${fi(x)}</div>`}).join("")+`<p style="font-size:.75rem;opacity:.75">As frutas da feira estão lá embaixo. Use o resultado de cada passo no passo seguinte.</p>`}
 openModal(h+`<button class="big" id="cl">ENTENDI</button>`);$("cl").onclick=closeModal}
 function meets(f,r){switch(r.k){case"cor":return colorName(f.rgb)==r.v;case"doceMin":return f.doce>=r.v;case"doceMax":return f.doce<=r.v;case"azMin":return f.az>=r.v;case"azMax":return f.az<=r.v;
-case"tamMin":return f.tam>=r.v;case"tamMax":return f.tam<=r.v;case"mini":return f.tam<=1;case"micro":return f.tam==0;case"enorme":return f.tam>=11;case"giga":return f.tam==12;case"el":return f.el==r.v;case"hero":return !!f.hero}}
+case"tamMin":return f.tam>=r.v;case"tamMax":return f.tam<=r.v;case"media":return f.tam>=4&&f.tam<=7;case"mini":return f.tam<=1;case"micro":return f.tam==0;case"enorme":return f.tam>=11;case"giga":return f.tam==12;case"el":return f.el==r.v;case"hero":return !!f.hero}}
 const LAB={doce:["DOCE","#ff5f9e"],az:["AZEDO","#9ccc2e"],tam:["TAM.","#3fa7e0"]};
 function cells(fn,col){let s="";for(let i=1;i<=10;i++)s+=`<i style="${fn(i)?"background:"+col:""}"></i>`;return `<span class="cells">${s}</span>`}
-function reqHTML(r,f){const ok=f&&meets(f,r),cls=`rq ${ok?"y":""}`;
-if(r.k=="cor")return `<div class="${cls} cor" onclick="colorGuide('${r.v}')"><span class="l">COR</span><span class="sw" style="background:${hex(COLORS[r.v])}"></span>${r.v}</div>`;
-if(r.k=="el")return `<div class="${cls}"><img class="ico" src="${SPR[r.v]()}"><b style="color:${ELEM[r.v].c}">${ELEM[r.v].n.toUpperCase()}</b></div>`;
-if(r.k=="micro")return `<div class="${cls}"><span class="l">TAM.</span><b>MICROSCÓPICA</b></div>`;if(r.k=="mini")return `<div class="${cls}"><span class="l">TAM.</span><b>MINI</b></div>`;if(r.k=="enorme")return `<div class="${cls}"><span class="l">TAM.</span><b>ENORME</b></div>`;
-if(r.k=="giga")return `<div class="${cls}"><span class="l">TAM.</span><b>GIGANTESCA</b></div>`;
-if(r.k=="hero")return `<div class="${cls}"><b style="color:#d63031">SUPER-FRUTA!</b></div>`;
-const key=r.k.slice(0,-3),mn=r.k.endsWith("Min"),[lab,col]=LAB[key];
-return `<div class="${cls}"><span class="l">${lab}</span>${cells(i=>mn?i>=r.v:i<=r.v,col)}<span>${mn?"≥":"≤"}${r.v}</span></div>`}
+const RICO={doce:()=>art(["..p..",".ppp.","ppwpp",".ppp.","..p.."],{p:"#ff5f9e",w:"#ffd0e4"},"#8a2050"),az:()=>art([".yy..","yyyy.","yyyyy",".yyyy","..yy."],{y:"#d6e84a"},"#5a6a10"),
+tam:()=>art(["..b..",".bbb.","..b..","..b..","..b..",".bbb.","..b.."],{b:"#3fa7e0"},"#164a6a"),hero:()=>art(["..m..","rrmrr","rrrrr","rr.rr","r...r"],{m:"#1a1a2a",r:"#d63031"},"#5a1010")};
+function reqWord(r){switch(r.k){
+case"doceMin":return[r.v>=8?"MUITO DOCE":"DOCE",r.v+"+","doce"];case"doceMax":return[r.v<=2?"NADA DOCE":"POUCO DOCE","até "+r.v,"doce"];
+case"azMin":return[r.v>=8?"MUITO AZEDA":"AZEDA",r.v+"+","az"];case"azMax":return[r.v<=2?"NADA AZEDA":"POUCO AZEDA","até "+r.v,"az"];
+case"tamMin":return[r.v>=8?"GRANDE":"TAMANHO",r.v+"+","tam"];case"tamMax":return[r.v<=3?"PEQUENA":"TAMANHO","até "+r.v,"tam"];case"media":return["MÉDIA","4 a 7","tam"];
+case"mini":return["MINI","0 ou 1","tam"];case"micro":return["MICROSCÓPICA","0","tam"];case"enorme":return["ENORME","11+","tam"];case"giga":return["GIGANTESCA","12","tam"];
+case"cor":return[r.v.toUpperCase(),"","cor"];case"el":return[ELEM[r.v].n.toUpperCase(),"","el"];case"hero":return["SUPER-FRUTA","","hero"]}}
+function reqHTML(r,f){const ok=f?meets(f,r):null,[w,n,ic]=reqWord(r);
+const icon=ic=="cor"?`<span class="sw" style="background:${hex(COLORS[r.v])}"></span>`:ic=="el"?`<img class="ico" src="${SPR[r.v]()}">`:`<img class="ico" src="${RICO[ic]()}">`;
+return `<div class="rq ${ok===true?"y":ok===false?"n":""} ${ic=="cor"?"cor":""}" ${ic=="cor"?`onclick="colorGuide('${r.v}')"`:""}>${icon}<b style="${w.length>9?"font-size:.56rem;letter-spacing:-.4px":""}">${w}</b>${n?`<span class="nb">${n}</span>`:""}${ok===null?"":`<i class="ck">${ok?"✓":"✗"}</i>`}</div>`}
 const leftOf=c=>CFG.zen?1:cl(1-(now()-c.t0)/c.pat,0,1),pay=c=>Math.round(c.rw*(.5+.5*leftOf(c))*(sk('cap')?1.5:1));
 let sel=null,hoverCust=-1;const pcache={};
 function renderCounter(){const f=sel?S.fruits.find(x=>x.id==sel):null;
@@ -349,11 +357,11 @@ function newUnlock(L){const u=BASE.filter(b=>b[9]==L).map(b=>b[0]);const extra={
 return (u.length?"<br>Nova na feira: "+u.join(", "):"")+(extra?"<br>"+extra:"")}
 /* ================= info / feira ================= */
 function showInfo(f){const p=$("info");if(!f){p.classList.remove("on");return}if(S.tut&&S.tut.t2)tutDone("t3");
-const st=(l,v,c)=>`<div class="st"><span>${l}</span>${cells(i=>i<=v,c)}<b>${v}</b></div>`;
+const tw=(v,a,b)=>v>=8?"muito "+a:v>=6?a:v<=2?"nada "+a:v<=4?"pouco "+a:"",st=(l,v,c,w)=>`<div class="st"><span>${l}</span>${cells(i=>i<=v,c)}<b style="white-space:nowrap">${v}${w?` <small style="font-weight:400;opacity:.75">${w}</small>`:""}</b></div>`;
 const tamTxt=f.tam==0?`<div class="st"><span>Tamanho</span><b>MICROSCÓPICA</b></div>`:f.tam>=11?`<div class="st"><span>Tamanho</span>${cells(()=>1,"#3fa7e0")}<b>${f.tam}!</b></div>`:st("Tamanho",f.tam,"#3fa7e0");
 p.innerHTML=`<span class="x" onclick="sel=null;showInfo(null);renderCounter();renderTable()">X</span><img src="${fruitImg(f)}"><div style="flex:1"><div class="t">${fname(f)}</div>
 <div class="g">${f.gen?"Geração "+f.gen:"Da feira"} · cor ${colorName(f.rgb)} · ${sizeName(f.tam)}${f.mut?'<span class="chip" style="background:#7b5cff">MUTANTE</span>':""}${f.el?`<span class="chip" style="background:${ELEM[f.el].c}">${ELEM[f.el].n.toUpperCase()}</span>`:""}${f.hero?'<span class="chip" style="background:#d63031">SUPER</span>':""}${f.shiny?'<span class="chip" style="background:linear-gradient(90deg,#ff8ad8,#ffe84a,#8af0ff);color:#2a1a12">BRILHANTE</span>':""}</div>
-${st("Doce",f.doce,"#ff5f9e")}${st("Azedo",f.az,"#9ccc2e")}${tamTxt}${S.pot.length==1&&!S.pot.includes(f)?`<div style="font-size:.68rem;margin-top:4px;background:#e4dbff;padding:3px 5px"><b>PREVISÃO</b> com ${fname(S.pot[0])}:<br>${predict(f,S.pot[0])}</div>`:""}</div>`;p.classList.add("on")}
+${st("Doce",f.doce,"#ff5f9e",tw(f.doce,"doce"))}${st("Azedo",f.az,"#9ccc2e",tw(f.az,"azeda"))}${tamTxt}${S.pot.length==1&&!S.pot.includes(f)?`<div style="font-size:.68rem;margin-top:4px;background:#e4dbff;padding:3px 5px"><b>PREVISÃO</b> com ${fname(S.pot[0])}:<br>${predict(f,S.pot[0])}</div>`:""}</div>`;p.classList.add("on")}
 function renderMarket(){const L=level();$("market").innerHTML=BASE.map((b,i)=>{const f={shape:b[1],pat:b[2],top:b[3],rgb:typeof b[4]=="string"?COLORS[b[4]]:b[4],tip:b[0]=="Banana"?"#6b4423":b[0]=="Pimenta-Dragão"?"#3f9a3a":null};const lock=L<b[9],rare=b[9]>1;
 return `<div class="mk px ${lock?"lock":S.coins<b[8]?"off":""} ${rare&&!lock?"rare":""}" onclick="buy(${i})"><img src="${fruitImg(f)}">${lock?"???":b[0]}<div class="pr">${lock?"NÍVEL "+b[9]:`<span class="coin"></span>${b[8]}`}</div></div>`}).join("")}
 function buy(i){const b=BASE[i];if(level()<b[9])return toast(`Libera no nível ${b[9]}`);if(S.coins<b[8])return toast("Moedas insuficientes");S.coins-=b[8];const f=baseFruit(b);
@@ -507,8 +515,7 @@ $("go").onclick=()=>{ac();rainFruits(false);closeModal();if(!running)startDay()}
 if(cont)$("newg").onclick=e=>{if(!armed){armed=true;e.target.textContent="TOQUE DE NOVO PRA APAGAR TUDO";return}fresh();S.fruits.forEach(f=>dexCheck(f,true));const pe=$("pot");pe.style.left="10px";pe.style.top="";pe.style.bottom="8px";save();sel=null;showInfo(null);ac();rainFruits(false);closeModal();renderAll();startDay()}}
 function gainEss(){}
 const HELLO={person:["Olá! ","Oi, tudo bem? ","Boa tarde! ","E aí! "],cat:["Miau... ","Mrrr... "],dog:["Au au! ","Oi oi oi! "],bear:["Hmm... ","Grrr, oi! "],bunny:["Oi oi! ","Hihi! "],frog:["Croac! "],penguin:["Brrr! "],robot:["BIP-BOP. SOLICITAÇÃO: "],alien:["Saudações, terráqueo. "],ghost:["Buuu... "]};
-function sayReq(r){switch(r.k){case"doceMin":return r.v>=8?"bem docinha":"docinha";case"doceMax":return "sem muito açúcar";case"azMin":return r.v>=8?"bem azedinha":"azedinha";case"azMax":return "nada azeda";
-case"tamMin":return "grandona";case"tamMax":return "pequenininha";case"cor":return "da cor "+r.v;case"el":return "de "+ELEM[r.v].n.toUpperCase();case"micro":return "MICROSCÓPICA";case"mini":return "mini";case"enorme":return "ENORME";case"giga":return "GIGANTESCA";case"hero":return "SUPER-FRUTA";default:return ""}}
+function sayReq(r){const[w,n]=reqWord(r);return r.k=="cor"?"da cor "+w.toLowerCase():r.k=="el"?"de "+w:r.k=="hero"?"SUPER-FRUTA":w.toLowerCase()+(n?` (${n})`:"")}
 function showPortrait(i){const c=S.cust[i];if(!c||c.leaving)return;const left=leftOf(c),mood=c.mood||(left<.2?"sad":"ok");
 const parts=c.reqs.map(sayReq).filter(Boolean),last=parts.length>1?parts.slice(0,-1).join(", ")+" e "+parts[parts.length-1]:parts[0]||"especial";
 const hi=R(HELLO[c.kind||"person"]||HELLO.person),tail=c.kind=="robot"?" FIM DA TRANSMISSÃO.":left<.2?" E rápido, por favor!":c.vip?" Pago bem, viu?":"";
