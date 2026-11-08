@@ -215,7 +215,7 @@ const saveCfg=()=>{try{localStorage.setItem("frutodromo_cfg",JSON.stringify(CFG)
 function level(){return 1+Math.floor(S.delivered/3)}
 const now=()=>S.clock;
 function baseFruit(b){const c=typeof b[4]=="string"?COLORS[b[4]].slice():b[4].slice();return{id:"f"+(S.id++),tip:b[0]=="Banana"?"#6b4423":b[0]=="Pimenta-Dragão"?"#3f9a3a":null,root:b[0].split(/[ -]/)[0],shape:b[1],pat:b[2],top:b[3],rgb:c,doce:b[5],az:b[6],tam:b[7],gen:0,mut:false,el:b[10]||null,hero:false,base:b[0]}}
-function fresh(){S={potPos:null,coins:25,delivered:0,id:1,fruits:[],pot:[],cust:[null,null,null],clock:0,day:1,dayT:0,ds:{earn:0,served:0,best:0,dex:0},dex:{},tree:{},started:false,ess:0,sk:{}};
+function fresh(){S={bag:[{t:"grow"},{t:"shrink"}],potPos:null,coins:25,delivered:0,id:1,fruits:[],pot:[],cust:[null,null,null],clock:0,day:1,dayT:0,ds:{earn:0,served:0,best:0,dex:0},dex:{},tree:{},started:false,ess:0,sk:{}};
 [0,1,2,4,5,6].forEach((bi,i)=>{const f=baseFruit(BASE[bi]);f.x=14+(i%3)*104;f.y=12+Math.floor(i/3)*92;S.fruits.push(f)})}
 try{S=JSON.parse(localStorage.getItem("frutodromo9"))}catch(e){}if(!S||!S.fruits)fresh();
 const save=()=>{try{localStorage.setItem("frutodromo9",JSON.stringify(S))}catch(e){}};
@@ -338,7 +338,7 @@ el.style.left=ox+dx+"px";el.style.top=oy+dy+"px";const[cx,cy]=center(el);
 {const op=!brewing&&inside(cx,cy,$("pot"));$("pot").classList.toggle("hot",op);el.classList.toggle("overpot",op)}$("bin").classList.toggle("hot",inside(cx,cy,$("bin")));
 const hc=custAt(cx,cy);if(hc!=hoverCust){hoverCust=hc;document.querySelectorAll(".cust").forEach(c=>c.classList.toggle("hot",c.dataset.i!==undefined&&+c.dataset.i===hc))}});
 const up=e=>{if(!on)return;on=false;el.classList.remove("drag");$("bin").classList.remove("hot");$("pot").classList.remove("hot");
-if(!mv){sel=sel==f.id?null:f.id;showInfo(sel?f:null);renderCounter();tbl.querySelectorAll(".fr").forEach(x=>x.classList.toggle("sel",x.dataset.id==sel));return}
+if(!mv&&armed){useItem(f);return}if(!mv){sel=sel==f.id?null:f.id;showInfo(sel?f:null);renderCounter();tbl.querySelectorAll(".fr").forEach(x=>x.classList.toggle("sel",x.dataset.id==sel));return}
 const[cx,cy]=center(el);const hc=custAt(cx,cy);hoverCust=-1;
 if(hc>=0&&S.cust[hc]&&!S.cust[hc].leaving){deliver(f,hc,ox,oy);return}
 if(inside(cx,cy,$("bin"))){sell(f);return}
@@ -352,8 +352,9 @@ if(!c.reqs.every(r=>meets(f,r))){f.x=ox;f.y=oy;renderTable();c.mood="sad";render
 const cb=comboHit(),bonus=cb>=2?Math.round(pay(c)*Math.min(.5,(cb-1)*.1)):0,v=pay(c)+bonus,L0=level();const ce=document.querySelector(`.cust[data-i="${i}"] .bub`).getBoundingClientRect();flyCoins(ce.left+ce.width/2,ce.top+ce.height/2,v,v);floatText(ce.left+ce.width/2,ce.top+10,"+"+v);if(cb>=2)setTimeout(()=>floatText(ce.left+ce.width/2,ce.top+40,`COMBO x${cb}!`,"#ff8ad8"),250);buzz([20,40,30]);
 S.delivered++;S.ds.served++;if(c.vip)rec("vips",1);tutDone("t2");gainEss(c.vip?3:1);S.ds.earn+=v;S.ds.best=Math.max(S.ds.best,v);S.fruits=S.fruits.filter(x=>x!=f);sel=null;showInfo(null);c.mood="happy";renderTable();renderCounter();renderMarket();
 toast(`${c.name} adorou! <b>+${v}</b> moedas${level()>L0?`<br><b>NÍVEL ${level()}!</b>${newUnlock(level())}`:""}`);if(level()>L0){SFX.lvl();shake(5);buzz([40,60,40,60,80])}
+{const first=!(S.rec&&S.rec.gifts),n=c.vip?2:(first||Math.random()<.35)?1:0;for(let g=0;g<n;g++)setTimeout(()=>giveItem(rollItem(),ce.left+ce.width/2,ce.top+ce.height/2,c.name),600+g*700);if(n)rec("gifts",n)}
 setTimeout(()=>{c.leaving=true;renderCounter();setTimeout(()=>{S.cust[i]=null;renderCounter();setTimeout(()=>{if(running&&!S.cust[i]){S.cust[i]=newCust();save();renderCounter()}},700)},700)},900)}
-function newUnlock(L){const u=BASE.filter(b=>b[9]==L).map(b=>b[0]);const extra={2:"Clientes pedem frutas MINI e ENORMES",3:"Pedidos de FOGO e clientes VIP",4:"Pedidos de GELO e cores raras",5:"Microscópicas, Gigantescas e SUPER-FRUTAS"}[L];
+function newUnlock(L){const u=[];const extra={2:"Clientes pedem frutas MINI e ENORMES",3:"Pedidos de FOGO e clientes VIP",4:"Pedidos de GELO e cores raras",5:"Microscópicas, Gigantescas e SUPER-FRUTAS"}[L];
 return (u.length?"<br>Nova na feira: "+u.join(", "):"")+(extra?"<br>"+extra:"")}
 /* ================= info / feira ================= */
 function showInfo(f){const p=$("info");if(!f){p.classList.remove("on");return}if(S.tut&&S.tut.t2)tutDone("t3");
@@ -362,9 +363,41 @@ const tamTxt=f.tam==0?`<div class="st"><span>Tamanho</span><b>MICROSCÓPICA</b><
 p.innerHTML=`<span class="x" onclick="sel=null;showInfo(null);renderCounter();renderTable()">X</span><img src="${fruitImg(f)}"><div style="flex:1"><div class="t">${fname(f)}</div>
 <div class="g">${f.gen?"Geração "+f.gen:"Da feira"} · cor ${colorName(f.rgb)} · ${sizeName(f.tam)}${f.mut?'<span class="chip" style="background:#7b5cff">MUTANTE</span>':""}${f.el?`<span class="chip" style="background:${ELEM[f.el].c}">${ELEM[f.el].n.toUpperCase()}</span>`:""}${f.hero?'<span class="chip" style="background:#d63031">SUPER</span>':""}${f.shiny?'<span class="chip" style="background:linear-gradient(90deg,#ff8ad8,#ffe84a,#8af0ff);color:#2a1a12">BRILHANTE</span>':""}</div>
 ${st("Doce",f.doce,"#ff5f9e",tw(f.doce,"doce"))}${st("Azedo",f.az,"#9ccc2e",tw(f.az,"azeda"))}${tamTxt}${S.pot.length==1&&!S.pot.includes(f)?`<div style="font-size:.68rem;margin-top:4px;background:#e4dbff;padding:3px 5px"><b>PREVISÃO</b> com ${fname(S.pot[0])}:<br>${predict(f,S.pot[0])}</div>`:""}</div>`;p.classList.add("on")}
-function renderMarket(){const L=level();$("market").innerHTML=BASE.map((b,i)=>{const f={shape:b[1],pat:b[2],top:b[3],rgb:typeof b[4]=="string"?COLORS[b[4]]:b[4],tip:b[0]=="Banana"?"#6b4423":b[0]=="Pimenta-Dragão"?"#3f9a3a":null};const lock=L<b[9],rare=b[9]>1;
+const POT=(c)=>art(["..kk..","..kk..",".gggg.","gccccg","gcwccg","gccccg",".gggg."],{k:"#8a5a34",g:"#cfe6ee",c,w:"#ffffff"},"#2a1a12");
+const ITEMS={
+bag:{img:()=>art(["..kk..",".k..k.","bbbbbb","bbybbb","bbbbbb",".bbbb."],{k:"#6b4423",b:"#b07040",y:"#f7c331"},"#2a1a12")},
+grow:{n:"Poção Gigante",short:()=>"Gigante",d:"+3 de tamanho (até 12). Morango gigante? Pode!",img:()=>POT("#4fd06a"),w:10,go:f=>{f.tam=Math.min(12,f.tam+3)}},
+shrink:{n:"Poção Minúscula",short:()=>"Minúscula",d:"-3 de tamanho (até 0). Melancia de bolso!",img:()=>POT("#9b6bff"),w:10,go:f=>{f.tam=Math.max(0,f.tam-3)}},
+sweet:{n:"Mel Encantado",short:()=>"Mel",d:"+3 de doçura",img:()=>art([".kkk.","yyyyy","yywyy","yyyyy",".yyy."],{k:"#8a5a34",y:"#f7c331",w:"#fff3a0"},"#6b4a10"),w:8,go:f=>{f.doce=Math.min(10,f.doce+3)}},
+sour:{n:"Gota Azeda",short:()=>"Azeda",d:"+3 de acidez",img:()=>art(["..y..",".yyy.","yywyy","yyyyy",".yyy."],{y:"#d6e84a",w:"#f5ffc0"},"#5a6a10"),w:8,go:f=>{f.az=Math.min(10,f.az+3)}},
+paint:{n:"Tinta Mágica",short:v=>v,d:"Pinta a fruta de outra cor",img:v=>art(["kkkkk","k...k","ccccc","ccwcc",".ccc."],{k:"#8a8a98",c:hex(COLORS[v]||COLORS.rosa),w:"#ffffff"},"#2a1a12"),w:8,go:(f,v)=>{f.rgb=COLORS[v].slice()},vals:Object.keys(COLORS)},
+fogo:{n:"Pena de Fênix",short:()=>"Fênix",d:"A fruta pega FOGO",img:()=>art(["...r","..ro",".roy","roy.","oy..","y..."],{r:"#c0392b",o:"#f39c12",y:"#f7dc6f"},"#7a1a10"),w:4,go:f=>{if(f.el&&f.el!="fogo")f.hero=true;f.el="fogo"}},
+gelo:{n:"Cristal Eterno",short:()=>"Cristal",d:"A fruta vira GELO",img:()=>art(["..w..",".wbw.","wbbbw",".wbw.","..w.."],{w:"#e8f8ff",b:"#5bc0eb"},"#2a6a8a"),w:4,go:f=>{if(f.el&&f.el!="gelo")f.hero=true;f.el="gelo"}},
+raio:{n:"Raio na Garrafa",short:()=>"Raio",d:"A fruta ganha RAIO",img:()=>POT("#ffe84a"),w:4,go:f=>{if(f.el&&f.el!="raio")f.hero=true;f.el="raio"}},
+hero:{n:"Capa Heroica",short:()=>"Capa",d:"Vira SUPER-FRUTA",img:()=>art(["..m..","rrmrr","rrrrr","rr.rr","r...r"],{m:"#1a1a2a",r:"#d63031"},"#5a1010"),w:2,go:f=>{f.hero=true;f.cape=f.cape||R(["#d63031","#2d6cdf","#8e44ad","#16a085","#f39c12"])}},
+shiny:{n:"Pó de Estrela",short:()=>"Estrela",d:"Deixa a fruta BRILHANTE",img:()=>art(["..y..","..y..","yywyy","..y..","..y.."],{y:"#ffe84a",w:"#ffffff"},"#8a6a00"),w:2,go:f=>{f.shiny=true}},
+brush:{n:"Pincel Doido",short:()=>"Pincel",d:"Troca a estampa por uma maluca",img:()=>art(["....kk","...kk.","..kk..",".bb...","bbb...","bb...."],{k:"#8a5a34",b:"#ff5f9e"},"#2a1a12"),w:6,go:f=>{f.pat=R(["marble","spots","stripes","seeds","blush","hatch"]);f.rgb2=COLORS[R(Object.keys(COLORS))].slice()}},
+morph:{n:"Molde Maluco",short:()=>"Molde",d:"Deforma a fruta num formato novo",img:()=>art(["ppp..","p.ppp","ppp.p","..ppp"],{p:"#b48cff"},"#4a2a8a"),w:5,go:f=>{const other={shape:R(["heart","banana","oval","round","kidney","tall","cluster"])};f.mask=morph(f,other);f.shape="mix"}}};
+function rollItem(){const ks=Object.keys(ITEMS).filter(k=>ITEMS[k].w),tot=ks.reduce((s,k)=>s+ITEMS[k].w,0);let r=Math.random()*tot;for(const k of ks){if((r-=ITEMS[k].w)<0){const it={t:k};if(ITEMS[k].vals)it.v=R(ITEMS[k].vals);return it}}return{t:"grow"}}
+function giveItem(it,x,y,from){S.bag=S.bag||[];S.bag.push(it);save();const I=ITEMS[it.t],im=document.createElement("img");im.src=I.img(it.v);im.style.cssText=`position:fixed;left:${x}px;top:${y}px;width:36px;height:36px;z-index:130;image-rendering:pixelated;pointer-events:none`;document.body.appendChild(im);
+const bt=$("bagtab")||$("market"),r=bt.getBoundingClientRect();im.animate([{transform:"translate(-50%,-50%) scale(.5)"},{transform:"translate(-50%,-140%) scale(1.4)",offset:.3},{transform:`translate(${r.left+r.width/2-x-18}px,${r.top+r.height/2-y-18}px) scale(.6)`}],{duration:1100,easing:"ease-in"}).onfinish=()=>{im.remove();renderMarket();const b=$("bagtab");if(b){b.classList.remove("got");void b.offsetWidth;b.classList.add("got")}};
+setTimeout(()=>{toast(`<b>PRESENTE${from?" de "+from:""}!</b><br>${I.n}${it.v?" ("+it.v+")":""}`);SFX.dex();buzz([20,30,20])},500)}
+function armItem(k){armed=armed==k?null:k;renderMarket();const tip=$("armtip");if(armed){const it=(S.bag||[]).find(x=>x.t+(x.v||"")==armed),I=ITEMS[it.t];tip.innerHTML=`${I.n}${it.v?" ("+it.v+")":""}: ${I.d}<br><span style="font-weight:400">Toque numa fruta da mesa pra usar · toque de novo pra cancelar</span>`;tip.classList.add("on");tbl.classList.add("arming")}else{tip.classList.remove("on");tbl.classList.remove("arming")}}
+function useItem(f){const idx=(S.bag||[]).findIndex(x=>x.t+(x.v||"")==armed);if(idx<0){armItem(null);return}const it=S.bag[idx],I=ITEMS[it.t];
+const before=JSON.stringify([f.tam,f.doce,f.az,f.rgb,f.el,f.hero,f.shiny,f.pat,f.mask]);const old={...f,sp:f.sp},s0=fsize(f);I.go(f,it.v);{const s1=fsize(f);f.x-=(s1-s0)/2;f.y-=(s1-s0)/2}
+if(JSON.stringify([f.tam,f.doce,f.az,f.rgb,f.el,f.hero,f.shiny,f.pat,f.mask])==before){toast("Não mudou nada nessa fruta. Tente outra!");return}
+S.bag.splice(idx,1);f.mod=true;if(!S.bag.some(x=>x.t+(x.v||"")==armed))armItem(null);else renderMarket();
+const el=tbl.querySelector(`[data-id="${f.id}"]`),r=el?el.getBoundingClientRect():{left:200,top:400,width:0,height:0};clampPos(f);rec("items",1);
+treeAdd(f,[old]);if(f.shiny)rec("shiny",1);save();renderTable(f.id);showInfo(f);renderCounter();
+burst(r.left+r.width/2,r.top+r.height/2,f.rgb,26);SFX.mut();shake(3);buzz([30,20,50]);toast(`<b>${I.n}!</b> ${fname(f)}`)}
+let mkTab="feira",armed=null;
+function bagCount(){return (S.bag||[]).length}
+function renderMarket(){const L=level();const tabs=`<div class="mk tabk ${mkTab=="feira"?"on":""}" onclick="mkTab='feira';armed=null;renderMarket()"><b>FEIRA</b></div><div class="mk tabk ${mkTab=="bolsa"?"on":""}" id="bagtab" onclick="mkTab='bolsa';renderMarket()"><img src="${ITEMS.bag.img()}" style="width:28px;height:28px"><b>BOLSA</b>${bagCount()?`<span class="cnt2">${bagCount()}</span>`:""}</div>`;
+if(mkTab=="bolsa"){const groups={};(S.bag||[]).forEach(it=>{const k=it.t+(it.v||"");(groups[k]=groups[k]||{it,n:0}).n++});const gs=Object.values(groups);
+ $("market").innerHTML=tabs+(gs.length?gs.map(({it,n})=>{const I=ITEMS[it.t],k=it.t+(it.v||"");return `<div class="mk px itm ${armed==k?"arm":""}" onclick="armItem('${k}')"><img src="${I.img(it.v)}">${I.short(it.v)}<div class="pr">x${n}</div></div>`}).join(""):`<div style="color:#ffe9b8;font-size:.75rem;padding:8px;align-self:center">Vazia. Clientes dão <b>presentes</b> quando você entrega!</div>`);return}
+$("market").innerHTML=tabs+BASE.map((b,i)=>{const f={shape:b[1],pat:b[2],top:b[3],rgb:typeof b[4]=="string"?COLORS[b[4]]:b[4],tip:b[0]=="Banana"?"#6b4423":b[0]=="Pimenta-Dragão"?"#3f9a3a":null};const lock=false,rare=!!b[10];
 return `<div class="mk px ${lock?"lock":S.coins<b[8]?"off":""} ${rare&&!lock?"rare":""}" onclick="buy(${i})"><img src="${fruitImg(f)}">${lock?"???":b[0]}<div class="pr">${lock?"NÍVEL "+b[9]:`<span class="coin"></span>${b[8]}`}</div></div>`}).join("")}
-function buy(i){const b=BASE[i];if(level()<b[9])return toast(`Libera no nível ${b[9]}`);if(S.coins<b[8])return toast("Moedas insuficientes");S.coins-=b[8];const f=baseFruit(b);
+function buy(i){const b=BASE[i];if(S.coins<b[8])return toast("Moedas insuficientes");S.coins-=b[8];const f=baseFruit(b);
 {const pr=$("pot"),pw={x:pr.offsetLeft,y:pr.offsetTop,w:pr.offsetWidth,h:pr.offsetHeight};let k=0;do{f.x=N(10,Math.max(10,tbl.clientWidth-110));f.y=N(10,Math.max(10,tbl.clientHeight-110));k++}while(k<30&&f.x+fsize(f)>pw.x&&f.x<pw.x+pw.w&&f.y+fsize(f)>pw.y&&f.y<pw.y+pw.h)}clampPos(f);S.fruits.push(f);dexCheck(f);SFX.buy();save();$("coins").textContent=S.coins;renderTable(f.id);renderMarket()}
 /* ================= cenário ================= */
 const JAR=["cccccc","cccccc",".gggg.","gjjjjg","gwjjjg","gwjjjg","gjjjjg","gjjjjg",".gggg."];
@@ -433,7 +466,7 @@ const ACH=[["cross10","Aprendiz de alquimista","Cruze 10 frutas",()=>S.rec.cross
 ["micro","Microscópio","Crie uma fruta Microscópica",()=>spAny(k=>k.startsWith("Microscópica")),20],["giga","Titã","Crie uma fruta Gigantesca",()=>spAny(k=>k.startsWith("Gigantesca")),20],
 ["super","Herói da feira","Crie uma super-fruta",()=>spAny(k=>k.endsWith("|S")),30],["shiny","Brilho raro","Encontre uma fruta brilhante",()=>(S.rec.shiny||0)>=1,25],
 ["leg","Lendária!","Descubra uma espécie Lendária",()=>Object.values(S.tree||{}).some(t=>stars(t)>=5),60],["vip5","Clientela VIP","Atenda 5 VIPs",()=>(S.rec.vips||0)>=5,30],
-["combo5","Combo x5","Faça um combo de 5 entregas",()=>(S.rec.maxCombo||0)>=5,25],["day100","Dia de ouro","Lucre 100 moedas num dia",()=>(S.rec.bestDay||0)>=100,30]];
+["combo5","Combo x5","Faça um combo de 5 entregas",()=>(S.rec.maxCombo||0)>=5,25],["day100","Dia de ouro","Lucre 100 moedas num dia",()=>(S.rec.bestDay||0)>=100,30],["item10","Cientista maluco","Use 10 artefatos",()=>(S.rec.items||0)>=10,30]];
 const TROPHY=()=>art(["y.yyy.y","yyyyyyy",".yyyyy.","..yyy..","...y...","..yyy..",".ddddd."],{y:"#f7c331",d:"#a87b00"},"#6b4a10");
 const spAny=fn=>Object.keys(S.tree||{}).some(fn);
 function checkAch(){S.ach=S.ach||{};S.rec=S.rec||{};ACH.forEach(([id,n,d,ok,rw])=>{if(S.ach[id]||!ok())return;S.ach[id]=Date.now();S.coins+=rw;save();
@@ -498,8 +531,8 @@ function endDay(){running=false;rec("bestDay",S.ds.earn,1);SFX.day();S.cust.forE
 setTimeout(()=>{S.cust=[null,null,null];renderCounter();save();showSummary()},900)}
 function showSummary(){const d=S.ds;openModal(`<h2>FIM DO DIA ${S.day}</h2><div class="row">${[...S.fruits].sort((a,b)=>b.gen-a.gen).slice(0,3).map(f=>`<img src="${fruitImg(f)}">`).join("")}</div>
 <div class="sum"><span>Lucro do dia</span><b>${d.earn} moedas</b><span>Clientes atendidos</span><b>${d.served}</b><span>Maior pagamento</span><b>${d.best}</b><span>Novas espécies</span><b>${d.dex}</b><span>Nível</span><b>${level()}</b></div>
-<p>${d.served>=6?"Dia incrível! A quitanda está famosa.":d.served>=3?"Bom dia de trabalho!":"Dia fraco... amanhã é outro dia!"}</p><button class="big" id="nextd">ABRIR DIA ${S.day+1}</button>`);
-$("nextd").onclick=()=>{S.day++;S.dayT=0;S.ds={earn:0,served:0,best:0,dex:0};save();closeModal();startDay()}}
+<p style="font-size:.85rem">+1 <b>presente da quitanda</b> pra começar o próximo dia!</p><p>${d.served>=6?"Dia incrível! A quitanda está famosa.":d.served>=3?"Bom dia de trabalho!":"Dia fraco... amanhã é outro dia!"}</p><button class="big" id="nextd">ABRIR DIA ${S.day+1}</button>`);
+$("nextd").onclick=()=>{setTimeout(()=>giveItem(rollItem(),innerWidth/2,innerHeight/2,"da quitanda"),600);S.day++;S.dayT=0;S.ds={earn:0,served:0,best:0,dex:0};save();closeModal();startDay()}}
 /* ================= modais ================= */
 function openModal(h){if(!$("modal").classList.contains("on"))SFX.open();modalOpen=true;$("mbox").innerHTML=h;$("modal").classList.add("on")}
 function closeModal(){if($("modal").classList.contains("on"))SFX.close();modalOpen=$("tv").classList.contains("on")||$("rv").classList.contains("on");$("modal").classList.remove("on")}
@@ -509,7 +542,7 @@ im.style.left=(Math.random()*95)+"vw";im.style.animationDuration=(5+Math.random(
 function startScreen(){rainFruits(true);const demo=[{shape:"heart",pat:"seeds",top:"leaf",rgb:COLORS.vermelha},{shape:"round",pat:"stripes",top:"stem",rgb:[243,140,32],hero:true,cape:"#2d6cdf"},{shape:"tall",pat:"hatch",top:"crown",rgb:COLORS.amarela}];
 const cont=S.started;let armed=false;
 openModal(`<div class="logo">FRUTÓDROMO</div><p style="margin-top:0">A quitanda das frutas que a natureza não teve coragem de criar</p><div class="row">${demo.map(f=>`<img src="${fruitImg(f)}">`).join("")}</div>
-<p style="font-size:.8rem;text-align:left">• Jogue 2 frutas no <b>caldeirão</b> pra criar híbridos<br>• <b>Parecidos se intensificam</b>: pequena + pequena encolhe, grande + grande cresce, doce + doce fica mais doce<br>• Entregue o que os clientes pedem nos balões<br>• Expanda a <b>Árvore de Espécies</b>: cada combinação nova vira uma espécie, e ela não tem fim</p>
+<p style="font-size:.8rem;text-align:left">• Jogue 2 frutas no <b>caldeirão</b> pra criar híbridos<br>• <b>Parecidos se intensificam</b>: pequena + pequena encolhe, grande + grande cresce, doce + doce fica mais doce<br>• Entregue o que os clientes pedem nos balões<br>• Clientes dão <b>presentes mágicos</b>: poções, tintas, penas de fênix... use na fruta que quiser (aba <b>BOLSA</b>)<br>• Expanda a <b>Árvore de Espécies</b>: cada combinação nova vira uma espécie, e ela não tem fim</p>
 <button class="big" id="go">${cont?"CONTINUAR · DIA "+S.day:"ABRIR A QUITANDA"}</button><br><button class="big alt" id="sndb" onclick="toggleSnd()"></button><button class="big alt" onclick="settings(startScreen)">AJUSTES</button>${cont?'<button class="big alt" id="newg">NOVO JOGO</button>':""}`);sndLabel();
 $("go").onclick=()=>{ac();rainFruits(false);closeModal();if(!running)startDay()};
 if(cont)$("newg").onclick=e=>{if(!armed){armed=true;e.target.textContent="TOQUE DE NOVO PRA APAGAR TUDO";return}fresh();S.fruits.forEach(f=>dexCheck(f,true));const pe=$("pot");pe.style.left="10px";pe.style.top="";pe.style.bottom="8px";save();sel=null;showInfo(null);ac();rainFruits(false);closeModal();renderAll();startDay()}}
@@ -626,4 +659,4 @@ S.pot=S.pot||[];if(S.pot.length==2){S.fruits.push(...S.pot);S.pot=[]}
 document.addEventListener("pointerdown",e=>{const t=e.target.closest("button,.btn,.big,.hint,.flt span,.sp,.cg,.tvh .btn,#pot,.pw");if(!t)return;ac();
  if(t.id=="go"||t.id=="cl"||t.id=="tvx"||t.id=="resume"||t.id=="nextd"||t.id=="rvx"||t.id=="pot")return;SFX.sel()},true);
 if("serviceWorker" in navigator&&location.hostname.endsWith("github.io"))navigator.serviceWorker.register("sw.js").catch(()=>{});
-S.ess=S.ess||0;S.sk=S.sk||{};S.tree=S.tree||{};S.fruits.forEach(f=>{clampPos(f);treeAdd(f,null,true)});renderProps();renderAll();placePot();startScreen();
+S.ess=S.ess||0;S.sk=S.sk||{};S.tree=S.tree||{};if(!S.bag)S.bag=[{t:"grow"},{t:"shrink"}];S.fruits.forEach(f=>{clampPos(f);treeAdd(f,null,true)});renderProps();renderAll();placePot();startScreen();
