@@ -43,6 +43,7 @@ O formato do filho é uma **fusão dos contornos dos pais**, então cada linhage
 - 🎨 Pixel art gerada no código (frutas, clientes, cenário e caldeirão)
 - ✨ Frutas **brilhantes** raras, espécies novas aparecem como **carta colecionável** com raridade (Comum → Lendária), pra baixar e compartilhar
 - 🎁 **Artefatos mágicos** que os clientes dão de presente: poções de crescer e encolher, tintas, pena de fênix, capa heroica, pó de estrela, molde maluco... Morango gigante? Melancia de bolso? Pode!
+- 🌦️ **Mundo real na janela**: relógio com a hora certa e, se você permitir, o clima de verdade da sua cidade (sol, nuvens, chuva, tempestade, noite), com **avisos de tempo perigoso** (Open-Meteo)
 - 🔥 Frutas de **Fogo**, **Gelo** e **Raio** com efeitos animados
 - 🌳 **Árvore de Espécies** infinita: cada combinação nova vira uma espécie ligada aos pais, com sugestões das próximas descobertas
 - 🖌️ **Guia de Cores** dentro da árvore, com as combinações possíveis

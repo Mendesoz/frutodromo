@@ -92,7 +92,7 @@ const shoulders=(x,y)=>y>=37&&dx(x)<=8.5+Math.min(11.5,(y-37)*1.7);
 const sp=p.sp||0;
 const cloth=(x,y)=>{if(sp==1&&Math.floor(y/2)%2==0)return SH2;if(sp==2&&(x+(Math.floor(y/3)%2)*2)%4==0&&y%3==1)return SH2;
  if(sp==3&&((dx(x)>=4&&dx(x)<=6&&y<=43)||(y>=43&&dx(x)<=7)))return "#3d5a8a";return SH};
-if(k=="ghost")fill((x,y)=>(ell(19.5,22,14,15)(x,y)&&y<=37)||(y>37&&y<=42&&dx(x)<=13.5&&(Math.floor((x+3)/5)%2==0||y<=38)),"#f4f1ff","body");
+if(k=="ghost"){fill((x,y)=>(ell(19.5,21,13,13)(x,y)&&y<=22)||(y>=20&&dx(x)<=13&&y<=38+Math.round(2*Math.sin(x*.85)))||ell(6,28,3,2.2)(x,y)||ell(33,28,3,2.2)(x,y),"#f4f1ff","body")}
 else if(k=="penguin"){fill(shoulders,"#2b2b40","shirt");fill((x,y)=>y>=37&&dx(x)<=5+(y-37)*.9,"#f2f2fa","belly")}
 else if(k=="robot")fill(shoulders,"#9aa0ad","shirt");
 else if(k=="frog"){fill(shoulders,F,"shirt");fill((x,y)=>y>=39&&dx(x)<=4+(y-39)*.8,FL,"belly")}
@@ -113,11 +113,12 @@ if(human)fill((x,y)=>y>=29&&y<=38&&dx(x)<=3.6,hex(mul(SKc,.86)),"neck");
 // ---------- cabeça ----------
 if(human){fill(ell(8.6,22,2.2,3.2),SK,"ear");fill(ell(30.4,22,2.2,3.2),SK,"ear");fill(head,SK,"skin")}
 if(furry){
- if(k=="bunny")fill((x,y)=>y<=16&&(ell(14,6,3,9)(x,y)||ell(25,6,3,9)(x,y)),F,"ear");
- if(k=="bear")fill((x,y)=>(x-8.5)**2+(y-9)**2<=18||(x-30.5)**2+(y-9)**2<=18,F,"ear");
- if(k=="cat")fill((x,y)=>y>=2&&y<=15&&(Math.abs(x-10)<=(y-2)*.55||Math.abs(x-29)<=(y-2)*.55),F,"ear");
+ if(k=="bunny"){fill((x,y)=>y<=16&&(ell(14,6,3,9)(x,y)||ell(25,6,3,9)(x,y)),F,"ear");fill((x,y)=>y>=1&&y<=13&&(ell(14,6,1.1,6.5)(x,y)||ell(25,6,1.1,6.5)(x,y)),"#f5a3b5","earin")}
+ if(k=="bear"){fill((x,y)=>(x-8.5)**2+(y-9)**2<=18||(x-30.5)**2+(y-9)**2<=18,F,"ear");fill((x,y)=>(x-8.5)**2+(y-9)**2<=6||(x-30.5)**2+(y-9)**2<=6,FL,"earin")}
+ if(k=="cat"){fill((x,y)=>y>=2&&y<=15&&(Math.abs(x-10)<=(y-2)*.55||Math.abs(x-29)<=(y-2)*.55),F,"ear");fill((x,y)=>y>=6&&y<=13&&(Math.abs(x-10)<=(y-6)*.3||Math.abs(x-29)<=(y-6)*.3),"#f5a3b5","earin")}
  fill((x,y)=>ell(19.5,21,12,11.5)(x,y),F,"head");
  if(k=="dog")fill((x,y)=>(ell(7,21,3.4,8)(x,y)||ell(32,21,3.4,8)(x,y)),FD,"ear2");
+ [[7,24],[6,26],[7,28],[32,24],[33,26],[32,28]].forEach(([x,y])=>{if(k!="bunny")put(x,y,F,"head")});
  fill(ell(19.5,27.5,6,4),FL,"muzzle");eyes=[[14,21],[25,21]];mouthY=31}
 if(k=="frog"){fill(ell(19.5,25,15,9.5),F,"head");fill((x,y)=>(x-11)**2+(y-14)**2<=26||(x-28)**2+(y-14)**2<=26,F,"head");eyes=[[11,14],[28,14]];mouthY=29}
 if(k=="penguin"){fill(ell(19.5,20,12.5,12),"#2b2b40","head");fill(ell(19.5,23,9.5,8.5),"#f2f2fa","face");eyes=[[15,21],[24,21]];mouthY=31}
@@ -155,7 +156,7 @@ const blushC=furry||k=="ghost"||k=="frog"?"#f7a1b0":hex([Math.min(255,SKc[0]+20)
 if(face){eyes.forEach(([cx,cy],i)=>{
  if(blink||mood=="happy"){const up=mood=="happy";for(let d=-2;d<=2;d++)P(cx+d,cy+(up?(Math.abs(d)==2?1:0):1)-(up?0:0),E);return}
  const big=!human;// bichos: olhão
- if(!human){for(let y=-2;y<=2;y++)for(let x=-3;x<=3;x++)if((x/2.6)**2+(y/2.4)**2<=1)P(cx+x,cy+y,E);P(cx-1,cy-1,WH);P(cx,cy-1,WH);P(cx+1,cy+1,"#8a8aa8");return}
+ if(!human){const EA=k=="cat"?"#3a5a2a":k=="frog"?"#1e2a14":"#2b1d18";for(let y=-2;y<=2;y++)for(let x=-3;x<=3;x++)if((x/2.6)**2+(y/2.4)**2<=1)P(cx+x,cy+y,y>=1?hex(lift(hexToRgb(EA),.12)):EA);P(cx-1,cy-1,WH);P(cx,cy-1,WH);P(cx-1,cy,WH);P(cx+1,cy+1,"#c8c8e0");return}
  const ix=Math.round(cx),iy=Math.round(cy);
  for(let y=-1;y<=2;y++)for(let x=-2;x<=2;x++)if((x/2.5)**2+((y-.5)/1.9)**2<=1)P(ix+x,iy+y,WH);
  const ECD=hex(mul(EYEC[(p.eyeC||0)%EYEC.length],.45));[[0,-1],[1,-1],[0,0],[1,0],[0,1],[1,1]].forEach(([x,y])=>P(ix+x-1+(i?1:0)*0,iy+y,EC));
@@ -168,7 +169,8 @@ if(face){eyes.forEach(([cx,cy],i)=>{
  if(human){P(19,25,SKD);P(20,26,SKD);P(19,26,SKD);P(18,24,hex(lift(SKc,.3)))}
  if(furry){const nc=k=="cat"?"#ff8fa3":"#2a1a12";[[18,25],[19,25],[20,25],[21,25],[19,26],[20,26]].forEach(([x,y])=>P(x,y,nc));P(19,25,"#ffffff")}
  if(k=="penguin"){[[17,26],[18,26],[19,26],[20,26],[21,26],[22,26],[18,27],[19,27],[20,27],[21,27],[19,28],[20,28]].forEach(([x,y],i)=>P(x,y,i<6?"#f5a623":"#d68910"))}
- if(k=="cat")[[3,26],[4,26],[5,26],[6,26],[33,26],[34,26],[35,26],[36,26],[4,28],[5,28],[34,28],[35,28]].forEach(([x,y])=>P(x,y,E));
+ if(k=="cat")[[9,27],[10,27],[11,27],[8,29],[9,29],[10,29],[11,29],[28,27],[29,27],[30,27],[28,29],[29,29],[30,29],[31,29]].forEach(([x,y])=>P(x,y,"#6a5248"));
+ if(k=="bunny"&&mood!="sad"){P(19,28,"#ffffff");P(20,28,"#ffffff");P(19,29,"#d8d8e0");P(20,29,"#d8d8e0")}
  // boca
  const my=mouthY,LIP=human?hex([Math.min(255,SKc[0]*.9+40),SKc[1]*.55,SKc[2]*.6]):"#e0556b";
  if(k=="frog"){for(let x=10;x<=29;x++)P(x,my+(mood=="happy"?(Math.abs(x-19.5)>7?-1:0):mood=="sad"?(Math.abs(x-19.5)>7?1:0):0),E)}
@@ -177,6 +179,10 @@ if(face){eyes.forEach(([cx,cy],i)=>{
  else if(furry&&p.mouth==1){P(17,my,E);P(18,my+1,E);P(19,my,E);P(20,my,E);P(21,my+1,E);P(22,my,E)}
  else{for(let x=-2;x<=2;x++)P(19.5+x,my,E);if(human)for(let x=-1;x<=1;x++)P(19.5+x,my+1,LIP);P(17,my-1,E);P(22,my-1,E)}
 }
+if(k=="frog")[[15,19],[16,19],[24,21],[25,21],[19,30],[12,25],[27,26]].forEach(([x,y])=>P(x,y,hex(mul(FUc,.75))));
+if(k=="robot"){for(let x=8;x<=31;x++)if(x<16||x>23)P(x,7,"#e4e8ef");P(8,8,"#e4e8ef");for(let y=8;y<=12;y++)P(8,y,"#e4e8ef");P(18,0,"#ff8a7e");P(21,0,"#c0392b");
+ for(let x=12;x<=27;x+=5)P(x,29,"#8a8f9c");}
+if(k=="penguin"){[[8,40],[9,42],[10,44],[30,40],[29,42],[28,44]].forEach(([x,y])=>P(x,y,"#3e3e58"))}
 if(k=="robot"){const sc=mood=="sad"?"#ff5a4e":"#4ef0ff",scD=mood=="sad"?"#a8302a":"#1f8fa0";
  [[13,16],[23,16]].forEach(([x0,y0])=>{for(let y=0;y<4;y++)for(let x=0;x<4;x++)P(x0+x,y0+y,blink?(y==3?sc:"#1a2433"):(mood=="happy"&&y>=2?"#1a2433":(x==0&&y==0?"#ffffff":sc)))});
  for(let x=14;x<=25;x++)P(x,23,mood=="sad"?(x<16||x>23?"#1a2433":sc):(x%2?sc:scD));P(19,0,"#ff5a4e");P(20,0,"#ff5a4e");[[9,9],[30,9],[9,28],[30,28]].forEach(([x,y])=>P(x,y,"#6f7584"))}
@@ -404,11 +410,69 @@ const JAR=["cccccc","cccccc",".gggg.","gjjjjg","gwjjjg","gwjjjg","gjjjjg","gjjjj
 const PLANT=["....l..l....","..l.ll.l.l..","...lLLll....",".l.lLllLl.l.","..lLLllLLl..","...lLllLl...",".....ll.....","..pppppppp..","..pPPPPPPp..","...pppppp...","...pppppp...","....pppp...."];
 const REG=["...dddddd.....","...dwwwwd.....","...dddddd.....","....dd........",".mmmmmmmmmmmm.",".mkkmkkmkkmmm.",".mmmmmmmmmmmm.","bbbbbbbbbbbbbb","bBBBBBBBBBBBBb","bbbbbbbbbbbbbb"];
 const CLOCK=[".www.","wwkww","wwkkw","wwwww",".www."];
-function renderProps(){const jam=[[214,48,49],[243,140,32],[118,56,150],[247,205,55],[106,176,58],[214,48,49],[133,88,50],[247,143,179],[243,140,32]];
-let h=`<div style="position:absolute;left:0;right:0;top:150px;height:9px;background:#8a5a34;border-top:3px solid #2a1a12;border-bottom:3px solid #2a1a12;box-shadow:inset 0 2px 0 #b97c4a"></div>`;
-const Wd=$("scene").clientWidth;for(let x=6,k=0;x<Wd-20;x+=Math.round(Wd/9),k++){const lid=k%2?"#c0392b":"#e9e2d0";h+=`<img src="${art(JAR,{c:lid,g:"#cfe6ee",j:hex(jam[k%jam.length]),w:"#ffffff"})}" style="left:${x}px;top:117px;width:30px;height:33px">`}
-h+=`<img src="${art(CLOCK,{w:"#f5efe0",k:"#2a1a12"})}" style="left:${Wd/2-10}px;top:30px;width:21px;height:21px">`;h+=`<div class="win" style="left:${Math.round(Wd*.18)}px"><div class="sun" id="sun1"></div></div><div class="win" style="left:${Math.round(Wd*.82)-44}px"><div class="sun" id="sun2"></div></div>`;$("props").innerHTML=h;updateSky()
-$("cprops").innerHTML=`<img src="${art(PLANT,{l:"#5fb33a",L:"#2f7a2a",p:"#c0603a",P:"#e07a4a"})}" style="left:2px;bottom:0;width:42px;height:42px"><img src="${art(REG,{d:"#3a3a44",w:"#9be7a6",m:"#c9c9d1",k:"#6a6a78",b:"#7a7a88",B:"#5a5a66"})}" style="right:2px;bottom:0;width:48px;height:36px">`}
+/* ================= cenário em pixel art (2 pixels de tela por pixel de arte, igual aos clientes) ================= */
+function srand(seed){let s=seed;return()=>{s=(s*16807)%2147483647;return s/2147483647}}
+function cvs(w,h){const c=document.createElement("canvas");c.width=w;c.height=h;const g=c.getContext("2d");g.imageSmoothingEnabled=false;return[c,g]}
+function px(g,x,y,c,w=1,h=1){g.fillStyle=c;g.fillRect(x,y,w,h)}
+function spr(g,rows,pal,x0,y0){rows.forEach((r,y)=>[...r].forEach((ch,x)=>{if(pal[ch])px(g,x0+x,y0+y,pal[ch])}))}
+// janelas: posições em pixels de arte (retornadas pra posicionar o céu atrás)
+let WINS=[];
+function buildWall(W,H){const[c,g]=cvs(W,H),rnd=srand(7);
+ // tábuas verticais
+ for(let x=0;x<W;x+=12){const tone=[[222,190,140],[214,181,131],[228,198,150],[218,186,136]][(x/12)%4];
+  for(let y=0;y<H;y++)for(let i=0;i<12;i++){let col=tone;if(i==0)col=mul(tone,.78);else if(i==1)col=lift(tone,.18);else if(i==11)col=mul(tone,.9);px(g,x+i,y,hex(col))}
+  for(let k=0;k<6;k++){const gx=x+2+Math.floor(rnd()*9),gy=Math.floor(rnd()*H),gl=4+Math.floor(rnd()*10);for(let j=0;j<gl;j++)px(g,gx,gy+j,hex(mul(tone,.88)))}
+  [20,58].forEach(ny=>{px(g,x+5,ny,"#7a5a3a");px(g,x+6,ny,"#5a3e26");px(g,x+5,ny-1,"#c8a878")})}
+ // rodapé (lambri) abaixo da prateleira
+ const wy=106;for(let y=wy;y<H;y++)for(let x=0;x<W;x++){const b=[176,122,74];let col=y==wy?lift(b,.25):y==wy+1?mul(b,.7):(x%24==0?mul(b,.75):x%24==1?lift(b,.12):b);px(g,x,y,hex(col))}
+ // prateleira
+ const sy=94;for(let x=0;x<W;x++){px(g,x,sy,"#d39a62");px(g,x,sy+1,"#b47a46");px(g,x,sy+2,"#9b6438");px(g,x,sy+3,"#6b4423");px(g,x,sy+4,"#00000030")}
+ for(let x=10;x<W;x+=Math.max(60,Math.round(W/4))){spr(g,["kk","kk",".k",".k"],{k:"#6b4423"},x,sy+4)}
+ // janelas com moldura, cruzeta e cortinas (vidro transparente pro céu aparecer atrás)
+ WINS=[[Math.round(W*.08)+3,18],[Math.round(W*.92)-27,18]];
+ WINS.forEach(([wx,wy])=>{const ww=24,wh=16;
+  for(let y=-2;y<wh+3;y++)for(let x=-2;x<ww+2;x++){const edge=x<0||y<0||x>=ww||y>=wh;if(edge)px(g,wx+x,wy+y,y>=wh?"#8a5a34":(x<0||y<0?"#9b6a3e":"#6b4423"))}
+  g.clearRect(wx,wy,ww,wh);px(g,wx+11,wy,"#6b4423",2,wh);px(g,wx,wy+7,"#6b4423",ww,2);px(g,wx+11,wy,"#9b6a3e",1,wh);
+  px(g,wx-3,wy+wh+1,"#d39a62",ww+6,1);px(g,wx-3,wy+wh+2,"#8a5a34",ww+6,2);
+  // cortinas
+  [[wx-2,1],[wx+ww-3,-1]].forEach(([cx,dir])=>{for(let y=-3;y<wh+2;y++){const w=y<3?5:Math.max(2,5-Math.floor((y-3)/4));for(let i=0;i<w;i++){const xx=dir>0?cx+i:cx+5-i;px(g,xx,wy+y,(i+Math.floor(y/2))%3==0?"#b8323a":i==w-1?"#e0606a":"#d64550")}}});
+  for(let x=-4;x<ww+4;x++)px(g,wx+x,wy-4,"#6b4423")});
+
+ // itens da prateleira: potes, caixote com frutas, balança, vaso
+ const jam=[[214,48,49],[243,140,32],[118,56,150],[247,205,55],[106,176,58],[247,143,179]];let x=4,k=0;
+ while(x<W-16){const kind=k%5;
+  if(kind==0||kind==2){const j=hex(jam[k%jam.length]),jd=hex(mul(jam[k%jam.length],.75)),lid=k%2?"#c0392b":"#e9e2d0";spr(g,[".llllll.",".llllll.","gggggggg","gjjjjjjg","gwjjjjjg","gwjjjjdg","gjppppdg","gjppppdg","gjjjjddg",".gggggg."],{l:lid,g:"#cfe6ee",j,d:jd,w:"#ffffff",p:"#f5efe0"},x,sy-10);x+=12}
+  else if(kind==1){spr(g,["cccccccccccc","cbbbbbbbbbbc","cccccccccccc","cbbbbbbbbbbc","cccccccccccc"],{c:"#8a5a34",b:"#b47a46"},x,sy-5);
+   ["#d63031","#f7c331","#5fb33a","#e67e22"].forEach((f,i)=>{spr(g,[".ff.","ffff","ffff",".ff."],{f},x+1+i*3-(i>1?0:0),sy-8-(i%2))});x+=16}
+  else if(kind==3){spr(g,["..kk..","kkkkkk","kgggkk","kgggkk",".kkkk.","..kk..","kkkkkk"],{k:"#5a5a66",g:"#9aa0ad"},x,sy-7);x+=10}
+  else{spr(g,["..l.l..",".lLlLl.","lLllLll",".lLlLl.","..ppp..",".ppppp.",".pPPPp."],{l:"#5fb33a",L:"#2f7a2a",p:"#c0603a",P:"#e07a4a"},x,sy-7);x+=11}
+  x+=6+Math.floor(srand(k+3)()*10);k++}
+ return c.toDataURL()}
+function buildAwning(W){const H=16,[c,g]=cvs(W,H);for(let x=0;x<W;x++){const red=Math.floor(x/12)%2==0,b=red?[200,52,52]:[245,239,224];
+ for(let y=0;y<11;y++){let col=y==0?mul(b,.7):y<3?lift(b,.15):y>8?mul(b,.85):b;if((x%12)==0)col=mul(col,.85);px(g,x,y,hex(col))}
+ const xi=x%12,depth=Math.round(Math.sin(xi/12*Math.PI)*4);for(let y=11;y<11+depth;y++)px(g,x,y,hex(y==10+depth?mul(b,.7):mul(b,.92)))}
+ for(let x=0;x<W;x++)px(g,x,0,"#2a1a12");return c.toDataURL()}
+function buildCounter(W){const H=13,[c,g]=cvs(W,H);for(let x=0;x<W;x++){px(g,x,0,"#2a1a12");px(g,x,1,"#e0a870");px(g,x,2,"#c58a55");px(g,x,3,"#a86a3d");px(g,x,4,"#6b4423");
+ for(let y=5;y<H;y++){const pl=Math.floor(x/16)%2?[150,92,52]:[140,86,48];let col=x%16==0?mul(pl,.7):x%16==1?lift(pl,.15):pl;if(y==5)col=mul(col,.75);px(g,x,y,hex(col))}}
+ for(let x=8;x<W;x+=16){px(g,x,8,"#5a3e26");px(g,x,11,"#5a3e26")}return c.toDataURL()}
+function buildTableTile(){const W=60,H=40,[c,g]=cvs(W,H),rnd=srand(11);
+ for(let y=0;y<H;y++)for(let x=0;x<W;x++){const row=Math.floor(y/10),b=[[184,121,74],[176,114,68],[190,126,78],[172,110,64]][row],iy=y%10;let col=iy==0?mul(b,.62):iy==1?lift(b,.16):iy==9?mul(b,.86):b;px(g,x,y,hex(col))}
+ for(let k=0;k<26;k++){const gy=Math.floor(rnd()*H),gx=Math.floor(rnd()*W),gl=5+Math.floor(rnd()*14);if(gy%10<2)continue;for(let j=0;j<gl;j++)px(g,(gx+j)%W,gy,"#00000016")}
+ [[14,5],[44,26]].forEach(([kx,ky])=>{spr(g,[".kk.","kddk",".kk."],{k:"#8a5230",d:"#6b3e22"},kx,ky)});
+ [[0,10],[30,20],[18,30]].forEach(([sx,sy])=>{px(g,sx,sy,"#00000040",1,10)});return c.toDataURL()}
+const PLANT2=["......l..l......","...l..ll.l..l...","....llLLll.l....","..l.lLllLlll.l..",".lllLllLLllLll..","..lLLlllLLllL...","...lLLllLLll....","....lLlLLlL.....","......llll......","...pppppppppp...","...PPPPPPPPPP...","....pppppppp....","....pppppppp....","....pppppppp....",".....pppppp....."];
+const REG2=["....dddddddd........","....dwwwwwwd........","....dwgwgwwd........","....dddddddd........","......dddd..........","..mmmmmmmmmmmmmmmm..",".mkkmkkmkkmkkmmmmmm.",".mmmmmmmmmmmmmmmmmm.",".mkkmkkmkkmkkmyyyym.","bbbbbbbbbbbbbbbbbbbb","bBBBBBBBBBBBBBBBBBBb","bBBBBBBkkkkBBBBBBBBb","bbbbbbbbbbbbbbbbbbbb"];
+function renderProps(){const sc=$("scene"),Wd=sc.clientWidth,W=Math.ceil(Wd/2),H=140;
+ let h="";const wall=buildWall(W,H);
+ WINS.forEach(([wx,wy],i)=>{h+=`<div class="win" id="win${i+1}" style="left:${wx*2}px;top:${wy*2}px;width:48px;height:32px"><span class="cld c1"></span><span class="cld c2"></span><div class="sun" id="sun${i+1}"></div></div>`});
+ h+=`<img id="clockimg" style="left:${Wd/2-18}px;top:34px;width:36px;height:36px;z-index:2"><span id="wxtag"></span>`;
+ h+=`<img src="${wall}" style="left:0;top:0;width:${W*2}px;height:${H*2}px">`;
+ h+=`<img src="${buildAwning(W)}" style="left:0;top:0;width:${W*2}px;height:32px;z-index:2">`;
+ $("props").innerHTML=h;
+ $("counter").style.background=`url(${buildCounter(W)}) 0 0/${W*2}px 26px no-repeat`;
+ $("table").style.backgroundImage=`url(${buildTableTile()})`;
+ $("cprops").innerHTML=`<img src="${art(PLANT2,{l:"#6cc04a",L:"#2f7a2a",p:"#c0603a",P:"#e8875a"})}" style="left:2px;bottom:0;width:36px;height:34px"><img src="${art(REG2,{d:"#3a3a44",w:"#9be7a6",g:"#5ec27a",m:"#c9c9d1",k:"#6a6a78",b:"#7a7a88",B:"#5a5a66",y:"#f7c331"})}" style="right:2px;bottom:0;width:44px;height:30px">`;
+ updateSky();drawClock()}
 /* ================= caldeirão ================= */
 let brewing=false;
 function potImg(col){const PW=24,PH=22,g=blank(PW,PH),L=hex(lift(col,.45)),B=hex(col),D=hex(mul(col,.75));const body=ell(12,13,10.5,7.5);
@@ -495,20 +559,53 @@ function sndLabel(){const b=$("sndb");if(b)b.textContent=muted?"SOM: DESLIGADO":
 function toggleSnd(){muted=!muted;try{localStorage.setItem("frutodromo_mute",muted?"1":"0")}catch(e){}ac();sndLabel()}
 /* ================= dias ================= */
 const fmt=ms=>{const s=Math.max(0,Math.ceil(ms/1000));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")};
-function updateSky(){const t=running||S.started?cl(S.dayT/dayLen(),0,1):0;const sk=$("sky");if(!sk)return;
-const lerp=(a,b,u)=>a.map((x,i)=>Math.round(x+(b[i]-x)*u));let skyC,tint,lamp=0;
-if(t<.5){skyC=lerp([140,205,245],[120,190,240],t*2);tint="#ffffff"}else if(t<.8){const u=(t-.5)/.3;skyC=lerp([120,190,240],[250,150,90],u);tint=hex(lerp([255,255,255],[255,196,150],u))}
-else{const u=(t-.8)/.2;skyC=lerp([250,150,90],[40,40,90],u);tint=hex(lerp([255,196,150],[105,105,175],u));lamp=u}
-sk.style.background=tint;$("lamp").style.opacity=lamp*.8;
-[["sun1",0],["sun2",.1]].forEach(([id,o])=>{const e=$(id);if(!e)return;e.parentElement.style.background=hex(skyC);const night=t>.88;e.style.background=night?"#f5efe0":t>.6?"#ffb347":"#ffe84a";e.style.left=(night?24:14)+"px";e.style.top=Math.round(4+Math.sin(Math.min(1,t)*Math.PI*.9)*-0+t*18)+"px";e.style.boxShadow=night?"inset -3px 0 0 #c8c0a8":"none"})}
+function drawClock(){const im=$("clockimg");if(!im)return;const[c,g]=cvs(18,18),d=new Date(),h=d.getHours()%12+d.getMinutes()/60,m=d.getMinutes();
+ for(let y=0;y<18;y++)for(let x=0;x<18;x++){const r=Math.hypot(x-8.5,y-8.5);if(r<=8.6)px(g,x,y,r>7.6?"#5a3e26":r>6.8?"#8a5a34":"#f5efe0")}
+ for(let k=0;k<12;k++){const a=k/12*Math.PI*2;px(g,Math.round(8.5+Math.sin(a)*5.6),Math.round(8.5-Math.cos(a)*5.6),k%3==0?"#2a1a12":"#b8a888")}
+ const hand=(ang,len,col)=>{for(let t=0;t<=len;t+=.5)px(g,Math.round(8.5+Math.sin(ang)*t),Math.round(8.5-Math.cos(ang)*t),col)};
+ hand(h/12*Math.PI*2,3.8,"#2a1a12");hand(m/60*Math.PI*2,5.6,"#c0392b");px(g,8,8,"#2a1a12",2,2);im.src=c.toDataURL();
+ im.title=d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}
+setInterval(drawClock,20000);
+const WX={ok:false};
+const hrsOf=iso=>{const t=(iso||"").split("T")[1]||"";const[a,b]=t.split(":").map(Number);return isNaN(a)?null:a+(b||0)/60};
+const isRain=c=>(c>=51&&c<=67)||(c>=80&&c<=82)||c>=95,isSnow=c=>(c>=71&&c<=77)||c==85||c==86,isFog=c=>c==45||c==48;
+async function fetchWX(){if(!CFG.wx||!CFG.loc)return;try{const[la,lo]=CFG.loc;
+ const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${la}&longitude=${lo}&current=temperature_2m,weather_code,is_day,cloud_cover,precipitation,wind_gusts_10m&daily=sunrise,sunset&timezone=auto&forecast_days=1`);
+ const j=await r.json(),c=j.current;Object.assign(WX,{ok:true,code:c.weather_code,isDay:c.is_day,temp:Math.round(c.temperature_2m),cloud:c.cloud_cover,precip:c.precipitation,gust:c.wind_gusts_10m,sr:hrsOf(j.daily.sunrise[0]),ss:hrsOf(j.daily.sunset[0])});
+ updateSky();checkAlerts()}catch(e){WX.ok=false}}
+setInterval(fetchWX,20*60000);
+function askWeather(next){if(CFG.wx!==undefined||!navigator.geolocation){next&&next();return}
+ openModal(`<h2>CLIMA DE VERDADE?</h2><p>A janela da quitanda pode mostrar o <b>tempo real da sua cidade</b>: sol, nuvens, chuva e noite. Se vier tempo perigoso, o jogo te avisa.</p><p style="font-size:.78rem;opacity:.8">Usa sua localização aproximada só pra buscar a previsão (Open-Meteo). Nada é guardado fora do seu aparelho.</p><button class="big" id="wxy">SIM, MOSTRAR</button><br><button class="big alt" id="wxn">AGORA NÃO</button>`);
+ $("wxn").onclick=()=>{CFG.wx=false;saveCfg();closeModal();next&&next()};
+ $("wxy").onclick=()=>{closeModal();next&&next();try{navigator.geolocation.getCurrentPosition(p=>{CFG.loc=[+p.coords.latitude.toFixed(1),+p.coords.longitude.toFixed(1)];CFG.wx=true;saveCfg();fetchWX()},()=>{CFG.wx=false;saveCfg();toast("Sem localização: a janela mostra só a hora do dia")},{timeout:10000,maximumAge:3600000})}catch(e){CFG.wx=false;saveCfg()}}}
+function checkAlerts(){if(!WX.ok)return;const al=[];
+ if(WX.code>=95)al.push(["TEMPESTADE COM RAIOS","Há tempestade com raios na sua região agora.","Fique em local fechado, longe de janelas, árvores e postes. Evite usar aparelhos ligados na tomada."]);
+ if(WX.precip>=10||[65,67,82].includes(WX.code))al.push(["CHUVA FORTE","Está chovendo forte na sua região.","Cuidado com alagamentos e enxurradas. Nunca atravesse ruas ou rios alagados."]);
+ if(WX.temp>=36)al.push(["CALOR EXTREMO",`A temperatura está em ${WX.temp}°C.`,"Beba bastante água, evite sol forte entre 10h e 16h e cuide de crianças, idosos e animais."]);
+ if(WX.temp<=3)al.push(["FRIO INTENSO",`A temperatura está em ${WX.temp}°C.`,"Agasalhe-se bem e proteja pessoas em situação de rua, idosos e animais."]);
+ if(WX.gust>=70)al.push(["VENTOS FORTES",`Rajadas de até ${Math.round(WX.gust)} km/h.`,"Fique longe de árvores, placas e estruturas soltas."]);
+ if(!al.length)return;const key=al.map(a=>a[0]).join()+new Date().toDateString()+new Date().getHours();if(CFG.lastAlert==key)return;CFG.lastAlert=key;saveCfg();
+ const show=()=>{if(modalOpen){setTimeout(show,3000);return}SFX.bad();buzz([200,100,200]);openModal(`<h2 style="color:#c0392b">AVISO DO TEMPO</h2>${al.map(([t,a,b])=>`<div class="cg" style="border-color:#c0392b;background:#ffe6e0"><div style="text-align:left"><b>${t}</b><br>${a}<br><span style="font-size:.8rem">${b}</span></div></div>`).join("")}
+ <p style="font-size:.72rem;opacity:.8">Baseado na previsão do Open-Meteo pra sua região. <b>Não é um alerta oficial.</b> Pra avisos oficiais, acompanhe a <b>Defesa Civil (ligue 199)</b> e o <b>INMET</b>.</p><button class="big" id="cl">ENTENDI</button>`);$("cl").onclick=closeModal};show()}
+function realH(){const d=new Date();return d.getHours()+d.getMinutes()/60}
+function updateSky(){const sk=$("sky");if(!sk)return;const h=realH(),sr=WX.ok&&WX.sr!=null?WX.sr:6,ss=WX.ok&&WX.ss!=null?WX.ss:18;
+ const ph=h<sr-.6||h>ss+.6?"night":h<sr+.8?"dawn":h>ss-.8?"dusk":"day";
+ const code=WX.ok?WX.code:0,cloudy=WX.ok&&(WX.cloud>=70||isRain(code)||isFog(code)),rain=WX.ok&&isRain(code),storm=WX.ok&&code>=95,snow=WX.ok&&isSnow(code),fog=WX.ok&&isFog(code);
+ let skyC={night:[28,30,66],dawn:[250,176,128],dusk:[240,138,92],day:[128,198,244]}[ph];if(cloudy)skyC=skyC.map((v,i)=>Math.round(v*.45+[150,155,165][i]*.55*(ph=="night"?.35:1)));
+ const tint={night:"#a4a2d4",dawn:"#ffe6d0",dusk:"#ffd8bc",day:"#ffffff"}[ph];sk.style.background=cloudy&&ph=="day"?"#ecebf0":tint;$("lamp").style.opacity=ph=="night"?.8:ph=="dusk"?.35:0;
+ const frac=cl((h-sr)/Math.max(1,ss-sr),0,1);
+ [1,2].forEach(n=>{const w=$("win"+n),e=$("sun"+n);if(!w||!e)return;w.style.background=hex(skyC);w.classList.toggle("rain",rain&&!snow);w.classList.toggle("storm",storm);w.classList.toggle("snow",snow);w.classList.toggle("fog",fog);w.classList.toggle("cloudy",cloudy);
+  const night=ph=="night";e.style.display=cloudy&&!night?"none":"";e.style.background=night?"#f5efe0":ph=="day"?"#ffe84a":"#ffb347";e.style.boxShadow=night?"inset -3px 0 0 #c8c0a8":"none";
+  e.style.left=(night?32:Math.round(4+frac*32))+"px";e.style.top=(night?4:Math.round(22-Math.sin(frac*Math.PI)*18))+"px"});
+ const t=$("wxtag");if(t){if(WX.ok){t.textContent=WX.temp+"°";t.style.display=""}else t.style.display="none"}}
 function settings(back){const sl=(id,lab,v)=>`<div style="display:flex;align-items:center;gap:8px;margin:8px 0;text-align:left"><span style="width:80px">${lab}</span><input type="range" id="${id}" min="0" max="100" value="${v}" style="flex:1;accent-color:#3ca55c"><b id="${id}v" style="width:34px">${v}</b></div>`;
 const tg=(id,lab,on,desc)=>`<div class="cg" style="cursor:pointer" id="${id}"><span class="big-sw" style="width:26px;height:26px;background:${on?"#3ca55c":"#c9b99a"}"></span><div style="flex:1"><b>${lab}: ${on?"LIGADO":"DESLIGADO"}</b><br><span style="font-size:.72rem">${desc}</span></div></div>`;
 openModal(`<h2>AJUSTES</h2>${sl("smus","Música",CFG.mus)}${sl("ssfx","Efeitos",CFG.sfx)}
 ${tg("svib","Vibração",CFG.vib,"Vibra o celular ao cruzar, entregar e descobrir")}
-${tg("szen","Modo Zen",CFG.zen,"Sem relógio e sem pressa: o dia não acaba e os clientes esperam pra sempre")}
+${tg("szen","Modo Zen",CFG.zen,"Sem relógio e sem pressa: o dia não acaba e os clientes esperam pra sempre")}${tg("swx","Clima real na janela",!!CFG.wx,"Mostra o tempo da sua cidade e avisa sobre tempo perigoso")}
 <button class="big alt" id="stut">REVER TUTORIAL</button><br><button class="big alt" id="sexp">EXPORTAR PROGRESSO</button><button class="big alt" id="simp">IMPORTAR</button><br><button class="big" id="cl">PRONTO</button>`);
 ["smus","ssfx"].forEach(id=>{$(id).oninput=e=>{const v=+e.target.value;$(id+"v").textContent=v;if(id=="smus")CFG.mus=v;else{CFG.sfx=v;SFX.coin()}saveCfg()}});
-$("svib").onclick=()=>{CFG.vib=!CFG.vib;saveCfg();buzz(40);settings(back)};$("szen").onclick=()=>{CFG.zen=!CFG.zen;saveCfg();hud();renderCounter();settings(back)};
+$("svib").onclick=()=>{CFG.vib=!CFG.vib;saveCfg();buzz(40);settings(back)};$("szen").onclick=()=>{CFG.zen=!CFG.zen;saveCfg();hud();renderCounter();settings(back)};$("swx").onclick=()=>{if(CFG.wx){CFG.wx=false;WX.ok=false;saveCfg();updateSky();settings(back)}else{delete CFG.wx;saveCfg();closeModal();askWeather(()=>settings(back))}};
 $("stut").onclick=()=>{S.tut={};save();closeModal();tutStep()};
 $("sexp").onclick=()=>{save();const code="FRUTO1:"+btoa(unescape(encodeURIComponent(JSON.stringify(S))));
  openModal(`<h2>SEU CÓDIGO</h2><p style="font-size:.8rem">Guarde esse código (num bloco de notas ou mande pra você mesmo). Ele leva tudo: frutas, espécies, cartas e conquistas.</p><textarea id="bk" readonly style="width:100%;height:140px;font-size:.6rem;font-family:monospace">${code}</textarea><button class="big" id="bkc">COPIAR</button><button class="big alt" id="cl">VOLTAR</button>`);
@@ -544,7 +641,7 @@ const cont=S.started;let armed=false;
 openModal(`<div class="logo">FRUTÓDROMO</div><p style="margin-top:0">A quitanda das frutas que a natureza não teve coragem de criar</p><div class="row">${demo.map(f=>`<img src="${fruitImg(f)}">`).join("")}</div>
 <p style="font-size:.8rem;text-align:left">• Jogue 2 frutas no <b>caldeirão</b> pra criar híbridos<br>• <b>Parecidos se intensificam</b>: pequena + pequena encolhe, grande + grande cresce, doce + doce fica mais doce<br>• Entregue o que os clientes pedem nos balões<br>• Clientes dão <b>presentes mágicos</b>: poções, tintas, penas de fênix... use na fruta que quiser (aba <b>BOLSA</b>)<br>• Expanda a <b>Árvore de Espécies</b>: cada combinação nova vira uma espécie, e ela não tem fim</p>
 <button class="big" id="go">${cont?"CONTINUAR · DIA "+S.day:"ABRIR A QUITANDA"}</button><br><button class="big alt" id="sndb" onclick="toggleSnd()"></button><button class="big alt" onclick="settings(startScreen)">AJUSTES</button>${cont?'<button class="big alt" id="newg">NOVO JOGO</button>':""}`);sndLabel();
-$("go").onclick=()=>{ac();rainFruits(false);closeModal();if(!running)startDay()};
+$("go").onclick=()=>{ac();rainFruits(false);closeModal();const go=()=>{if(!running)startDay()};askWeather(go)};
 if(cont)$("newg").onclick=e=>{if(!armed){armed=true;e.target.textContent="TOQUE DE NOVO PRA APAGAR TUDO";return}fresh();S.fruits.forEach(f=>dexCheck(f,true));const pe=$("pot");pe.style.left="10px";pe.style.top="";pe.style.bottom="8px";save();sel=null;showInfo(null);ac();rainFruits(false);closeModal();renderAll();startDay()}}
 function gainEss(){}
 const HELLO={person:["Olá! ","Oi, tudo bem? ","Boa tarde! ","E aí! "],cat:["Miau... ","Mrrr... "],dog:["Au au! ","Oi oi oi! "],bear:["Hmm... ","Grrr, oi! "],bunny:["Oi oi! ","Hihi! "],frog:["Croac! "],penguin:["Brrr! "],robot:["BIP-BOP. SOLICITAÇÃO: "],alien:["Saudações, terráqueo. "],ghost:["Buuu... "]};
@@ -659,4 +756,4 @@ S.pot=S.pot||[];if(S.pot.length==2){S.fruits.push(...S.pot);S.pot=[]}
 document.addEventListener("pointerdown",e=>{const t=e.target.closest("button,.btn,.big,.hint,.flt span,.sp,.cg,.tvh .btn,#pot,.pw");if(!t)return;ac();
  if(t.id=="go"||t.id=="cl"||t.id=="tvx"||t.id=="resume"||t.id=="nextd"||t.id=="rvx"||t.id=="pot")return;SFX.sel()},true);
 if("serviceWorker" in navigator&&location.hostname.endsWith("github.io"))navigator.serviceWorker.register("sw.js").catch(()=>{});
-S.ess=S.ess||0;S.sk=S.sk||{};S.tree=S.tree||{};if(!S.bag)S.bag=[{t:"grow"},{t:"shrink"}];S.fruits.forEach(f=>{clampPos(f);treeAdd(f,null,true)});renderProps();renderAll();placePot();startScreen();
+S.ess=S.ess||0;S.sk=S.sk||{};S.tree=S.tree||{};if(!S.bag)S.bag=[{t:"grow"},{t:"shrink"}];S.fruits.forEach(f=>{clampPos(f);treeAdd(f,null,true)});renderProps();renderAll();placePot();fetchWX();startScreen();
