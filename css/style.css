@@ -71,7 +71,9 @@ header{flex:0 0 auto;display:flex;gap:4px;align-items:center;padding:5px 4px;bac
 #market{flex:0 0 auto;display:flex;gap:4px;overflow-x:auto;padding:6px;background:#4a2e1c;border-top:3px solid #2a1a12}
 .mk.tabk{flex:0 0 52px;background:#2a1a12;color:#ffe9b8;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;border:3px solid #2a1a12}.mk.tabk.on{background:#f7c331;color:#2a1a12}
 .mk.tabk .cnt2{position:absolute;top:-4px;right:-4px;background:#e74c3c;color:#fff;font-size:.6rem;padding:0 4px;border:2px solid #2a1a12}
-.mk.itm{background:#d8c4f0}.mk.itm.arm{background:#f7c331;box-shadow:0 0 0 3px #fff;animation:hb .6s steps(2) infinite}
+.mk.itm{background:#d8c4f0}.itm.in{animation:itin .22s steps(3) both}@keyframes itin{from{transform:translateY(14px);opacity:0}}
+.tabk.on .bagi{animation:bago .3s steps(3)}@keyframes bago{40%{transform:scale(1.25,.8)}70%{transform:scale(.9,1.15)}}
+.tabk img,.mk img{image-rendering:pixelated}.mk.itm.arm{background:#f7c331;box-shadow:0 0 0 3px #fff;animation:hb .6s steps(2) infinite}
 #bagtab.got{animation:hb .3s steps(2) 3}
 .armtip{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);z-index:140;background:#f7c331;color:#2a1a12;border:3px solid #2a1a12;padding:5px 10px;font-size:.8rem;font-weight:700;display:none}.armtip.on{display:block}
 .fr.target>img{filter:drop-shadow(0 0 3px #f7c331) drop-shadow(0 0 2px #fff)!important}
@@ -162,18 +164,22 @@ header{flex:0 0 auto;display:flex;gap:4px;align-items:center;padding:5px 4px;bac
 #lamp{position:absolute;z-index:4;pointer-events:none;left:50%;top:22px;width:260px;height:210px;margin-left:-130px;background:radial-gradient(#ffd87a 0,#ffd87a00 65%);mix-blend-mode:screen;opacity:0;transition:opacity 2s}
 .win{position:absolute;z-index:0;overflow:hidden}
 .win:before,.win:after{display:none}.win:before{left:50%;top:0;bottom:0;width:3px;margin-left:-1px}.win:after{top:50%;left:0;right:0;height:3px;margin-top:-1px}
-.win .sun{position:absolute;width:10px;height:10px;transition:top 2s,left 2s,background 2s;z-index:1}
-.win .cld{position:absolute;left:-40px;background-size:100% 100%;image-rendering:pixelated;opacity:0;z-index:2;animation:cldm 26s linear infinite}
-@keyframes cldm{to{transform:translateX(var(--ww,90px))}}.win.few .cld:nth-of-type(2){opacity:.95}.win.cloudy .cld{opacity:1;filter:brightness(.82) saturate(.6)}.win.night .cld{filter:brightness(.38) saturate(.5)}.win.storm .cld{filter:brightness(.55)}
+.win .sun{position:absolute;width:14px;height:14px;image-rendering:pixelated;transition:top 2s,left 2s,background 2s;z-index:1}
+.win .cl{position:absolute;left:0;right:0;background-repeat:repeat-x;image-rendering:pixelated;opacity:0;z-index:2;animation:cscr linear infinite;transition:opacity 2s,filter 2s}
+.win .cl.a{top:0;height:62%;animation-duration:70s}.win .cl.b{bottom:0;height:72%;animation-duration:42s}
+@keyframes cscr{to{background-position-x:calc(-1 * var(--tw))}}
+.win.few .cl{background-image:var(--cs);opacity:1}.win.cloudy .cl{background-image:var(--cd);opacity:1}.win.few .cl.a{opacity:.75}
+.win.night .cl{filter:brightness(.42) saturate(.6)}.win.storm .cl{filter:brightness(.62)}.win.night.storm .cl{filter:brightness(.35)}
+.win .leaf{position:absolute;left:-12px;top:22%;width:12px;height:10px;image-rendering:pixelated;z-index:3;opacity:0;animation:leaf 20s linear infinite}.win.snow .leaf,.win.storm .leaf{display:none}.win.night .leaf{filter:brightness(.45)}
+@keyframes leaf{0%,85.9%{opacity:0;transform:none}86%{opacity:1;transform:translate(0,0) rotate(0)}89%{transform:translate(calc(var(--lw)*.35),-6px) rotate(140deg)}92%{transform:translate(calc(var(--lw)*.7),2px) rotate(260deg)}95%{opacity:1;transform:translate(calc(var(--lw) + 10px),-4px) rotate(400deg)}95.1%,100%{opacity:0}}
 .win .stars span{position:absolute;width:2px;height:2px;background:#fff;opacity:0}.win.starry .stars span{opacity:1;animation:tw 2.2s steps(2) infinite}
 .win .wfx{position:absolute;inset:0;z-index:3;pointer-events:none}
 .win.rain .wfx,.win.snow .wfx{background-image:repeating-linear-gradient(100deg,#0000 0 4px,#eaf4ff 4px 6px,#0000 6px 9px);background-size:12px 12px;opacity:.85;animation:rn .35s steps(4) infinite}
 .win.night.rain .wfx{opacity:.55}.win.snow .wfx{background-image:radial-gradient(#fff 1px,#0000 1.5px);background-size:8px 8px;animation-duration:1.6s}
 .win.fog .wfx{background:#e8e8ecaa}
-img.curt{z-index:2;transform-origin:50% 0;animation:sway 9s ease-in-out infinite}img.curt.r{animation-name:swayr}
-@keyframes sway{0%,70%,100%{transform:none}76%{transform:skewX(-4deg) translateX(1px)}82%{transform:skewX(2deg)}88%{transform:skewX(-1deg)}}
-@keyframes swayr{0%,70%,100%{transform:none}76%{transform:skewX(4deg) translateX(-1px)}82%{transform:skewX(-2deg)}88%{transform:skewX(1deg)}}
-@keyframes cldm{to{transform:translateX(70px)}}.win.cloudy .cld{opacity:1;background:#c8c8d2;box-shadow:4px -3px 0 0 #c8c8d2,8px 0 0 #c8c8d2}
+img.curt{z-index:2;transform-origin:50% 0;animation:sway 10s ease-in-out infinite}img.curt.r{animation-name:swayr}
+@keyframes sway{0%,72%,100%{transform:none}77%{transform:skewX(-5deg) translateX(1px)}83%{transform:skewX(2deg)}89%{transform:skewX(-1deg)}94%{transform:skewX(.5deg)}}
+@keyframes swayr{0%,72%,100%{transform:none}77%{transform:skewX(5deg) translateX(-1px)}83%{transform:skewX(-2deg)}89%{transform:skewX(1deg)}94%{transform:skewX(-.5deg)}}
 @keyframes rn{to{background-position:-2px 12px}}
 .win.storm{animation:flash 6s steps(1) infinite}@keyframes flash{0%,90%,94%,100%{filter:none}91%,93%{filter:brightness(2.6)}}
 #wxtag{position:absolute;left:calc(50% + 20px);top:44px;z-index:2;background:#2a1a12;color:#ffe9b8;font-size:.62rem;padding:0 4px;border:2px solid #5a3e26}

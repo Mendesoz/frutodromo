@@ -74,8 +74,10 @@ veneno:()=>art([".gg.","gwgg","gggg",".gg."],{g:"#7dff6a",w:"#e8ffe0"},"#1f6a1a"
 cosmico:()=>art(["..s..","..s..","sswss","..s..","..s.."],{s:"#c9a7ff",w:"#ffffff"},"#4a2a8a")};
 /* ================= pessoas ================= */
 const SKIN=[[246,210,180],[232,180,142],[201,141,99],[162,104,63],[122,74,42],[90,53,32]],HAIR=[[43,26,16],[74,44,23],[74,44,23],[122,74,34],[122,74,34],[196,138,60],[227,194,122],[150,150,150],[178,58,42],[30,30,50],[30,30,50],[110,60,150],[40,90,160]],SHIRT=[[214,48,49],[69,123,157],[42,157,143],[244,162,97],[109,89,122],[233,196,106],[38,70,83],[255,122,162],[138,177,125]];
-const NAMES=["Dona Cida","Seu Jorge","Paulão","Lia","Rafa","Tânia","Zé","Morgana","Kenji","Bruna","Lurdes","Barbosa","Nico","Jana","Otávio","Bia","Duda","Caio","Sol","Vini"];
-const VIPS=["Chef Estrelado","Crítica Gourmet","Cientista Maluca","Prefeito","Influencer Fit","Colecionador"];
+const NAMESF=["Dona Cida","Lia","Tânia","Morgana","Bruna","Lurdes","Jana","Bia","Helena","Marta","Júlia","Clara","Iara","Rosa","Yumi","Dona Neide","Lara","Vitória"];
+const NAMESM=["Seu Jorge","Paulão","Zé","Kenji","Barbosa","Nico","Otávio","Caio","Vini","Tião","Beto","Igor","Davi","Léo","Seu Lauro","Hiro","Rodrigo","Arthur"];
+const NAMESN=["Rafa","Duda","Sol","Kim","Alex","Dani"];const NAMES=[...NAMESF,...NAMESM,...NAMESN];
+const VIPS=["Chef Estrelado","Crítica Gourmet","Cientista Maluca","Prefeito","Influencer Fit","Colecionador"],VIPG={"Chef Estrelado":"m","Crítica Gourmet":"f","Cientista Maluca":"f","Prefeito":"m","Influencer Fit":"f","Colecionador":"m"};
 // ===== Retratos em alta resolução (40x52): pele/cabelo com 3 tons, olhos com íris, nariz, lábios, blush =====
 const EYEC=[[70,110,190],[60,140,90],[120,80,50],[60,40,30],[140,90,170],[50,150,160]];
 function charImg(p,mood,blink){const PW=40,PH=52,col=blank(PW,PH),mat=blank(PW,PH),k=p.kind||"person";
@@ -177,7 +179,8 @@ if(face){eyes.forEach(([cx,cy],i)=>{
  else if(mood=="happy"){for(let x=-3;x<=3;x++)P(19.5+x,my+(Math.abs(x)==3?-1:0),E);for(let x=-2;x<=2;x++)P(19.5+x,my+1,x==0||Math.abs(x)==1?"#c0394f":E);P(19,my+1,"#ff8fa3");P(20,my+1,"#ff8fa3");for(let x=-1;x<=1;x++)P(19.5+x,my+2,E)}
  else if(mood=="sad"){for(let x=-2;x<=2;x++)P(19.5+x,my+(Math.abs(x)==2?1:0),E)}
  else if(furry&&p.mouth==1){P(17,my,E);P(18,my+1,E);P(19,my,E);P(20,my,E);P(21,my+1,E);P(22,my,E)}
- else{for(let x=-2;x<=2;x++)P(19.5+x,my,E);if(human)for(let x=-1;x<=1;x++)P(19.5+x,my+1,LIP);P(17,my-1,E);P(22,my-1,E)}
+ else if(human){const LD=hex(mul(hexToRgb(LIP),.62));for(let x=-1;x<=1;x++)P(19.5+x,my,LD);P(17.5,my-1,LD);P(21.5,my-1,LD);P(19,my+1,LIP);P(20,my+1,LIP)}
+ else{for(let x=-2;x<=2;x++)P(19.5+x,my,E);P(17,my-1,E);P(22,my-1,E)}
 }
 if(k=="frog")[[15,19],[16,19],[24,21],[25,21],[19,30],[12,25],[27,26]].forEach(([x,y])=>P(x,y,hex(mul(FUc,.75))));
 if(k=="robot"){for(let x=8;x<=31;x++)if(x<16||x>23)P(x,7,"#e4e8ef");P(8,8,"#e4e8ef");for(let y=8;y<=12;y++)P(8,y,"#e4e8ef");P(18,0,"#ff8a7e");P(21,0,"#c0392b");
@@ -284,8 +287,10 @@ const want=vip?maxD:Math.min(maxD,R([0,1,1,2,2,3].filter(d=>d<=maxD))),cand=pool
 const t=R(cand.length?cand:pool),reqs=reqsFrom(t,n,L);
 let rw=4+reqs.length*5+L*2+t.d*6;reqs.forEach(r=>{if(r.k=="el")rw+=12;if(r.k=="mini"||r.k=="enorme")rw+=10;if(r.k=="micro"||r.k=="giga")rw+=22;if(r.k=="hero")rw+=30});if(vip)rw*=3;
 const kd=Math.random()<.45?R(KINDS):null;
-const ACC=["freck","must","glass","ear","scarf","neck","bow","flower","tie","leaf"],acc=[];for(let q=0;q<N(0,2);q++)acc.push(R(ACC));
-return{name:vip?R(VIPS):kd?R(kd[2]):R(NAMES),kind:kd?kd[0]:"person",fur:kd?R(kd[1]):null,vip,skin:R(SKIN),hair:R(HAIR),hs:R([0,0,1,1,2,2,3,4,5,6,7,8]),eyeC:N(0,5),hat:Math.random()<.25?N(1,3):0,hat2:R(SHIRT),sp:N(0,4),acc,acc2:R(SHIRT),mouth:N(0,1),blinkD:Math.random()*4,shirt:R(SHIRT),gl:false,reqs,rw,t0:now(),
+const vipN=vip?R(VIPS):null,kdN=kd?R(kd[2]):null,gen=vip?VIPG[vipN]:kd?(/^(Dona|Rã|Miss)|a$/.test(kdN)?"f":/^(Sr|Seu)|(ão|o)$/.test(kdN)?"m":"n"):R(["f","f","m","m","m","f","n"]);
+const ACC=gen=="f"?["freck","glass","ear","scarf","neck","bow","flower","leaf","ear","bow"]:gen=="m"?["freck","must","glass","scarf","neck","tie","leaf","tie"]:["freck","glass","scarf","neck","leaf"],acc=[];for(let q=0;q<N(0,2);q++)acc.push(R(ACC));
+const hsG=gen=="f"?[1,1,2,2,3,5,7,4]:gen=="m"?[0,0,0,6,8,4,0,8]:[0,2,4,8,6];
+return{name:vipN||(kd?kdN:R(gen=="f"?NAMESF:gen=="m"?NAMESM:NAMESN)),gen,kind:kd?kd[0]:"person",fur:kd?R(kd[1]):null,vip,skin:R(SKIN),hair:R(HAIR),hs:R(hsG),eyeC:N(0,5),hat:Math.random()<.25?N(1,3):0,hat2:R(SHIRT),sp:N(0,4),acc,acc2:R(SHIRT),mouth:N(0,1),blinkD:Math.random()*4,shirt:R(SHIRT),gl:false,reqs,rw,t0:now(),
 pat:(95000+t.d*45000+reqs.length*15000)*(vip?.85:1),come:true,tg:rk(t),td:t.d}}
 function stImg(x){if(x.img)return x.img;let a=x;while(a.p)a=a.p[0];return {...a.img,rgb:x.rgb,hero:x.hero,cape:x.hero?"#d63031":null}}
 function stLabel(x){return x.d==0?x.name:(x.hero?"Super ":"")+sizeName(x.tam)+" "+colorName(x.rgb)+(x.el?" "+ELEM[x.el].n:"")}
@@ -370,20 +375,37 @@ p.innerHTML=`<span class="x" onclick="sel=null;showInfo(null);renderCounter();re
 <div class="g">${f.gen?"Geração "+f.gen:"Da feira"} · cor ${colorName(f.rgb)} · ${sizeName(f.tam)}${f.mut?'<span class="chip" style="background:#7b5cff">MUTANTE</span>':""}${f.el?`<span class="chip" style="background:${ELEM[f.el].c}">${ELEM[f.el].n.toUpperCase()}</span>`:""}${f.hero?'<span class="chip" style="background:#d63031">SUPER</span>':""}${f.shiny?'<span class="chip" style="background:linear-gradient(90deg,#ff8ad8,#ffe84a,#8af0ff);color:#2a1a12">BRILHANTE</span>':""}</div>
 ${st("Doce",f.doce,"#ff5f9e",tw(f.doce,"doce"))}${st("Azedo",f.az,"#9ccc2e",tw(f.az,"azeda"))}${tamTxt}${S.pot.length==1&&!S.pot.includes(f)?`<div style="font-size:.68rem;margin-top:4px;background:#e4dbff;padding:3px 5px"><b>PREVISÃO</b> com ${fname(S.pot[0])}:<br>${predict(f,S.pot[0])}</div>`:""}</div>`;p.classList.add("on")}
 const POT=(c)=>art(["..kk..","..kk..",".gggg.","gccccg","gcwccg","gccccg",".gggg."],{k:"#8a5a34",g:"#cfe6ee",c,w:"#ffffff"},"#2a1a12");
+const P16=rows=>{rows=rows.map(r=>{const p=16-r.length;return ".".repeat(Math.floor(p/2))+r+".".repeat(Math.ceil(p/2))});while(rows.length<16)rows.length%2?rows.unshift(".".repeat(16)):rows.push(".".repeat(16));return rows};
+const FLASK=(c,big,extra)=>{const L=hex(lift(hexToRgb(c),.35)),D=hex(mul(hexToRgb(c),.68));const rows=big?["......kkkk......","......kKKk......",".....gggggg.....","......geeg......","......geeg......",".....geeeeg.....","...gglccccgg....","..gwcccccccccg..",".gwwcccccccccDg.",".gwcccbcccccDDg.",".gccccccccccDDg.",".gcccccbcccccDg.",".gccccccccccDDg.","..gccccccccDDg..","...ggcccccDDgg..",".....gggggg....."]:["................","................","................","................",".......kk.......",".......KK.......","......gggg......",".......ge.......","......gccg......",".....gwcccg.....","....gwccccDg....","....gccbccDg....","....gcccccDg....",".....gccDDg.....","......gggg......","................"];
+ return art(extra?extra(rows):rows,{k:"#a87444",K:"#7a4a28",g:"#2a3a4a",e:"#d8eef5",w:"#ffffff",c,l:L,D,b:"#ffffffcc",z:"#ffe84a",Z:"#fff8c0"},"#1a1a20")};
+const ITEMSPR={
+bag:()=>art(P16([".....ssssss.....","....s......s....","...s........s...","...s........s...",".BBBBBBBBBBBBBB.","BLLLLLLLLLLLLLLB","BhffffffffffffDB","BhfffffffffffffB","BFfffffggffffFFB","BBFFFFgyGgFFFFBB","BLLLLLgGGgLLLLDB","BLLLLLLLLLLLLLDB","BLLLLLLLLLLLLDDB","BDLLLLLLLLLLLDDB","BDDDDDDDDDDDDDDB",".BBBBBBBBBBBBBB."]),{s:"#7a4a28",B:"#5a3418",L:"#c47e45",D:"#9a5a2e",h:"#e0a070",f:"#a8622f",F:"#7a4220",g:"#f7c331",y:"#fff3a0",G:"#b8860b"},"#2a1a12"),
+grow:()=>FLASK("#4fd06a",true),
+shrink:()=>FLASK("#9b6bff",false),
+raio:()=>FLASK("#2a3a7a",true,r=>{r=r.slice();r[8]=".gwwcccczZcccDg.";r[9]=".gwccccczZccDDg.";r[10]=".gccccczZZZcDDg.";r[11]=".gcccccczZcccDg.";r[12]=".gccccccZcccDDg.";return r}),
+sweet:()=>art(P16(["................","....rrrrrrrr....","...rRrrRrrRrr...","....rrrrrrrr....",".....kkkkkk.....","....gggggggg....","...gyyyyyyyyg...","..gwyyyyyyyyyg..","..gwyHHHHHHyOg..","..gyyHhhhhHyOg..","..gyyHHHHHHyOg..","..gyyyyyyyyyOg..","..gyyyyyyyyOOg..","...gOOOOOOOOg...","....gggggggg....","................"]),{r:"#d63031",R:"#f2f2f2",k:"#7a4a28",g:"#c88a2a",y:"#f7c331",w:"#fff3a0",O:"#d8901a",H:"#f5efe0",h:"#8a5a34"},"#5a3a10"),
+sour:()=>art(P16([".......y........",".......y........","......yyy.......","......yyy.......",".....ywyyy......",".....wyyyy......","....ywyyyyy.....","....wyyyyyy..y..","...ywyyyyyyy.yy.","...yyyyyyyyY.YY.","...yyyyyyyyY....","...yyyyyyyYY....","....yyyyyYY.....",".....YYYYY......","................","................"]),{y:"#d6e84a",Y:"#a8bc20",w:"#f8ffd0"},"#4a5a10"),
+paint:v=>{const c=hex(COLORS[v]||COLORS.rosa),cd=hex(mul(COLORS[v]||COLORS.rosa,.7));return art(P16(["....kkkkkkkk....","...k........k...","..k..........k..","..ssssssssssss..",".sccccccccccccs.",".sLcCccccccccSs.",".sLLcLLLcLLLLSs.",".sLLcLLLLLLLLSs.",".sLLCLLLLLLLLSs.",".sLLLLLLLLLLLSs.",".sccccccccccccs.",".sccwcccccccdcs.",".sccccccccccdds.",".sLLLLLLLLLLLSs.","..ssssssssssss..","................"]),{k:"#5a5a66",s:"#4a4a58",L:"#d8d8e0",S:"#9a9aa8",c,C:cd,d:cd,w:"#ffffff"},"#1a1a20")},
+fogo:()=>art(P16(["...........yyy..",".........yyooy..","........yoooory.",".......yooorroy.","......yoorrrroy.",".....yoorrrrRo..","....yoorrrRRo...","....yorrrRRo....","...yorrRRro.....","...yorRRro......","..yorRRo........","..yoRRo.........","..wRo...........",".wk.............","wk..............","k..............."]),{y:"#ffe066",o:"#f39c12",r:"#e74c3c",R:"#a8231a",w:"#f5efe0",k:"#8a5a34"},"#5a1008"),
+gelo:()=>art(P16(["................",".......w........","......wbb.......","......wbB.......",".....wwbBB......",".....wbbBB......","..w..wbbBB..w...",".wb..wbbBB.wbB..",".wbB.wbbBB.wbB..",".wbBwwbbBBBwbB..",".wbBwbbbbBBwbB..","..bBwbbbbBB.bB..","..sssssssssssss.",".sSSSSSSSSSSSSs.","................","................"]),{w:"#ffffff",b:"#8fdcff",B:"#3a9ad9",s:"#eef8ff",S:"#b8d8ee"},"#1a4a6a"),
+hero:()=>art(P16(["................","....gg....gg....","....gGkkkkGg....","...rRhrrrrhRr...","..rrRhrrrrrhRr..","..rrRrrrrrrrRr..",".rrRrrrrrrrrRrr.",".rrRrrrhrrrrrRr.",".rRrrrrhrrrrrRr.","rrRrrrrhrrrrrRrr","rRrrrrrrrrrrrrRr","rRrrrrrrrrrrrrRr","RrrRrrrRrrrRrrrR","R.rR.rrR.rrR.rR.","..R...R...R.....","................"]),{g:"#f7c331",G:"#b8860b",k:"#3a1a10",r:"#d63031",R:"#8a1a1a",h:"#ff7a6a"},"#3a0a0a"),
+shiny:()=>art(P16(["......o.........","......y.....w...",".....yWy...wWw..",".....yWy....w...","....yWWWy.......","..yyyWWWyyy.....","oyyWWWWWWWyyo...","..yyyWWWyyy.....","....yWWWy.......",".....yWy.....p..",".....yWy....pPp.","......y......p..","......o.........","................"]),{o:"#f39c12",y:"#ffe84a",W:"#ffffff",w:"#bff4ff",p:"#ffb3e6",P:"#ffffff"},"#8a6a00"),
+brush:()=>art(P16(["............kk..","...........kKk..","..........kKk...",".........kKk....","........kKk.....",".......kKk......","......mMm.......",".....mMm........","....bBbm........","...bbBb.........","..bbBb..........",".bbBb....p......",".bBb..........c.","bBb......y......","b...............","................"]),{k:"#c8864a",K:"#8a5a34",m:"#d8d8e0",M:"#8a8a98",b:"#ff5f9e",B:"#c0306a",p:"#5bc0eb",c:"#6cc04a",y:"#f7c331"},"#2a1a12"),
+morph:()=>art(P16(["................","......wppp......","....wppppppp....","...wpppppppPp...","...pPpppPpppP...","..wpPppwpPpppP..","..ppPkpppkPppP..","..ppPpppppPppPp.",".wppPppkkppPppP.",".pppPpppppPpppP.",".ppppPPppPPpppP.","..PPPPPPPPPPPP..","dddddddddddddddd",".DDDDDDDDDDDDDD.","................","................"]),{w:"#e8d8ff",p:"#b48cff",P:"#7a4ad0",k:"#2a1a40",d:"#e8e8f0",D:"#a8a8b8"},"#3a1a6a")};
 const ITEMS={
-bag:{img:()=>art(["..kk..",".k..k.","bbbbbb","bbybbb","bbbbbb",".bbbb."],{k:"#6b4423",b:"#b07040",y:"#f7c331"},"#2a1a12")},
-grow:{n:"Poção Gigante",short:()=>"Gigante",d:"+3 de tamanho (até 12). Morango gigante? Pode!",img:()=>POT("#4fd06a"),w:10,go:f=>{f.tam=Math.min(12,f.tam+3)}},
-shrink:{n:"Poção Minúscula",short:()=>"Minúscula",d:"-3 de tamanho (até 0). Melancia de bolso!",img:()=>POT("#9b6bff"),w:10,go:f=>{f.tam=Math.max(0,f.tam-3)}},
-sweet:{n:"Mel Encantado",short:()=>"Mel",d:"+3 de doçura",img:()=>art([".kkk.","yyyyy","yywyy","yyyyy",".yyy."],{k:"#8a5a34",y:"#f7c331",w:"#fff3a0"},"#6b4a10"),w:8,go:f=>{f.doce=Math.min(10,f.doce+3)}},
-sour:{n:"Gota Azeda",short:()=>"Azeda",d:"+3 de acidez",img:()=>art(["..y..",".yyy.","yywyy","yyyyy",".yyy."],{y:"#d6e84a",w:"#f5ffc0"},"#5a6a10"),w:8,go:f=>{f.az=Math.min(10,f.az+3)}},
-paint:{n:"Tinta Mágica",short:v=>v,d:"Pinta a fruta de outra cor",img:v=>art(["kkkkk","k...k","ccccc","ccwcc",".ccc."],{k:"#8a8a98",c:hex(COLORS[v]||COLORS.rosa),w:"#ffffff"},"#2a1a12"),w:8,go:(f,v)=>{f.rgb=COLORS[v].slice()},vals:Object.keys(COLORS)},
-fogo:{n:"Pena de Fênix",short:()=>"Fênix",d:"A fruta pega FOGO",img:()=>art(["...r","..ro",".roy","roy.","oy..","y..."],{r:"#c0392b",o:"#f39c12",y:"#f7dc6f"},"#7a1a10"),w:4,go:f=>{if(f.el&&f.el!="fogo")f.hero=true;f.el="fogo"}},
-gelo:{n:"Cristal Eterno",short:()=>"Cristal",d:"A fruta vira GELO",img:()=>art(["..w..",".wbw.","wbbbw",".wbw.","..w.."],{w:"#e8f8ff",b:"#5bc0eb"},"#2a6a8a"),w:4,go:f=>{if(f.el&&f.el!="gelo")f.hero=true;f.el="gelo"}},
-raio:{n:"Raio na Garrafa",short:()=>"Raio",d:"A fruta ganha RAIO",img:()=>POT("#ffe84a"),w:4,go:f=>{if(f.el&&f.el!="raio")f.hero=true;f.el="raio"}},
-hero:{n:"Capa Heroica",short:()=>"Capa",d:"Vira SUPER-FRUTA",img:()=>art(["..m..","rrmrr","rrrrr","rr.rr","r...r"],{m:"#1a1a2a",r:"#d63031"},"#5a1010"),w:2,go:f=>{f.hero=true;f.cape=f.cape||R(["#d63031","#2d6cdf","#8e44ad","#16a085","#f39c12"])}},
-shiny:{n:"Pó de Estrela",short:()=>"Estrela",d:"Deixa a fruta BRILHANTE",img:()=>art(["..y..","..y..","yywyy","..y..","..y.."],{y:"#ffe84a",w:"#ffffff"},"#8a6a00"),w:2,go:f=>{f.shiny=true}},
-brush:{n:"Pincel Doido",short:()=>"Pincel",d:"Troca a estampa por uma maluca",img:()=>art(["....kk","...kk.","..kk..",".bb...","bbb...","bb...."],{k:"#8a5a34",b:"#ff5f9e"},"#2a1a12"),w:6,go:f=>{f.pat=R(["marble","spots","stripes","seeds","blush","hatch"]);f.rgb2=COLORS[R(Object.keys(COLORS))].slice()}},
-morph:{n:"Molde Maluco",short:()=>"Molde",d:"Deforma a fruta num formato novo",img:()=>art(["ppp..","p.ppp","ppp.p","..ppp"],{p:"#b48cff"},"#4a2a8a"),w:5,go:f=>{const other={shape:R(["heart","banana","oval","round","kidney","tall","cluster"])};f.mask=morph(f,other);f.shape="mix"}}};
+bag:{img:ITEMSPR.bag},
+grow:{n:"Poção Gigante",short:()=>"Gigante",d:"+3 de tamanho (até 12). Morango gigante? Pode!",img:ITEMSPR.grow,w:10,go:f=>{f.tam=Math.min(12,f.tam+3)}},
+shrink:{n:"Poção Minúscula",short:()=>"Minúscula",d:"-3 de tamanho (até 0). Melancia de bolso!",img:ITEMSPR.shrink,w:10,go:f=>{f.tam=Math.max(0,f.tam-3)}},
+sweet:{n:"Mel Encantado",short:()=>"Mel",d:"+3 de doçura",img:ITEMSPR.sweet,w:8,go:f=>{f.doce=Math.min(10,f.doce+3)}},
+sour:{n:"Gota Azeda",short:()=>"Azeda",d:"+3 de acidez",img:ITEMSPR.sour,w:8,go:f=>{f.az=Math.min(10,f.az+3)}},
+paint:{n:"Tinta Mágica",short:v=>v,d:"Pinta a fruta de outra cor",img:ITEMSPR.paint,w:8,go:(f,v)=>{f.rgb=COLORS[v].slice()},vals:Object.keys(COLORS)},
+fogo:{n:"Pena de Fênix",short:()=>"Fênix",d:"A fruta pega FOGO",img:ITEMSPR.fogo,w:4,go:f=>{if(f.el&&f.el!="fogo")f.hero=true;f.el="fogo"}},
+gelo:{n:"Cristal Eterno",short:()=>"Cristal",d:"A fruta vira GELO",img:ITEMSPR.gelo,w:4,go:f=>{if(f.el&&f.el!="gelo")f.hero=true;f.el="gelo"}},
+raio:{n:"Raio na Garrafa",short:()=>"Raio",d:"A fruta ganha RAIO",img:ITEMSPR.raio,w:4,go:f=>{if(f.el&&f.el!="raio")f.hero=true;f.el="raio"}},
+hero:{n:"Capa Heroica",short:()=>"Capa",d:"Vira SUPER-FRUTA",img:ITEMSPR.hero,w:2,go:f=>{f.hero=true;f.cape=f.cape||R(["#d63031","#2d6cdf","#8e44ad","#16a085","#f39c12"])}},
+shiny:{n:"Pó de Estrela",short:()=>"Estrela",d:"Deixa a fruta BRILHANTE",img:ITEMSPR.shiny,w:2,go:f=>{f.shiny=true}},
+brush:{n:"Pincel Doido",short:()=>"Pincel",d:"Troca a estampa por uma maluca",img:ITEMSPR.brush,w:6,go:f=>{f.pat=R(["marble","spots","stripes","seeds","blush","hatch"]);f.rgb2=COLORS[R(Object.keys(COLORS))].slice()}},
+morph:{n:"Molde Maluco",short:()=>"Molde",d:"Deforma a fruta num formato novo",img:ITEMSPR.morph,w:5,go:f=>{const other={shape:R(["heart","banana","oval","round","kidney","tall","cluster"])};f.mask=morph(f,other);f.shape="mix"}}};
 function rollItem(){const ks=Object.keys(ITEMS).filter(k=>ITEMS[k].w),tot=ks.reduce((s,k)=>s+ITEMS[k].w,0);let r=Math.random()*tot;for(const k of ks){if((r-=ITEMS[k].w)<0){const it={t:k};if(ITEMS[k].vals)it.v=R(ITEMS[k].vals);return it}}return{t:"grow"}}
 function giveItem(it,x,y,from){S.bag=S.bag||[];S.bag.push(it);save();const I=ITEMS[it.t],im=document.createElement("img");im.src=I.img(it.v);im.style.cssText=`position:fixed;left:${x}px;top:${y}px;width:36px;height:36px;z-index:130;image-rendering:pixelated;pointer-events:none`;document.body.appendChild(im);
 const bt=$("bagtab")||$("market"),r=bt.getBoundingClientRect();im.animate([{transform:"translate(-50%,-50%) scale(.5)"},{transform:"translate(-50%,-140%) scale(1.4)",offset:.3},{transform:`translate(${r.left+r.width/2-x-18}px,${r.top+r.height/2-y-18}px) scale(.6)`}],{duration:1100,easing:"ease-in"}).onfinish=()=>{im.remove();renderMarket();const b=$("bagtab");if(b){b.classList.remove("got");void b.offsetWidth;b.classList.add("got")}};
@@ -396,11 +418,11 @@ S.bag.splice(idx,1);f.mod=true;if(!S.bag.some(x=>x.t+(x.v||"")==armed))armItem(n
 const el=tbl.querySelector(`[data-id="${f.id}"]`),r=el?el.getBoundingClientRect():{left:200,top:400,width:0,height:0};clampPos(f);rec("items",1);
 treeAdd(f,[old]);if(f.shiny)rec("shiny",1);save();renderTable(f.id);showInfo(f);renderCounter();
 burst(r.left+r.width/2,r.top+r.height/2,f.rgb,26);SFX.mut();shake(3);buzz([30,20,50]);toast(`<b>${I.n}!</b> ${fname(f)}`)}
-let mkTab="feira",armed=null;
+let mkTab="feira",armed=null,bagAnim=0;
 function bagCount(){return (S.bag||[]).length}
-function renderMarket(){const L=level();const tabs=`<div class="mk tabk ${mkTab=="feira"?"on":""}" onclick="mkTab='feira';armed=null;renderMarket()"><b>FEIRA</b></div><div class="mk tabk ${mkTab=="bolsa"?"on":""}" id="bagtab" onclick="mkTab='bolsa';renderMarket()"><img src="${ITEMS.bag.img()}" style="width:28px;height:28px"><b>BOLSA</b>${bagCount()?`<span class="cnt2">${bagCount()}</span>`:""}</div>`;
+function renderMarket(){const L=level();const tabs=`<div class="mk tabk ${mkTab=="feira"?"on":""}" onclick="if(mkTab!='feira')SFX.bagc();mkTab='feira';armed=null;renderMarket()"><b>FEIRA</b></div><div class="mk tabk ${mkTab=="bolsa"?"on":""}" id="bagtab" onclick="if(mkTab!='bolsa')SFX.bag();mkTab='bolsa';renderMarket()"><img class="bagi" src="${ITEMS.bag.img()}" style="width:36px;height:36px"><b>BOLSA</b>${bagCount()?`<span class="cnt2">${bagCount()}</span>`:""}</div>`;
 if(mkTab=="bolsa"){const groups={};(S.bag||[]).forEach(it=>{const k=it.t+(it.v||"");(groups[k]=groups[k]||{it,n:0}).n++});const gs=Object.values(groups);
- $("market").innerHTML=tabs+(gs.length?gs.map(({it,n})=>{const I=ITEMS[it.t],k=it.t+(it.v||"");return `<div class="mk px itm ${armed==k?"arm":""}" onclick="armItem('${k}')"><img src="${I.img(it.v)}">${I.short(it.v)}<div class="pr">x${n}</div></div>`}).join(""):`<div style="color:#ffe9b8;font-size:.75rem;padding:8px;align-self:center">Vazia. Clientes dão <b>presentes</b> quando você entrega!</div>`);return}
+ $("market").innerHTML=tabs+(gs.length?gs.map(({it,n},gi)=>{const I=ITEMS[it.t],k=it.t+(it.v||"");return `<div class="mk px itm ${armed==k?"arm":""} ${bagAnim?"in":""}" style="animation-delay:${gi*45}ms" onclick="armItem('${k}')"><img src="${I.img(it.v)}">${I.short(it.v)}<div class="pr">x${n}</div></div>`}).join(""):`<div style="color:#ffe9b8;font-size:.75rem;padding:8px;align-self:center">Vazia. Clientes dão <b>presentes</b> quando você entrega!</div>`);return}
 $("market").innerHTML=tabs+BASE.map((b,i)=>{const f={shape:b[1],pat:b[2],top:b[3],rgb:typeof b[4]=="string"?COLORS[b[4]]:b[4],tip:b[0]=="Banana"?"#6b4423":b[0]=="Pimenta-Dragão"?"#3f9a3a":null};const lock=false,rare=!!b[10];
 return `<div class="mk px ${lock?"lock":S.coins<b[8]?"off":""} ${rare&&!lock?"rare":""}" onclick="buy(${i})"><img src="${fruitImg(f)}">${lock?"???":b[0]}<div class="pr">${lock?"NÍVEL "+b[9]:`<span class="coin"></span>${b[8]}`}</div></div>`}).join("")}
 function buy(i){const b=BASE[i];if(S.coins<b[8])return toast("Moedas insuficientes");S.coins-=b[8];const f=baseFruit(b);
@@ -419,7 +441,15 @@ function spr(g,rows,pal,x0,y0){rows.forEach((r,y)=>[...r].forEach((ch,x)=>{if(pa
 let WINS=[];
 function winLayout(W){if(W*2>=600){const ww=46,wh=34;return [[Math.round(W/3)-ww/2,28,ww,wh],[Math.round(W*2/3)-ww/2,28,ww,wh]]}return [[Math.round(W*.22)-17,18,34,20],[Math.round(W*.78)-17,18,34,20]]}
 function curtainImg(h,flip){const w=7,[c,g]=cvs(w,h+5);for(let y=0;y<h+5;y++){const ww=y<4?w:Math.max(3,w-Math.floor((y-4)/(h/4.5)));for(let i=0;i<ww;i++){const xx=flip?w-1-i:i;px(g,xx,y,(i+Math.floor(y/2))%3==0?"#b8323a":i==ww-1?"#e0606a":"#d64550")}}return c.toDataURL()}
-const CLOUD=()=>art(["....wwww......","..wwwwwwww....",".wwwwwwwwwwww.","wwwwwwwwwwwwww",".ssssssssssss."],{w:"#ffffff",s:"#d8dce6"},"#a8b0c0");
+const SUNI=()=>art(["..yyy..",".yWYYy.","yWYYYYy","yYYYYYy","yYYYYOy",".yYYOy.","..yyy.."],{y:"#ffd23a",Y:"#ffe84a",W:"#fffbe0",O:"#f7c331"},"#fff3a080");
+const DUSKI=()=>art(["..ooo..",".oYYYo.","oYYYYYo","oYYYYYo","oYYYYOo",".oYYOo.","..ooo.."],{o:"#ff8a3a",Y:"#ffb347",O:"#f08030"},"#ffd0a080");
+const MOONI=()=>art(["..mmm..",".mMmm..","mMmm...","mmm....","mmmm...",".mmmmm.","..mmm.."],{m:"#f5efe0",M:"#ffffff"},"#c8c0a860");
+function cloudStrip(w,h,dense,seed){const[c,g]=cvs(w,h),r=srand(seed),n=dense?Math.round(w/7):Math.max(2,Math.round(w/26)),blobs=[];
+ for(let k=0;k<n;k++){const rx=dense?5+r()*7:4+r()*5;blobs.push([r()*w,(dense?.25+r()*.7:.35+r()*.4)*h,rx,rx*.55])}
+ const lit=dense?[206,211,220]:[255,255,255],mid=dense?[178,185,196]:[232,236,244],sh=dense?[150,158,172]:[200,207,220];
+ for(let y=0;y<h;y++)for(let x=0;x<w;x++){let best=-1,by=0;for(const[bx,cy,rx,ry]of blobs)for(const o of[-w,0,w]){const dx=(x-bx-o)/rx,dy=(y-cy)/ry,d=dx*dx+dy*dy;if(d<1&&(best<0||d<best)){best=d;by=dy}}
+  if(dense&&y>h*.55)best=best<0?.9:best;if(best<0)continue;px(g,x,y,hex(by<-.35?lit:by>.45||y>h*.8?sh:mid))}
+ return c.toDataURL()}
 function buildWall(W,H){const[c,g]=cvs(W,H),rnd=srand(7),T=H-140;
  // tábuas verticais
  for(let x=0;x<W;x+=12){const tone=[[222,190,140],[214,181,131],[228,198,150],[218,186,136]][(x/12)%4];
@@ -465,8 +495,10 @@ const PLANT2=["......l..l......","...l..ll.l..l...","....llLLll.l....","..l.lLll
 const REG2=["....dddddddd........","....dwwwwwwd........","....dwgwgwwd........","....dddddddd........","......dddd..........","..mmmmmmmmmmmmmmmm..",".mkkmkkmkkmkkmmmmmm.",".mmmmmmmmmmmmmmmmmm.",".mkkmkkmkkmkkmyyyym.","bbbbbbbbbbbbbbbbbbbb","bBBBBBBBBBBBBBBBBBBb","bBBBBBBkkkkBBBBBBBBb","bbbbbbbbbbbbbbbbbbbb"];
 function renderProps(){const sc=$("scene"),Wd=sc.clientWidth,W=Math.ceil(Wd/2),H=Math.max(140,Math.round(sc.clientHeight/2));
  let h="";const wall=buildWall(W,H);
- const cl_=CLOUD();WINS.forEach(([wx,wy,ww,wh],i)=>{const W2=ww*2,H2=wh*2,big=ww>30,rnd=srand(i+5);let st="";for(let k=0;k<(big?16:8);k++)st+=`<span style="left:${Math.floor(rnd()*W2)}px;top:${Math.floor(rnd()*H2*.8)}px;animation-delay:-${(rnd()*2).toFixed(2)}s"></span>`;
- let cds="";for(let k=0;k<3;k++)cds+=`<span class="cld" style="top:${Math.round(4+k*H2*.25)}px;width:${big?36:24}px;height:${big?13:9}px;background-image:url(${cl_});--ww:${W2+40}px;animation-duration:${22+k*9}s;animation-delay:-${k*8}s"></span>`;
+ WINS.forEach(([wx,wy,ww,wh],i)=>{const W2=ww*2,H2=wh*2,big=ww>30,rnd=srand(i+5);let st="";for(let k=0;k<(big?16:8);k++)st+=`<span style="left:${Math.floor(rnd()*W2)}px;top:${Math.floor(rnd()*H2*.8)}px;animation-delay:-${(rnd()*2).toFixed(2)}s"></span>`;
+ const tw=ww*2,sA=cloudStrip(tw,Math.round(wh*.62),false,i*7+1),sD=cloudStrip(tw,Math.round(wh*.62),true,i*7+2),sB=cloudStrip(tw,Math.round(wh*.72),false,i*7+3),sE=cloudStrip(tw,Math.round(wh*.72),true,i*7+4);
+ const bs=`background-size:${tw*2}px 100%;--tw:${tw*2}px`;
+ let cds=`<span class="cl a" style="${bs};--cs:url(${sA});--cd:url(${sD})"></span><span class="cl b" style="${bs};--cs:url(${sB});--cd:url(${sE})"></span><img class="leaf" src="${art([".gg..","gGGg.",".gGgg","..g.."],{g:"#5fb33a",G:"#8fd45a"})}" style="--lw:${W2}px;animation-delay:-${i*3}s">`;
  h+=`<div class="win ${big?"big":""}" id="win${i+1}" style="left:${wx*2}px;top:${wy*2}px;width:${W2}px;height:${H2}px"><div class="stars">${st}</div>${cds}<div class="sun" id="sun${i+1}"></div><div class="wfx"></div></div>`;
  const ci=curtainImg(wh,false),cf=curtainImg(wh,true),cw=14;h+=`<img class="curt" src="${ci}" style="left:${wx*2-6}px;top:${wy*2-8}px;width:${cw}px;height:${(wh+5)*2}px;animation-delay:-${i*3}s"><img class="curt r" src="${cf}" style="left:${wx*2+W2-cw+6}px;top:${wy*2-8}px;width:${cw}px;height:${(wh+5)*2}px;animation-delay:-${i*3+1.5}s">`});
  h+=`<img id="clockimg" style="left:${Wd/2-18}px;top:34px;width:36px;height:36px;z-index:2"><span id="wxtag"></span>`;
@@ -560,6 +592,8 @@ coin:()=>{tone(988,.05,"square",.035);tone(1319,.1,"square",.035,.05)},bad:()=>t
 mut:()=>[392,523,659,784,1047,1319].forEach((f,i)=>tone(f,.08,"square",.045,i*.06)),dex:()=>{tone(880,.1,"triangle",.08);tone(1175,.2,"triangle",.08,.1)},
 day:()=>[784,659,523,659,784,1047].forEach((f,i)=>tone(f,.16,"square",.05,i*.14)),buy:()=>tone(660,.06,"square",.04),
 sel:()=>{tone(1047,.035,"square",.035);tone(1568,.05,"square",.03,.035)},
+bag:()=>{bagAnim=1;setTimeout(()=>bagAnim=0,400);tone(180,.07,"square",.04,0,420);tone(523,.05,"square",.035,.07);tone(784,.05,"square",.035,.11);tone(1175,.09,"square",.03,.15)},
+bagc:()=>{tone(1175,.04,"square",.03);tone(784,.04,"square",.03,.04);tone(392,.08,"square",.035,.08,-180)},
 open:()=>[523,659,784,1047].forEach((f,i)=>tone(f,.06,"square",.035,i*.035)),
 close:()=>[988,784,587].forEach((f,i)=>tone(f,.05,"square",.03,i*.035)),fire:()=>tone(110,.35,"sawtooth",.03,0,240)};
 const MEL=[523,0,659,0,784,659,523,0,587,0,698,0,880,698,587,0,523,0,659,784,880,0,784,659,587,523,0,587,659,0,0,0],BAS=[131,131,196,196,175,175,147,196];let step=0;
@@ -603,11 +637,11 @@ function wxState(){const h=realH(),sr=WX.ok&&WX.sr!=null?WX.sr:6,ss=WX.ok&&WX.ss
  return{ph,w,frac:cl((h-sr)/Math.max(1,ss-sr),0,1)}}
 function updateSky(){const sk=$("sky");if(!sk)return;const{ph,w,frac}=wxState(),night=ph=="night";
  const grey=["cloud","rain","storm","fog","snow"].includes(w);
- let skyC={night:[22,24,58],dawn:[250,176,128],dusk:[240,138,92],day:[118,192,244]}[ph];if(grey)skyC=night?[38,40,52]:skyC.map((v,i)=>Math.round(v*.35+[156,162,172][i]*.65));if(w=="storm")skyC=skyC.map(v=>v*.7);
+ let skyC={night:[22,24,58],dawn:[250,176,128],dusk:[240,138,92],day:[118,192,244]}[ph];if(grey)skyC=night?(w=="cloud"?[34,36,46]:[28,30,40]):ph=="day"?({cloud:[160,168,180],rain:[138,146,160],storm:[96,102,116],fog:[200,202,208],snow:[196,200,210]}[w]):skyC.map((v,i)=>Math.round(v*.3+[150,154,164][i]*.7));
  sk.style.background=grey&&!night?"#e6e6ee":{night:"#a4a2d4",dawn:"#ffe6d0",dusk:"#ffd8bc",day:"#ffffff"}[ph];$("lamp").style.opacity=night?.8:ph=="dusk"||w=="storm"?.4:0;
  [1,2].forEach(n=>{const el=$("win"+n),e=$("sun"+n);if(!el||!e)return;el.style.background=hex(skyC);
   const cls={night,starry:night&&!grey,rain:w=="rain"||w=="storm",storm:w=="storm",snow:w=="snow",fog:w=="fog",cloudy:grey,few:w=="few"};Object.entries(cls).forEach(([k,v])=>el.classList.toggle(k,!!v));
-  const W2=el.clientWidth,H2=el.clientHeight;e.style.display=grey?"none":"";e.style.background=night?"#f5efe0":ph=="day"?"#ffe84a":"#ffb347";e.style.boxShadow=night?"inset -3px 0 0 #c8c0a8":ph=="day"?"0 0 0 2px #fff6a0":"none";
+  const W2=el.clientWidth,H2=el.clientHeight;e.style.display=grey?"none":"";e.style.background=`url(${night?MOONI():ph=="day"?SUNI():DUSKI()}) 0 0/100% 100%`;e.style.boxShadow="none";
   e.style.left=(night?W2-16:Math.round(4+frac*(W2-14)))+"px";e.style.top=(night?5:Math.round(H2*.62-Math.sin(frac*Math.PI)*H2*.5))+"px"});
  const t=$("wxtag");if(t){if(WX.ok){t.textContent=WX.temp+"°";t.style.display=""}else t.style.display="none"}}
 function settings(back){const sl=(id,lab,v)=>`<div style="display:flex;align-items:center;gap:8px;margin:8px 0;text-align:left"><span style="width:80px">${lab}</span><input type="range" id="${id}" min="0" max="100" value="${v}" style="flex:1;accent-color:#3ca55c"><b id="${id}v" style="width:34px">${v}</b></div>`;
