@@ -112,6 +112,11 @@ if(human){const hs=p.hs||0,HB=(fn)=>fill(fn,HA,"hairb");
  if(hs==7)HB((x,y)=>dx(x)>=9&&dx(x)<=13&&y>=14&&y<=43&&!((y%6==0)&&dx(x)>12));}
 // pescoço
 if(human)fill((x,y)=>y>=29&&y<=38&&dx(x)<=3.6,hex(mul(SKc,.86)),"neck");
+if(furry)fill((x,y)=>y>=28&&y<=38&&dx(x)<=4.6,hex(mul(FUc,.82)),"neck");
+if(k=="alien")fill((x,y)=>y>=28&&y<=38&&dx(x)<=2.8,hex(mul(FUc,.8)),"neck");
+if(k=="frog")fill((x,y)=>y>=30&&y<=38&&dx(x)<=6,hex(mul(FUc,.85)),"neck");
+if(k=="penguin")fill((x,y)=>y>=27&&y<=38&&dx(x)<=8,"#2b2b40","neck");
+if(k=="robot"){fill((x,y)=>y>=30&&y<=38&&dx(x)<=3.6,(x,y)=>y%3==0?"#5d6372":"#7d8392","neck");fill((x,y)=>y>=32&&y<=38&&dx(x)<=3.6&&x==Math.round(19.5-3)&&y%3,"#a8aeba","neck")}
 // ---------- cabeça ----------
 if(human){fill(ell(8.6,22,2.2,3.2),SK,"ear");fill(ell(30.4,22,2.2,3.2),SK,"ear");fill(head,SK,"skin")}
 if(furry){
