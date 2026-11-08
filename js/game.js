@@ -415,28 +415,29 @@ function srand(seed){let s=seed;return()=>{s=(s*16807)%2147483647;return s/21474
 function cvs(w,h){const c=document.createElement("canvas");c.width=w;c.height=h;const g=c.getContext("2d");g.imageSmoothingEnabled=false;return[c,g]}
 function px(g,x,y,c,w=1,h=1){g.fillStyle=c;g.fillRect(x,y,w,h)}
 function spr(g,rows,pal,x0,y0){rows.forEach((r,y)=>[...r].forEach((ch,x)=>{if(pal[ch])px(g,x0+x,y0+y,pal[ch])}))}
-// janelas: posições em pixels de arte (retornadas pra posicionar o céu atrás)
+// janelas: posições em pixels de arte [x,y,largura,altura]
 let WINS=[];
-function buildWall(W,H){const[c,g]=cvs(W,H),rnd=srand(7);
+function winLayout(W){if(W*2>=600){const ww=46,wh=34;return [[Math.round(W/3)-ww/2,28,ww,wh],[Math.round(W*2/3)-ww/2,28,ww,wh]]}return [[Math.round(W*.22)-17,18,34,20],[Math.round(W*.78)-17,18,34,20]]}
+function curtainImg(h,flip){const w=7,[c,g]=cvs(w,h+5);for(let y=0;y<h+5;y++){const ww=y<4?w:Math.max(3,w-Math.floor((y-4)/(h/4.5)));for(let i=0;i<ww;i++){const xx=flip?w-1-i:i;px(g,xx,y,(i+Math.floor(y/2))%3==0?"#b8323a":i==ww-1?"#e0606a":"#d64550")}}return c.toDataURL()}
+const CLOUD=()=>art(["....wwww......","..wwwwwwww....",".wwwwwwwwwwww.","wwwwwwwwwwwwww",".ssssssssssss."],{w:"#ffffff",s:"#d8dce6"},"#a8b0c0");
+function buildWall(W,H){const[c,g]=cvs(W,H),rnd=srand(7),T=H-140;
  // tábuas verticais
  for(let x=0;x<W;x+=12){const tone=[[222,190,140],[214,181,131],[228,198,150],[218,186,136]][(x/12)%4];
   for(let y=0;y<H;y++)for(let i=0;i<12;i++){let col=tone;if(i==0)col=mul(tone,.78);else if(i==1)col=lift(tone,.18);else if(i==11)col=mul(tone,.9);px(g,x+i,y,hex(col))}
   for(let k=0;k<6;k++){const gx=x+2+Math.floor(rnd()*9),gy=Math.floor(rnd()*H),gl=4+Math.floor(rnd()*10);for(let j=0;j<gl;j++)px(g,gx,gy+j,hex(mul(tone,.88)))}
   [20,58].forEach(ny=>{px(g,x+5,ny,"#7a5a3a");px(g,x+6,ny,"#5a3e26");px(g,x+5,ny-1,"#c8a878")})}
  // rodapé (lambri) abaixo da prateleira
- const wy=106;for(let y=wy;y<H;y++)for(let x=0;x<W;x++){const b=[176,122,74];let col=y==wy?lift(b,.25):y==wy+1?mul(b,.7):(x%24==0?mul(b,.75):x%24==1?lift(b,.12):b);px(g,x,y,hex(col))}
+ const wy=106+T;for(let y=wy;y<H;y++)for(let x=0;x<W;x++){const b=[176,122,74];let col=y==wy?lift(b,.25):y==wy+1?mul(b,.7):(x%24==0?mul(b,.75):x%24==1?lift(b,.12):b);px(g,x,y,hex(col))}
  // prateleira
- const sy=94;for(let x=0;x<W;x++){px(g,x,sy,"#d39a62");px(g,x,sy+1,"#b47a46");px(g,x,sy+2,"#9b6438");px(g,x,sy+3,"#6b4423");px(g,x,sy+4,"#00000030")}
+ const sy=94+T;for(let x=0;x<W;x++){px(g,x,sy,"#d39a62");px(g,x,sy+1,"#b47a46");px(g,x,sy+2,"#9b6438");px(g,x,sy+3,"#6b4423");px(g,x,sy+4,"#00000030")}
  for(let x=10;x<W;x+=Math.max(60,Math.round(W/4))){spr(g,["kk","kk",".k",".k"],{k:"#6b4423"},x,sy+4)}
  // janelas com moldura, cruzeta e cortinas (vidro transparente pro céu aparecer atrás)
- WINS=[[Math.round(W*.08)+3,18],[Math.round(W*.92)-27,18]];
- WINS.forEach(([wx,wy])=>{const ww=24,wh=16;
-  for(let y=-2;y<wh+3;y++)for(let x=-2;x<ww+2;x++){const edge=x<0||y<0||x>=ww||y>=wh;if(edge)px(g,wx+x,wy+y,y>=wh?"#8a5a34":(x<0||y<0?"#9b6a3e":"#6b4423"))}
-  g.clearRect(wx,wy,ww,wh);px(g,wx+11,wy,"#6b4423",2,wh);px(g,wx,wy+7,"#6b4423",ww,2);px(g,wx+11,wy,"#9b6a3e",1,wh);
-  px(g,wx-3,wy+wh+1,"#d39a62",ww+6,1);px(g,wx-3,wy+wh+2,"#8a5a34",ww+6,2);
-  // cortinas
-  [[wx-2,1],[wx+ww-3,-1]].forEach(([cx,dir])=>{for(let y=-3;y<wh+2;y++){const w=y<3?5:Math.max(2,5-Math.floor((y-3)/4));for(let i=0;i<w;i++){const xx=dir>0?cx+i:cx+5-i;px(g,xx,wy+y,(i+Math.floor(y/2))%3==0?"#b8323a":i==w-1?"#e0606a":"#d64550")}}});
-  for(let x=-4;x<ww+4;x++)px(g,wx+x,wy-4,"#6b4423")});
+ WINS=winLayout(W);
+ WINS.forEach(([wx,wy,ww,wh])=>{
+  for(let y=-3;y<wh+3;y++)for(let x=-3;x<ww+3;x++){const edge=x<0||y<0||x>=ww||y>=wh;if(edge)px(g,wx+x,wy+y,y>=wh?"#8a5a34":(x<0||y<0?(x==-3||y==-3?"#5a3e26":"#9b6a3e"):"#6b4423"))}
+  g.clearRect(wx,wy,ww,wh);const mx=wx+Math.floor(ww/2)-1,my=wy+Math.floor(wh/2)-1;px(g,mx,wy,"#6b4423",2,wh);px(g,wx,my,"#6b4423",ww,2);px(g,mx,wy,"#9b6a3e",1,wh);px(g,wx,my,"#9b6a3e",ww,1);
+  px(g,wx-5,wy+wh+2,"#d39a62",ww+10,1);px(g,wx-5,wy+wh+3,"#8a5a34",ww+10,2);px(g,wx-5,wy+wh+5,"#00000030",ww+10,1);
+  for(let x=-6;x<ww+6;x++){px(g,wx+x,wy-6,"#6b4423");px(g,wx+x,wy-5,"#9b6a3e")}});
 
  // itens da prateleira: potes, caixote com frutas, balança, vaso
  const jam=[[214,48,49],[243,140,32],[118,56,150],[247,205,55],[106,176,58],[247,143,179]];let x=4,k=0;
@@ -462,9 +463,12 @@ function buildTableTile(){const W=60,H=40,[c,g]=cvs(W,H),rnd=srand(11);
  [[0,10],[30,20],[18,30]].forEach(([sx,sy])=>{px(g,sx,sy,"#00000040",1,10)});return c.toDataURL()}
 const PLANT2=["......l..l......","...l..ll.l..l...","....llLLll.l....","..l.lLllLlll.l..",".lllLllLLllLll..","..lLLlllLLllL...","...lLLllLLll....","....lLlLLlL.....","......llll......","...pppppppppp...","...PPPPPPPPPP...","....pppppppp....","....pppppppp....","....pppppppp....",".....pppppp....."];
 const REG2=["....dddddddd........","....dwwwwwwd........","....dwgwgwwd........","....dddddddd........","......dddd..........","..mmmmmmmmmmmmmmmm..",".mkkmkkmkkmkkmmmmmm.",".mmmmmmmmmmmmmmmmmm.",".mkkmkkmkkmkkmyyyym.","bbbbbbbbbbbbbbbbbbbb","bBBBBBBBBBBBBBBBBBBb","bBBBBBBkkkkBBBBBBBBb","bbbbbbbbbbbbbbbbbbbb"];
-function renderProps(){const sc=$("scene"),Wd=sc.clientWidth,W=Math.ceil(Wd/2),H=140;
+function renderProps(){const sc=$("scene"),Wd=sc.clientWidth,W=Math.ceil(Wd/2),H=Math.max(140,Math.round(sc.clientHeight/2));
  let h="";const wall=buildWall(W,H);
- WINS.forEach(([wx,wy],i)=>{h+=`<div class="win" id="win${i+1}" style="left:${wx*2}px;top:${wy*2}px;width:48px;height:32px"><span class="cld c1"></span><span class="cld c2"></span><div class="sun" id="sun${i+1}"></div></div>`});
+ const cl_=CLOUD();WINS.forEach(([wx,wy,ww,wh],i)=>{const W2=ww*2,H2=wh*2,big=ww>30,rnd=srand(i+5);let st="";for(let k=0;k<(big?16:8);k++)st+=`<span style="left:${Math.floor(rnd()*W2)}px;top:${Math.floor(rnd()*H2*.8)}px;animation-delay:-${(rnd()*2).toFixed(2)}s"></span>`;
+ let cds="";for(let k=0;k<3;k++)cds+=`<span class="cld" style="top:${Math.round(4+k*H2*.25)}px;width:${big?36:24}px;height:${big?13:9}px;background-image:url(${cl_});--ww:${W2+40}px;animation-duration:${22+k*9}s;animation-delay:-${k*8}s"></span>`;
+ h+=`<div class="win ${big?"big":""}" id="win${i+1}" style="left:${wx*2}px;top:${wy*2}px;width:${W2}px;height:${H2}px"><div class="stars">${st}</div>${cds}<div class="sun" id="sun${i+1}"></div><div class="wfx"></div></div>`;
+ const ci=curtainImg(wh,false),cf=curtainImg(wh,true),cw=14;h+=`<img class="curt" src="${ci}" style="left:${wx*2-6}px;top:${wy*2-8}px;width:${cw}px;height:${(wh+5)*2}px;animation-delay:-${i*3}s"><img class="curt r" src="${cf}" style="left:${wx*2+W2-cw+6}px;top:${wy*2-8}px;width:${cw}px;height:${(wh+5)*2}px;animation-delay:-${i*3+1.5}s">`});
  h+=`<img id="clockimg" style="left:${Wd/2-18}px;top:34px;width:36px;height:36px;z-index:2"><span id="wxtag"></span>`;
  h+=`<img src="${wall}" style="left:0;top:0;width:${W*2}px;height:${H*2}px">`;
  h+=`<img src="${buildAwning(W)}" style="left:0;top:0;width:${W*2}px;height:32px;z-index:2">`;
@@ -543,7 +547,12 @@ d.animate([{transform:"translate(0,0)"},{transform:`translate(${(Math.random()-.
 if(i==k-1&&!done){done=true;S.coins+=total;$("coins").textContent=S.coins;const tg=$("cointag");tg.classList.remove("bump");void tg.offsetWidth;tg.classList.add("bump");save();renderMarket()}}},i*60)}
 /* ================= som (chiptune) ================= */
 let AC=null,muted=false;try{muted=localStorage.getItem("frutodromo_mute")=="1"}catch(e){}
-function ac(){try{if(!AC)AC=new(window.AudioContext||window.webkitAudioContext)();if(AC.state=="suspended")AC.resume()}catch(e){}return AC}
+function unlockAudio(){const a=ac();if(!a||unlockAudio.ok)return;try{const b=a.createBuffer(1,1,22050),src=a.createBufferSource();src.buffer=b;src.connect(a.destination);src.start(0)}catch(e){}
+ if(a.state=="running")unlockAudio.ok=1;else a.resume().then(()=>{unlockAudio.ok=1}).catch(()=>{})}
+try{if(navigator.audioSession)navigator.audioSession.type="playback"}catch(e){}
+["touchend","click","keydown"].forEach(ev=>document.addEventListener(ev,unlockAudio,{capture:true,passive:true}));
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&AC&&AC.state!="running"){unlockAudio.ok=0;AC.resume().catch(()=>{})}});
+function ac(){try{if(!AC)AC=new(window.AudioContext||window.webkitAudioContext)();if(AC.state!="running")AC.resume().catch(()=>{})}catch(e){}return AC}
 function tone(f,d,type="square",vol=.05,when=0,slide=0,music){if(muted||!AC)return;vol*=(music?CFG.mus:CFG.sfx)/100*(music?1.4:1.2);if(vol<=0.0002)return;try{const a=AC,t=a.currentTime+when,o=a.createOscillator(),g=a.createGain();o.type=type;o.frequency.setValueAtTime(f,t);if(slide)o.frequency.linearRampToValueAtTime(Math.max(30,f+slide),t+d);
 g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+d+.03)}catch(e){}}
 const SFX={plop:()=>tone(330,.14,"square",.06,0,-180),brew:()=>{for(let i=0;i<8;i++)tone(180+Math.random()*320,.08,"triangle",.06,i*.12)},pop:()=>{tone(523,.08);tone(784,.14,"square",.05,.08)},
@@ -588,21 +597,25 @@ function checkAlerts(){if(!WX.ok)return;const al=[];
  const show=()=>{if(modalOpen){setTimeout(show,3000);return}SFX.bad();buzz([200,100,200]);openModal(`<h2 style="color:#c0392b">AVISO DO TEMPO</h2>${al.map(([t,a,b])=>`<div class="cg" style="border-color:#c0392b;background:#ffe6e0"><div style="text-align:left"><b>${t}</b><br>${a}<br><span style="font-size:.8rem">${b}</span></div></div>`).join("")}
  <p style="font-size:.72rem;opacity:.8">Baseado na previsão do Open-Meteo pra sua região. <b>Não é um alerta oficial.</b> Pra avisos oficiais, acompanhe a <b>Defesa Civil (ligue 199)</b> e o <b>INMET</b>.</p><button class="big" id="cl">ENTENDI</button>`);$("cl").onclick=closeModal};show()}
 function realH(){const d=new Date();return d.getHours()+d.getMinutes()/60}
-function updateSky(){const sk=$("sky");if(!sk)return;const h=realH(),sr=WX.ok&&WX.sr!=null?WX.sr:6,ss=WX.ok&&WX.ss!=null?WX.ss:18;
- const ph=h<sr-.6||h>ss+.6?"night":h<sr+.8?"dawn":h>ss-.8?"dusk":"day";
- const code=WX.ok?WX.code:0,cloudy=WX.ok&&(WX.cloud>=70||isRain(code)||isFog(code)),rain=WX.ok&&isRain(code),storm=WX.ok&&code>=95,snow=WX.ok&&isSnow(code),fog=WX.ok&&isFog(code);
- let skyC={night:[28,30,66],dawn:[250,176,128],dusk:[240,138,92],day:[128,198,244]}[ph];if(cloudy)skyC=skyC.map((v,i)=>Math.round(v*.45+[150,155,165][i]*.55*(ph=="night"?.35:1)));
- const tint={night:"#a4a2d4",dawn:"#ffe6d0",dusk:"#ffd8bc",day:"#ffffff"}[ph];sk.style.background=cloudy&&ph=="day"?"#ecebf0":tint;$("lamp").style.opacity=ph=="night"?.8:ph=="dusk"?.35:0;
- const frac=cl((h-sr)/Math.max(1,ss-sr),0,1);
- [1,2].forEach(n=>{const w=$("win"+n),e=$("sun"+n);if(!w||!e)return;w.style.background=hex(skyC);w.classList.toggle("rain",rain&&!snow);w.classList.toggle("storm",storm);w.classList.toggle("snow",snow);w.classList.toggle("fog",fog);w.classList.toggle("cloudy",cloudy);
-  const night=ph=="night";e.style.display=cloudy&&!night?"none":"";e.style.background=night?"#f5efe0":ph=="day"?"#ffe84a":"#ffb347";e.style.boxShadow=night?"inset -3px 0 0 #c8c0a8":"none";
-  e.style.left=(night?32:Math.round(4+frac*32))+"px";e.style.top=(night?4:Math.round(22-Math.sin(frac*Math.PI)*18))+"px"});
+function wxState(){const h=realH(),sr=WX.ok&&WX.sr!=null?WX.sr:6,ss=WX.ok&&WX.ss!=null?WX.ss:18;let ph=h<sr-.6||h>ss+.6?"night":h<sr+.8?"dawn":h>ss-.8?"dusk":"day";
+ let w="sun";if(WX.ok){const c=WX.code;w=c>=95?"storm":isSnow(c)?"snow":isRain(c)?"rain":isFog(c)?"fog":WX.cloud>=70||c==3?"cloud":WX.cloud>=30||c==2?"few":"sun"}
+ const f=CFG.wxForce||"auto";if(f!="auto"){({sol:()=>{w="sun";ph="day"},nublado:()=>{w="cloud";ph="day"},chuva:()=>{w="rain";ph="day"},tempestade:()=>{w="storm";ph="day"},estrelada:()=>{w="sun";ph="night"},noitechuva:()=>{w="rain";ph="night"},entardecer:()=>{w="few";ph="dusk"}})[f]()}
+ return{ph,w,frac:cl((h-sr)/Math.max(1,ss-sr),0,1)}}
+function updateSky(){const sk=$("sky");if(!sk)return;const{ph,w,frac}=wxState(),night=ph=="night";
+ const grey=["cloud","rain","storm","fog","snow"].includes(w);
+ let skyC={night:[22,24,58],dawn:[250,176,128],dusk:[240,138,92],day:[118,192,244]}[ph];if(grey)skyC=night?[38,40,52]:skyC.map((v,i)=>Math.round(v*.35+[156,162,172][i]*.65));if(w=="storm")skyC=skyC.map(v=>v*.7);
+ sk.style.background=grey&&!night?"#e6e6ee":{night:"#a4a2d4",dawn:"#ffe6d0",dusk:"#ffd8bc",day:"#ffffff"}[ph];$("lamp").style.opacity=night?.8:ph=="dusk"||w=="storm"?.4:0;
+ [1,2].forEach(n=>{const el=$("win"+n),e=$("sun"+n);if(!el||!e)return;el.style.background=hex(skyC);
+  const cls={night,starry:night&&!grey,rain:w=="rain"||w=="storm",storm:w=="storm",snow:w=="snow",fog:w=="fog",cloudy:grey,few:w=="few"};Object.entries(cls).forEach(([k,v])=>el.classList.toggle(k,!!v));
+  const W2=el.clientWidth,H2=el.clientHeight;e.style.display=grey?"none":"";e.style.background=night?"#f5efe0":ph=="day"?"#ffe84a":"#ffb347";e.style.boxShadow=night?"inset -3px 0 0 #c8c0a8":ph=="day"?"0 0 0 2px #fff6a0":"none";
+  e.style.left=(night?W2-16:Math.round(4+frac*(W2-14)))+"px";e.style.top=(night?5:Math.round(H2*.62-Math.sin(frac*Math.PI)*H2*.5))+"px"});
  const t=$("wxtag");if(t){if(WX.ok){t.textContent=WX.temp+"°";t.style.display=""}else t.style.display="none"}}
 function settings(back){const sl=(id,lab,v)=>`<div style="display:flex;align-items:center;gap:8px;margin:8px 0;text-align:left"><span style="width:80px">${lab}</span><input type="range" id="${id}" min="0" max="100" value="${v}" style="flex:1;accent-color:#3ca55c"><b id="${id}v" style="width:34px">${v}</b></div>`;
 const tg=(id,lab,on,desc)=>`<div class="cg" style="cursor:pointer" id="${id}"><span class="big-sw" style="width:26px;height:26px;background:${on?"#3ca55c":"#c9b99a"}"></span><div style="flex:1"><b>${lab}: ${on?"LIGADO":"DESLIGADO"}</b><br><span style="font-size:.72rem">${desc}</span></div></div>`;
 openModal(`<h2>AJUSTES</h2>${sl("smus","Música",CFG.mus)}${sl("ssfx","Efeitos",CFG.sfx)}
 ${tg("svib","Vibração",CFG.vib,"Vibra o celular ao cruzar, entregar e descobrir")}
 ${tg("szen","Modo Zen",CFG.zen,"Sem relógio e sem pressa: o dia não acaba e os clientes esperam pra sempre")}${tg("swx","Clima real na janela",!!CFG.wx,"Mostra o tempo da sua cidade e avisa sobre tempo perigoso")}
+<div style="text-align:left;margin:8px 0"><b>Ver clima na janela:</b><div class="flt" style="border:2px solid #2a1a12;margin-top:4px;flex-wrap:wrap">${[["auto","Automático"],["sol","Sol"],["nublado","Nublado"],["chuva","Chuva"],["tempestade","Tempestade"],["entardecer","Entardecer"],["estrelada","Noite estrelada"],["noitechuva","Noite chuvosa"]].map(([k,l])=>`<span class="${(CFG.wxForce||"auto")==k?"on":""}" onclick="CFG.wxForce='${k}';saveCfg();updateSky();settings()">${l}</span>`).join("")}</div></div>
 <button class="big alt" id="stut">REVER TUTORIAL</button><br><button class="big alt" id="sexp">EXPORTAR PROGRESSO</button><button class="big alt" id="simp">IMPORTAR</button><br><button class="big" id="cl">PRONTO</button>`);
 ["smus","ssfx"].forEach(id=>{$(id).oninput=e=>{const v=+e.target.value;$(id+"v").textContent=v;if(id=="smus")CFG.mus=v;else{CFG.sfx=v;SFX.coin()}saveCfg()}});
 $("svib").onclick=()=>{CFG.vib=!CFG.vib;saveCfg();buzz(40);settings(back)};$("szen").onclick=()=>{CFG.zen=!CFG.zen;saveCfg();hud();renderCounter();settings(back)};$("swx").onclick=()=>{if(CFG.wx){CFG.wx=false;WX.ok=false;saveCfg();updateSky();settings(back)}else{delete CFG.wx;saveCfg();closeModal();askWeather(()=>settings(back))}};
