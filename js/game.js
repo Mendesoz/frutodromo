@@ -252,7 +252,8 @@ function migrate(){S.tree=S.tree||{};if((S.v||1)<2){[...S.fruits,...(S.pot||[])]
 try{S=normState(JSON.parse(localStorage.getItem("frutodromo9")))}catch(e){S=null}if(!S)fresh();
 // salvar: agrupa vários pedidos seguidos num só (800 ms); fechar/trocar de aba grava na hora; avisa uma vez se o espaço acabar
 let saveTimer=null,saveWarned=false;
-const saveNow=()=>{clearTimeout(saveTimer);saveTimer=null;try{localStorage.setItem("frutodromo9",JSON.stringify(S))}catch(e){if(!saveWarned&&typeof toast=="function"){saveWarned=true;toast("<b>Não deu pra salvar!</b> O espaço do navegador encheu.<br>Em Ajustes → EXPORTAR PROGRESSO guarde um backup.")}}};
+const cgData=()=>{try{return typeof PORTAL!="undefined"&&PORTAL.ready&&PORTAL.data?PORTAL.sdk.data:null}catch(e){return null}};
+const saveNow=()=>{clearTimeout(saveTimer);saveTimer=null;const js=JSON.stringify(S),d=cgData();if(d){try{d.setItem("frutodromo9",js);return}catch(e){}}try{localStorage.setItem("frutodromo9",js)}catch(e){if(!saveWarned&&typeof toast=="function"){saveWarned=true;toast("<b>Não deu pra salvar!</b> O espaço do navegador encheu.<br>Em Ajustes → EXPORTAR PROGRESSO guarde um backup.")}}};
 const save=()=>{if(!saveTimer)saveTimer=setTimeout(saveNow,800)};
 /* ================= genética ================= */
 function portmanteau(a,b){if(a==b)return a;const n=a.slice(0,Math.max(2,Math.ceil(a.length/2)))+b.slice(Math.floor(b.length/2)).toLowerCase();return n.replace(/([a-zà-ú])\1/gi,"$1")}
@@ -648,8 +649,9 @@ try{if(navigator.audioSession)navigator.audioSession.type="playback"}catch(e){}
 ["touchend","click","keydown"].forEach(ev=>document.addEventListener(ev,unlockAudio,{capture:true,passive:true}));
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&AC&&AC.state!="running"){unlockAudio.ok=0;AC.resume().catch(()=>{})}});
 const RM=matchMedia("(prefers-reduced-motion: reduce)");
-function ac(){try{if(!AC)AC=new(window.AudioContext||window.webkitAudioContext)();if(AC.state!="running")AC.resume().catch(()=>{})}catch(e){}return AC}
-function tone(f,d,type="square",vol=.05,when=0,slide=0,music,dest){if(muted||!AC)return;vol*=(music?CFG.mus:CFG.sfx)/100*(music?1.4:1.2);if(vol<=0.0002)return;try{const a=AC,t=a.currentTime+when,o=a.createOscillator(),g=a.createGain();o.type=type;o.frequency.setValueAtTime(f,t);if(slide)o.frequency.linearRampToValueAtTime(Math.max(30,f+slide),t+d);
+function ac(){try{if(!AC)AC=new(window.AudioContext||window.webkitAudioContext)();if(AC.state!="running"&&!CGMUTE)AC.resume().catch(()=>{})}catch(e){}return AC}
+var CGMUTE=false;// som desligado pelo CrazyGames (tem prioridade sobre o botão de som do jogo)
+function tone(f,d,type="square",vol=.05,when=0,slide=0,music,dest){if(muted||CGMUTE||!AC)return;vol*=(music?CFG.mus:CFG.sfx)/100*(music?1.4:1.2);if(vol<=0.0002)return;try{const a=AC,t=a.currentTime+when,o=a.createOscillator(),g=a.createGain();o.type=type;o.frequency.setValueAtTime(f,t);if(slide)o.frequency.linearRampToValueAtTime(Math.max(30,f+slide),t+d);
 if(dest){g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+.04)}else g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(dest||a.destination);o.start(t);o.stop(t+d+.03)}catch(e){}}
 const SFX={plop:()=>tone(330,.14,"square",.06,0,-180),brew:()=>{for(let i=0;i<8;i++)tone(180+Math.random()*320,.08,"triangle",.06,i*.12)},pop:()=>{tone(523,.08);tone(784,.14,"square",.05,.08)},
 coin:()=>{tone(988,.05,"square",.035);tone(1319,.1,"square",.035,.05)},bad:()=>tone(150,.28,"sawtooth",.05,0,-40),lvl:()=>[523,659,784,1047].forEach((f,i)=>tone(f,.13,"square",.05,i*.1)),
@@ -665,10 +667,10 @@ const MEL=[523,0,659,0,784,659,523,0,587,0,698,0,880,698,587,0,523,0,659,784,880
 /* ---- som ambiente (chuva e trovão) e trilha lo-fi, tudo gerado no navegador ---- */
 const AMB={g:null,lp:null,key:""};let NOISE=null;
 function noiseBuf(){if(NOISE)return NOISE;const a=AC,b=a.createBuffer(1,a.sampleRate*3,a.sampleRate),d=b.getChannelData(0);let br=0;for(let i=0;i<d.length;i++){const w=Math.random()*2-1;br=(br+.02*w)/1.02;d[i]=w*.5+br*2.5}return NOISE=b}
-function ambSet(lv){if(!AC||AC.state!="running")return;const on=lv>0&&!muted&&CFG.amb!==false&&!document.hidden,vol=on?[0,.016,.028,.045][lv]*CFG.sfx/100:0;
+function ambSet(lv){if(!AC||AC.state!="running")return;const on=lv>0&&!muted&&!CGMUTE&&CFG.amb!==false&&!document.hidden,vol=on?[0,.016,.028,.045][lv]*CFG.sfx/100:0;
  if(!AMB.g){if(!on)return;const a=AC,src=a.createBufferSource();src.buffer=noiseBuf();src.loop=true;const hp=a.createBiquadFilter();hp.type="highpass";hp.frequency.value=350;const lp=a.createBiquadFilter();lp.type="lowpass";const g=a.createGain();g.gain.value=0;src.connect(hp);hp.connect(lp);lp.connect(g);g.connect(a.destination);src.start();AMB.g=g;AMB.lp=lp}
  const key=vol.toFixed(3)+"|"+lv;if(key==AMB.key)return;AMB.key=key;const t=AC.currentTime;AMB.g.gain.cancelScheduledValues(t);AMB.g.gain.setTargetAtTime(vol,t,.7);AMB.lp.frequency.setTargetAtTime([1200,1300,2200,3400][lv],t,.5)}
-function ambThunder(){if(!AC||AC.state!="running"||muted||CFG.amb===false)return;const a=AC,t=a.currentTime,src=a.createBufferSource();src.buffer=noiseBuf();const lp=a.createBiquadFilter();lp.type="lowpass";lp.frequency.value=160;const g=a.createGain(),v=.22*CFG.sfx/100;
+function ambThunder(){if(!AC||AC.state!="running"||muted||CGMUTE||CFG.amb===false)return;const a=AC,t=a.currentTime,src=a.createBufferSource();src.buffer=noiseBuf();const lp=a.createBiquadFilter();lp.type="lowpass";lp.frequency.value=160;const g=a.createGain(),v=.22*CFG.sfx/100;
  g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+.12);g.gain.exponentialRampToValueAtTime(v*.45,t+.7);g.gain.exponentialRampToValueAtTime(.0001,t+2.8);src.connect(lp);lp.connect(g);g.connect(a.destination);src.start(t);src.stop(t+3)}
 // lo-fi: acordes de sétima suaves, baixo, notas soltas com swing e um chiado de vinil, num filtro abafado
 const LOFI={ch:[[349,440,523,659],[330,392,494,587],[294,349,440,523],[262,330,392,494]],bs:[87,82,73,65]};let lstep=0,LBUS=null;
@@ -676,7 +678,7 @@ const lofiOn=()=>{const st=CFG.musStyle||"auto";return st=="lofi"||(st=="auto"&&
 function lofiBus(){if(!LBUS){LBUS=AC.createBiquadFilter();LBUS.type="lowpass";LBUS.frequency.value=1400;LBUS.Q.value=.6;LBUS.connect(AC.destination)}return LBUS}
 // ocarina: seno puro com vibrato leve e um sopro curto no começo de cada nota; melodia original (Ré menor pentatônica)
 const OCA=[[0,880,2],[2,1047,2],[4,880,1],[5,784,1],[6,698,2],[8,587,3],[11,698,1],[12,784,2],[14,880,2],[16,1047,2],[18,880,2],[20,784,2],[22,698,1],[23,784,1],[24,880,6]];
-function ocarina(f,d,when){if(muted||!AC)return;const a=AC,t=a.currentTime+when,B=lofiBus(),v=.032*CFG.mus/100*1.4;if(v<=.0002)return;try{
+function ocarina(f,d,when){if(muted||CGMUTE||!AC)return;const a=AC,t=a.currentTime+when,B=lofiBus(),v=.032*CFG.mus/100*1.4;if(v<=.0002)return;try{
  const o=a.createOscillator(),g=a.createGain(),lfo=a.createOscillator(),lg=a.createGain();o.type="sine";o.frequency.value=f;lfo.frequency.value=5.2;lg.gain.setValueAtTime(0,t);lg.gain.linearRampToValueAtTime(f*.007,t+.25);lfo.connect(lg);lg.connect(o.frequency);
  g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+.07);g.gain.setValueAtTime(v,t+Math.max(.08,d-.15));g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(B);
  const n=a.createBufferSource(),bp=a.createBiquadFilter(),ng=a.createGain();n.buffer=noiseBuf();bp.type="bandpass";bp.frequency.value=f*2;bp.Q.value=2.5;ng.gain.setValueAtTime(v*.3,t);ng.gain.exponentialRampToValueAtTime(.0001,t+.1);n.connect(bp);bp.connect(ng);ng.connect(B);
@@ -786,14 +788,22 @@ $("nextd").onclick=()=>{S.day++;S.dayT=0;S.ds={earn:0,served:0,best:0,dex:0};sav
    Só liga quando a página foi gerada para um portal (window.PORTAL_NAME, ver tools/build_portal.py).
    No GitHub e no artifact nada disso roda e o jogo fica igual. Sem SDK, com bloqueador de anúncio
    ou se o anúncio falhar, o jogo continua normalmente. */
-const PORTAL={name:window.PORTAL_NAME||null,sdk:null,ready:false,playing:false,ad:false};
+const PORTAL={name:window.PORTAL_NAME||null,sdk:null,ready:false,playing:false,ad:false,data:false};
 async function portalInit(){if(PORTAL.name!="crazygames"||!window.CrazyGames||!window.CrazyGames.SDK)return;
- try{await window.CrazyGames.SDK.init();PORTAL.sdk=window.CrazyGames.SDK;PORTAL.ready=true;try{PORTAL.sdk.game.loadingStop()}catch(e){}}catch(e){PORTAL.ready=false}}
+ try{await window.CrazyGames.SDK.init();PORTAL.sdk=window.CrazyGames.SDK;PORTAL.ready=true;try{PORTAL.sdk.game.loadingStop()}catch(e){}}catch(e){PORTAL.ready=false;return}
+ // mudo pelo site do CrazyGames
+ const applyMute=st=>{CGMUTE=!!(st&&st.muteAudio);if(!AC)return;if(CGMUTE){try{updateSky()}catch(e){}AC.suspend().catch(()=>{})}else if(!muted&&!PORTAL.ad&&!document.hidden){AC.resume().catch(()=>{});try{updateSky()}catch(e){}}};
+ try{applyMute(PORTAL.sdk.game.settings);PORTAL.sdk.game.addSettingsChangeListener(applyMute)}catch(e){}
+ // progresso pelo Data Module (sincroniza com a conta; visitante fica no próprio aparelho)
+ try{const d=PORTAL.sdk.data;if(d&&typeof d.getItem=="function"){const raw=d.getItem("frutodromo9");PORTAL.data=true;
+  const n=raw?normState(JSON.parse(raw)):null;
+  if(n){S=n;migrate();if(!S.bag)S.bag=[{t:"grow"},{t:"shrink"}];S.bag=S.bag.filter(x=>ITEMS[x.t]);S.pot=[];S.fruits.forEach(f=>{clampPos(f);treeAdd(f,null,true)});running=false;renderAll();placePot()}
+  else saveNow()}}catch(e){PORTAL.data=false}}
 const portalCall=fn=>{if(!PORTAL.ready)return;try{fn(PORTAL.sdk)}catch(e){}};
 function portalPlaying(on){if(on==PORTAL.playing)return;PORTAL.playing=on;portalCall(s=>on?s.game.gameplayStart():s.game.gameplayStop())}
 const portalHappy=()=>portalCall(s=>s.game.happytime());
 // durante o anúncio: som desligado e jogo parado (modalOpen congela o tempo dos clientes)
-function adMute(on){PORTAL.ad=on;if(!AC)return;if(on)AC.suspend().catch(()=>{});else if(!muted&&!document.hidden)AC.resume().catch(()=>{})}
+function adMute(on){PORTAL.ad=on;if(!AC)return;if(on)AC.suspend().catch(()=>{});else if(!muted&&!CGMUTE&&!document.hidden)AC.resume().catch(()=>{})}
 function portalAd(type,ok,fail){if(!PORTAL.ready){(type=="rewarded"?fail:ok)&&(type=="rewarded"?fail:ok)();return}
  const was=modalOpen;modalOpen=true;portalPlaying(false);
  PORTAL.sdk.ad.requestAd(type,{adStarted:()=>adMute(true),adFinished:()=>{adMute(false);modalOpen=was||$("modal").classList.contains("on");ok&&ok()},adError:()=>{adMute(false);modalOpen=was||$("modal").classList.contains("on");fail?fail():ok&&ok()}})}
@@ -955,4 +965,4 @@ if("serviceWorker" in navigator&&location.hostname.endsWith("github.io"))navigat
 delete S.ess;delete S.sk;S.tree=S.tree||{};
 migrate();if(!S.bag)S.bag=[{t:"grow"},{t:"shrink"}];S.bag=S.bag.filter(x=>ITEMS[x.t]);S.fruits.forEach(f=>{clampPos(f);treeAdd(f,null,true)});renderProps();renderAll();placePot();fetchWX();
 // nos portais o jogador cai direto na partida (exigência do CrazyGames); o menu ≡ continua abrindo a tela inicial
-if(PORTAL.name)startDay();else startScreen();portalInit();
+if(PORTAL.name)Promise.race([portalInit(),new Promise(r=>setTimeout(r,5000))]).then(()=>{if(!running&&!modalOpen)startDay()});else{startScreen();portalInit()}

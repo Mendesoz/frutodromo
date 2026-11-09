@@ -6,11 +6,17 @@ Atenção: o CrazyGames recusa jogo com "conteúdo voltado para crianças". Por 
 
 ## Campos do formulário
 
-- **Título:** Frutódromo
+Etapa Upload:
+- **Game name:** Frutódromo (igual ao título dentro do jogo)
+- **Game engine:** HTML5
+- **Does your game save progress?** Yes, using the Data Module from the CrazyGames SDK
+- **Game options:** marcar "supports mobile devices" e "supports CrazyGames muting audio through SDK"; não marcar multiplayer
+- **Arquivo:** frutodromo-crazygames.zip
+
+Etapa Details:
 - **Gênero:** Casual (alternativas: Merge, Simulation)
 - **Tags sugeridas:** crafting, pixel, collection, shop, relaxing, cozy, management
 - **Entradas:** Mouse, Touch
-- **Modo:** Singleplayer
 - **Orientação:** funciona em paisagem e retrato
 
 ## English
