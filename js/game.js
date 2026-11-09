@@ -603,7 +603,15 @@ d.animate([{transform:"translate(0,0)"},{transform:`translate(${(Math.random()-.
 if(i==k-1&&!done){done=true;coinFly=Math.max(0,coinFly-total);showCoins();const tg=$("cointag");tg.classList.remove("bump");void tg.offsetWidth;tg.classList.add("bump");save();renderMarket()}}},i*60)}
 /* ================= som (chiptune) ================= */
 let AC=null,muted=false;try{muted=localStorage.getItem("frutodromo_mute")=="1"}catch(e){}
-function unlockAudio(){const a=ac();if(!a||unlockAudio.ok)return;try{const b=a.createBuffer(1,1,22050),src=a.createBufferSource();src.buffer=b;src.connect(a.destination);src.start(0)}catch(e){}
+// iPhone/iPad (inclusive dentro do app e de iframes): com a chave do silencioso ligada o Web Audio fica mudo.
+// Tocar um <audio> silencioso em loop, iniciado num toque, muda a sessão de áudio pra "reprodução" e libera o som.
+function silentWav(){const n=800,b=new ArrayBuffer(44+n),v=new DataView(b),w=(o,t)=>[...t].forEach((c,i)=>v.setUint8(o+i,c.charCodeAt(0)));
+ w(0,"RIFF");v.setUint32(4,36+n,true);w(8,"WAVE");w(12,"fmt ");v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,8000,true);v.setUint32(28,8000,true);v.setUint16(32,1,true);v.setUint16(34,8,true);w(36,"data");v.setUint32(40,n,true);for(let i=0;i<n;i++)v.setUint8(44+i,128);
+ return URL.createObjectURL(new Blob([b],{type:"audio/wav"}))}
+let silentEl=null;function keepAudioSession(){try{if(!silentEl){silentEl=document.createElement("audio");silentEl.src=silentWav();silentEl.loop=true;silentEl.setAttribute("playsinline","");silentEl.setAttribute("x-webkit-airplay","deny");silentEl.preload="auto"}
+ if(silentEl.paused&&!document.hidden){const pr=silentEl.play();if(pr&&pr.catch)pr.catch(()=>{})}}catch(e){}}
+document.addEventListener("visibilitychange",()=>{if(document.hidden&&silentEl)silentEl.pause()});
+function unlockAudio(){if(!muted)keepAudioSession();const a=ac();if(!a||unlockAudio.ok)return;try{const b=a.createBuffer(1,1,22050),src=a.createBufferSource();src.buffer=b;src.connect(a.destination);src.start(0)}catch(e){}
  if(a.state=="running")unlockAudio.ok=1;else a.resume().then(()=>{unlockAudio.ok=1}).catch(()=>{})}
 try{if(navigator.audioSession)navigator.audioSession.type="playback"}catch(e){}
 ["touchend","click","keydown"].forEach(ev=>document.addEventListener(ev,unlockAudio,{capture:true,passive:true}));
@@ -624,7 +632,7 @@ close:()=>[988,784,587].forEach((f,i)=>tone(f,.05,"square",.03,i*.035)),fire:()=
 const MEL=[523,0,659,0,784,659,523,0,587,0,698,0,880,698,587,0,523,0,659,784,880,0,784,659,587,523,0,587,659,0,0,0],BAS=[131,131,196,196,175,175,147,196];let step=0;
 setInterval(()=>{if(muted||!running||modalOpen||!AC)return;const n=MEL[step%MEL.length];if(n)tone(n,.16,"square",.014,0,0,1);if(step%4==0)tone(BAS[(step/4|0)%BAS.length],.32,"triangle",.04,0,0,1);step++},190);
 function sndLabel(){const b=$("sndb");if(b)b.textContent=muted?"SOM: DESLIGADO":"SOM: LIGADO"}
-function toggleSnd(){muted=!muted;try{localStorage.setItem("frutodromo_mute",muted?"1":"0")}catch(e){}ac();sndLabel()}
+function toggleSnd(){muted=!muted;try{localStorage.setItem("frutodromo_mute",muted?"1":"0")}catch(e){}ac();if(muted){if(silentEl)silentEl.pause()}else keepAudioSession();sndLabel()}
 /* ================= dias ================= */
 const fmt=ms=>{const s=Math.max(0,Math.ceil(ms/1000));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")};
 function drawClock(){const im=$("clockimg");if(!im)return;const[c,g]=cvs(18,18),d=new Date(),h=d.getHours()%12+d.getMinutes()/60,m=d.getMinutes();
