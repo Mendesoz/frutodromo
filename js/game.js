@@ -33,11 +33,17 @@ stem:[[-3,10,"s"],[-2,9,"s"],[-1,9,"s"],[-2,11,"g"],[-3,11,"g"],[-3,12,"g"]],
 crown:[[-5,9,"g"],[-4,6,"g"],[-4,9,"G"],[-4,12,"g"],[-3,6,"G"],[-3,7,"g"],[-3,9,"g"],[-3,11,"g"],[-3,12,"G"],[-2,7,"g"],[-2,8,"G"],[-2,9,"g"],[-2,10,"G"],[-2,11,"g"],[-1,7,"G"],[-1,8,"g"],[-1,9,"g"],[-1,10,"g"],[-1,11,"G"]],none:[]};
 const TCOL={g:"#5fb33a",G:"#2f7a2a",s:"#6b4423"};
 const cache={};
-function maskGrid(f){if(f.mask)return [...f.mask].map(Number);const m=MASK[f.shape],o=[];for(let y=0;y<W;y++)for(let x=0;x<W;x++)o.push(m(x,y)?1:0);return o}
+// máscara de formato guardada compacta: "~" + base64 dos bits (antes eram 324 dígitos por fruta)
+const packMask=m=>{if(!m||m[0]=="~")return m;const t=Array.isArray(m)?m.join(""):m;let bin="";for(let i=0;i<t.length;i+=8){let b=0;for(let j=0;j<8;j++)b=b*2+(t[i+j]=="1"?1:0);bin+=String.fromCharCode(b)}return "~"+btoa(bin)};
+const unpackMask=m=>{if(m[0]!="~")return m;const bin=atob(m.slice(1));let t="";for(let i=0;i<bin.length;i++)t+=bin.charCodeAt(i).toString(2).padStart(8,"0");return t.slice(0,W*W)};
+// DNA: código de 5 caracteres tirado de tudo que a fruta tem (formato, estampa, cores, sabor, tamanho, poder, capa, brilho)
+const q8=c=>c?c.map(v=>Math.round(v/8)).join("."):"";
+function dnaCode(f){const t=[f.mask||f.shape,f.pat,f.top,f.tip||"",q8(f.rgb),q8(f.rgb2),f.doce,f.az,f.tam,f.el||"",f.hero?f.cape||1:0,f.shiny?1:0].join("|");let h=2166136261;for(let i=0;i<t.length;i++){h^=t.charCodeAt(i);h=Math.imul(h,16777619)}return (h>>>0).toString(36).toUpperCase().padStart(7,"0").slice(-5)}
+function maskGrid(f){if(f.mask)return [...unpackMask(f.mask)].map(Number);const m=MASK[f.shape],o=[];for(let y=0;y<W;y++)for(let x=0;x<W;x++)o.push(m(x,y)?1:0);return o}
 function blurG(g){const o=new Array(W*W).fill(0);for(let y=0;y<W;y++)for(let x=0;x<W;x++){let s=0,n=0;for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const X=x+dx,Y=y+dy;if(X>=0&&Y>=0&&X<W&&Y<W){s+=g[Y*W+X];n++}}o[y*W+x]=s/n}return o}
 // funde os formatos dos pais: borra os dois, tira a média e corta
 function morph(a,b){let A=blurG(blurG(maskGrid(a))),B=blurG(blurG(maskGrid(b)));const o=A.map((v,i)=>(v+B[i])/2>=.45?1:0);
-for(let y=0;y<W;y++)for(let x=0;x<W;x++)if(x==0||y==0||x==W-1||y==W-1)o[y*W+x]=0;if(o.reduce((s,v)=>s+v,0)<20)return maskGrid(a).join("");return o.join("")}
+for(let y=0;y<W;y++)for(let x=0;x<W;x++)if(x==0||y==0||x==W-1||y==W-1)o[y*W+x]=0;if(o.reduce((s,v)=>s+v,0)<20)return packMask(maskGrid(a).join(""));return packMask(o.join(""))}
 function fruitImg(f){const key=[f.mask||f.shape,f.tip||"",f.pat,f.top,f.rgb.map(Math.round).join("."),f.rgb2?f.rgb2.join("."):"",f.hero?f.cape||1:0].join("|");if(cache[key])return cache[key];
 const MG=maskGrid(f),m=(x,y)=>x>=0&&y>=0&&x<W&&y<W&&MG[y*W+x]==1,grid=blank(W,W),base=f.rgb,L=hex(lift(base,.45)),B=hex(base),D=hex(mul(base,.7)),D2=hex(mul(base,.5));
 let minx=99,miny=99,maxx=0,maxy=0;for(let y=0;y<W;y++)for(let x=0;x<W;x++)if(m(x,y)){minx=Math.min(minx,x);miny=Math.min(miny,y);maxx=Math.max(maxx,x);maxy=Math.max(maxy,y)}
@@ -229,20 +235,25 @@ const saveCfg=()=>{try{localStorage.setItem("frutodromo_cfg",JSON.stringify(CFG)
 function level(){return 1+Math.floor(S.delivered/3)}
 const now=()=>S.clock;
 function baseFruit(b){const c=typeof b[4]=="string"?COLORS[b[4]].slice():b[4].slice();return{id:"f"+(S.id++),tip:b[0]=="Banana"?"#6b4423":b[0]=="Pimenta-Dragão"?"#3f9a3a":null,root:b[0].split(/[ -]/)[0],shape:b[1],pat:b[2],top:b[3],rgb:c,doce:b[5],az:b[6],tam:b[7],gen:0,mut:false,el:b[10]||null,hero:false,base:b[0]}}
-function fresh(){S={bag:[{t:"grow"},{t:"shrink"}],potPos:null,coins:25,delivered:0,id:1,fruits:[],pot:[],cust:[null,null,null],clock:0,day:1,dayT:0,ds:{earn:0,served:0,best:0,dex:0},dex:{},tree:{},started:false};
+function fresh(){S={v:2,bag:[{t:"grow"},{t:"shrink"}],potPos:null,coins:25,delivered:0,id:1,fruits:[],pot:[],cust:[null,null,null],clock:0,day:1,dayT:0,ds:{earn:0,served:0,best:0,dex:0},dex:{},tree:{},started:false};
 [0,1,2,4,5,6].forEach((bi,i)=>{const f=baseFruit(BASE[bi]);f.x=14+(i%3)*104;f.y=12+Math.floor(i/3)*92;S.fruits.push(f)})}
 // Confere um progresso vindo do save ou de um backup e completa o que faltar. Retorna null se não der pra usar.
 function normState(d,strict){const okF=f=>f&&typeof f=="object"&&typeof f.id=="string"&&Array.isArray(f.rgb)&&f.rgb.length==3&&["tam","doce","az"].every(k=>typeof f[k]=="number"&&isFinite(f[k]));
  if(!d||typeof d!="object"||!Array.isArray(d.fruits)||!d.tree||typeof d.tree!="object"||Array.isArray(d.tree))return null;
  if(strict&&!(["coins","delivered","day","dayT"].every(k=>typeof d[k]=="number"&&isFinite(d[k]))&&Array.isArray(d.cust)))return null;
  const keep=S;fresh();const b=S;S=keep;const num=(v,def,min)=>typeof v=="number"&&isFinite(v)&&(min==null||v>=min)?v:def,obj=(v,def)=>v&&typeof v=="object"&&!Array.isArray(v)?v:def;
- const o={...b,...d,coins:num(d.coins,b.coins,0),delivered:num(d.delivered,0,0),id:num(d.id,1,1),clock:num(d.clock,0,0),day:num(d.day,1,1),dayT:num(d.dayT,0,0),
+ const o={...b,...d,v:typeof d.v=="number"?d.v:1,coins:num(d.coins,b.coins,0),delivered:num(d.delivered,0,0),id:num(d.id,1,1),clock:num(d.clock,0,0),day:num(d.day,1,1),dayT:num(d.dayT,0,0),
   fruits:d.fruits.filter(okF),pot:Array.isArray(d.pot)?d.pot.filter(okF):[],ds:{...b.ds,...obj(d.ds,{})},dex:obj(d.dex,{}),tree:d.tree,
   cust:Array.isArray(d.cust)?[0,1,2].map(i=>{const c=d.cust[i];return c&&typeof c=="object"&&Array.isArray(c.reqs)&&typeof c.name=="string"?c:null}):[null,null,null],
   bag:Array.isArray(d.bag)?d.bag.filter(x=>x&&typeof x.t=="string"):b.bag};
  const mx=Math.max(0,...o.fruits.concat(o.pot).map(f=>parseInt(f.id.slice(1))||0));if(o.id<=mx)o.id=mx+1;return o}
+// saves antigos (v1): máscaras viram compactas e cada espécie ganha sua 1ª variedade com DNA
+function migrate(){S.tree=S.tree||{};if((S.v||1)<2){[...S.fruits,...(S.pot||[])].forEach(f=>{if(f.mask)f.mask=packMask(f.mask)});Object.values(S.tree).forEach(t=>{if(t.img&&t.img.mask)t.img.mask=packMask(t.img.mask);if(!t.v){const st=t.st||{};t.v={[dnaCode({...t.img,doce:st.doce,az:st.az,tam:st.tam,rgb:st.rgb||t.img.rgb,el:st.el,hero:st.hero,shiny:t.shiny})]:{n:1,t:t.t||Date.now()}}}});S.v=2}}
 try{S=normState(JSON.parse(localStorage.getItem("frutodromo9")))}catch(e){S=null}if(!S)fresh();
-const save=()=>{try{localStorage.setItem("frutodromo9",JSON.stringify(S))}catch(e){}};
+// salvar: agrupa vários pedidos seguidos num só (800 ms); fechar/trocar de aba grava na hora; avisa uma vez se o espaço acabar
+let saveTimer=null,saveWarned=false;
+const saveNow=()=>{clearTimeout(saveTimer);saveTimer=null;try{localStorage.setItem("frutodromo9",JSON.stringify(S))}catch(e){if(!saveWarned&&typeof toast=="function"){saveWarned=true;toast("<b>Não deu pra salvar!</b> O espaço do navegador encheu.<br>Em Ajustes → EXPORTAR PROGRESSO guarde um backup.")}}};
+const save=()=>{if(!saveTimer)saveTimer=setTimeout(saveNow,800)};
 /* ================= genética ================= */
 function portmanteau(a,b){if(a==b)return a;const n=a.slice(0,Math.max(2,Math.ceil(a.length/2)))+b.slice(Math.floor(b.length/2)).toLowerCase();return n.replace(/([a-zà-ú])\1/gi,"$1")}
 // regra única: parecidos se intensificam
@@ -265,9 +276,15 @@ const sizeName=t=>t==0?"Microscópica":t==1?"Mini":t<=3?"Pequena":t<=7?"Média":
 const taste=f=>f.doce>=6&&f.az>=6?"agridoce":f.doce>=8?"doce":f.az>=8?"azeda":"suave";
 const spKey=f=>[sizeName(f.tam),colorName(f.rgb),taste(f),f.el||"",f.hero?"S":""].join("|");
 function spLabel(k){const[sz,c,t,el,h]=k.split("|");return (h?"Super · ":"")+sz+" · "+c+" · "+t+(el?" · "+ELEM[el].n:"")}
-function treeAdd(f,parents,silent){S.tree=S.tree||{};const k=spKey(f);f.sp=k;if(S.tree[k]){if(f.shiny&&!S.tree[k].shiny){S.tree[k].shiny=true;S.tree[k].img={...S.tree[k].img,rgb2:f.rgb2,pat:f.pat};if(!silent)setTimeout(()=>reveal(k,true),1000)}return false}
+const imgOf=f=>({shape:f.shape,mask:f.mask,tip:f.tip,pat:f.pat,top:f.top,rgb:f.rgb,rgb2:f.rgb2,hero:f.hero,cape:f.cape,shiny:!!f.shiny});
+const VAR_IMG_MAX=24,varCount=t=>t&&t.v?Object.keys(t.v).length:1,totalVars=()=>Object.values(S.tree||{}).reduce((a,t)=>a+varCount(t),0);
+// variedade: mesma espécie, DNA diferente. A 1ª variedade usa a imagem da espécie; as próximas guardam a própria (até 24 por espécie)
+function addVariety(k,f,silent){const t=S.tree[k],dna=f.dna||(f.dna=dnaCode(f));t.v=t.v||{};if(t.v[dna])return false;const n=Object.keys(t.v).length+1;
+ t.v[dna]=n==1?{n,t:Date.now()}:n<=VAR_IMG_MAX?{n,t:Date.now(),img:imgOf(f)}:{n,t:Date.now()};
+ if(!silent&&n>1){rec("vars",1);setTimeout(()=>{toast(`<b>VARIEDADE NOVA!</b> nº ${n} de ${spLabel(k).split(" · ").slice(0,2).join(" · ")}<br>DNA <b>#${dna}</b>`);SFX.dex()},900)}return true}
+function treeAdd(f,parents,silent){S.tree=S.tree||{};const k=spKey(f);f.sp=k;f.dna=dnaCode(f);if(S.tree[k]){addVariety(k,f,silent);if(f.shiny&&!S.tree[k].shiny){S.tree[k].shiny=true;S.tree[k].img={...S.tree[k].img,rgb2:f.rgb2,pat:f.pat};if(!silent)setTimeout(()=>reveal(k,true),1000)}return false}
 const pk=parents?[...new Set(parents.map(p=>p.sp||spKey(p)))]:[];const d=pk.length?Math.max(...pk.map(x=>(S.tree[x]||{d:0}).d))+1:0;
-S.tree[k]={n:Object.keys(S.tree).length+1,name:f.base||fname(f),d,par:pk,t:Date.now(),img:{shape:f.shape,mask:f.mask,tip:f.tip,pat:f.pat,top:f.top,rgb:f.rgb,rgb2:f.rgb2,hero:f.hero,cape:f.cape},shiny:!!f.shiny,day:S.day,st:{doce:f.doce,az:f.az,tam:f.tam,rgb:f.rgb,el:f.el,hero:f.hero}};
+S.tree[k]={v:{[f.dna]:{n:1,t:Date.now()}},n:Object.keys(S.tree).length+1,name:f.base||fname(f),d,par:pk,t:Date.now(),img:{shape:f.shape,mask:f.mask,tip:f.tip,pat:f.pat,top:f.top,rgb:f.rgb,rgb2:f.rgb2,hero:f.hero,cape:f.cape},shiny:!!f.shiny,day:S.day,st:{doce:f.doce,az:f.az,tam:f.tam,rgb:f.rgb,el:f.el,hero:f.hero}};
 if(!silent){S.ds.dex++;setTimeout(checkAch,0);const t=S.tree[k],n=t.n,st=stars(t);if(st>=3||t.d>=2||t.shiny)setTimeout(()=>reveal(k),1000);else setTimeout(()=>{toast(`<b>NOVA ESPÉCIE nº ${n}!</b><br>${spLabel(k)}`);SFX.dex()},900)}
 else if(f.shiny&&!S.tree[k].shiny){S.tree[k].shiny=true}return true}
 const dexCheck=(f,silent)=>treeAdd(f,null,silent);
@@ -405,7 +422,7 @@ function showInfo(f){clearTimeout(infoT);const p=$("info");if(!f){p.classList.re
 const tw=(v,a,b)=>v>=8?"muito "+a:v>=6?a:v<=2?"nada "+a:v<=4?"pouco "+a:"",st=(l,v,c,w)=>`<div class="st"><span>${l}</span>${cells(i=>i<=v,c)}<b style="white-space:nowrap">${v}${w?` <small style="font-weight:400;opacity:.75">${w}</small>`:""}</b></div>`;
 const tamTxt=f.tam==0?`<div class="st"><span>Tamanho</span><b>MICROSCÓPICA</b></div>`:f.tam>=11?`<div class="st"><span>Tamanho</span>${cells(()=>1,"#3fa7e0")}<b>${f.tam}!</b></div>`:st("Tamanho",f.tam,"#3fa7e0");
 p.innerHTML=`<span class="x" onclick="sel=null;showInfo(null);renderCounter();renderTable()">X</span><img src="${fruitImg(f)}"><div style="flex:1"><div class="t">${fname(f)}</div>
-<div class="g">${f.gen?"Geração "+f.gen:"Da feira"} · cor ${colorName(f.rgb)} · ${sizeName(f.tam)}${f.mut?'<span class="chip" style="background:#7b5cff">MUTANTE</span>':""}${f.el?`<span class="chip" style="background:${ELEM[f.el].c}">${ELEM[f.el].n.toUpperCase()}</span>`:""}${f.hero?'<span class="chip" style="background:#d63031">SUPER</span>':""}${f.shiny?'<span class="chip" style="background:linear-gradient(90deg,#ff8ad8,#ffe84a,#8af0ff);color:#2a1a12">BRILHANTE</span>':""}</div>
+<div class="g">${f.gen?"Geração "+f.gen:"Da feira"} · cor ${colorName(f.rgb)} · ${sizeName(f.tam)} · <b>DNA #${f.dna||dnaCode(f)}</b>${f.mut?'<span class="chip" style="background:#7b5cff">MUTANTE</span>':""}${f.el?`<span class="chip" style="background:${ELEM[f.el].c}">${ELEM[f.el].n.toUpperCase()}</span>`:""}${f.hero?'<span class="chip" style="background:#d63031">SUPER</span>':""}${f.shiny?'<span class="chip" style="background:linear-gradient(90deg,#ff8ad8,#ffe84a,#8af0ff);color:#2a1a12">BRILHANTE</span>':""}</div>
 ${st("Doce",f.doce,"#ff5f9e",tw(f.doce,"doce"))}${st("Azedo",f.az,"#9ccc2e",tw(f.az,"azeda"))}${tamTxt}${S.pot.length==1&&!S.pot.includes(f)?`<div style="font-size:.68rem;margin-top:4px;background:#e4dbff;padding:3px 5px"><b>PREVISÃO</b> com ${fname(S.pot[0])}:<br>${predict(f,S.pot[0])}</div>`:""}</div>`;p.classList.add("on")}
 const POT=(c)=>art(["..kk..","..kk..",".gggg.","gccccg","gcwccg","gccccg",".gggg."],{k:"#8a5a34",g:"#cfe6ee",c,w:"#ffffff"},"#2a1a12");
 const P16=rows=>{rows=rows.map(r=>{const p=16-r.length;return ".".repeat(Math.floor(p/2))+r+".".repeat(Math.ceil(p/2))});while(rows.length<16)rows.length%2?rows.unshift(".".repeat(16)):rows.push(".".repeat(16));return rows};
@@ -596,7 +613,7 @@ function shake(n){if(RM.matches)return;const a=document.body.animate([{transform
 let combo=0,comboT=0;const COMBO_WIN=25000;
 function comboHit(){combo=now()-comboT<COMBO_WIN?combo+1:1;comboT=now();renderCombo();rec("maxCombo",combo,1);return combo}
 function rec(k,v,isMax){S.rec=S.rec||{};if(isMax)S.rec[k]=Math.max(S.rec[k]||0,v);else S.rec[k]=(S.rec[k]||0)+v;checkAch()}
-const ACH=[["cross10","Aprendiz de alquimista","Cruze 10 frutas",()=>S.rec.crosses>=10,10],["cross50","Alquimista","Cruze 50 frutas",()=>S.rec.crosses>=50,30],["cross200","Mestre do caldeirão","Cruze 200 frutas",()=>S.rec.crosses>=200,100],
+const ACH=[["var25","Banco de sementes","Colete 25 variedades",()=>totalVars()>=25,20],["var100","Genética infinita","Colete 100 variedades",()=>totalVars()>=100,60],["cross10","Aprendiz de alquimista","Cruze 10 frutas",()=>S.rec.crosses>=10,10],["cross50","Alquimista","Cruze 50 frutas",()=>S.rec.crosses>=50,30],["cross200","Mestre do caldeirão","Cruze 200 frutas",()=>S.rec.crosses>=200,100],
 ["del10","Quitandeiro","Atenda 10 clientes",()=>S.delivered>=10,10],["del50","Freguesia fiel","Atenda 50 clientes",()=>S.delivered>=50,40],["del200","Lenda da feira","Atenda 200 clientes",()=>S.delivered>=200,120],
 ["sp10","Curioso","Descubra 10 espécies",()=>Object.keys(S.tree||{}).length>=10,15],["sp30","Naturalista","Descubra 30 espécies",()=>Object.keys(S.tree||{}).length>=30,40],["sp100","Árvore infinita","Descubra 100 espécies",()=>Object.keys(S.tree||{}).length>=100,150],
 ["micro","Microscópio","Crie uma fruta Microscópica",()=>spAny(k=>k.startsWith("Microscópica")),20],["giga","Titã","Crie uma fruta Gigantesca",()=>spAny(k=>k.startsWith("Gigantesca")),20],
@@ -740,7 +757,7 @@ $("sexp").onclick=()=>{save();const code="FRUTO1:"+btoa(unescape(encodeURICompon
  $("bkc").onclick=async()=>{try{await navigator.clipboard.writeText(code);toast("Código copiado!")}catch(e){$("bk").select();toast("Selecionei o código. Copie manualmente.")}};$("cl").onclick=()=>settings(back)};
 $("simp").onclick=()=>{openModal(`<h2>IMPORTAR</h2><p style="font-size:.8rem">Cole o código do seu progresso. Isso <b>substitui</b> o jogo atual deste aparelho.</p><textarea id="bk" style="width:100%;height:140px;font-size:.6rem;font-family:monospace"></textarea><button class="big" id="bki">CARREGAR</button><button class="big alt" id="cl">VOLTAR</button>`);
  $("cl").onclick=()=>settings(back);$("bki").onclick=()=>{try{const v=$("bk").value.trim();if(!v.startsWith("FRUTO1:"))throw 0;const d=JSON.parse(decodeURIComponent(escape(atob(v.slice(7)))));const n=normState(d,true);if(!n)throw 0;n.bag=n.bag.filter(x=>ITEMS[x.t]);
-  const old=S;S=n;try{S.fruits.forEach(f=>treeAdd(f,null,true));closeModal();running=false;renderAll();placePot()}catch(err){S=old;renderAll();placePot();throw err}
+  const old=S;S=n;try{migrate();S.fruits.forEach(f=>treeAdd(f,null,true));closeModal();running=false;renderAll();placePot()}catch(err){S=old;renderAll();placePot();throw err}
   save();toast("Progresso carregado!");startScreen()}catch(e){toast("Código inválido. Confira se copiou inteiro. Seu progresso atual não foi alterado.")}}};$("cl").onclick=()=>{closeModal();if(back)back()}}
 const TUT=[["pot","Arraste <b>duas frutas</b> até o <b>caldeirão</b> pra criar uma nova!","t1"],["cust","Agora arraste uma fruta até o <b>cliente</b> que pediu algo parecido. Toque no <b>?</b> do balão se precisar da receita.","t2"],["dexb","Toque numa fruta pra ver os atributos. Na <b>ÁRVORE</b> ficam todas as espécies que você descobriu!","t3"],["market","<b>Segure</b> uma fruta da feira (ou passe o mouse) pra ver doce, azedo e tamanho antes de comprar.","t4"]];
 function tutStep(){S.tut=S.tut||{};const st=TUT.find(t=>!S.tut[t[2]]);const box=$("tut");if(!st||modalOpen||!running){box.classList.remove("on");return}
@@ -841,12 +858,12 @@ f.innerHTML=chip(null,"TODAS")+chip("rare","★3+")+chip("shiny","✦ BRILHANTES
 function openTree(tab,hi){SFX.open();if(S.tut&&S.tut.t2)tutDone("t3");$("tut").classList.remove("on");tvTab=tab||"tree";modalOpen=true;$("tv").classList.add("on");tvHelp=false;$("tvb").scrollTop=0;renderTree(hi);if(tvTab=="tree")setTimeout(()=>{const e=$("tvb").querySelector(".sp.new");if(e&&!hi)e.scrollIntoView({block:"center"});drawFam()},30)}
 function closeTree(){SFX.close();$("tv").classList.remove("on");modalOpen=false;tvSel=null}
 function renderTree(hi){const T=S.tree||{},ks=Object.keys(T);renderFilter();$("tabT").classList.toggle("on",tvTab=="tree");$("tabC").classList.toggle("on",tvTab=="cores");$("tabA").classList.toggle("on",tvTab=="album");$("tabQ").classList.toggle("on",tvTab=="ach");
-$("tvcnt").textContent=tvFilter?`${ks.filter(k=>spMatch(k,tvFilter)).length} de ${ks.length}`:`${ks.length} espécies`;$("tvhelp").style.display=tvTab=="tree"?"":"none";$("tvhelp").classList.toggle("on",tvHelp);$("tvcnt").style.display=tvTab=="tree"||tvTab=="cores"?"":"none";
+$("tvcnt").textContent=tvFilter?`${ks.filter(k=>spMatch(k,tvFilter)).length} de ${ks.length}`:(innerWidth<520?`${ks.length} esp. · ${totalVars()} var.`:`${ks.length} espécies · ${totalVars()} variedades`);$("tvhelp").style.display=tvTab=="tree"?"":"none";$("tvhelp").classList.toggle("on",tvHelp);$("tvcnt").style.display=tvTab=="tree"||tvTab=="cores"?"":"none";
 if(tvTab=="album"){const ord=ks.slice().sort((a,b)=>stars(T[b])-stars(T[a])||(T[b].shiny?1:0)-(T[a].shiny?1:0)||T[a].n-T[b].n);
  $("tvb").innerHTML=`<div class="alb">${ord.map(k=>{const t=T[k],st=stars(t),[rl,rc]=RAR[st];return `<div class="ac ${t.shiny?"shn":""}" style="border-color:${rc}" onclick="showCard('${k}')"><span class="no">${t.n}</span><img src="${fruitImg(t.img)}"><b style="color:${rc}">${"★".repeat(st)}</b><span>${t.d==0?t.name:spLabel(k).split(" · ").slice(0,2).join(" · ")}</span></div>`}).join("")}</div>`;
  $("tvd").innerHTML=`<b>${ks.length} cartas</b> · ${ks.filter(k=>T[k].shiny).length} brilhantes · ${ks.filter(k=>stars(T[k])>=5).length} lendárias. Toque numa carta pra abrir, baixar ou compartilhar.`;return}
 if(tvTab=="ach"){S.rec=S.rec||{};S.ach=S.ach||{};const done=ACH.filter(a=>S.ach[a[0]]).length;
- $("tvb").innerHTML=`<div class="cgw"><div class="recs">${[["Espécies",ks.length],["Clientes atendidos",S.delivered],["Cruzamentos",S.rec.crosses||0],["Brilhantes achadas",S.rec.shiny||0],["Maior combo","x"+(S.rec.maxCombo||0)],["Melhor dia",(S.rec.bestDay||0)+" moedas"],["VIPs atendidos",S.rec.vips||0],["Dias jogados",S.day]].map(([a,b])=>`<div><span>${a}</span><b>${b}</b></div>`).join("")}</div>
+ $("tvb").innerHTML=`<div class="cgw"><div class="recs">${[["Espécies",ks.length],["Variedades",totalVars()],["Clientes atendidos",S.delivered],["Cruzamentos",S.rec.crosses||0],["Brilhantes achadas",S.rec.shiny||0],["Maior combo","x"+(S.rec.maxCombo||0)],["Melhor dia",(S.rec.bestDay||0)+" moedas"],["VIPs atendidos",S.rec.vips||0],["Dias jogados",S.day]].map(([a,b])=>`<div><span>${a}</span><b>${b}</b></div>`).join("")}</div>
  ${ACH.map(([id,n,d,ok,rw])=>`<div class="cg ${S.ach[id]?"hi":""}"><span class="big-sw" style="background:${S.ach[id]?"#f7c331":"#c9b99a"};display:flex;align-items:center;justify-content:center;font-size:1rem">${S.ach[id]?`<img src="${TROPHY()}" style="width:22px;height:22px">`:"?"}</span><div style="flex:1;text-align:left"><b>${n}</b><br><span style="font-size:.74rem">${d}</span></div><span style="font-size:.72rem;font-weight:700">+${rw}</span></div>`).join("")}</div>`;
  $("tvd").innerHTML=`<b>${done} de ${ACH.length} conquistas</b> · cada uma dá moedas de presente.`;return}
 if(tvTab=="cores"){$("tvb").innerHTML=colorGuideHTML(hi);$("tvd").innerHTML="Toque no requisito de COR de um cliente pra abrir direto aqui.";if(hi){const e=$("cg-"+hi);if(e)setTimeout(()=>e.scrollIntoView({block:"center"}),30)}return}
@@ -859,7 +876,7 @@ const newest=ks.slice().sort((a,b)=>T[b].n-T[a].n)[0];tvSugs=tvFilter?[]:suggest
 const lab=k=>T[k].d==0?T[k].name:spLabel(k).split(" · ").slice(0,2).join(" · "),esc=k=>k.replace(/&/g,"&amp;").replace(/"/g,"&quot;");
 const qsel=tvSel&&tvSel[0]=="?"?tvSugs[+tvSel.slice(1)]:null;if(qsel){fam.add(qsel.a);fam.add(qsel.b)}
 const card=k=>{const t=T[k],dim=(sel&&k!=sel&&!fam.has(k))||(qsel&&!fam.has(k));
- return `<div class="sp ${sel==k?"cur":""} ${dim?"dim":""} ${fam.has(k)?"fam":""} ${k==newest&&t.d>0?"new":""}" data-k="${esc(k)}" onclick="tvPick(this.dataset.k)"><span class="no" style="background:${RAR[stars(t)][1]}">${t.n}${t.shiny?"✦":""}</span><div class="ic"><img src="${fruitImg(t.img)}"></div><span class="lb">${lab(k)}</span></div>`};
+ return `<div class="sp ${sel==k?"cur":""} ${dim?"dim":""} ${fam.has(k)?"fam":""} ${k==newest&&t.d>0?"new":""}" data-k="${esc(k)}" onclick="tvPick(this.dataset.k)"><span class="no" style="background:${RAR[stars(t)][1]}">${t.n}${t.shiny?"✦":""}</span><div class="ic"><img src="${fruitImg(t.img)}">${varCount(t)>1?`<span class="vc">×${varCount(t)}</span>`:""}</div><span class="lb">${lab(k)}</span></div>`};
 let h=`<div class="tvw">`;
 Object.keys(gens).map(Number).sort((a,b)=>a-b).forEach(d=>{h+=`<div class="gsec"><div class="gh"><b>${d==0?"FEIRA":d+"ª GERAÇÃO"}</b><span>${gens[d].length}</span></div><div class="gg">${gens[d].sort((a,b)=>T[a].n-T[b].n).map(card).join("")}</div></div>`});
 if(tvSugs.length)h+=`<div class="gsec"><div class="gh"><b>PRÓXIMAS DESCOBERTAS</b><span>toque pra ver a receita</span></div><div class="gg">${tvSugs.map((q,i)=>{const A=T[q.a];return `<div class="sp q ${tvSel=="?"+i?"cur":""} ${sel?"dim":""}" data-k="?${i}" onclick="tvPick(this.dataset.k)"><div class="ic"><img src="${fruitImg({...A.img,rgb:q.c.rgb})}"></div><span class="lb">???</span></div>`}).join("")}</div></div>`;
@@ -872,12 +889,15 @@ if(qsel){det=`<div class="dh"><div class="bigi q"><img src="${fruitImg({...T[qse
 else if(sel){const t=T[sel],kids=ks.filter(k=>T[k].par.includes(sel)).sort((a,b)=>T[a].n-T[b].n),sr=stars(t),[rl,rc]=RAR[sr],my=suggestions(3,sel);
  det=`<div class="dh"><img class="bigi" src="${fruitImg(t.img)}"><div><b>nº ${t.n} · ${t.d==0?t.name:t.d+"ª geração"}</b> <span style="color:${rc};font-weight:700">${"★".repeat(sr)} ${rl}</span>${t.shiny?" ✦":""}<br>${spLabel(sel)}</div><button class="btn x" onclick="tvPick(null)">X</button></div>
  <div class="drow"><span>PAIS</span>${t.par.length?t.par.map(chip).join(""):"<i>Fruta da feira</i>"}</div>
+ <div class="drow"><span>VARIEDADES</span>${varRow(sel)}</div>
  <div class="drow"><span>FILHOS</span>${kids.length?kids.map(chip).join(""):"<i>Ainda nenhum. Cruze ela com outra!</i>"}</div>
  ${my.length?`<div class="drow"><span>TENTE</span>${my.map(q=>{const o=q.a==sel?q.b:q.a;return chip(o)}).join("")}</div>`:""}
  <button class="btn" style="background:#3ca55c;margin-top:4px" onclick="showCard('${esc(sel)}')">VER CARTA</button>`}
 else if(tvHelp)det=`<b>Como funciona a árvore</b><br>Cada combinação nova de <b>tamanho, cor, sabor e poder</b> vira uma espécie. As fileiras mostram de qual geração ela é: a Feira é a geração 0, e cada cruzamento cria a seguinte.<br>Regra: <b>parecidos se intensificam</b> (pequena + pequena encolhe, grande + grande cresce).<br>Toque numa fruta pra ver os pais e os filhos dela. Toque num <b>?</b> pra ver a receita da próxima descoberta.`;
 else det=`Toque numa fruta pra ver <b>de onde ela veio</b> e <b>o que ela já gerou</b>.`;
 $("tvd").innerHTML=det;$("tvd").classList.toggle("open",!!(sel||qsel||tvHelp))}
+function varRow(k){const t=S.tree[k],vs=Object.entries(t.v||{}).sort((a,b)=>a[1].n-b[1].n),shown=vs.filter(([,v])=>v.n==1||v.img);
+ return shown.map(([code,v])=>`<span class="vr" title="DNA #${code}"><img src="${fruitImg(v.img||t.img)}"><b>#${code}</b></span>`).join("")+(vs.length>shown.length?`<i>+${vs.length-shown.length} sem foto</i>`:"")}
 function tvPick(k,jump){tvSel=k&&tvSel!=k?k:(jump?k:null);tvHelp=false;renderTree();if(jump&&k){const e=$("tvb").querySelector(`.sp[data-k="${CSS.escape(k)}"]`);if(e)e.scrollIntoView({block:"center",behavior:"smooth"});setTimeout(drawFam,400)}}
 function drawFam(){const w=document.querySelector("#tvb .tvw"),sv=w&&w.querySelector(".famsvg");if(!sv)return;const T=S.tree||{},pairs=[];
  if(tvSel&&T[tvSel]){T[tvSel].par.forEach(p=>pairs.push([p,tvSel]));Object.keys(T).forEach(k=>{if(T[k].par.includes(tvSel))pairs.push([tvSel,k])})}
@@ -898,12 +918,13 @@ if(running&&!modalOpen){S.clock+=dt;if(!CFG.zen)S.dayT+=dt;if(S.dayT>=dayLen()){
 S.cust.forEach((c,i)=>{if(!c||c.leaving)return;const el=document.querySelector(`.cust[data-i="${i}"]`);if(!el)return;const left=leftOf(c),on=Math.ceil(left*10),pc=left>.5?"#3ce06f":left>.2?"#f4a261":"#e74c3c";
 el.querySelectorAll(".pat i").forEach((x,k)=>x.style.background=k<on?pc:"");const pb=el.querySelector(".pay b");if(pb)pb.textContent=pay(c);
 if((left<.2?"1":"0")!=el.dataset.low&&!document.querySelector(".fr.drag"))renderCounter()});
-if((saveT+=dt)>4000){saveT=0;save()}}hud();renderCombo()},250);
-window.addEventListener("pagehide",()=>save());
-document.addEventListener("visibilitychange",()=>{if(document.hidden){save();if(AC&&AC.state=="running")AC.suspend().catch(()=>{});if(running&&!modalOpen)$("pauseb").click()}});
+if((saveT+=dt)>10000){saveT=0;save()}}hud();renderCombo()},250);
+window.addEventListener("pagehide",()=>saveNow());
+document.addEventListener("visibilitychange",()=>{if(document.hidden){saveNow();if(AC&&AC.state=="running")AC.suspend().catch(()=>{});if(running&&!modalOpen)$("pauseb").click()}});
 window.addEventListener("resize",()=>{if($("tv").classList.contains("on"))drawFam();S.fruits.forEach(clampPos);renderTable();renderProps();placePot();freeFromPot()});setTimeout(()=>{try{freeFromPot()}catch(e){}},300);
 S.pot=S.pot||[];if(S.pot.length==2){S.fruits.push(...S.pot);S.pot=[]}
 document.addEventListener("pointerdown",e=>{const t=e.target.closest("button,.btn,.big,.hint,.flt span,.sp,.cg,.tvh .btn,#pot,.pw");if(!t)return;ac();
  if(t.id=="go"||t.id=="cl"||t.id=="tvx"||t.id=="resume"||t.id=="nextd"||t.id=="rvx"||t.id=="pot")return;SFX.sel()},true);
 if("serviceWorker" in navigator&&location.hostname.endsWith("github.io"))navigator.serviceWorker.register("sw.js").catch(()=>{});
-delete S.ess;delete S.sk;S.tree=S.tree||{};if(!S.bag)S.bag=[{t:"grow"},{t:"shrink"}];S.bag=S.bag.filter(x=>ITEMS[x.t]);S.fruits.forEach(f=>{clampPos(f);treeAdd(f,null,true)});renderProps();renderAll();placePot();fetchWX();startScreen();
+delete S.ess;delete S.sk;S.tree=S.tree||{};
+migrate();if(!S.bag)S.bag=[{t:"grow"},{t:"shrink"}];S.bag=S.bag.filter(x=>ITEMS[x.t]);S.fruits.forEach(f=>{clampPos(f);treeAdd(f,null,true)});renderProps();renderAll();placePot();fetchWX();startScreen();

@@ -264,3 +264,7 @@ button,.btn,.big,.mk,.tabk,.hint,.cust,.sp,.flt span{touch-action:manipulation}
 /* acessibilidade: movimento reduzido no sistema */
 @media (prefers-reduced-motion: reduce){*,*:before,*:after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}
 .mk{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+/* variedades (DNA) */
+.sp .vc{position:absolute;right:-7px;bottom:-6px;background:#7b5cff;color:#fff;font-size:.5rem;padding:0 3px;border:2px solid #2a1a12;line-height:1.3}
+#tvd .vr{display:inline-flex;flex-direction:column;align-items:center;background:#f5efe0;border:2px solid #2a1a12;padding:1px 3px;font-size:.55rem;color:#2a1a12}
+#tvd .vr img{width:30px;height:30px}
