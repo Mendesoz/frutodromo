@@ -71,7 +71,7 @@ const D={
 "Carta salva!":"Card saved!","Carta baixada!":"Card downloaded!","Não deu pra baixar aqui. Faça um print!":"Couldn't download here. Take a screenshot!",
 "Aqui não dá pra baixar. Faça um print, ou abra mendesoz.github.io/frutodromo":"Downloads don't work here. Take a screenshot, or open mendesoz.github.io/frutodromo",
 "Aqui não dá pra baixar. Faça um print!":"Downloads don't work here. Take a screenshot!","Texto copiado! Cole junto com o print.":"Text copied! Paste it with your screenshot.",
-"Compartilhar não funciona aqui. Abra pelo link do GitHub Pages!":"Sharing doesn't work here. Open the GitHub Pages link!",
+"Compartilhar não funciona aqui. Abra pelo link do GitHub Pages!":"Sharing doesn't work here. Open the GitHub Pages link!","Compartilhar não funciona aqui. Faça um print!":"Sharing doesn't work here. Take a screenshot!",
 "O anúncio não carregou agora. Tente de novo daqui a pouco.":"The ad didn't load. Try again in a bit.","Quase! Faltou:":"Almost! Missing:",
 "Olha a fruta que eu descobri no Frutódromo:":"Look at the fruit I discovered in Frutódromo:",
 "PRESENTE do anúncio":"GIFT from the ad","PRESENTE da quitanda":"GIFT from the stand",
