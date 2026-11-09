@@ -648,19 +648,27 @@ const MEL=[523,0,659,0,784,659,523,0,587,0,698,0,880,698,587,0,523,0,659,784,880
 /* ---- som ambiente (chuva e trovão) e trilha lo-fi, tudo gerado no navegador ---- */
 const AMB={g:null,lp:null,key:""};let NOISE=null;
 function noiseBuf(){if(NOISE)return NOISE;const a=AC,b=a.createBuffer(1,a.sampleRate*3,a.sampleRate),d=b.getChannelData(0);let br=0;for(let i=0;i<d.length;i++){const w=Math.random()*2-1;br=(br+.02*w)/1.02;d[i]=w*.5+br*2.5}return NOISE=b}
-function ambSet(lv){if(!AC||AC.state!="running")return;const on=lv>0&&!muted&&CFG.amb!==false&&!document.hidden,vol=on?[0,.05,.09,.15][lv]*CFG.sfx/100*1.5:0;
+function ambSet(lv){if(!AC||AC.state!="running")return;const on=lv>0&&!muted&&CFG.amb!==false&&!document.hidden,vol=on?[0,.016,.028,.045][lv]*CFG.sfx/100:0;
  if(!AMB.g){if(!on)return;const a=AC,src=a.createBufferSource();src.buffer=noiseBuf();src.loop=true;const hp=a.createBiquadFilter();hp.type="highpass";hp.frequency.value=350;const lp=a.createBiquadFilter();lp.type="lowpass";const g=a.createGain();g.gain.value=0;src.connect(hp);hp.connect(lp);lp.connect(g);g.connect(a.destination);src.start();AMB.g=g;AMB.lp=lp}
  const key=vol.toFixed(3)+"|"+lv;if(key==AMB.key)return;AMB.key=key;const t=AC.currentTime;AMB.g.gain.cancelScheduledValues(t);AMB.g.gain.setTargetAtTime(vol,t,.7);AMB.lp.frequency.setTargetAtTime([1200,1300,2200,3400][lv],t,.5)}
-function ambThunder(){if(!AC||AC.state!="running"||muted||CFG.amb===false)return;const a=AC,t=a.currentTime,src=a.createBufferSource();src.buffer=noiseBuf();const lp=a.createBiquadFilter();lp.type="lowpass";lp.frequency.value=160;const g=a.createGain(),v=.5*CFG.sfx/100;
+function ambThunder(){if(!AC||AC.state!="running"||muted||CFG.amb===false)return;const a=AC,t=a.currentTime,src=a.createBufferSource();src.buffer=noiseBuf();const lp=a.createBiquadFilter();lp.type="lowpass";lp.frequency.value=160;const g=a.createGain(),v=.22*CFG.sfx/100;
  g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+.12);g.gain.exponentialRampToValueAtTime(v*.45,t+.7);g.gain.exponentialRampToValueAtTime(.0001,t+2.8);src.connect(lp);lp.connect(g);g.connect(a.destination);src.start(t);src.stop(t+3)}
 // lo-fi: acordes de sétima suaves, baixo, notas soltas com swing e um chiado de vinil, num filtro abafado
 const LOFI={ch:[[349,440,523,659],[330,392,494,587],[294,349,440,523],[262,330,392,494]],bs:[87,82,73,65]};let lstep=0,LBUS=null;
 const lofiOn=()=>{const st=CFG.musStyle||"auto";return st=="lofi"||(st=="auto"&&!!WXS&&(WXS.ph=="night"||WXS.w=="rain"||WXS.w=="storm"))};
 function lofiBus(){if(!LBUS){LBUS=AC.createBiquadFilter();LBUS.type="lowpass";LBUS.frequency.value=1400;LBUS.Q.value=.6;LBUS.connect(AC.destination)}return LBUS}
-function lofiTick(){const e=lstep%8,bar=(lstep/8|0)%4,ch=LOFI.ch[bar],B=lofiBus(),sw=e%2?.08:0;
+// ocarina: seno puro com vibrato leve e um sopro curto no começo de cada nota; melodia original (Ré menor pentatônica)
+const OCA=[[0,880,2],[2,1047,2],[4,880,1],[5,784,1],[6,698,2],[8,587,3],[11,698,1],[12,784,2],[14,880,2],[16,1047,2],[18,880,2],[20,784,2],[22,698,1],[23,784,1],[24,880,6]];
+function ocarina(f,d,when){if(muted||!AC)return;const a=AC,t=a.currentTime+when,B=lofiBus(),v=.032*CFG.mus/100*1.4;if(v<=.0002)return;try{
+ const o=a.createOscillator(),g=a.createGain(),lfo=a.createOscillator(),lg=a.createGain();o.type="sine";o.frequency.value=f;lfo.frequency.value=5.2;lg.gain.setValueAtTime(0,t);lg.gain.linearRampToValueAtTime(f*.007,t+.25);lfo.connect(lg);lg.connect(o.frequency);
+ g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+.07);g.gain.setValueAtTime(v,t+Math.max(.08,d-.15));g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(B);
+ const n=a.createBufferSource(),bp=a.createBiquadFilter(),ng=a.createGain();n.buffer=noiseBuf();bp.type="bandpass";bp.frequency.value=f*2;bp.Q.value=2.5;ng.gain.setValueAtTime(v*.3,t);ng.gain.exponentialRampToValueAtTime(.0001,t+.1);n.connect(bp);bp.connect(ng);ng.connect(B);
+ o.start(t);lfo.start(t);o.stop(t+d+.05);lfo.stop(t+d+.05);n.start(t,Math.random()*2);n.stop(t+.12)}catch(e){}}
+function lofiTick(){const e=lstep%8,bar=(lstep/8|0)%4,ch=LOFI.ch[bar],B=lofiBus(),sw=e%2?.08:0,solo=(lstep/32|0)%2==1;
+ if(solo)OCA.filter(n=>n[0]==lstep%32).forEach(([,f,l])=>ocarina(f,l*.38*.95,sw));
  if(e==0||e==5)ch.forEach((f,k)=>tone(f,1.7,"triangle",.011,sw+k*.018,0,1,B));
  if(e==0||e==4)tone(LOFI.bs[bar]*2,.95,"sine",.06,sw,0,1,B);
- if(e!=0&&Math.random()<.32)tone(ch[(Math.random()*4)|0]*2,.55,"sine",.02,sw,0,1,B);
+ if(!solo&&e!=0&&Math.random()<.32)tone(ch[(Math.random()*4)|0]*2,.55,"sine",.02,sw,0,1,B);
  if(Math.random()<.3)tone(2500+Math.random()*3500,.012,"square",.0025,Math.random()*.3,0,1,B);lstep++}
 setInterval(()=>{if(muted||!running||modalOpen||!AC)return;if(lofiOn()){if(step%2==0)lofiTick();step++;return}const n=MEL[step%MEL.length];if(n)tone(n,.16,"square",.014,0,0,1);if(step%4==0)tone(BAS[(step/4|0)%BAS.length],.32,"triangle",.04,0,0,1);step++},190);
 function sndLabel(){const b=$("sndb");if(b)b.textContent=muted?"SOM: DESLIGADO":"SOM: LIGADO"}
