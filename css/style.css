@@ -122,17 +122,27 @@ header{flex:0 0 auto;display:flex;gap:4px;align-items:center;padding:5px 4px;bac
 /* árvore de espécies (tela cheia) */
 #tv{position:fixed;inset:0;z-index:210;background:#f5efe0;display:none;flex-direction:column}#tv.on{display:flex}
 .tvh{flex:0 0 auto;display:flex;gap:5px;align-items:center;padding:6px;background:#4a2e1c;border-bottom:3px solid #2a1a12;color:#ffe9b8;font-size:.8rem}
-.tvh .btn.on{background:#f7c331;color:#2a1a12}.tvh .cnt{flex:1;text-align:center}
-#tvb{flex:1 1 auto;overflow:auto;position:relative;background:repeating-linear-gradient(0deg,#f5efe0 0 109px,#eadfc9 109px 110px)}
-#tvs{position:relative}#tvc{position:absolute;left:0;top:0;transform-origin:0 0}#tvc svg{position:absolute;left:0;top:0}
-.sp{position:absolute;width:76px;text-align:center;font-size:.56rem;line-height:1.1;cursor:pointer;color:#2a1a12}
-.sp .ic{width:58px;height:58px;margin:0 auto 2px;background:#fff;border:3px solid #2a1a12;display:flex;align-items:center;justify-content:center;box-shadow:inset -3px -3px 0 #0001}
-.sp .ic img{width:48px;height:48px}.sp .no{position:absolute;top:-6px;left:6px;background:#2a1a12;color:#ffe9b8;font-size:.5rem;padding:0 3px}
+.tvh .btn.on{background:#f7c331;color:#2a1a12}.tvh .cnt{flex:1;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;font-size:.74rem}
+#tvb{flex:1 1 auto;overflow:auto;position:relative;background:#f5efe0}
+.tvw{position:relative;padding:8px 10px 18px;max-width:920px;margin:0 auto}
+.famsvg{position:absolute;left:0;top:0;pointer-events:none;z-index:2;overflow:visible}
+.gsec{margin-bottom:12px}
+.gh{display:flex;justify-content:space-between;align-items:baseline;gap:8px;border-bottom:2px solid #2a1a1226;padding:2px 2px 3px;margin-bottom:10px;font-size:.66rem;color:#8a6a50}
+.gh b{color:#4a2e1c;font-size:.72rem;letter-spacing:.5px}
+.gg{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:14px 6px}
+.empty{text-align:center;color:#8a6a50;padding:30px 10px}
+.sp{position:relative;min-width:0;text-align:center;font-size:.58rem;line-height:1.15;cursor:pointer;color:#2a1a12;transition:opacity .2s}.sp .lb{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 1px}
+.sp .ic{position:relative;z-index:3;width:58px;height:58px;margin:0 auto 3px;background:#fff;border:3px solid #2a1a12;display:flex;align-items:center;justify-content:center;box-shadow:inset -3px -3px 0 #0001}
+.sp .ic img{width:48px;height:48px}.sp .no{position:absolute;z-index:4;top:-6px;left:calc(50% - 34px);background:#2a1a12;color:#ffe9b8;font-size:.5rem;padding:0 3px}
 .sp.q .ic{background:#00000010;border-style:dashed;border-color:#8a6a50}.sp.q .ic img{filter:brightness(0);opacity:.28}.sp.q{color:#8a6a50}
-.sp.cur .ic{outline:3px solid #f7c331;outline-offset:2px}.sp.new .ic{background:#fff6cf}
-.rowlab{position:absolute;left:6px;font-size:.62rem;color:#8a6a50;font-weight:700}
-#tvd{flex:0 0 auto;background:#e9dcc3;border-top:3px solid #2a1a12;padding:8px 10px;font-size:.8rem;max-height:40vh;overflow:auto;line-height:1.35}
-#tvd img{width:28px;height:28px;display:inline-block;vertical-align:middle}#tvd .bigi{width:56px;height:56px;float:left;margin-right:8px}
+.sp.cur .ic{outline:3px solid #f7c331;outline-offset:2px;background:#fff6cf}.sp.fam .ic{outline:3px solid #e67e22;outline-offset:2px}.sp.cur .lb,.sp.fam .lb{font-weight:700}.sp.new .ic{background:#fff6cf}
+#tvd{flex:0 0 auto;background:#e9dcc3;border-top:3px solid #2a1a12;padding:7px 10px;font-size:.78rem;max-height:46vh;overflow:auto;line-height:1.35}
+#tvd.open{box-shadow:0 -6px 14px #0002;padding:9px 10px 10px}
+#tvd .dh{display:flex;gap:8px;align-items:center}#tvd .dh .x{margin-left:auto;align-self:flex-start}
+#tvd .drow{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin-top:6px}#tvd .drow>span:first-child{font-weight:700;font-size:.62rem;color:#6b4a33;min-width:48px}
+#tvd .chip{display:inline-flex;align-items:center;gap:3px;background:#f5efe0;color:#2a1a12;margin:0;vertical-align:middle;border:2px solid #2a1a12;padding:1px 6px 1px 2px;cursor:pointer;font-size:.68rem;max-width:170px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#tvd .chip img{width:22px;height:22px;flex:0 0 auto}#tvd .bigi.q{width:56px;height:56px;display:flex;align-items:center;justify-content:center;border:2px dashed #8a6a50}#tvd .bigi.q img{width:44px;height:44px;filter:brightness(0);opacity:.3}
+#tvd img{width:28px;height:28px;display:inline-block;vertical-align:middle}#tvd .bigi{width:56px;height:56px;flex:0 0 auto}
 .sug{display:flex;align-items:center;gap:3px;margin:3px 0;background:#f5efe0;padding:3px 5px;border:2px solid #2a1a1230;font-size:.74rem}
 #tvb .cgw{padding:10px;max-width:520px;margin:0 auto}
 .hint{margin-left:auto;background:#2a1a12;color:#ffe9b8;width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;font-size:.75rem;cursor:pointer;border:2px solid #2a1a12}
@@ -211,7 +221,7 @@ img.curt{z-index:2;transform-origin:50% 0;animation:sway 10s ease-in-out infinit
 .flt{display:flex;gap:4px;overflow-x:auto;padding:5px 6px;background:#e9dcc3;border-bottom:3px solid #2a1a12;flex:0 0 auto}
 .flt span{flex:0 0 auto;padding:2px 7px;border:2px solid #2a1a12;background:#f5efe0;font-size:.7rem;cursor:pointer;display:flex;align-items:center;gap:3px}
 .flt span.on{background:#f7c331}.flt .dt{width:10px;height:10px;border:2px solid #2a1a12}
-.sp.dim{opacity:.15}
+.sp.dim{opacity:.22}
 /* álbum e conquistas */
 .alb{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px;padding:10px}
 .ac{position:relative;background:#f5efe0;border:4px solid;box-shadow:0 0 0 2px #2a1a12;padding:6px 4px;text-align:center;font-size:.6rem;line-height:1.15;cursor:pointer}

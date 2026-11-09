@@ -770,16 +770,16 @@ $("cdl").onclick=()=>{if(window.self!==window.top)return toast("Aqui não dá pr
 $("csh").onclick=async()=>{try{const blob=await (await fetch(url)).blob(),file=new File([blob],`frutodromo-${t.n}.png`,{type:"image/png"});
 if(navigator.canShare&&navigator.canShare({files:[file]}))await navigator.share({files:[file],title:"Frutódromo",text:`Olha a fruta que eu descobri no Frutódromo: ${t.name}! mendesoz.github.io/frutodromo`});
 else{await navigator.clipboard.writeText(`Olha a fruta que eu descobri no Frutódromo: ${t.name} (${spLabel(k)})! mendesoz.github.io/frutodromo`);toast("Texto copiado! Cole junto com o print.")}}catch(e){toast("Compartilhar não funciona aqui. Abra pelo link do GitHub Pages!")}}}
-let tvTab="tree",tvSel=null,tvZoom=1,tvFilter=null;
+let tvTab="tree",tvSel=null,tvFilter=null,tvHelp=false,tvSugs=[];
 function spMatch(k,fl){if(!fl)return true;const[sz,c,t,el,h]=k.split("|"),T=S.tree[k];if(fl.startsWith("c:"))return c==fl.slice(2);if(fl.startsWith("e:"))return el==fl.slice(2);
 if(fl=="super")return !!h;if(fl=="shiny")return !!(T&&T.shiny);if(fl=="extreme")return ["Microscópica","Mini","Enorme","Gigantesca"].includes(sz);if(fl=="rare")return T&&stars(T)>=3;return true}
 function renderFilter(){const f=$("tvf");if(tvTab!="tree"){f.style.display="none";return}f.style.display="";const have=new Set(Object.keys(S.tree||{}).map(k=>k.split("|")[1]));
 const chip=(id,lab)=>`<span class="${tvFilter==id||(!tvFilter&&!id)?"on":""}" onclick="tvFilter=${id?`'${id}'`:"null"};renderTree()">${lab}</span>`;
 f.innerHTML=chip(null,"TODAS")+chip("rare","★3+")+chip("shiny","✦ BRILHANTES")+chip("super","SUPER")+chip("extreme","TAMANHO EXTREMO")+Object.keys(ELEM).filter(e=>Object.keys(S.tree||{}).some(k=>k.split("|")[3]==e)).map(e=>chip("e:"+e,ELEM[e].n.toUpperCase())).join("")+CORDER.filter(c=>have.has(c)).map(c=>chip("c:"+c,`<i class="dt" style="background:${hex(COLORS[c])}"></i>${c}`)).join("")}
-function openTree(tab,hi){SFX.open();if(S.tut&&S.tut.t2)tutDone("t3");$("tut").classList.remove("on");tvTab=tab||"tree";modalOpen=true;$("tv").classList.add("on");renderTree(hi);if(tvTab=="tree")setTimeout(()=>{const b=$("tvb"),e=b.querySelector(".sp.new")||b.querySelector(".sp");if(e&&!hi){b.scrollLeft=Math.max(0,e.offsetLeft*tvZoom-b.clientWidth/2)}},30)}
+function openTree(tab,hi){SFX.open();if(S.tut&&S.tut.t2)tutDone("t3");$("tut").classList.remove("on");tvTab=tab||"tree";modalOpen=true;$("tv").classList.add("on");tvHelp=false;$("tvb").scrollTop=0;renderTree(hi);if(tvTab=="tree")setTimeout(()=>{const e=$("tvb").querySelector(".sp.new");if(e&&!hi)e.scrollIntoView({block:"center"});drawFam()},30)}
 function closeTree(){SFX.close();$("tv").classList.remove("on");modalOpen=false;tvSel=null}
 function renderTree(hi){const T=S.tree||{},ks=Object.keys(T);renderFilter();$("tabT").classList.toggle("on",tvTab=="tree");$("tabC").classList.toggle("on",tvTab=="cores");$("tabA").classList.toggle("on",tvTab=="album");$("tabQ").classList.toggle("on",tvTab=="ach");
-$("tvcnt").textContent=tvFilter?`${ks.filter(k=>spMatch(k,tvFilter)).length} de ${ks.length}`:`${ks.length} espécies · ∞`;$("zm").style.display=$("zp").style.display=tvTab=="tree"?"":"none";$("tvcnt").style.display=tvTab=="tree"||tvTab=="cores"?"":"none";
+$("tvcnt").textContent=tvFilter?`${ks.filter(k=>spMatch(k,tvFilter)).length} de ${ks.length}`:`${ks.length} espécies`;$("tvhelp").style.display=tvTab=="tree"?"":"none";$("tvhelp").classList.toggle("on",tvHelp);$("tvcnt").style.display=tvTab=="tree"||tvTab=="cores"?"":"none";
 if(tvTab=="album"){const ord=ks.slice().sort((a,b)=>stars(T[b])-stars(T[a])||(T[b].shiny?1:0)-(T[a].shiny?1:0)||T[a].n-T[b].n);
  $("tvb").innerHTML=`<div class="alb">${ord.map(k=>{const t=T[k],st=stars(t),[rl,rc]=RAR[st];return `<div class="ac ${t.shiny?"shn":""}" style="border-color:${rc}" onclick="showCard('${k}')"><span class="no">${t.n}</span><img src="${fruitImg(t.img)}"><b style="color:${rc}">${"★".repeat(st)}</b><span>${t.d==0?t.name:spLabel(k).split(" · ").slice(0,2).join(" · ")}</span></div>`}).join("")}</div>`;
  $("tvd").innerHTML=`<b>${ks.length} cartas</b> · ${ks.filter(k=>T[k].shiny).length} brilhantes · ${ks.filter(k=>stars(T[k])>=5).length} lendárias. Toque numa carta pra abrir, baixar ou compartilhar.`;return}
@@ -788,30 +788,44 @@ if(tvTab=="ach"){S.rec=S.rec||{};S.ach=S.ach||{};const done=ACH.filter(a=>S.ach[
  ${ACH.map(([id,n,d,ok,rw])=>`<div class="cg ${S.ach[id]?"hi":""}"><span class="big-sw" style="background:${S.ach[id]?"#f7c331":"#c9b99a"};display:flex;align-items:center;justify-content:center;font-size:1rem">${S.ach[id]?`<img src="${TROPHY()}" style="width:22px;height:22px">`:"?"}</span><div style="flex:1;text-align:left"><b>${n}</b><br><span style="font-size:.74rem">${d}</span></div><span style="font-size:.72rem;font-weight:700">+${rw}</span></div>`).join("")}</div>`;
  $("tvd").innerHTML=`<b>${done} de ${ACH.length} conquistas</b> · cada uma dá moedas de presente.`;return}
 if(tvTab=="cores"){$("tvb").innerHTML=colorGuideHTML(hi);$("tvd").innerHTML="Toque no requisito de COR de um cliente pra abrir direto aqui.";if(hi){const e=$("cg-"+hi);if(e)setTimeout(()=>e.scrollIntoView({block:"center"}),30)}return}
-const rows={};ks.forEach(k=>{(rows[T[k].d]=rows[T[k].d]||[]).push(k)});Object.values(rows).forEach(r=>r.sort((a,b)=>T[a].n-T[b].n));
-const maxD=ks.length?Math.max(...ks.map(k=>T[k].d)):0,sug=suggestions(8);const qRow=maxD+1;
-const CW=86,RH=110,PADL=40;const widest=Math.max(4,...Object.values(rows).map(r=>r.length),sug.length);const Wd=PADL+widest*CW+20,H=(qRow+1)*RH+30;
-const pos={};for(let d=0;d<=maxD;d++){const r=rows[d]||[],off=PADL+(widest-r.length)*CW/2;r.forEach((k,i)=>pos[k]=[off+i*CW+CW/2,d*RH+14])}
-const qoff=PADL+(widest-sug.length)*CW/2;sug.forEach((q,i)=>pos["?"+i]=[qoff+i*CW+CW/2,qRow*RH+14]);
-const newest=ks.slice().sort((a,b)=>T[b].n-T[a].n)[0];
-let lines="";const ln=(a,b,dash,col)=>{const[x1,y1]=pos[a],[x2,y2]=pos[b];lines+=`<path d="M${x1} ${y1+64} C${x1} ${y1+92},${x2} ${y2-24},${x2} ${y2+2}" stroke="${col}" stroke-width="3" fill="none" ${dash?'stroke-dasharray="5 5"':""}/>`};
-ks.forEach(k=>T[k].par.forEach(p=>{if(pos[p])ln(p,k,false,tvSel&&(tvSel==k||tvSel==p)?"#e67e22":"#6b4a33")}));
-sug.forEach((q,i)=>{if(tvSel!="?"+i)return;ln(q.a,"?"+i,true,"#e67e22");if(q.b!=q.a)ln(q.b,"?"+i,true,"#e67e22")});
-let h=`<div id="tvs" style="width:${Wd*tvZoom}px;height:${H*tvZoom}px"><div id="tvc" style="width:${Wd}px;height:${H}px;transform:scale(${tvZoom})"><svg width="${Wd}" height="${H}">${lines}</svg>`;
-for(let d=0;d<=qRow;d++)h+=`<span class="rowlab" style="top:${d*RH+2}px">${d==0?"FEIRA":d==qRow?"???":"G"+d}</span>`;
-ks.forEach(k=>{const[x,y]=pos[k],t=T[k];h+=`<div class="sp ${tvSel==k?"cur":""} ${k==newest&&t.d>0?"new":""} ${spMatch(k,tvFilter)?"":"dim"}" style="left:${x-38}px;top:${y}px" onclick="tvSel='${k.replace(/'/g,"")}';renderTree()"><span class="no" style="background:${RAR[stars(t)][1]}">${t.n}${t.shiny?"✦":""}</span><div class="ic"><img src="${fruitImg(t.img)}"></div>${t.d==0?t.name:spLabel(k).split(" · ").slice(0,2).join(" · ")}</div>`});
-sug.forEach((q,i)=>{const[x,y]=pos["?"+i],A=T[q.a];h+=`<div class="sp q ${tvSel=="?"+i?"cur":""}" style="left:${x-38}px;top:${y}px" onclick="tvSel='?${i}';renderTree()"><div class="ic"><img src="${fruitImg({...A.img,rgb:q.c.rgb,mask:A.img.mask,shape:A.img.shape})}"></div>?</div>`});
-$("tvb").innerHTML=h+"</div></div>";
-// painel de detalhe
-const nm=k=>T[k].d==0?T[k].name:spLabel(k),im=k=>`<img src="${fruitImg(T[k].img)}">`;let det;
-if(tvSel&&tvSel[0]=="?"){const q=sug[+tvSel.slice(1)];det=q?`<b>Espécie desconhecida</b><br>Receita provável: ${im(q.a)} <b>${nm(q.a)}</b> + ${im(q.b)} <b>${nm(q.b)}</b><br>Deve sair: <b>${spLabel(q.k)}</b>`:""}
-else if(tvSel&&T[tvSel]){const t=T[tvSel],my=suggestions(4,tvSel);
-const sr=stars(t),[rl,rc]=RAR[sr];det=`<img class="bigi" src="${fruitImg(t.img)}"><b>nº ${t.n} · ${t.d==0?t.name:"Geração "+t.d}</b> <span style="color:${rc};font-weight:700">${"★".repeat(sr)} ${rl}</span>${t.shiny?" ✦":""}<br>${spLabel(tvSel)}<br><button class="btn" style="background:#3ca55c;margin:3px 0" onclick="showCard('${tvSel}')">VER CARTA</button><br>${t.par.length?"Pais: "+t.par.map(p=>T[p]?im(p)+" "+nm(p):"?").join(" + "):"Fruta da feira"}<br>Primeira: ${t.name}<div style="clear:both"></div>
-${my.length?"<b>Experimente cruzar com:</b>"+my.map(q=>{const o=q.a==tvSel?q.b:q.a;return `<div class="sug">${im(tvSel)}+${im(o)} ${nm(o)} → <b>${spLabel(q.k)}</b></div>`}).join(""):"<i>Essa espécie já gerou tudo que dava com as que você tem. Descubra outras!</i>"}`}
-else det=`<b>Árvore de espécies</b> · cada combinação nova de tamanho, cor, sabor e poder vira uma espécie. Ela não tem fim.<br>Regra: <b>parecidos se intensificam</b> (pequena + pequena encolhe, grande + grande cresce). Toque num <b>?</b> pra ver a receita da próxima descoberta.`;
-$("tvd").innerHTML=det}
+// Árvore: espécies em fileiras por geração, sem teia de linhas. Ao tocar numa fruta, só a família dela
+// (pais e filhos) fica em destaque e ligada por linhas; o resto apaga.
+const sel=tvSel&&T[tvSel]?tvSel:null,fam=new Set();
+if(sel){T[sel].par.forEach(p=>fam.add(p));ks.forEach(k=>{if(T[k].par.includes(sel))fam.add(k)})}
+const vis=ks.filter(k=>spMatch(k,tvFilter)),gens={};vis.forEach(k=>{(gens[T[k].d]=gens[T[k].d]||[]).push(k)});
+const newest=ks.slice().sort((a,b)=>T[b].n-T[a].n)[0];tvSugs=tvFilter?[]:suggestions(8);
+const lab=k=>T[k].d==0?T[k].name:spLabel(k).split(" · ").slice(0,2).join(" · "),esc=k=>k.replace(/&/g,"&amp;").replace(/"/g,"&quot;");
+const qsel=tvSel&&tvSel[0]=="?"?tvSugs[+tvSel.slice(1)]:null;if(qsel){fam.add(qsel.a);fam.add(qsel.b)}
+const card=k=>{const t=T[k],dim=(sel&&k!=sel&&!fam.has(k))||(qsel&&!fam.has(k));
+ return `<div class="sp ${sel==k?"cur":""} ${dim?"dim":""} ${fam.has(k)?"fam":""} ${k==newest&&t.d>0?"new":""}" data-k="${esc(k)}" onclick="tvPick(this.dataset.k)"><span class="no" style="background:${RAR[stars(t)][1]}">${t.n}${t.shiny?"✦":""}</span><div class="ic"><img src="${fruitImg(t.img)}"></div><span class="lb">${lab(k)}</span></div>`};
+let h=`<div class="tvw">`;
+Object.keys(gens).map(Number).sort((a,b)=>a-b).forEach(d=>{h+=`<div class="gsec"><div class="gh"><b>${d==0?"FEIRA":d+"ª GERAÇÃO"}</b><span>${gens[d].length}</span></div><div class="gg">${gens[d].sort((a,b)=>T[a].n-T[b].n).map(card).join("")}</div></div>`});
+if(tvSugs.length)h+=`<div class="gsec"><div class="gh"><b>PRÓXIMAS DESCOBERTAS</b><span>toque pra ver a receita</span></div><div class="gg">${tvSugs.map((q,i)=>{const A=T[q.a];return `<div class="sp q ${tvSel=="?"+i?"cur":""} ${sel?"dim":""}" data-k="?${i}" onclick="tvPick(this.dataset.k)"><div class="ic"><img src="${fruitImg({...A.img,rgb:q.c.rgb})}"></div><span class="lb">???</span></div>`}).join("")}</div></div>`;
+if(!vis.length)h+=`<p class="empty">Nenhuma espécie com esse filtro ainda.</p>`;
+const st=$("tvb").scrollTop;$("tvb").innerHTML=h+`<svg class="famsvg"></svg></div>`;$("tvb").scrollTop=st;drawFam();
+// ficha de baixo
+const nm=k=>T[k].d==0?T[k].name:spLabel(k),chip=k=>T[k]?`<span class="chip" data-k="${esc(k)}" onclick="tvPick(this.dataset.k,1)"><img src="${fruitImg(T[k].img)}">${lab(k)}</span>`:"";let det;
+if(qsel){det=`<div class="dh"><div class="bigi q"><img src="${fruitImg({...T[qsel.a].img,rgb:qsel.c.rgb})}"></div><div><b>Espécie desconhecida</b><br>Deve sair: <b>${spLabel(qsel.k)}</b></div><button class="btn x" onclick="tvPick(null)">X</button></div>
+ <div class="drow"><span>RECEITA</span>${chip(qsel.a)}+${chip(qsel.b)}</div>`}
+else if(sel){const t=T[sel],kids=ks.filter(k=>T[k].par.includes(sel)).sort((a,b)=>T[a].n-T[b].n),sr=stars(t),[rl,rc]=RAR[sr],my=suggestions(3,sel);
+ det=`<div class="dh"><img class="bigi" src="${fruitImg(t.img)}"><div><b>nº ${t.n} · ${t.d==0?t.name:t.d+"ª geração"}</b> <span style="color:${rc};font-weight:700">${"★".repeat(sr)} ${rl}</span>${t.shiny?" ✦":""}<br>${spLabel(sel)}</div><button class="btn x" onclick="tvPick(null)">X</button></div>
+ <div class="drow"><span>PAIS</span>${t.par.length?t.par.map(chip).join(""):"<i>Fruta da feira</i>"}</div>
+ <div class="drow"><span>FILHOS</span>${kids.length?kids.map(chip).join(""):"<i>Ainda nenhum. Cruze ela com outra!</i>"}</div>
+ ${my.length?`<div class="drow"><span>TENTE</span>${my.map(q=>{const o=q.a==sel?q.b:q.a;return chip(o)}).join("")}</div>`:""}
+ <button class="btn" style="background:#3ca55c;margin-top:4px" onclick="showCard('${esc(sel)}')">VER CARTA</button>`}
+else if(tvHelp)det=`<b>Como funciona a árvore</b><br>Cada combinação nova de <b>tamanho, cor, sabor e poder</b> vira uma espécie. As fileiras mostram de qual geração ela é: a Feira é a geração 0, e cada cruzamento cria a seguinte.<br>Regra: <b>parecidos se intensificam</b> (pequena + pequena encolhe, grande + grande cresce).<br>Toque numa fruta pra ver os pais e os filhos dela. Toque num <b>?</b> pra ver a receita da próxima descoberta.`;
+else det=`Toque numa fruta pra ver <b>de onde ela veio</b> e <b>o que ela já gerou</b>.`;
+$("tvd").innerHTML=det;$("tvd").classList.toggle("open",!!(sel||qsel||tvHelp))}
+function tvPick(k,jump){tvSel=k&&tvSel!=k?k:(jump?k:null);tvHelp=false;renderTree();if(jump&&k){const e=$("tvb").querySelector(`.sp[data-k="${CSS.escape(k)}"]`);if(e)e.scrollIntoView({block:"center",behavior:"smooth"});setTimeout(drawFam,400)}}
+function drawFam(){const w=document.querySelector("#tvb .tvw"),sv=w&&w.querySelector(".famsvg");if(!sv)return;const T=S.tree||{},pairs=[];
+ if(tvSel&&T[tvSel]){T[tvSel].par.forEach(p=>pairs.push([p,tvSel]));Object.keys(T).forEach(k=>{if(T[k].par.includes(tvSel))pairs.push([tvSel,k])})}
+ else if(tvSel&&tvSel[0]=="?"){const q=tvSugs[+tvSel.slice(1)];if(q){pairs.push([q.a,tvSel]);if(q.b!=q.a)pairs.push([q.b,tvSel])}}
+ const wr=w.getBoundingClientRect(),el=k=>w.querySelector(`.sp[data-k="${CSS.escape(k)}"] .ic`);sv.setAttribute("width",w.scrollWidth);sv.setAttribute("height",w.scrollHeight);
+ sv.innerHTML=pairs.map(([a,b])=>{const A=el(a),B=el(b);if(!A||!B)return"";const ra=A.getBoundingClientRect(),rb=B.getBoundingClientRect();
+  const x1=ra.left+ra.width/2-wr.left,y1=ra.bottom-wr.top,x2=rb.left+rb.width/2-wr.left,y2=rb.top-wr.top,my=(y1+y2)/2;
+  return `<path d="M${x1} ${y1} C${x1} ${my},${x2} ${my},${x2} ${y2}" stroke="#e67e22" stroke-width="3" fill="none" stroke-linecap="round"/>`}).join("")}
 $("tabT").onclick=()=>{tvTab="tree";renderTree()};$("tabA").onclick=()=>{tvTab="album";renderTree()};$("tabQ").onclick=()=>{tvTab="ach";renderTree()};$("tabC").onclick=()=>{tvTab="cores";renderTree()};$("tvx").onclick=closeTree;
-$("zm").onclick=()=>{tvZoom=Math.max(.4,tvZoom-.2);renderTree()};$("zp").onclick=()=>{tvZoom=Math.min(1.6,tvZoom+.2);renderTree()};
+$("tvhelp").onclick=()=>{tvHelp=!tvHelp;tvSel=null;renderTree()};
 $("dexb").onclick=()=>{tvSel=null;openTree("tree")};$("pauseb").onclick=()=>{if(!running)return;openModal(`<h2>PAUSADO</h2><p>O tempo e a paciência dos clientes estão congelados.</p><button class="big" id="resume">CONTINUAR</button><br><button class="big alt" id="sndb" onclick="toggleSnd()"></button><button class="big alt" onclick="settings()">AJUSTES</button>`);sndLabel();$("resume").onclick=closeModal};$("menub").onclick=startScreen;
 /* ================= laço ================= */
 let tt;function toast(h){const t=$("toast");t.innerHTML=h;t.classList.add("on");clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("on"),2600)}
@@ -824,7 +838,7 @@ el.querySelectorAll(".pat i").forEach((x,k)=>x.style.background=k<on?pc:"");cons
 if((left<.2?"1":"0")!=el.dataset.low&&!document.querySelector(".fr.drag"))renderCounter()});
 if((saveT+=dt)>4000){saveT=0;save()}}hud();renderCombo()},250);
 window.addEventListener("pagehide",()=>save());document.addEventListener("visibilitychange",()=>{if(document.hidden)save()});
-window.addEventListener("resize",()=>{S.fruits.forEach(clampPos);renderTable();renderProps();placePot();freeFromPot()});setTimeout(()=>{try{freeFromPot()}catch(e){}},300);
+window.addEventListener("resize",()=>{if($("tv").classList.contains("on"))drawFam();S.fruits.forEach(clampPos);renderTable();renderProps();placePot();freeFromPot()});setTimeout(()=>{try{freeFromPot()}catch(e){}},300);
 S.pot=S.pot||[];if(S.pot.length==2){S.fruits.push(...S.pot);S.pot=[]}
 document.addEventListener("pointerdown",e=>{const t=e.target.closest("button,.btn,.big,.hint,.flt span,.sp,.cg,.tvh .btn,#pot,.pw");if(!t)return;ac();
  if(t.id=="go"||t.id=="cl"||t.id=="tvx"||t.id=="resume"||t.id=="nextd"||t.id=="rvx"||t.id=="pot")return;SFX.sel()},true);
