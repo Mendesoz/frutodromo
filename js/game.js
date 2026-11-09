@@ -231,7 +231,17 @@ const now=()=>S.clock;
 function baseFruit(b){const c=typeof b[4]=="string"?COLORS[b[4]].slice():b[4].slice();return{id:"f"+(S.id++),tip:b[0]=="Banana"?"#6b4423":b[0]=="Pimenta-Dragão"?"#3f9a3a":null,root:b[0].split(/[ -]/)[0],shape:b[1],pat:b[2],top:b[3],rgb:c,doce:b[5],az:b[6],tam:b[7],gen:0,mut:false,el:b[10]||null,hero:false,base:b[0]}}
 function fresh(){S={bag:[{t:"grow"},{t:"shrink"}],potPos:null,coins:25,delivered:0,id:1,fruits:[],pot:[],cust:[null,null,null],clock:0,day:1,dayT:0,ds:{earn:0,served:0,best:0,dex:0},dex:{},tree:{},started:false};
 [0,1,2,4,5,6].forEach((bi,i)=>{const f=baseFruit(BASE[bi]);f.x=14+(i%3)*104;f.y=12+Math.floor(i/3)*92;S.fruits.push(f)})}
-try{S=JSON.parse(localStorage.getItem("frutodromo9"))}catch(e){}if(!S||!S.fruits)fresh();
+// Confere um progresso vindo do save ou de um backup e completa o que faltar. Retorna null se não der pra usar.
+function normState(d,strict){const okF=f=>f&&typeof f=="object"&&typeof f.id=="string"&&Array.isArray(f.rgb)&&f.rgb.length==3&&["tam","doce","az"].every(k=>typeof f[k]=="number"&&isFinite(f[k]));
+ if(!d||typeof d!="object"||!Array.isArray(d.fruits)||!d.tree||typeof d.tree!="object"||Array.isArray(d.tree))return null;
+ if(strict&&!(["coins","delivered","day","dayT"].every(k=>typeof d[k]=="number"&&isFinite(d[k]))&&Array.isArray(d.cust)))return null;
+ const keep=S;fresh();const b=S;S=keep;const num=(v,def,min)=>typeof v=="number"&&isFinite(v)&&(min==null||v>=min)?v:def,obj=(v,def)=>v&&typeof v=="object"&&!Array.isArray(v)?v:def;
+ const o={...b,...d,coins:num(d.coins,b.coins,0),delivered:num(d.delivered,0,0),id:num(d.id,1,1),clock:num(d.clock,0,0),day:num(d.day,1,1),dayT:num(d.dayT,0,0),
+  fruits:d.fruits.filter(okF),pot:Array.isArray(d.pot)?d.pot.filter(okF):[],ds:{...b.ds,...obj(d.ds,{})},dex:obj(d.dex,{}),tree:d.tree,
+  cust:Array.isArray(d.cust)?[0,1,2].map(i=>{const c=d.cust[i];return c&&typeof c=="object"&&Array.isArray(c.reqs)&&typeof c.name=="string"?c:null}):[null,null,null],
+  bag:Array.isArray(d.bag)?d.bag.filter(x=>x&&typeof x.t=="string"):b.bag};
+ const mx=Math.max(0,...o.fruits.concat(o.pot).map(f=>parseInt(f.id.slice(1))||0));if(o.id<=mx)o.id=mx+1;return o}
+try{S=normState(JSON.parse(localStorage.getItem("frutodromo9")))}catch(e){S=null}if(!S)fresh();
 const save=()=>{try{localStorage.setItem("frutodromo9",JSON.stringify(S))}catch(e){}};
 /* ================= genética ================= */
 function portmanteau(a,b){if(a==b)return a;const n=a.slice(0,Math.max(2,Math.ceil(a.length/2)))+b.slice(Math.floor(b.length/2)).toLowerCase();return n.replace(/([a-zà-ú])\1/gi,"$1")}
@@ -258,7 +268,7 @@ function spLabel(k){const[sz,c,t,el,h]=k.split("|");return (h?"Super · ":"")+sz
 function treeAdd(f,parents,silent){S.tree=S.tree||{};const k=spKey(f);f.sp=k;if(S.tree[k]){if(f.shiny&&!S.tree[k].shiny){S.tree[k].shiny=true;S.tree[k].img={...S.tree[k].img,rgb2:f.rgb2,pat:f.pat};if(!silent)setTimeout(()=>reveal(k,true),1000)}return false}
 const pk=parents?[...new Set(parents.map(p=>p.sp||spKey(p)))]:[];const d=pk.length?Math.max(...pk.map(x=>(S.tree[x]||{d:0}).d))+1:0;
 S.tree[k]={n:Object.keys(S.tree).length+1,name:f.base||fname(f),d,par:pk,t:Date.now(),img:{shape:f.shape,mask:f.mask,tip:f.tip,pat:f.pat,top:f.top,rgb:f.rgb,rgb2:f.rgb2,hero:f.hero,cape:f.cape},shiny:!!f.shiny,day:S.day,st:{doce:f.doce,az:f.az,tam:f.tam,rgb:f.rgb,el:f.el,hero:f.hero}};
-if(!silent){S.ds.dex++;const t=S.tree[k],n=t.n,st=stars(t);if(st>=3||t.d>=2||t.shiny)setTimeout(()=>reveal(k),1000);else setTimeout(()=>{toast(`<b>NOVA ESPÉCIE nº ${n}!</b><br>${spLabel(k)}`);SFX.dex()},900)}
+if(!silent){S.ds.dex++;setTimeout(checkAch,0);const t=S.tree[k],n=t.n,st=stars(t);if(st>=3||t.d>=2||t.shiny)setTimeout(()=>reveal(k),1000);else setTimeout(()=>{toast(`<b>NOVA ESPÉCIE nº ${n}!</b><br>${spLabel(k)}`);SFX.dex()},900)}
 else if(f.shiny&&!S.tree[k].shiny){S.tree[k].shiny=true}return true}
 const dexCheck=(f,silent)=>treeAdd(f,null,silent);
 function predictSt(a,b){const e=a.el&&b.el&&a.el!=b.el?{el:a.el,hero:true}:{el:a.el||b.el||null,hero:!!(a.hero||b.hero)};
@@ -362,20 +372,23 @@ if(hc>=0&&S.cust[hc]&&!S.cust[hc].leaving){deliver(f,hc,ox,oy);return}
 if(inside(cx,cy,$("bin"))){sell(f);return}
 if(inside(cx,cy,$("pot"))){if(brewing||S.pot.length>=2){f.x=ox;f.y=oy;renderTable();return toast("O caldeirão está ocupado!")}addToPot(f);return}
 f.x=ox+(e.clientX-sx);f.y=oy+(e.clientY-sy);clampPos(f);sel=null;save();renderTable();renderCounter()};
-el.addEventListener("pointerup",up);el.addEventListener("pointercancel",up)}
-function sell(f){const v=(1+Math.floor(f.gen/2)+(f.mut?2:0)+(f.el?3:0)+(f.hero?6:0)+(f.tam==0||f.tam>=11?4:0));const br=$("bin").getBoundingClientRect();flyCoins(br.left+br.width/2,br.top+br.height/2,v,0);S.coins+=v;$("coins").textContent=S.coins;undoOffer(f,v);floatText(br.left+br.width/2,br.top,"+"+v);buzz(15);S.ds.earn+=v;
+// cancelamento do sistema (ligação, gesto do navegador...): volta tudo como estava, sem vender, entregar nem usar item
+const cancel=()=>{if(!on)return;on=false;el.classList.remove("drag","overpot");$("bin").classList.remove("hot");$("pot").classList.remove("hot");
+ hoverCust=-1;document.querySelectorAll(".cust.hot").forEach(c=>c.classList.remove("hot"));if(mv){f.x=ox;f.y=oy;renderTable();renderCounter()}};
+el.addEventListener("pointerup",up);el.addEventListener("pointercancel",cancel)}
+function sell(f){const v=(1+Math.floor(f.gen/2)+(f.mut?2:0)+(f.el?3:0)+(f.hero?6:0)+(f.tam==0||f.tam>=11?4:0));const br=$("bin").getBoundingClientRect();flyCoins(br.left+br.width/2,br.top+br.height/2,v,0);S.coins+=v;showCoins();undoOffer(f,v);floatText(br.left+br.width/2,br.top,"+"+v);buzz(15);S.ds.earn+=v;
 S.fruits=S.fruits.filter(x=>x!=f);sel=null;showInfo(null);save();renderTable();renderCounter();renderMarket()}
 function deliver(f,i,ox,oy){const c=S.cust[i];
 if(!c.reqs.every(r=>meets(f,r))){f.x=ox;f.y=oy;renderTable();c.mood="sad";renderCounter();SFX.bad();buzz(120);{const ce=document.querySelector(`.cust[data-i="${i}"] .bub`);if(ce){const r=ce.getBoundingClientRect();floatText(r.left+r.width/2,r.top+20,"✗","#ff5a4e")}}setTimeout(()=>{if(S.cust[i]==c){c.mood=null;renderCounter()}},1200);return toast(`${c.name}: "Não foi isso que eu pedi..."`)}
-const cb=comboHit(),bonus=cb>=2?Math.round(pay(c)*Math.min(.5,(cb-1)*.1)):0,v=pay(c)+bonus,L0=level();const ce=document.querySelector(`.cust[data-i="${i}"] .bub`).getBoundingClientRect();flyCoins(ce.left+ce.width/2,ce.top+ce.height/2,v,v);floatText(ce.left+ce.width/2,ce.top+10,"+"+v);if(cb>=2)setTimeout(()=>floatText(ce.left+ce.width/2,ce.top+40,`COMBO x${cb}!`,"#ff8ad8"),250);buzz([20,40,30]);
-S.delivered++;S.ds.served++;if(c.vip)rec("vips",1);tutDone("t2");S.ds.earn+=v;S.ds.best=Math.max(S.ds.best,v);S.fruits=S.fruits.filter(x=>x!=f);sel=null;showInfo(null);c.mood="happy";renderTable();renderCounter();renderMarket();
+const cb=comboHit(),bonus=cb>=2?Math.round(pay(c)*Math.min(.5,(cb-1)*.1)):0,v=pay(c)+bonus,L0=level();const ce=document.querySelector(`.cust[data-i="${i}"] .bub`).getBoundingClientRect();S.coins+=v;flyCoins(ce.left+ce.width/2,ce.top+ce.height/2,v,v);floatText(ce.left+ce.width/2,ce.top+10,"+"+v);if(cb>=2)setTimeout(()=>floatText(ce.left+ce.width/2,ce.top+40,`COMBO x${cb}!`,"#ff8ad8"),250);buzz([20,40,30]);
+S.delivered++;S.ds.served++;if(c.vip)rec("vips",1);checkAch();tutDone("t2");S.ds.earn+=v;S.ds.best=Math.max(S.ds.best,v);S.fruits=S.fruits.filter(x=>x!=f);sel=null;showInfo(null);c.mood="happy";renderTable();renderCounter();renderMarket();
 toast(`${c.name} adorou! <b>+${v}</b> moedas${level()>L0?`<br><b>NÍVEL ${level()}!</b>${newUnlock(level())}`:""}`);if(level()>L0){SFX.lvl();shake(5);buzz([40,60,40,60,80])}
 {const first=!(S.rec&&S.rec.gifts),n=c.vip?2:(first||Math.random()<.35)?1:0;for(let g=0;g<n;g++)setTimeout(()=>giveItem(rollItem(),ce.left+ce.width/2,ce.top+ce.height/2,c.name),600+g*700);if(n)rec("gifts",n)}
 setTimeout(()=>{c.leaving=true;c.lt=Date.now();renderCounter();setTimeout(()=>{S.cust[i]=null;renderCounter();setTimeout(()=>{if(running&&!S.cust[i]){S.cust[i]=newCust();save();renderCounter()}},700)},WALK_OUT)},900)}
 function newUnlock(L){const extra={2:"Clientes pedem frutas MINI e ENORMES",3:"Pedidos de FOGO e clientes VIP",4:"Pedidos de GELO e cores raras",5:"Microscópicas, Gigantescas e SUPER-FRUTAS"}[L];
 return extra?"<br>"+extra:""}
 /* ================= info / feira ================= */
-function showInfo(f){const p=$("info");if(!f){p.classList.remove("on");return}if(S.tut&&S.tut.t2)tutDone("t3");
+function showInfo(f){const p=$("info");if(!f){p.classList.remove("on");return}p.style.top=Math.round($("scene").getBoundingClientRect().bottom+3)+"px";if(S.tut&&S.tut.t2)tutDone("t3");
 const tw=(v,a,b)=>v>=8?"muito "+a:v>=6?a:v<=2?"nada "+a:v<=4?"pouco "+a:"",st=(l,v,c,w)=>`<div class="st"><span>${l}</span>${cells(i=>i<=v,c)}<b style="white-space:nowrap">${v}${w?` <small style="font-weight:400;opacity:.75">${w}</small>`:""}</b></div>`;
 const tamTxt=f.tam==0?`<div class="st"><span>Tamanho</span><b>MICROSCÓPICA</b></div>`:f.tam>=11?`<div class="st"><span>Tamanho</span>${cells(()=>1,"#3fa7e0")}<b>${f.tam}!</b></div>`:st("Tamanho",f.tam,"#3fa7e0");
 p.innerHTML=`<span class="x" onclick="sel=null;showInfo(null);renderCounter();renderTable()">X</span><img src="${fruitImg(f)}"><div style="flex:1"><div class="t">${fname(f)}</div>
@@ -411,7 +424,7 @@ gelo:{n:"Cristal Eterno",short:()=>"Cristal",d:"A fruta vira GELO",img:ITEMSPR.g
 raio:{n:"Raio na Garrafa",short:()=>"Raio",d:"A fruta ganha RAIO",img:ITEMSPR.raio,w:4,go:f=>{if(f.el&&f.el!="raio")f.hero=true;f.el="raio"}},
 hero:{n:"Capa Heroica",short:()=>"Capa",d:"Vira SUPER-FRUTA",img:ITEMSPR.hero,w:2,go:f=>{f.hero=true;f.cape=f.cape||R(["#d63031","#2d6cdf","#8e44ad","#16a085","#f39c12"])}},
 shiny:{n:"Pó de Estrela",short:()=>"Estrela",d:"Deixa a fruta BRILHANTE",img:ITEMSPR.shiny,w:2,go:f=>{f.shiny=true}},
-brush:{n:"Pincel Doido",short:()=>"Pincel",d:"Troca a estampa por uma maluca",img:ITEMSPR.brush,w:6,go:f=>{f.pat=R(["marble","spots","stripes","seeds","blush","hatch"]);f.rgb2=COLORS[R(Object.keys(COLORS))].slice()}},
+brush:{n:"Pincel Doido",short:()=>"Pincel",d:"Troca a estampa por uma maluca",img:ITEMSPR.brush,w:6,go:f=>{const p0=f.pat,c0=JSON.stringify(f.rgb2);for(let k=0;k<12;k++){f.pat=R(["marble","spots","stripes","seeds","blush","hatch"]);f.rgb2=COLORS[R(Object.keys(COLORS))].slice();if(f.pat!=p0||JSON.stringify(f.rgb2)!=c0)break}}},
 morph:{n:"Molde Maluco",short:()=>"Molde",d:"Deforma a fruta num formato novo",img:ITEMSPR.morph,w:5,go:f=>{const other={shape:R(["heart","banana","oval","round","kidney","tall","cluster"])};f.mask=morph(f,other);f.shape="mix"}}};
 function rollItem(){const ks=Object.keys(ITEMS).filter(k=>ITEMS[k].w),tot=ks.reduce((s,k)=>s+ITEMS[k].w,0);let r=Math.random()*tot;for(const k of ks){if((r-=ITEMS[k].w)<0){const it={t:k};if(ITEMS[k].vals)it.v=R(ITEMS[k].vals);return it}}return{t:"grow"}}
 function giveItem(it,x,y,from){S.bag=S.bag||[];S.bag.push(it);save();const I=ITEMS[it.t],im=document.createElement("img");im.src=I.img(it.v);im.style.cssText=`position:fixed;left:${x}px;top:${y}px;width:36px;height:36px;z-index:130;image-rendering:pixelated;pointer-events:none`;document.body.appendChild(im);
@@ -419,8 +432,8 @@ const bt=$("bagtab")||$("market"),r=bt.getBoundingClientRect();im.animate([{tran
 setTimeout(()=>{toast(`<b>PRESENTE${from?" de "+from:""}!</b><br>${I.n}${it.v?" ("+it.v+")":""}`);SFX.dex();buzz([20,30,20])},500)}
 function armItem(k){armed=armed==k?null:k;renderMarket();const tip=$("armtip");if(armed){const it=(S.bag||[]).find(x=>x.t+(x.v||"")==armed),I=ITEMS[it.t];tip.innerHTML=`${I.n}${it.v?" ("+it.v+")":""}: ${I.d}<br><span style="font-weight:400">Toque numa fruta da mesa pra usar · toque de novo pra cancelar</span>`;tip.classList.add("on");tbl.classList.add("arming")}else{tip.classList.remove("on");tbl.classList.remove("arming")}}
 function useItem(f){const idx=(S.bag||[]).findIndex(x=>x.t+(x.v||"")==armed);if(idx<0){armItem(null);return}const it=S.bag[idx],I=ITEMS[it.t];
-const before=JSON.stringify([f.tam,f.doce,f.az,f.rgb,f.el,f.hero,f.shiny,f.pat,f.mask]);const old={...f,sp:f.sp},s0=fsize(f);I.go(f,it.v);{const s1=fsize(f);f.x-=(s1-s0)/2;f.y-=(s1-s0)/2}
-if(JSON.stringify([f.tam,f.doce,f.az,f.rgb,f.el,f.hero,f.shiny,f.pat,f.mask])==before){toast("Não mudou nada nessa fruta. Tente outra!");return}
+const look=()=>JSON.stringify([f.tam,f.doce,f.az,f.rgb,f.rgb2,f.el,f.hero,f.cape,f.shiny,f.pat,f.mask,f.shape]),before=look();const old={...f,sp:f.sp},s0=fsize(f);I.go(f,it.v);{const s1=fsize(f);f.x-=(s1-s0)/2;f.y-=(s1-s0)/2}
+if(look()==before){toast("Não mudou nada nessa fruta. Tente outra!");return}
 S.bag.splice(idx,1);f.mod=true;if(!S.bag.some(x=>x.t+(x.v||"")==armed))armItem(null);else renderMarket();
 const el=tbl.querySelector(`[data-id="${f.id}"]`),r=el?el.getBoundingClientRect():{left:200,top:400,width:0,height:0};clampPos(f);rec("items",1);
 treeAdd(f,[old]);if(f.shiny)rec("shiny",1);save();renderTable(f.id);showInfo(f);renderCounter();
@@ -433,7 +446,7 @@ if(mkTab=="bolsa"){const groups={};(S.bag||[]).forEach(it=>{const k=it.t+(it.v||
 $("market").innerHTML=tabs+BASE.map((b,i)=>{const f={shape:b[1],pat:b[2],top:b[3],rgb:typeof b[4]=="string"?COLORS[b[4]]:b[4],tip:b[0]=="Banana"?"#6b4423":b[0]=="Pimenta-Dragão"?"#3f9a3a":null};const lock=false,rare=!!b[10];
 return `<div class="mk px ${lock?"lock":S.coins<b[8]?"off":""} ${rare&&!lock?"rare":""}" onclick="buy(${i})"><img src="${fruitImg(f)}">${lock?"???":b[0]}<div class="pr">${lock?"NÍVEL "+b[9]:`<span class="coin"></span>${b[8]}`}</div></div>`}).join("")}
 function buy(i){const b=BASE[i];if(S.coins<b[8])return toast("Moedas insuficientes");S.coins-=b[8];const f=baseFruit(b);
-{const pr=$("pot"),pw={x:pr.offsetLeft,y:pr.offsetTop,w:pr.offsetWidth,h:pr.offsetHeight};let k=0;do{f.x=N(10,Math.max(10,tbl.clientWidth-110));f.y=N(10,Math.max(10,tbl.clientHeight-110));k++}while(k<30&&f.x+fsize(f)>pw.x&&f.x<pw.x+pw.w&&f.y+fsize(f)>pw.y&&f.y<pw.y+pw.h)}clampPos(f);S.fruits.push(f);dexCheck(f);SFX.buy();save();$("coins").textContent=S.coins;renderTable(f.id);renderMarket()}
+{const pr=$("pot"),pw={x:pr.offsetLeft,y:pr.offsetTop,w:pr.offsetWidth,h:pr.offsetHeight};let k=0;do{f.x=N(10,Math.max(10,tbl.clientWidth-110));f.y=N(10,Math.max(10,tbl.clientHeight-110));k++}while(k<30&&f.x+fsize(f)>pw.x&&f.x<pw.x+pw.w&&f.y+fsize(f)>pw.y&&f.y<pw.y+pw.h)}clampPos(f);S.fruits.push(f);dexCheck(f);SFX.buy();save();showCoins();renderTable(f.id);renderMarket()}
 /* ================= cenário ================= */
 const JAR=["cccccc","cccccc",".gggg.","gjjjjg","gwjjjg","gwjjjg","gjjjjg","gjjjjg",".gggg."];
 const PLANT=["....l..l....","..l.ll.l.l..","...lLLll....",".l.lLllLl.l.","..lLLllLLl..","...lLllLl...",".....ll.....","..pppppppp..","..pPPPPPPp..","...pppppp...","...pppppp...","....pppp...."];
@@ -548,12 +561,13 @@ function placePot(){const p=$("pot");if(!S.potPos)return;const w=p.offsetWidth,h
 p.addEventListener("pointerdown",e=>{if(modalOpen)return;e.preventDefault();p.setPointerCapture(e.pointerId);sx=e.clientX;sy=e.clientY;ox=p.offsetLeft;oy=p.offsetTop;on=true;mv=false});
 p.addEventListener("pointermove",e=>{if(!on)return;const dx=e.clientX-sx,dy=e.clientY-sy;if(!mv&&Math.abs(dx)+Math.abs(dy)<6)return;if(!mv){mv=true;p.classList.add("mv")}
 S.potPos={x:ox+dx,y:oy+dy};placePot()});
-const up=()=>{if(!on)return;on=false;p.classList.remove("mv");if(mv){save();return}potTap()};p.addEventListener("pointerup",up);p.addEventListener("pointercancel",up)})();
+const up=()=>{if(!on)return;on=false;p.classList.remove("mv");if(mv){save();return}potTap()};
+const cancel=()=>{if(!on)return;on=false;p.classList.remove("mv");if(mv)save()};p.addEventListener("pointerup",up);p.addEventListener("pointercancel",cancel)})();
 /* ================= efeitos ================= */
 function burst(x,y,rgb,n){for(let i=0;i<n;i++){const d=document.createElement("div");d.className="pt";d.style.background=i%3==0?"#ffffff":hex(i%2?rgb:lift(rgb,.4));d.style.left=x+"px";d.style.top=y+"px";document.body.appendChild(d);
 const a=Math.random()*Math.PI*2,r=28+Math.random()*50;d.animate([{transform:"translate(0,0)",opacity:1},{transform:`translate(${Math.cos(a)*r}px,${Math.sin(a)*r-18}px)`,opacity:0}],{duration:600+Math.random()*300,easing:"steps(6)"}).onfinish=()=>d.remove()}}
 let undoT=null;function undoOffer(f,v){const u=$("undo");clearTimeout(undoT);u.innerHTML=`Vendida por ${v} <button class="btn" id="undob">DESFAZER</button><i></i>`;u.classList.remove("on");void u.offsetWidth;u.classList.add("on");
-$("undob").onclick=()=>{clearTimeout(undoT);u.classList.remove("on");if(S.fruits.includes(f))return;S.coins=Math.max(0,S.coins-v);S.ds.earn-=v;S.fruits.push(f);clampPos(f);save();hud();renderTable(f.id);renderMarket();SFX.plop();toast("Venda desfeita!")};
+$("undob").onclick=()=>{clearTimeout(undoT);u.classList.remove("on");if(S.fruits.includes(f))return;if(S.coins<v){toast("Não dá pra desfazer: você já gastou as moedas dessa venda.");return}S.coins-=v;S.ds.earn-=v;S.fruits.push(f);clampPos(f);save();hud();renderTable(f.id);renderMarket();SFX.plop();toast("Venda desfeita!")};
 undoT=setTimeout(()=>u.classList.remove("on"),3200)}
 function tidy(){const pr=$("pot"),br=$("bin"),tw=tbl.clientWidth,th=tbl.clientHeight;const blocks=[[pr.offsetLeft-6,pr.offsetTop-6,pr.offsetWidth+12,pr.offsetHeight+12],[br.offsetLeft-6,br.offsetTop-6,br.offsetWidth+12,br.offsetHeight+12],[tw-90,0,90,34]];
 const hit=(x,y,s)=>blocks.some(([bx,by,bw,bh])=>x<bx+bw&&x+s>bx&&y<by+bh&&y+s>by);
@@ -581,10 +595,12 @@ function checkAch(){S.ach=S.ach||{};S.rec=S.rec||{};ACH.forEach(([id,n,d,ok,rw])
  setTimeout(()=>{toast(`<img src="${TROPHY()}" style="width:18px;height:18px;display:inline-block;vertical-align:-3px;image-rendering:pixelated"> <b>CONQUISTA!</b> ${n}<br>+${rw} moedas`);SFX.lvl();buzz([30,40,30]);hud()},1600)})}
 function renderCombo(){const e=$("combo");if(!e)return;const left=combo>=2?1-(now()-comboT)/COMBO_WIN:0;if(left<=0){e.classList.remove("on");if(left<=0&&combo>=2&&now()-comboT>=COMBO_WIN)combo=0;return}
 if(!e.classList.contains("on")){e.classList.add("on")}e.innerHTML=`COMBO x${combo}<i style="width:${Math.max(0,left*100)}%"></i>`}
-function flyCoins(x,y,n,total){const t=$("hudcoin").getBoundingClientRect(),k=cl(n,1,10);let done=false;
+// moedas "voando": já estão no saldo (S.coins), mas o contador do topo só mostra quando chegam
+let coinFly=0;const showCoins=()=>{$("coins").textContent=Math.max(0,S.coins-coinFly)};
+function flyCoins(x,y,n,total){coinFly+=total||0;const t=$("hudcoin").getBoundingClientRect(),k=cl(n,1,10);let done=false;
 for(let i=0;i<k;i++)setTimeout(()=>{const d=document.createElement("div");d.className="fc";d.style.left=x+"px";d.style.top=y+"px";document.body.appendChild(d);
 d.animate([{transform:"translate(0,0)"},{transform:`translate(${(Math.random()-.5)*50}px,${-24-Math.random()*24}px)`,offset:.3},{transform:`translate(${t.left-x}px,${t.top-y}px)`}],{duration:750,easing:"ease-in"}).onfinish=()=>{d.remove();if(i%3==0)SFX.coin();
-if(i==k-1&&!done){done=true;S.coins+=total;$("coins").textContent=S.coins;const tg=$("cointag");tg.classList.remove("bump");void tg.offsetWidth;tg.classList.add("bump");save();renderMarket()}}},i*60)}
+if(i==k-1&&!done){done=true;coinFly=Math.max(0,coinFly-total);showCoins();const tg=$("cointag");tg.classList.remove("bump");void tg.offsetWidth;tg.classList.add("bump");save();renderMarket()}}},i*60)}
 /* ================= som (chiptune) ================= */
 let AC=null,muted=false;try{muted=localStorage.getItem("frutodromo_mute")=="1"}catch(e){}
 function unlockAudio(){const a=ac();if(!a||unlockAudio.ok)return;try{const b=a.createBuffer(1,1,22050),src=a.createBufferSource();src.buffer=b;src.connect(a.destination);src.start(0)}catch(e){}
@@ -667,8 +683,9 @@ $("sexp").onclick=()=>{save();const code="FRUTO1:"+btoa(unescape(encodeURICompon
  openModal(`<h2>SEU CÓDIGO</h2><p style="font-size:.8rem">Guarde esse código (num bloco de notas ou mande pra você mesmo). Ele leva tudo: frutas, espécies, cartas e conquistas.</p><textarea id="bk" readonly style="width:100%;height:140px;font-size:.6rem;font-family:monospace">${code}</textarea><button class="big" id="bkc">COPIAR</button><button class="big alt" id="cl">VOLTAR</button>`);
  $("bkc").onclick=async()=>{try{await navigator.clipboard.writeText(code);toast("Código copiado!")}catch(e){$("bk").select();toast("Selecionei o código. Copie manualmente.")}};$("cl").onclick=()=>settings(back)};
 $("simp").onclick=()=>{openModal(`<h2>IMPORTAR</h2><p style="font-size:.8rem">Cole o código do seu progresso. Isso <b>substitui</b> o jogo atual deste aparelho.</p><textarea id="bk" style="width:100%;height:140px;font-size:.6rem;font-family:monospace"></textarea><button class="big" id="bki">CARREGAR</button><button class="big alt" id="cl">VOLTAR</button>`);
- $("cl").onclick=()=>settings(back);$("bki").onclick=()=>{try{const v=$("bk").value.trim();if(!v.startsWith("FRUTO1:"))throw 0;const d=JSON.parse(decodeURIComponent(escape(atob(v.slice(7)))));if(!d.fruits||!d.tree)throw 0;
-  S=d;S.pot=S.pot||[];save();closeModal();running=false;renderAll();placePot();toast("Progresso carregado!");startScreen()}catch(e){toast("Código inválido. Confira se copiou inteiro.")}}};$("cl").onclick=()=>{closeModal();if(back)back()}}
+ $("cl").onclick=()=>settings(back);$("bki").onclick=()=>{try{const v=$("bk").value.trim();if(!v.startsWith("FRUTO1:"))throw 0;const d=JSON.parse(decodeURIComponent(escape(atob(v.slice(7)))));const n=normState(d,true);if(!n)throw 0;n.bag=n.bag.filter(x=>ITEMS[x.t]);
+  const old=S;S=n;try{S.fruits.forEach(f=>treeAdd(f,null,true));closeModal();running=false;renderAll();placePot()}catch(err){S=old;renderAll();placePot();throw err}
+  save();toast("Progresso carregado!");startScreen()}catch(e){toast("Código inválido. Confira se copiou inteiro. Seu progresso atual não foi alterado.")}}};$("cl").onclick=()=>{closeModal();if(back)back()}}
 const TUT=[["pot","Arraste <b>duas frutas</b> até o <b>caldeirão</b> pra criar uma nova!","t1"],["cust","Agora arraste uma fruta até o <b>cliente</b> que pediu algo parecido. Toque no <b>?</b> do balão se precisar da receita.","t2"],["dexb","Toque numa fruta pra ver os atributos. Na <b>ÁRVORE</b> ficam todas as espécies que você descobriu!","t3"]];
 function tutStep(){S.tut=S.tut||{};const st=TUT.find(t=>!S.tut[t[2]]);const box=$("tut");if(!st||modalOpen||!running){box.classList.remove("on");return}
 if(box.dataset.k==st[2]&&box.classList.contains("on"))return;box.dataset.k=st[2];
@@ -678,7 +695,7 @@ const bw=box.offsetWidth,bh=box.offsetHeight,ar=box.querySelector(".ar");let x=c
 if(r.top>bh+20){y=r.top-bh-12;ar.style.cssText=`left:${r.left+r.width/2-x-9}px;bottom:-18px;border-top-color:#2a1a12`}else{y=r.bottom+12;ar.style.cssText=`left:${r.left+r.width/2-x-9}px;top:-18px;border-bottom-color:#2a1a12`}
 box.style.left=x+"px";box.style.top=y+"px"}
 function tutDone(k){S.tut=S.tut||{};if(!S.tut[k]){S.tut[k]=1;save();$("tut").classList.remove("on");setTimeout(tutStep,900)}}
-function hud(){updateSky();$("coins").textContent=S.coins;const rem=dayLen()-S.dayT;$("day").textContent=`D${S.day} · NV${level()} · ${CFG.zen?"ZEN ∞":running?fmt(rem):"--:--"}`;$("day").classList.toggle("low",running&&!CFG.zen&&rem<20000)}
+function hud(){updateSky();showCoins();const rem=dayLen()-S.dayT;$("day").textContent=`D${S.day} · NV${level()} · ${CFG.zen?"ZEN ∞":running?fmt(rem):"--:--"}`;$("day").classList.toggle("low",running&&!CFG.zen&&rem<20000)}
 function startDay(){setTimeout(tutStep,2500);running=true;S.started=true;S.cust.forEach((c,i)=>{if(!c)setTimeout(()=>{if(running&&!S.cust[i]){S.cust[i]=newCust();save();renderCounter()}},300+i*1400)});renderCounter();hud()}
 function endDay(){running=false;rec("bestDay",S.ds.earn,1);SFX.day();S.cust.forEach(c=>{if(c){c.leaving=true;c.lt=Date.now()}});renderCounter();
 setTimeout(()=>{S.cust=[null,null,null];renderCounter();save();showSummary()},900)}
@@ -719,7 +736,7 @@ const recipes={};const cols=Object.keys(rep);
 cols.forEach((a,i)=>cols.slice(i).forEach(b=>{const r=colorName(COLORS[a].map((x,k)=>(x+COLORS[b][k])/2));(recipes[r]=recipes[r]||[]).push([a,b])}));
 const have=new Set(Object.keys(S.tree||{}).map(k=>k.split("|")[1]));let h=`<div class="cgw"><p style="font-size:.8rem;margin-top:0">A cor do filho é a <b>mistura das cores dos pais</b>, como tinta. Híbridos podem ser misturados de novo pra chegar em outras cores.</p>`;
 CORDER.forEach(c=>{const rs=(recipes[c]||[]).filter(([a,b])=>a!=b||rep[a]).sort((x,y)=>(x[0]==x[1])-(y[0]==y[1])).slice(0,4);
-const lock=b=>b[9]>L?` <i style="opacity:.6">(nível ${b[9]})</i>`:"";
+const lock=b=>"";
 let body;if(MUT_ONLY.includes(c))body=`<div style="white-space:normal">Só por <b>mutação</b>: chance pequena ao cruzar qualquer fruta</div>`;
 else body=rs.map(([a,b])=>a==b?`<span>${img(rep[a])}${rep[a][0]}${lock(rep[a])}</span>`:`<span>${img(rep[a])}<span class="mini-sw" style="background:${hex(COLORS[a])}"></span>+${img(rep[b])}<span class="mini-sw" style="background:${hex(COLORS[b])}"></span>${lock(rep[a])}${lock(rep[b])}</span>`).join("")||"<span>—</span>";
 h+=`<div class="cg ${hi==c?"hi":""}" id="cg-${c}"><span class="big-sw" style="background:${hex(COLORS[c])}"></span><span class="nm2">${c.toUpperCase()}${have.has(c)?"<br><span style='font-size:.6rem;color:#3ca55c'>✔ já tem</span>":""}</span><div class="rcp">${body}</div></div>`});
@@ -806,9 +823,10 @@ S.cust.forEach((c,i)=>{if(!c||c.leaving)return;const el=document.querySelector(`
 el.querySelectorAll(".pat i").forEach((x,k)=>x.style.background=k<on?pc:"");const pb=el.querySelector(".pay b");if(pb)pb.textContent=pay(c);
 if((left<.2?"1":"0")!=el.dataset.low&&!document.querySelector(".fr.drag"))renderCounter()});
 if((saveT+=dt)>4000){saveT=0;save()}}hud();renderCombo()},250);
+window.addEventListener("pagehide",()=>save());document.addEventListener("visibilitychange",()=>{if(document.hidden)save()});
 window.addEventListener("resize",()=>{S.fruits.forEach(clampPos);renderTable();renderProps();placePot();freeFromPot()});setTimeout(()=>{try{freeFromPot()}catch(e){}},300);
 S.pot=S.pot||[];if(S.pot.length==2){S.fruits.push(...S.pot);S.pot=[]}
 document.addEventListener("pointerdown",e=>{const t=e.target.closest("button,.btn,.big,.hint,.flt span,.sp,.cg,.tvh .btn,#pot,.pw");if(!t)return;ac();
  if(t.id=="go"||t.id=="cl"||t.id=="tvx"||t.id=="resume"||t.id=="nextd"||t.id=="rvx"||t.id=="pot")return;SFX.sel()},true);
 if("serviceWorker" in navigator&&location.hostname.endsWith("github.io"))navigator.serviceWorker.register("sw.js").catch(()=>{});
-delete S.ess;delete S.sk;S.tree=S.tree||{};if(!S.bag)S.bag=[{t:"grow"},{t:"shrink"}];S.fruits.forEach(f=>{clampPos(f);treeAdd(f,null,true)});renderProps();renderAll();placePot();fetchWX();startScreen();
+delete S.ess;delete S.sk;S.tree=S.tree||{};if(!S.bag)S.bag=[{t:"grow"},{t:"shrink"}];S.bag=S.bag.filter(x=>ITEMS[x.t]);S.fruits.forEach(f=>{clampPos(f);treeAdd(f,null,true)});renderProps();renderAll();placePot();fetchWX();startScreen();
