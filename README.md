@@ -68,7 +68,7 @@ frutodromo/
 ├── icon-192.png      # ícones do app
 ├── icon-512.png
 ├── docs/             # prints do README
-└── tools/split.py    # separa a versão de arquivo único em html/css/js
+└── tools/bundle.py   # gera uma versão de arquivo único (CSS e JS embutidos)
 ```
 
 ## Rodando
