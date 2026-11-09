@@ -263,3 +263,4 @@ img.curt{z-index:2;transform-origin:50% 0;animation:sway 10s ease-in-out infinit
 button,.btn,.big,.mk,.tabk,.hint,.cust,.sp,.flt span{touch-action:manipulation}
 /* acessibilidade: movimento reduzido no sistema */
 @media (prefers-reduced-motion: reduce){*,*:before,*:after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}
+.mk{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}

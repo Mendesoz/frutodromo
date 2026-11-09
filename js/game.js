@@ -393,6 +393,13 @@ setTimeout(()=>{c.leaving=true;c.lt=Date.now();renderCounter();setTimeout(()=>{S
 function newUnlock(L){const extra={2:"Clientes pedem frutas MINI e ENORMES",3:"Pedidos de FOGO e clientes VIP",4:"Pedidos de GELO e cores raras",5:"Microscópicas, Gigantescas e SUPER-FRUTAS"}[L];
 return extra?"<br>"+extra:""}
 /* ================= info / feira ================= */
+// feira: segurar (toque) ou passar o mouse mostra doce/azedo/tamanho antes de comprar
+let mkHoldT=null,mkSkip=0,mkPrev=false;
+function mkPreview(i){const f=baseFruit(BASE[i]);S.id--;mkPrev=true;showInfo(f);if(S.tut&&S.tut.t3)tutDone("t4")}
+function mkDown(i,e){clearTimeout(mkHoldT);mkSkip=0;if(e.pointerType=="mouse")return;mkHoldT=setTimeout(()=>{mkSkip=1;mkPreview(i);buzz(15)},420)}
+function mkUp(){clearTimeout(mkHoldT)}
+function mkEnter(i,e){if(e.pointerType!="mouse")return;clearTimeout(mkHoldT);mkHoldT=setTimeout(()=>mkPreview(i),350)}
+function mkLeave(e){clearTimeout(mkHoldT);if(mkPrev&&e.pointerType=="mouse"){mkPrev=false;if(!sel)showInfo(null)}}
 let infoT=null;function infoAuto(f){clearTimeout(infoT);infoT=setTimeout(()=>{if(sel==f.id&&!document.querySelector(".fr.drag")){sel=null;showInfo(null);tbl.querySelectorAll(".fr.sel").forEach(x=>x.classList.remove("sel"))}},4500)}
 function showInfo(f){clearTimeout(infoT);const p=$("info");if(!f){p.classList.remove("on");return}p.style.top=Math.round($("scene").getBoundingClientRect().bottom+3)+"px";if(S.tut&&S.tut.t2)tutDone("t3");
 const tw=(v,a,b)=>v>=8?"muito "+a:v>=6?a:v<=2?"nada "+a:v<=4?"pouco "+a:"",st=(l,v,c,w)=>`<div class="st"><span>${l}</span>${cells(i=>i<=v,c)}<b style="white-space:nowrap">${v}${w?` <small style="font-weight:400;opacity:.75">${w}</small>`:""}</b></div>`;
@@ -450,7 +457,7 @@ function renderMarket(){const L=level();const tabs=`<div class="mk tabk ${mkTab=
 if(mkTab=="bolsa"){const groups={};(S.bag||[]).forEach(it=>{const k=it.t+(it.v||"");(groups[k]=groups[k]||{it,n:0}).n++});const gs=Object.values(groups);
  $("market").innerHTML=tabs+(gs.length?gs.map(({it,n},gi)=>{const I=ITEMS[it.t],k=it.t+(it.v||"");return `<div class="mk px itm ${armed==k?"arm":""} ${bagAnim?"in":""}" style="animation-delay:${gi*45}ms" onclick="armItem('${k}')"><img src="${I.img(it.v)}">${I.short(it.v)}<div class="pr">x${n}</div></div>`}).join(""):`<div style="color:#ffe9b8;font-size:.75rem;padding:8px;align-self:center">Vazia. Clientes dão <b>presentes</b> quando você entrega!</div>`);return}
 $("market").innerHTML=tabs+BASE.map((b,i)=>{const f={shape:b[1],pat:b[2],top:b[3],rgb:typeof b[4]=="string"?COLORS[b[4]]:b[4],tip:b[0]=="Banana"?"#6b4423":b[0]=="Pimenta-Dragão"?"#3f9a3a":null};const lock=false,rare=!!b[10];
-return `<div class="mk px ${lock?"lock":S.coins<b[8]?"off":""} ${rare&&!lock?"rare":""}" onclick="buy(${i})"><img src="${fruitImg(f)}">${lock?"???":b[0]}<div class="pr">${lock?"NÍVEL "+b[9]:`<span class="coin"></span>${b[8]}`}</div></div>`}).join("")}
+return `<div class="mk px ${lock?"lock":S.coins<b[8]?"off":""} ${rare&&!lock?"rare":""}" onclick="if(mkSkip){mkSkip=0;return}buy(${i})" onpointerdown="mkDown(${i},event)" onpointerup="mkUp()" onpointercancel="mkUp()" onpointerenter="mkEnter(${i},event)" onpointerleave="mkLeave(event)"><img src="${fruitImg(f)}">${lock?"???":b[0]}<div class="pr">${lock?"NÍVEL "+b[9]:`<span class="coin"></span>${b[8]}`}</div></div>`}).join("")}
 function buy(i){const b=BASE[i];if(S.coins<b[8])return toast("Moedas insuficientes");S.coins-=b[8];const f=baseFruit(b);
 {const pr=$("pot"),pw={x:pr.offsetLeft,y:pr.offsetTop,w:pr.offsetWidth,h:pr.offsetHeight};let k=0;do{f.x=N(10,Math.max(10,tbl.clientWidth-110));f.y=N(10,Math.max(10,tbl.clientHeight-110));k++}while(k<30&&f.x+fsize(f)>pw.x&&f.x<pw.x+pw.w&&f.y+fsize(f)>pw.y&&f.y<pw.y+pw.h)}clampPos(f);S.fruits.push(f);dexCheck(f);SFX.buy();save();showCoins();renderTable(f.id);renderMarket()}
 /* ================= cenário ================= */
@@ -719,7 +726,7 @@ $("simp").onclick=()=>{openModal(`<h2>IMPORTAR</h2><p style="font-size:.8rem">Co
  $("cl").onclick=()=>settings(back);$("bki").onclick=()=>{try{const v=$("bk").value.trim();if(!v.startsWith("FRUTO1:"))throw 0;const d=JSON.parse(decodeURIComponent(escape(atob(v.slice(7)))));const n=normState(d,true);if(!n)throw 0;n.bag=n.bag.filter(x=>ITEMS[x.t]);
   const old=S;S=n;try{S.fruits.forEach(f=>treeAdd(f,null,true));closeModal();running=false;renderAll();placePot()}catch(err){S=old;renderAll();placePot();throw err}
   save();toast("Progresso carregado!");startScreen()}catch(e){toast("Código inválido. Confira se copiou inteiro. Seu progresso atual não foi alterado.")}}};$("cl").onclick=()=>{closeModal();if(back)back()}}
-const TUT=[["pot","Arraste <b>duas frutas</b> até o <b>caldeirão</b> pra criar uma nova!","t1"],["cust","Agora arraste uma fruta até o <b>cliente</b> que pediu algo parecido. Toque no <b>?</b> do balão se precisar da receita.","t2"],["dexb","Toque numa fruta pra ver os atributos. Na <b>ÁRVORE</b> ficam todas as espécies que você descobriu!","t3"]];
+const TUT=[["pot","Arraste <b>duas frutas</b> até o <b>caldeirão</b> pra criar uma nova!","t1"],["cust","Agora arraste uma fruta até o <b>cliente</b> que pediu algo parecido. Toque no <b>?</b> do balão se precisar da receita.","t2"],["dexb","Toque numa fruta pra ver os atributos. Na <b>ÁRVORE</b> ficam todas as espécies que você descobriu!","t3"],["market","<b>Segure</b> uma fruta da feira (ou passe o mouse) pra ver doce, azedo e tamanho antes de comprar.","t4"]];
 function tutStep(){S.tut=S.tut||{};const st=TUT.find(t=>!S.tut[t[2]]);const box=$("tut");if(!st||modalOpen||!running){box.classList.remove("on");return}
 if(box.dataset.k==st[2]&&box.classList.contains("on"))return;box.dataset.k=st[2];
 const tg=st[0]=="cust"?document.querySelector(".cust .pw"):$(st[0]);if(!tg)return;const r=tg.getBoundingClientRect();
