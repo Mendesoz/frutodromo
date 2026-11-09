@@ -849,16 +849,18 @@ if(st>=4){const gem=st>=5?"#e74c3c":"#8af0ff",gold=st>=5?"#f7c331":"#c9a7ff",dk=
   px(x+sx*4-(sx<0?4:0),y+sy*4-(sy<0?4:0),gem,8);px(x+sx*8-(sx<0?4:0),y+sy*8-(sy<0?4:0),dk)});
  if(st>=5)for(let x=110;x<=190;x+=8){px(x,2,"#f7c331");if((x/8|0)%2)px(x,-2,"#ffe27a")}}
 if(st==3)[[18,18],[278,18],[18,398],[278,398]].forEach(([x,y])=>{px(x,y,col);px(x+4,y+4,"#fff")})}
+// texto da carta: diminui a fonte até caber (nomes em inglês costumam ser mais longos)
+function fitText(g,txt,x,y,maxW,size,w){let s=size;do{g.font=w+s+"px 'Pixelify Sans',monospace"}while(g.measureText(txt).width>maxW&&--s>8);g.fillText(txt,x,y)}
 function cardCanvas(k){const t=S.tree[k],st=stars(t),[lab,col]=RAR[st],c=document.createElement("canvas");c.width=300;c.height=420;const g=c.getContext("2d");g.imageSmoothingEnabled=false;
 g.fillStyle="#2a1a12";g.fillRect(0,0,300,420);g.fillStyle=col;g.fillRect(6,6,288,408);g.fillStyle="#f5efe0";g.fillRect(14,14,272,392);
 for(let i=0;i<24;i++){g.fillStyle=i%2?hex(lift(hexToRgb(col),.75)):"#efe4cf";g.beginPath();g.moveTo(150,150);g.arc(150,150,260,i*Math.PI/12,(i+1)*Math.PI/12);g.fill()}
 g.fillStyle="#f5efe0";g.fillRect(14,262,272,144);g.fillStyle="#2a1a12";g.fillRect(14,258,272,4);
 cardFrame(g,st,col,t.shiny);
 return new Promise(res=>{const im=new Image();im.onload=()=>{g.drawImage(im,60,40,180,180);
-g.fillStyle="#2a1a12";g.font="bold 18px 'Pixelify Sans',monospace";g.textAlign="center";g.fillText(tl(`nº ${t.n} · ${t.name}`).slice(0,26),150,32);
+g.fillStyle="#2a1a12";g.textAlign="center";fitText(g,tl(`nº ${t.n} · ${t.name}`),150,32,268,18,"bold ");
 g.font="bold 22px 'Pixelify Sans',monospace";g.fillStyle=col;g.fillText("★".repeat(st)+"☆".repeat(5-st),150,248);
 g.textAlign="left";g.fillStyle="#2a1a12";g.font="14px 'Pixelify Sans',monospace";const ls=[lab+(t.shiny?" · BRILHANTE ✦":""),spLabel(k),`Doce ${t.st.doce} · Azedo ${t.st.az} · Tamanho ${t.st.tam}`,`Geração ${t.d} · Dia ${t.day||S.day}`];
-ls.forEach((l,i)=>{l=tl(l);g.font=(i==0?"bold ":"")+(i==1?"12px":"14px")+" 'Pixelify Sans',monospace";let y=284+i*24;g.fillText(l.slice(0,36),26,y)});
+ls.forEach((l,i)=>fitText(g,tl(l),26,284+i*24,250,i==1?12:14,i==0?"bold ":""));
 g.font="bold 10px 'Pixelify Sans',monospace";g.fillStyle="#8a6a50";g.textAlign="center";g.fillText(SITE_TXT(),150,396);res(c)};im.src=fruitImg(t.img)})}
 async function showCard(k,isNew,shinyOnly){const c=await cardCanvas(k),url=c.toDataURL("image/png"),t=S.tree[k];
 openModal(`<h2>${isNew?(shinyOnly?"✦ VERSÃO BRILHANTE!":"NOVA ESPÉCIE!"):"CARTA DA ESPÉCIE"}</h2><img id="cardimg" class="${isNew?"cin":""}" src="${url}">
@@ -951,4 +953,6 @@ document.addEventListener("pointerdown",e=>{const t=e.target.closest("button,.bt
  if(t.id=="go"||t.id=="cl"||t.id=="tvx"||t.id=="resume"||t.id=="nextd"||t.id=="rvx"||t.id=="pot")return;SFX.sel()},true);
 if("serviceWorker" in navigator&&location.hostname.endsWith("github.io"))navigator.serviceWorker.register("sw.js").catch(()=>{});
 delete S.ess;delete S.sk;S.tree=S.tree||{};
-migrate();if(!S.bag)S.bag=[{t:"grow"},{t:"shrink"}];S.bag=S.bag.filter(x=>ITEMS[x.t]);S.fruits.forEach(f=>{clampPos(f);treeAdd(f,null,true)});renderProps();renderAll();placePot();fetchWX();startScreen();portalInit();
+migrate();if(!S.bag)S.bag=[{t:"grow"},{t:"shrink"}];S.bag=S.bag.filter(x=>ITEMS[x.t]);S.fruits.forEach(f=>{clampPos(f);treeAdd(f,null,true)});renderProps();renderAll();placePot();fetchWX();
+// nos portais o jogador cai direto na partida (exigência do CrazyGames); o menu ≡ continua abrindo a tela inicial
+if(PORTAL.name)startDay();else startScreen();portalInit();

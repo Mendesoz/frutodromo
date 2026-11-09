@@ -85,7 +85,13 @@ Relaxe com trilha lo-fi e o clima de verdade na janela: sol, chuva, tempestade e
 
 As três seguem as regras: só o título como texto, sem borda, sem logo de loja e sem "jogue agora".
 
-## Ainda falta para enviar
+## Vídeos de prévia
 
-- **Vídeos de prévia (obrigatórios):** 15 a 20 segundos, sem som, um em paisagem 1080p e outro em retrato 2:3, começando com a capa.
-- **Ir direto pro jogo:** para o lançamento completo, o CrazyGames pede que o jogador novo caia direto na partida. Hoje a tela inicial pede um toque em "Abrir a quitanda".
+- Paisagem 1920x1080: `frutodromo-preview-land-1920x1080.mp4` (18 s)
+- Retrato 1080x1620: `frutodromo-preview-port-1080x1620.mp4` (17 s)
+
+Sem som, abrindo com a capa e passando para o jogo: cruzar no caldeirão, entregar pedidos de fogo e gelo, usar a poção gigante e revelar uma carta lendária.
+
+## Entrada direta no jogo
+
+No CrazyGames o jogo já começa na partida, sem a tela inicial. O tutorial aparece por cima e o menu ≡ continua abrindo a tela inicial.
