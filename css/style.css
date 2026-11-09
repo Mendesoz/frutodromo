@@ -201,7 +201,10 @@ img.curt{z-index:2;transform-origin:50% 0;animation:sway 10s ease-in-out infinit
 @keyframes sway{0%,72%,100%{transform:none}77%{transform:skewX(-5deg) translateX(1px)}83%{transform:skewX(2deg)}89%{transform:skewX(-1deg)}94%{transform:skewX(.5deg)}}
 @keyframes swayr{0%,72%,100%{transform:none}77%{transform:skewX(5deg) translateX(-1px)}83%{transform:skewX(-2deg)}89%{transform:skewX(1deg)}94%{transform:skewX(-.5deg)}}
 @keyframes rn{to{background-position:-2px 12px}}
-.win.storm{animation:flash 6s steps(1) infinite}@keyframes flash{0%,90%,94%,100%{filter:none}91%,93%{filter:brightness(2.6)}}
+.win.flash{animation:flash .45s steps(1)}@keyframes flash{0%,40%{filter:brightness(2.6)}20%,60%,100%{filter:none}}
+.win.rain.r1 .wfx{background-size:20px 20px;opacity:.45;animation-duration:.7s}
+.win.rain.r3 .wfx{background-image:repeating-linear-gradient(100deg,#0000 0 2px,#eaf4ff 2px 4px,#0000 4px 6px);background-size:8px 10px;opacity:.95;animation-duration:.2s}
+.win.night.rain.r1 .wfx{opacity:.3}.win.night.rain.r3 .wfx{opacity:.7}
 #wxtag{position:absolute;left:calc(50% + 20px);top:44px;z-index:2;background:#2a1a12;color:#ffe9b8;font-size:.62rem;padding:0 4px;border:2px solid #5a3e26}
 .prt{width:176px;height:228px;margin:4px auto;border:4px solid #6b4423;box-shadow:inset 0 0 0 3px #b8794a,0 0 0 3px #2a1a12;background:repeating-linear-gradient(90deg,#e9d3a6 0 14px,#dfc394 14px 16px);display:flex;align-items:flex-end;justify-content:center;overflow:hidden}
 .prt img{width:160px;height:208px}
@@ -248,3 +251,15 @@ img.curt{z-index:2;transform-origin:50% 0;animation:sway 10s ease-in-out infinit
 .toast.on{opacity:1}.toast b{color:#f7c331}
 .pt{position:fixed;width:6px;height:6px;z-index:120;pointer-events:none}
 .fc{position:fixed;width:12px;height:12px;z-index:120;pointer-events:none;background:#f7c331;box-shadow:inset -2px -2px 0 #b7841a,inset 2px 2px 0 #fff3a0}
+
+/* tela inicial curta */
+.how{text-align:left;margin:6px auto 4px;padding-left:22px;max-width:300px;font-size:.88rem;line-height:1.5}.how li::marker{font-weight:700;color:#c0392b}
+.how2{font-size:.74rem;opacity:.8;margin:2px 0 8px}
+/* pedido: requisito que faltou na entrega */
+.rq.miss{animation:missb .5s steps(2) 2}@keyframes missb{50%{background:#ff8a7a}}
+/* computador: balões de pedido mais largos (o texto não corta) */
+@media (min-width:700px){.bub{width:150px}.rq{font-size:.66rem}}
+/* toque rápido não dá zoom duplo (o zoom com dois dedos continua liberado) */
+button,.btn,.big,.mk,.tabk,.hint,.cust,.sp,.flt span{touch-action:manipulation}
+/* acessibilidade: movimento reduzido no sistema */
+@media (prefers-reduced-motion: reduce){*,*:before,*:after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}

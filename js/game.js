@@ -354,6 +354,10 @@ return o.join("")}
 function renderTable(newId){tbl.querySelectorAll(".fr").forEach(e=>e.remove());$("tip").style.display=S.fruits.length?"none":"";
 S.fruits.forEach(f=>{const d=document.createElement("div");d.className="fr"+(f.id==newId?" new":"")+(f.id==sel?" sel":"")+(f.tam==0?" micro":"")+(f.el?" el-"+f.el:"")+(f.shiny?" shiny":"");d.dataset.id=f.id;const s=fsize(f);
 d.style.width=d.style.height=s+"px";d.style.left=f.x+"px";d.style.top=f.y+"px";d.style.setProperty("--d",(parseInt(f.id.slice(1))%7)*.3+"s");d.innerHTML=`<img src="${fruitImg(f)}">`+fxHTML(f,s)+(f.shiny?[[.1,.15],[.75,.05],[.85,.65],[.2,.8]].map(([x,y],k)=>`<span class="spk" style="left:${s*x}px;top:${s*y}px;animation-delay:-${k*.3}s"></span>`).join(""):"")+(f.mut?'<span class="mut">MUT</span>':"");tbl.appendChild(d);drag(d,f)})}
+// procura um lugar livre perto de onde a fruta está (não cobre outra fruta nem o caldeirão/lixo)
+function freeSpot(f){const s=fsize(f),pr=$("pot"),br=$("bin"),blk=[[pr.offsetLeft,pr.offsetTop,pr.offsetWidth,pr.offsetHeight],[br.offsetLeft,br.offsetTop,br.offsetWidth,br.offsetHeight]];
+ const hit=(x,y)=>blk.some(([bx,by,bw,bh])=>x<bx+bw&&x+s>bx&&y<by+bh&&y+s>by)||S.fruits.some(o=>o!=f&&x<o.x+fsize(o)-8&&x+s>o.x+8&&y<o.y+fsize(o)-8&&y+s>o.y+8);
+ if(!hit(f.x,f.y))return;const x0=f.x,y0=f.y;for(let r=20;r<400;r+=18)for(let a=0;a<12;a++){const x=cl(x0+Math.cos(a/12*Math.PI*2)*r,0,Math.max(0,tbl.clientWidth-s)),y=cl(y0+Math.sin(a/12*Math.PI*2)*r,0,Math.max(0,tbl.clientHeight-s));if(!hit(x,y)){f.x=x;f.y=y;return}}}
 function clampPos(f){const s=fsize(f);f.x=cl(f.x,0,Math.max(0,tbl.clientWidth-s));f.y=cl(f.y,0,Math.max(0,tbl.clientHeight-s))}
 function center(el){const r=el.getBoundingClientRect();return[r.left+r.width/2,r.top+r.height/2]}
 function inside(x,y,el){const r=el.getBoundingClientRect();return x>r.left&&x<r.right&&y>r.top&&y<r.bottom}
@@ -379,7 +383,8 @@ el.addEventListener("pointerup",up);el.addEventListener("pointercancel",cancel)}
 function sell(f){const v=(1+Math.floor(f.gen/2)+(f.mut?2:0)+(f.el?3:0)+(f.hero?6:0)+(f.tam==0||f.tam>=11?4:0));const br=$("bin").getBoundingClientRect();flyCoins(br.left+br.width/2,br.top+br.height/2,v,0);S.coins+=v;showCoins();undoOffer(f,v);floatText(br.left+br.width/2,br.top,"+"+v);buzz(15);S.ds.earn+=v;
 S.fruits=S.fruits.filter(x=>x!=f);sel=null;showInfo(null);save();renderTable();renderCounter();renderMarket()}
 function deliver(f,i,ox,oy){const c=S.cust[i];
-if(!c.reqs.every(r=>meets(f,r))){f.x=ox;f.y=oy;renderTable();c.mood="sad";renderCounter();SFX.bad();buzz(120);{const ce=document.querySelector(`.cust[data-i="${i}"] .bub`);if(ce){const r=ce.getBoundingClientRect();floatText(r.left+r.width/2,r.top+20,"✗","#ff5a4e")}}setTimeout(()=>{if(S.cust[i]==c){c.mood=null;renderCounter()}},1200);return toast(`${c.name}: "Não foi isso que eu pedi..."`)}
+if(!c.reqs.every(r=>meets(f,r))){f.x=ox;f.y=oy;renderTable();c.mood="sad";renderCounter();SFX.bad();buzz(120);{const ce=document.querySelector(`.cust[data-i="${i}"] .bub`);if(ce){const r=ce.getBoundingClientRect();floatText(r.left+r.width/2,r.top+20,"✗","#ff5a4e")}}const miss=c.reqs.map((r,k)=>[r,k]).filter(([r])=>!meets(f,r));document.querySelectorAll(`.cust[data-i="${i}"] .rq`).forEach((e,k)=>{if(miss.some(m=>m[1]==k))e.classList.add("n","miss")});
+setTimeout(()=>{if(S.cust[i]==c){c.mood=null;renderCounter()}},1600);return toast(`${c.name}: "Quase! Faltou: <b>${miss.map(([r])=>{const[w,n]=reqWord(r);return w+(n?" "+n:"")}).join(", ")}</b>"`)}
 const cb=comboHit(),bonus=cb>=2?Math.round(pay(c)*Math.min(.5,(cb-1)*.1)):0,v=pay(c)+bonus,L0=level();const ce=document.querySelector(`.cust[data-i="${i}"] .bub`).getBoundingClientRect();S.coins+=v;flyCoins(ce.left+ce.width/2,ce.top+ce.height/2,v,v);floatText(ce.left+ce.width/2,ce.top+10,"+"+v);if(cb>=2)setTimeout(()=>floatText(ce.left+ce.width/2,ce.top+40,`COMBO x${cb}!`,"#ff8ad8"),250);buzz([20,40,30]);
 S.delivered++;S.ds.served++;if(c.vip)rec("vips",1);checkAch();tutDone("t2");S.ds.earn+=v;S.ds.best=Math.max(S.ds.best,v);S.fruits=S.fruits.filter(x=>x!=f);sel=null;showInfo(null);c.mood="happy";renderTable();renderCounter();renderMarket();
 toast(`${c.name} adorou! <b>+${v}</b> moedas${level()>L0?`<br><b>NÍVEL ${level()}!</b>${newUnlock(level())}`:""}`);if(level()>L0){SFX.lvl();shake(5);buzz([40,60,40,60,80])}
@@ -388,7 +393,8 @@ setTimeout(()=>{c.leaving=true;c.lt=Date.now();renderCounter();setTimeout(()=>{S
 function newUnlock(L){const extra={2:"Clientes pedem frutas MINI e ENORMES",3:"Pedidos de FOGO e clientes VIP",4:"Pedidos de GELO e cores raras",5:"Microscópicas, Gigantescas e SUPER-FRUTAS"}[L];
 return extra?"<br>"+extra:""}
 /* ================= info / feira ================= */
-function showInfo(f){const p=$("info");if(!f){p.classList.remove("on");return}p.style.top=Math.round($("scene").getBoundingClientRect().bottom+3)+"px";if(S.tut&&S.tut.t2)tutDone("t3");
+let infoT=null;function infoAuto(f){clearTimeout(infoT);infoT=setTimeout(()=>{if(sel==f.id&&!document.querySelector(".fr.drag")){sel=null;showInfo(null);tbl.querySelectorAll(".fr.sel").forEach(x=>x.classList.remove("sel"))}},4500)}
+function showInfo(f){clearTimeout(infoT);const p=$("info");if(!f){p.classList.remove("on");return}p.style.top=Math.round($("scene").getBoundingClientRect().bottom+3)+"px";if(S.tut&&S.tut.t2)tutDone("t3");
 const tw=(v,a,b)=>v>=8?"muito "+a:v>=6?a:v<=2?"nada "+a:v<=4?"pouco "+a:"",st=(l,v,c,w)=>`<div class="st"><span>${l}</span>${cells(i=>i<=v,c)}<b style="white-space:nowrap">${v}${w?` <small style="font-weight:400;opacity:.75">${w}</small>`:""}</b></div>`;
 const tamTxt=f.tam==0?`<div class="st"><span>Tamanho</span><b>MICROSCÓPICA</b></div>`:f.tam>=11?`<div class="st"><span>Tamanho</span>${cells(()=>1,"#3fa7e0")}<b>${f.tam}!</b></div>`:st("Tamanho",f.tam,"#3fa7e0");
 p.innerHTML=`<span class="x" onclick="sel=null;showInfo(null);renderCounter();renderTable()">X</span><img src="${fruitImg(f)}"><div style="flex:1"><div class="t">${fname(f)}</div>
@@ -461,9 +467,10 @@ function spr(g,rows,pal,x0,y0){rows.forEach((r,y)=>[...r].forEach((ch,x)=>{if(pa
 let WINS=[];
 function winLayout(W){if(W*2>=600){const ww=46,wh=34;return [[Math.round(W/3)-ww/2,28,ww,wh],[Math.round(W*2/3)-ww/2,28,ww,wh]]}return [[Math.round(W*.22)-17,18,34,20],[Math.round(W*.78)-17,18,34,20]]}
 function curtainImg(h,flip){const w=7,[c,g]=cvs(w,h+5);for(let y=0;y<h+5;y++){const ww=y<4?w:Math.max(3,w-Math.floor((y-4)/(h/4.5)));for(let i=0;i<ww;i++){const xx=flip?w-1-i:i;px(g,xx,y,(i+Math.floor(y/2))%3==0?"#b8323a":i==ww-1?"#e0606a":"#d64550")}}return c.toDataURL()}
-const SUNI=()=>art(["..yyy..",".yWYYy.","yWYYYYy","yYYYYYy","yYYYYOy",".yYYOy.","..yyy.."],{y:"#ffd23a",Y:"#ffe84a",W:"#fffbe0",O:"#f7c331"},"#fff3a080");
-const DUSKI=()=>art(["..ooo..",".oYYYo.","oYYYYYo","oYYYYYo","oYYYYOo",".oYYOo.","..ooo.."],{o:"#ff8a3a",Y:"#ffb347",O:"#f08030"},"#ffd0a080");
-const MOONI=()=>art(["..mmm..",".mMmm..","mMmm...","mmm....","mmmm...",".mmmmm.","..mmm.."],{m:"#f5efe0",M:"#ffffff"},"#c8c0a860");
+const memo=fn=>{let v;return()=>v||(v=fn())};
+const SUNI=memo(()=>art(["..yyy..",".yWYYy.","yWYYYYy","yYYYYYy","yYYYYOy",".yYYOy.","..yyy.."],{y:"#ffd23a",Y:"#ffe84a",W:"#fffbe0",O:"#f7c331"},"#fff3a080"));
+const DUSKI=memo(()=>art(["..ooo..",".oYYYo.","oYYYYYo","oYYYYYo","oYYYYOo",".oYYOo.","..ooo.."],{o:"#ff8a3a",Y:"#ffb347",O:"#f08030"},"#ffd0a080"));
+const MOONI=memo(()=>art(["..mmm..",".mMmm..","mMmm...","mmm....","mmmm...",".mmmmm.","..mmm.."],{m:"#f5efe0",M:"#ffffff"},"#c8c0a860"));
 function cloudStrip(w,h,dense,seed){const[c,g]=cvs(w,h),r=srand(seed),n=dense?Math.round(w/7):Math.max(2,Math.round(w/26)),blobs=[];
  for(let k=0;k<n;k++){const rx=dense?5+r()*7:4+r()*5;blobs.push([r()*w,(dense?.25+r()*.7:.35+r()*.4)*h,rx,rx*.55])}
  const lit=dense?[206,211,220]:[255,255,255],mid=dense?[178,185,196]:[232,236,244],sh=dense?[150,158,172]:[200,207,220];
@@ -548,8 +555,8 @@ setTimeout(()=>{$("pot").classList.remove("brew");const ing=S.pot;S.pot=[];brewi
 const make=()=>{let c=cross(ing[0],ing[1]);if(ing[2]){c=cross(c,ing[2]);c.gen=Math.max(...ing.map(x=>x.gen))+1}return c};
 rec("crosses",1);const kids=[make()];
 kids.forEach((c,ki)=>{
-const tr=tbl.getBoundingClientRect(),pr=$("pot").getBoundingClientRect();c.x=pr.right-tr.left+8+ki*70;c.y=pr.top-tr.top-fsize(c)/3-ki*20;clampPos(c);
-S.fruits.push(c);sel=c.id;treeAdd(c,ing);if(c.shiny)rec("shiny",1);tutDone("t1");save();renderTable(c.id);renderPot();renderCounter();showInfo(c);
+const tr=tbl.getBoundingClientRect(),pr=$("pot").getBoundingClientRect();c.x=pr.right-tr.left+8+ki*70;c.y=pr.top-tr.top-fsize(c)/3-ki*20;clampPos(c);freeSpot(c);
+S.fruits.push(c);sel=c.id;treeAdd(c,ing);if(c.shiny)rec("shiny",1);tutDone("t1");save();renderTable(c.id);renderPot();renderCounter();showInfo(c);infoAuto(c);
 const er=tbl.querySelector(`[data-id="${c.id}"]`).getBoundingClientRect(),ex=er.left+er.width/2,ey=er.top+er.height/2;burst(ex,ey,c.rgb,24);
 if(c.mut||c.hero||c.shiny){burst(ex,ey,[180,155,255],18);SFX.mut();shake(c.hero?7:4);buzz([40,30,80])}else{SFX.pop();buzz(35)}if(c.el=="fogo")SFX.fire();
 toast((c.hero?`<b>SUPER-FRUTA!</b> ${fname(c)}`:c.mut?`<b>MUTAÇÃO!</b> ${fname(c)}`:`Nasceu: <b>${fname(c)}</b>`))})},1100)}
@@ -578,7 +585,7 @@ $("tidy").onclick=tidy;
 function buzz(p){if(!CFG.vib)return;try{if(navigator.vibrate)navigator.vibrate(p)}catch(e){}}
 function floatText(x,y,t,c){const d=document.createElement("div");d.className="ftx";d.textContent=t;d.style.left=x+"px";d.style.top=y+"px";d.style.color=c||"#f7c331";document.body.appendChild(d);
 d.animate([{transform:"translate(-50%,-50%) scale(.6)",opacity:0},{transform:"translate(-50%,-90%) scale(1.15)",opacity:1,offset:.25},{transform:"translate(-50%,-260%) scale(1)",opacity:0}],{duration:1100,easing:"steps(10)"}).onfinish=()=>d.remove()}
-function shake(n){const a=document.body.animate([{transform:"translate(0,0)"},{transform:`translate(${n}px,${-n/2}px)`},{transform:`translate(${-n}px,${n/2}px)`},{transform:`translate(${n/2}px,${n}px)`},{transform:"translate(0,0)"}],{duration:320,easing:"steps(4)"})}
+function shake(n){if(RM.matches)return;const a=document.body.animate([{transform:"translate(0,0)"},{transform:`translate(${n}px,${-n/2}px)`},{transform:`translate(${-n}px,${n/2}px)`},{transform:`translate(${n/2}px,${n}px)`},{transform:"translate(0,0)"}],{duration:320,easing:"steps(4)"})}
 let combo=0,comboT=0;const COMBO_WIN=25000;
 function comboHit(){combo=now()-comboT<COMBO_WIN?combo+1:1;comboT=now();renderCombo();rec("maxCombo",combo,1);return combo}
 function rec(k,v,isMax){S.rec=S.rec||{};if(isMax)S.rec[k]=Math.max(S.rec[k]||0,v);else S.rec[k]=(S.rec[k]||0)+v;checkAch()}
@@ -608,9 +615,10 @@ function unlockAudio(){const a=ac();if(!a||unlockAudio.ok)return;try{const b=a.c
 try{if(navigator.audioSession)navigator.audioSession.type="playback"}catch(e){}
 ["touchend","click","keydown"].forEach(ev=>document.addEventListener(ev,unlockAudio,{capture:true,passive:true}));
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&AC&&AC.state!="running"){unlockAudio.ok=0;AC.resume().catch(()=>{})}});
+const RM=matchMedia("(prefers-reduced-motion: reduce)");
 function ac(){try{if(!AC)AC=new(window.AudioContext||window.webkitAudioContext)();if(AC.state!="running")AC.resume().catch(()=>{})}catch(e){}return AC}
-function tone(f,d,type="square",vol=.05,when=0,slide=0,music){if(muted||!AC)return;vol*=(music?CFG.mus:CFG.sfx)/100*(music?1.4:1.2);if(vol<=0.0002)return;try{const a=AC,t=a.currentTime+when,o=a.createOscillator(),g=a.createGain();o.type=type;o.frequency.setValueAtTime(f,t);if(slide)o.frequency.linearRampToValueAtTime(Math.max(30,f+slide),t+d);
-g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+d+.03)}catch(e){}}
+function tone(f,d,type="square",vol=.05,when=0,slide=0,music,dest){if(muted||!AC)return;vol*=(music?CFG.mus:CFG.sfx)/100*(music?1.4:1.2);if(vol<=0.0002)return;try{const a=AC,t=a.currentTime+when,o=a.createOscillator(),g=a.createGain();o.type=type;o.frequency.setValueAtTime(f,t);if(slide)o.frequency.linearRampToValueAtTime(Math.max(30,f+slide),t+d);
+if(dest){g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+.04)}else g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(dest||a.destination);o.start(t);o.stop(t+d+.03)}catch(e){}}
 const SFX={plop:()=>tone(330,.14,"square",.06,0,-180),brew:()=>{for(let i=0;i<8;i++)tone(180+Math.random()*320,.08,"triangle",.06,i*.12)},pop:()=>{tone(523,.08);tone(784,.14,"square",.05,.08)},
 coin:()=>{tone(988,.05,"square",.035);tone(1319,.1,"square",.035,.05)},bad:()=>tone(150,.28,"sawtooth",.05,0,-40),lvl:()=>[523,659,784,1047].forEach((f,i)=>tone(f,.13,"square",.05,i*.1)),
 mut:()=>[392,523,659,784,1047,1319].forEach((f,i)=>tone(f,.08,"square",.045,i*.06)),dex:()=>{tone(880,.1,"triangle",.08);tone(1175,.2,"triangle",.08,.1)},
@@ -622,7 +630,24 @@ bagc:()=>{tone(1175,.04,"square",.03);tone(784,.04,"square",.03,.04);tone(392,.0
 open:()=>[523,659,784,1047].forEach((f,i)=>tone(f,.06,"square",.035,i*.035)),
 close:()=>[988,784,587].forEach((f,i)=>tone(f,.05,"square",.03,i*.035)),fire:()=>tone(110,.35,"sawtooth",.03,0,240)};
 const MEL=[523,0,659,0,784,659,523,0,587,0,698,0,880,698,587,0,523,0,659,784,880,0,784,659,587,523,0,587,659,0,0,0],BAS=[131,131,196,196,175,175,147,196];let step=0;
-setInterval(()=>{if(muted||!running||modalOpen||!AC)return;const n=MEL[step%MEL.length];if(n)tone(n,.16,"square",.014,0,0,1);if(step%4==0)tone(BAS[(step/4|0)%BAS.length],.32,"triangle",.04,0,0,1);step++},190);
+/* ---- som ambiente (chuva e trovão) e trilha lo-fi, tudo gerado no navegador ---- */
+const AMB={g:null,lp:null,key:""};let NOISE=null;
+function noiseBuf(){if(NOISE)return NOISE;const a=AC,b=a.createBuffer(1,a.sampleRate*3,a.sampleRate),d=b.getChannelData(0);let br=0;for(let i=0;i<d.length;i++){const w=Math.random()*2-1;br=(br+.02*w)/1.02;d[i]=w*.5+br*2.5}return NOISE=b}
+function ambSet(lv){if(!AC||AC.state!="running")return;const on=lv>0&&!muted&&CFG.amb!==false&&!document.hidden,vol=on?[0,.05,.09,.15][lv]*CFG.sfx/100*1.5:0;
+ if(!AMB.g){if(!on)return;const a=AC,src=a.createBufferSource();src.buffer=noiseBuf();src.loop=true;const hp=a.createBiquadFilter();hp.type="highpass";hp.frequency.value=350;const lp=a.createBiquadFilter();lp.type="lowpass";const g=a.createGain();g.gain.value=0;src.connect(hp);hp.connect(lp);lp.connect(g);g.connect(a.destination);src.start();AMB.g=g;AMB.lp=lp}
+ const key=vol.toFixed(3)+"|"+lv;if(key==AMB.key)return;AMB.key=key;const t=AC.currentTime;AMB.g.gain.cancelScheduledValues(t);AMB.g.gain.setTargetAtTime(vol,t,.7);AMB.lp.frequency.setTargetAtTime([1200,1300,2200,3400][lv],t,.5)}
+function ambThunder(){if(!AC||AC.state!="running"||muted||CFG.amb===false)return;const a=AC,t=a.currentTime,src=a.createBufferSource();src.buffer=noiseBuf();const lp=a.createBiquadFilter();lp.type="lowpass";lp.frequency.value=160;const g=a.createGain(),v=.5*CFG.sfx/100;
+ g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+.12);g.gain.exponentialRampToValueAtTime(v*.45,t+.7);g.gain.exponentialRampToValueAtTime(.0001,t+2.8);src.connect(lp);lp.connect(g);g.connect(a.destination);src.start(t);src.stop(t+3)}
+// lo-fi: acordes de sétima suaves, baixo, notas soltas com swing e um chiado de vinil, num filtro abafado
+const LOFI={ch:[[349,440,523,659],[330,392,494,587],[294,349,440,523],[262,330,392,494]],bs:[87,82,73,65]};let lstep=0,LBUS=null;
+const lofiOn=()=>{const st=CFG.musStyle||"auto";return st=="lofi"||(st=="auto"&&!!WXS&&(WXS.ph=="night"||WXS.w=="rain"||WXS.w=="storm"))};
+function lofiBus(){if(!LBUS){LBUS=AC.createBiquadFilter();LBUS.type="lowpass";LBUS.frequency.value=1400;LBUS.Q.value=.6;LBUS.connect(AC.destination)}return LBUS}
+function lofiTick(){const e=lstep%8,bar=(lstep/8|0)%4,ch=LOFI.ch[bar],B=lofiBus(),sw=e%2?.08:0;
+ if(e==0||e==5)ch.forEach((f,k)=>tone(f,1.7,"triangle",.011,sw+k*.018,0,1,B));
+ if(e==0||e==4)tone(LOFI.bs[bar]*2,.95,"sine",.06,sw,0,1,B);
+ if(e!=0&&Math.random()<.32)tone(ch[(Math.random()*4)|0]*2,.55,"sine",.02,sw,0,1,B);
+ if(Math.random()<.3)tone(2500+Math.random()*3500,.012,"square",.0025,Math.random()*.3,0,1,B);lstep++}
+setInterval(()=>{if(muted||!running||modalOpen||!AC)return;if(lofiOn()){if(step%2==0)lofiTick();step++;return}const n=MEL[step%MEL.length];if(n)tone(n,.16,"square",.014,0,0,1);if(step%4==0)tone(BAS[(step/4|0)%BAS.length],.32,"triangle",.04,0,0,1);step++},190);
 function sndLabel(){const b=$("sndb");if(b)b.textContent=muted?"SOM: DESLIGADO":"SOM: LIGADO"}
 function toggleSnd(){muted=!muted;try{localStorage.setItem("frutodromo_mute",muted?"1":"0")}catch(e){}ac();sndLabel()}
 /* ================= dias ================= */
@@ -657,27 +682,35 @@ function checkAlerts(){if(!WX.ok)return;const al=[];
  <p style="font-size:.72rem;opacity:.8">Baseado na previsão do Open-Meteo pra sua região. <b>Não é um alerta oficial.</b> Pra avisos oficiais, acompanhe a <b>Defesa Civil (ligue 199)</b> e o <b>INMET</b>.</p><button class="big" id="cl">ENTENDI</button>`);$("cl").onclick=closeModal};show()}
 function realH(){const d=new Date();return d.getHours()+d.getMinutes()/60}
 function wxState(){const h=realH(),sr=WX.ok&&WX.sr!=null?WX.sr:6,ss=WX.ok&&WX.ss!=null?WX.ss:18;let ph=h<sr-.6||h>ss+.6?"night":h<sr+.8?"dawn":h>ss-.8?"dusk":"day";
- let w="sun";if(WX.ok){const c=WX.code;w=c>=95?"storm":isSnow(c)?"snow":isRain(c)?"rain":isFog(c)?"fog":WX.cloud>=70||c==3?"cloud":WX.cloud>=30||c==2?"few":"sun"}
- const f=CFG.wxForce||"auto";if(f!="auto"){({sol:()=>{w="sun";ph="day"},nublado:()=>{w="cloud";ph="day"},chuva:()=>{w="rain";ph="day"},tempestade:()=>{w="storm";ph="day"},estrelada:()=>{w="sun";ph="night"},noitechuva:()=>{w="rain";ph="night"},entardecer:()=>{w="few";ph="dusk"}})[f]()}
- return{ph,w,frac:cl((h-sr)/Math.max(1,ss-sr),0,1)}}
-function updateSky(){const sk=$("sky");if(!sk)return;const{ph,w,frac}=wxState(),night=ph=="night";
+ let w="sun",lv=0;if(WX.ok){const c=WX.code;w=c>=95?"storm":isSnow(c)?"snow":isRain(c)?"rain":isFog(c)?"fog":WX.cloud>=70||c==3?"cloud":WX.cloud>=30||c==2?"few":"sun";
+  // intensidade: 1 garoa/chuva fraca, 2 chuva, 3 chuva forte (códigos WMO + milímetros na última hora)
+  if(w=="rain")lv=Math.max([65,67,82].includes(c)?3:[63,81].includes(c)?2:1,WX.precip>=7.6?3:WX.precip>=2.5?2:1);if(w=="storm")lv=3}
+ const f=CFG.wxForce||"auto";if(f!="auto"){const F={sol:()=>{w="sun";ph="day"},nublado:()=>{w="cloud";ph="day"},garoa:()=>{w="rain";lv=1;ph="day"},chuva:()=>{w="rain";lv=2;ph="day"},chuvaforte:()=>{w="rain";lv=3;ph="day"},tempestade:()=>{w="storm";lv=3;ph="day"},estrelada:()=>{w="sun";ph="night"},noitechuva:()=>{w="rain";lv=2;ph="night"},entardecer:()=>{w="few";ph="dusk"}};if(F[f])F[f]()}
+ return{ph,w,lv,frac:cl((h-sr)/Math.max(1,ss-sr),0,1)}}
+let WXS=null,lightT=0;
+function updateSky(){const sk=$("sky");if(!sk)return;const ws=wxState(),{ph,w,lv,frac}=ws,night=ph=="night";WXS=ws;
  const grey=["cloud","rain","storm","fog","snow"].includes(w);
- let skyC={night:[22,24,58],dawn:[250,176,128],dusk:[240,138,92],day:[118,192,244]}[ph];if(grey)skyC=night?(w=="cloud"?[34,36,46]:[28,30,40]):ph=="day"?({cloud:[160,168,180],rain:[138,146,160],storm:[96,102,116],fog:[200,202,208],snow:[196,200,210]}[w]):skyC.map((v,i)=>Math.round(v*.3+[150,154,164][i]*.7));
- sk.style.background=grey&&!night?"#e6e6ee":{night:"#a4a2d4",dawn:"#ffe6d0",dusk:"#ffd8bc",day:"#ffffff"}[ph];$("lamp").style.opacity=night?.8:ph=="dusk"||w=="storm"?.4:0;
+ let skyC={night:[22,24,58],dawn:[250,176,128],dusk:[240,138,92],day:[118,192,244]}[ph];if(grey)skyC=night?(w=="cloud"?[34,36,46]:[28,30,40]):ph=="day"?({cloud:[160,168,180],rain:[[150,158,172],[150,158,172],[132,140,154],[112,120,134]][lv],storm:[96,102,116],fog:[200,202,208],snow:[196,200,210]}[w]):skyC.map((v,i)=>Math.round(v*.3+[150,154,164][i]*.7));
+ sk.style.background=grey&&!night?"#e6e6ee":{night:"#a4a2d4",dawn:"#ffe6d0",dusk:"#ffd8bc",day:"#ffffff"}[ph];$("lamp").style.opacity=night?.8:ph=="dusk"||w=="storm"||lv>=3?.4:0;
  [1,2].forEach(n=>{const el=$("win"+n),e=$("sun"+n);if(!el||!e)return;el.style.background=hex(skyC);
-  const cls={night,starry:night&&!grey,rain:w=="rain"||w=="storm",storm:w=="storm",snow:w=="snow",fog:w=="fog",cloudy:grey,few:w=="few"};Object.entries(cls).forEach(([k,v])=>el.classList.toggle(k,!!v));
+  const cls={night,starry:night&&!grey,rain:w=="rain"||w=="storm",r1:lv==1,r3:lv>=3,storm:w=="storm",snow:w=="snow",fog:w=="fog",cloudy:grey,few:w=="few"};Object.entries(cls).forEach(([k,v])=>el.classList.toggle(k,!!v));
   const W2=el.clientWidth,H2=el.clientHeight;e.style.display=grey?"none":"";e.style.background=`url(${night?MOONI():ph=="day"?SUNI():DUSKI()}) 0 0/100% 100%`;e.style.boxShadow="none";
   e.style.left=(night?W2-16:Math.round(4+frac*(W2-14)))+"px";e.style.top=(night?5:Math.round(H2*.62-Math.sin(frac*Math.PI)*H2*.5))+"px"});
- const t=$("wxtag");if(t){if(WX.ok){t.textContent=WX.temp+"°";t.style.display=""}else t.style.display="none"}}
+ const t=$("wxtag");if(t){if(WX.ok){t.textContent=WX.temp+"°";t.style.display=""}else t.style.display="none"}
+ // relâmpago na tempestade (a cada 9 a 25 s) e o trovão chega um pouco depois; chuva com som conforme a intensidade
+ if(w=="storm"&&Date.now()>lightT){if(lightT&&!document.hidden){if(!RM.matches)[1,2].forEach(n=>{const el=$("win"+n);if(el){el.classList.remove("flash");void el.offsetWidth;el.classList.add("flash")}});setTimeout(()=>ambThunder(),500+Math.random()*1200)}lightT=Date.now()+9000+Math.random()*16000}
+ ambSet(w=="rain"||w=="storm"?lv:0)}
 function settings(back){const sl=(id,lab,v)=>`<div style="display:flex;align-items:center;gap:8px;margin:8px 0;text-align:left"><span style="width:80px">${lab}</span><input type="range" id="${id}" min="0" max="100" value="${v}" style="flex:1;accent-color:#3ca55c"><b id="${id}v" style="width:34px">${v}</b></div>`;
 const tg=(id,lab,on,desc)=>`<div class="cg" style="cursor:pointer" id="${id}"><span class="big-sw" style="width:26px;height:26px;background:${on?"#3ca55c":"#c9b99a"}"></span><div style="flex:1"><b>${lab}: ${on?"LIGADO":"DESLIGADO"}</b><br><span style="font-size:.72rem">${desc}</span></div></div>`;
 openModal(`<h2>AJUSTES</h2>${sl("smus","Música",CFG.mus)}${sl("ssfx","Efeitos",CFG.sfx)}
 ${tg("svib","Vibração",CFG.vib,"Vibra o celular ao cruzar, entregar e descobrir")}
 ${tg("szen","Modo Zen",CFG.zen,"Sem relógio e sem pressa: o dia não acaba e os clientes esperam pra sempre")}${tg("swx","Clima real na janela",!!CFG.wx,"Mostra o tempo da sua cidade e avisa sobre tempo perigoso")}
-<div style="text-align:left;margin:8px 0"><b>Ver clima na janela:</b><div class="flt" style="border:2px solid #2a1a12;margin-top:4px;flex-wrap:wrap">${[["auto","Automático"],["sol","Sol"],["nublado","Nublado"],["chuva","Chuva"],["tempestade","Tempestade"],["entardecer","Entardecer"],["estrelada","Noite estrelada"],["noitechuva","Noite chuvosa"]].map(([k,l])=>`<span class="${(CFG.wxForce||"auto")==k?"on":""}" onclick="CFG.wxForce='${k}';saveCfg();updateSky();settings()">${l}</span>`).join("")}</div></div>
+${tg("samb","Som de chuva",CFG.amb!==false,"Barulho de chuva e trovão quando estiver chovendo na janela")}
+<div style="text-align:left;margin:8px 0"><b>Estilo da música:</b><div class="flt" style="border:2px solid #2a1a12;margin-top:4px;flex-wrap:wrap">${[["auto","Automático (lo-fi na chuva e à noite)"],["chip","Chiptune"],["lofi","Lo-fi"]].map(([k,l])=>`<span class="${(CFG.musStyle||"auto")==k?"on":""}" onclick="CFG.musStyle='${k}';saveCfg();settings()">${l}</span>`).join("")}</div></div>
+<div style="text-align:left;margin:8px 0"><b>Ver clima na janela:</b><div class="flt" style="border:2px solid #2a1a12;margin-top:4px;flex-wrap:wrap">${[["auto","Automático"],["sol","Sol"],["nublado","Nublado"],["garoa","Garoa"],["chuva","Chuva"],["chuvaforte","Chuva forte"],["tempestade","Tempestade"],["entardecer","Entardecer"],["estrelada","Noite estrelada"],["noitechuva","Noite chuvosa"]].map(([k,l])=>`<span class="${(CFG.wxForce||"auto")==k?"on":""}" onclick="CFG.wxForce='${k}';saveCfg();updateSky();settings()">${l}</span>`).join("")}</div></div>
 <button class="big alt" id="stut">REVER TUTORIAL</button><br><button class="big alt" id="sexp">EXPORTAR PROGRESSO</button><button class="big alt" id="simp">IMPORTAR</button><br><button class="big" id="cl">PRONTO</button>`);
 ["smus","ssfx"].forEach(id=>{$(id).oninput=e=>{const v=+e.target.value;$(id+"v").textContent=v;if(id=="smus")CFG.mus=v;else{CFG.sfx=v;SFX.coin()}saveCfg()}});
-$("svib").onclick=()=>{CFG.vib=!CFG.vib;saveCfg();buzz(40);settings(back)};$("szen").onclick=()=>{CFG.zen=!CFG.zen;saveCfg();hud();renderCounter();settings(back)};$("swx").onclick=()=>{if(CFG.wx){CFG.wx=false;WX.ok=false;saveCfg();updateSky();settings(back)}else{delete CFG.wx;saveCfg();closeModal();askWeather(()=>settings(back))}};
+$("svib").onclick=()=>{CFG.vib=!CFG.vib;saveCfg();buzz(40);settings(back)};$("samb").onclick=()=>{CFG.amb=CFG.amb===false;saveCfg();settings(back)};$("szen").onclick=()=>{CFG.zen=!CFG.zen;saveCfg();hud();renderCounter();settings(back)};$("swx").onclick=()=>{if(CFG.wx){CFG.wx=false;WX.ok=false;saveCfg();updateSky();settings(back)}else{delete CFG.wx;saveCfg();closeModal();askWeather(()=>settings(back))}};
 $("stut").onclick=()=>{S.tut={};save();closeModal();tutStep()};
 $("sexp").onclick=()=>{save();const code="FRUTO1:"+btoa(unescape(encodeURIComponent(JSON.stringify(S))));
  openModal(`<h2>SEU CÓDIGO</h2><p style="font-size:.8rem">Guarde esse código (num bloco de notas ou mande pra você mesmo). Ele leva tudo: frutas, espécies, cartas e conquistas.</p><textarea id="bk" readonly style="width:100%;height:140px;font-size:.6rem;font-family:monospace">${code}</textarea><button class="big" id="bkc">COPIAR</button><button class="big alt" id="cl">VOLTAR</button>`);
@@ -692,29 +725,31 @@ if(box.dataset.k==st[2]&&box.classList.contains("on"))return;box.dataset.k=st[2]
 const tg=st[0]=="cust"?document.querySelector(".cust .pw"):$(st[0]);if(!tg)return;const r=tg.getBoundingClientRect();
 box.innerHTML=st[1]+`<br><button class="btn" onclick="S.tut['${st[2]}']=1;save();$('tut').classList.remove('on');setTimeout(tutStep,400)">ENTENDI</button><span class="ar"></span>`;box.classList.add("on");
 const bw=box.offsetWidth,bh=box.offsetHeight,ar=box.querySelector(".ar");let x=cl(r.left+r.width/2-bw/2,6,innerWidth-bw-6),y;
-if(r.top>bh+20){y=r.top-bh-12;ar.style.cssText=`left:${r.left+r.width/2-x-9}px;bottom:-18px;border-top-color:#2a1a12`}else{y=r.bottom+12;ar.style.cssText=`left:${r.left+r.width/2-x-9}px;top:-18px;border-bottom-color:#2a1a12`}
+// caldeirão: balão do lado direito (por cima ele cobria as frutas que o tutorial manda arrastar)
+if(st[0]=="pot"&&r.right+bw+24<innerWidth){x=r.right+14;y=cl(r.top+r.height/2-bh/2,6,innerHeight-bh-6);ar.style.cssText=`left:-18px;top:${cl(r.top+r.height/2-y-9,6,bh-24)}px;border-right-color:#2a1a12`;box.style.left=x+"px";box.style.top=y+"px";return}
+if(r.top>bh+20&&st[0]!="cust"){y=r.top-bh-12;ar.style.cssText=`left:${r.left+r.width/2-x-9}px;bottom:-18px;border-top-color:#2a1a12`}else{y=r.bottom+12;ar.style.cssText=`left:${r.left+r.width/2-x-9}px;top:-18px;border-bottom-color:#2a1a12`}
 box.style.left=x+"px";box.style.top=y+"px"}
 function tutDone(k){S.tut=S.tut||{};if(!S.tut[k]){S.tut[k]=1;save();$("tut").classList.remove("on");setTimeout(tutStep,900)}}
-function hud(){updateSky();showCoins();const rem=dayLen()-S.dayT;$("day").textContent=`D${S.day} · NV${level()} · ${CFG.zen?"ZEN ∞":running?fmt(rem):"--:--"}`;$("day").classList.toggle("low",running&&!CFG.zen&&rem<20000)}
+function hud(){updateSky();showCoins();const rem=dayLen()-S.dayT;const wide=innerWidth>=440,tm=CFG.zen?"ZEN":running?fmt(rem):"--:--";$("day").textContent=wide?`DIA ${S.day} · NÍVEL ${level()} · ${tm}`:`D${S.day} · NV${level()} · ${tm}`;$("day").classList.toggle("low",running&&!CFG.zen&&rem<20000)}
 function startDay(){setTimeout(tutStep,2500);running=true;S.started=true;S.cust.forEach((c,i)=>{if(!c)setTimeout(()=>{if(running&&!S.cust[i]){S.cust[i]=newCust();save();renderCounter()}},300+i*1400)});renderCounter();hud()}
 function endDay(){running=false;rec("bestDay",S.ds.earn,1);SFX.day();S.cust.forEach(c=>{if(c){c.leaving=true;c.lt=Date.now()}});renderCounter();
 setTimeout(()=>{S.cust=[null,null,null];renderCounter();save();showSummary()},900)}
 function showSummary(){const d=S.ds;openModal(`<h2>FIM DO DIA ${S.day}</h2><div class="row">${[...S.fruits].sort((a,b)=>b.gen-a.gen).slice(0,3).map(f=>`<img src="${fruitImg(f)}">`).join("")}</div>
 <div class="sum"><span>Lucro do dia</span><b>${d.earn} moedas</b><span>Clientes atendidos</span><b>${d.served}</b><span>Maior pagamento</span><b>${d.best}</b><span>Novas espécies</span><b>${d.dex}</b><span>Nível</span><b>${level()}</b></div>
 <p style="font-size:.85rem">+1 <b>presente da quitanda</b> pra começar o próximo dia!</p><p>${d.served>=6?"Dia incrível! A quitanda está famosa.":d.served>=3?"Bom dia de trabalho!":"Dia fraco... amanhã é outro dia!"}</p><button class="big" id="nextd">ABRIR DIA ${S.day+1}</button>`);
-$("nextd").onclick=()=>{setTimeout(()=>giveItem(rollItem(),innerWidth/2,innerHeight/2,"da quitanda"),600);S.day++;S.dayT=0;S.ds={earn:0,served:0,best:0,dex:0};save();closeModal();startDay()}}
+$("nextd").onclick=()=>{setTimeout(()=>giveItem(rollItem(),innerWidth/2,innerHeight/2,"da quitanda"),600);S.day++;S.dayT=0;S.ds={earn:0,served:0,best:0,dex:0};save();closeModal();askWeather(()=>{if(!running)startDay()})}}
 /* ================= modais ================= */
 function openModal(h){if(!$("modal").classList.contains("on"))SFX.open();modalOpen=true;$("mbox").innerHTML=h;$("modal").classList.add("on")}
 function closeModal(){if($("modal").classList.contains("on"))SFX.close();modalOpen=$("tv").classList.contains("on")||$("rv").classList.contains("on");$("modal").classList.remove("on")}
-function rainFruits(on){document.querySelectorAll(".fall").forEach(e=>e.remove());if(!on)return;
+function rainFruits(on){document.querySelectorAll(".fall").forEach(e=>e.remove());if(!on||RM.matches)return;
 for(let i=0;i<12;i++){const b=BASE[i%8],f={shape:b[1],pat:b[2],top:b[3],rgb:COLORS[b[4]],tip:b[0]=="Banana"?"#6b4423":null},im=document.createElement("img");im.className="fall";im.src=fruitImg(f);
 im.style.left=(Math.random()*95)+"vw";im.style.animationDuration=(5+Math.random()*6)+"s";im.style.animationDelay=(-Math.random()*10)+"s";im.style.width=im.style.height=(30+Math.random()*30)+"px";document.body.appendChild(im)}}
 function startScreen(){rainFruits(true);const demo=[{shape:"heart",pat:"seeds",top:"leaf",rgb:COLORS.vermelha},{shape:"round",pat:"stripes",top:"stem",rgb:[243,140,32],hero:true,cape:"#2d6cdf"},{shape:"tall",pat:"hatch",top:"crown",rgb:COLORS.amarela}];
 const cont=S.started;let armed=false;
 openModal(`<div class="logo">FRUTÓDROMO</div><p style="margin-top:0">A quitanda das frutas que a natureza não teve coragem de criar</p><div class="row">${demo.map(f=>`<img src="${fruitImg(f)}">`).join("")}</div>
-<p style="font-size:.8rem;text-align:left">• Jogue 2 frutas no <b>caldeirão</b> pra criar híbridos<br>• <b>Parecidos se intensificam</b>: pequena + pequena encolhe, grande + grande cresce, doce + doce fica mais doce<br>• Entregue o que os clientes pedem nos balões<br>• Clientes dão <b>presentes mágicos</b>: poções, tintas, penas de fênix... use na fruta que quiser (aba <b>BOLSA</b>)<br>• Expanda a <b>Árvore de Espécies</b>: cada combinação nova vira uma espécie, e ela não tem fim</p>
+<ol class="how"><li><b>Cruze</b> 2 frutas no caldeirão</li><li><b>Entregue</b> o que os clientes pedem</li><li><b>Descubra</b> espécies novas pra sua árvore</li></ol><p class="how2">Presentes dos clientes ficam na <b>BOLSA</b> e mudam qualquer fruta.</p>
 <button class="big" id="go">${cont?"CONTINUAR · DIA "+S.day:"ABRIR A QUITANDA"}</button><br><button class="big alt" id="sndb" onclick="toggleSnd()"></button><button class="big alt" onclick="settings(startScreen)">AJUSTES</button>${cont?'<button class="big alt" id="newg">NOVO JOGO</button>':""}`);sndLabel();
-$("go").onclick=()=>{ac();rainFruits(false);closeModal();const go=()=>{if(!running)startDay()};askWeather(go)};
+$("go").onclick=()=>{ac();rainFruits(false);closeModal();if(!running)startDay()};
 if(cont)$("newg").onclick=e=>{if(!armed){armed=true;e.target.textContent="TOQUE DE NOVO PRA APAGAR TUDO";return}fresh();S.fruits.forEach(f=>dexCheck(f,true));const pe=$("pot");pe.style.left="10px";pe.style.top="";pe.style.bottom="8px";save();sel=null;showInfo(null);ac();rainFruits(false);closeModal();renderAll();startDay()}}
 const HELLO={person:["Olá! ","Oi, tudo bem? ","Boa tarde! ","E aí! "],cat:["Miau... ","Mrrr... "],dog:["Au au! ","Oi oi oi! "],bear:["Hmm... ","Grrr, oi! "],bunny:["Oi oi! ","Hihi! "],frog:["Croac! "],penguin:["Brrr! "],robot:["BIP-BOP. SOLICITAÇÃO: "],alien:["Saudações, terráqueo. "],ghost:["Buuu... "]};
 function sayReq(r){const[w,n]=reqWord(r);return r.k=="cor"?"da cor "+w.toLowerCase():r.k=="el"?"de "+w:r.k=="hero"?"SUPER-FRUTA":w.toLowerCase()+(n?` (${n})`:"")}
@@ -837,7 +872,8 @@ S.cust.forEach((c,i)=>{if(!c||c.leaving)return;const el=document.querySelector(`
 el.querySelectorAll(".pat i").forEach((x,k)=>x.style.background=k<on?pc:"");const pb=el.querySelector(".pay b");if(pb)pb.textContent=pay(c);
 if((left<.2?"1":"0")!=el.dataset.low&&!document.querySelector(".fr.drag"))renderCounter()});
 if((saveT+=dt)>4000){saveT=0;save()}}hud();renderCombo()},250);
-window.addEventListener("pagehide",()=>save());document.addEventListener("visibilitychange",()=>{if(document.hidden)save()});
+window.addEventListener("pagehide",()=>save());
+document.addEventListener("visibilitychange",()=>{if(document.hidden){save();if(AC&&AC.state=="running")AC.suspend().catch(()=>{});if(running&&!modalOpen)$("pauseb").click()}});
 window.addEventListener("resize",()=>{if($("tv").classList.contains("on"))drawFam();S.fruits.forEach(clampPos);renderTable();renderProps();placePot();freeFromPot()});setTimeout(()=>{try{freeFromPot()}catch(e){}},300);
 S.pot=S.pot||[];if(S.pot.length==2){S.fruits.push(...S.pot);S.pot=[]}
 document.addEventListener("pointerdown",e=>{const t=e.target.closest("button,.btn,.big,.hint,.flt span,.sp,.cg,.tvh .btn,#pot,.pw");if(!t)return;ac();
