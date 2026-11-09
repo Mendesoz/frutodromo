@@ -622,7 +622,7 @@ const ACH=[["var25","Banco de sementes","Colete 25 variedades",()=>totalVars()>=
 ["combo5","Combo x5","Faça um combo de 5 entregas",()=>(S.rec.maxCombo||0)>=5,25],["day100","Dia de ouro","Lucre 100 moedas num dia",()=>(S.rec.bestDay||0)>=100,30],["item10","Cientista maluco","Use 10 artefatos",()=>(S.rec.items||0)>=10,30]];
 const TROPHY=()=>art(["y.yyy.y","yyyyyyy",".yyyyy.","..yyy..","...y...","..yyy..",".ddddd."],{y:"#f7c331",d:"#a87b00"},"#6b4a10");
 const spAny=fn=>Object.keys(S.tree||{}).some(fn);
-function checkAch(){S.ach=S.ach||{};S.rec=S.rec||{};ACH.forEach(([id,n,d,ok,rw])=>{if(S.ach[id]||!ok())return;S.ach[id]=Date.now();S.coins+=rw;save();
+function checkAch(){S.ach=S.ach||{};S.rec=S.rec||{};ACH.forEach(([id,n,d,ok,rw])=>{if(S.ach[id]||!ok())return;S.ach[id]=Date.now();portalHappy();S.coins+=rw;save();
  setTimeout(()=>{toast(`<img src="${TROPHY()}" style="width:18px;height:18px;display:inline-block;vertical-align:-3px;image-rendering:pixelated"> <b>CONQUISTA!</b> ${n}<br>+${rw} moedas`);SFX.lvl();buzz([30,40,30]);hud()},1600)})}
 function renderCombo(){const e=$("combo");if(!e)return;const left=combo>=2?1-(now()-comboT)/COMBO_WIN:0;if(left<=0){e.classList.remove("on");if(left<=0&&combo>=2&&now()-comboT>=COMBO_WIN)combo=0;return}
 if(!e.classList.contains("on")){e.classList.add("on")}e.innerHTML=`COMBO x${combo}<i style="width:${Math.max(0,left*100)}%"></i>`}
@@ -707,7 +707,7 @@ async function fetchWX(){if(!CFG.wx||!CFG.loc)return;try{const[la,lo]=CFG.loc;
  const j=await r.json(),c=j.current;Object.assign(WX,{ok:true,code:c.weather_code,isDay:c.is_day,temp:Math.round(c.temperature_2m),cloud:c.cloud_cover,precip:c.precipitation,gust:c.wind_gusts_10m,sr:hrsOf(j.daily.sunrise[0]),ss:hrsOf(j.daily.sunset[0])});
  updateSky();checkAlerts()}catch(e){WX.ok=false}}
 setInterval(fetchWX,20*60000);
-function askWeather(next){if(CFG.wx!==undefined||!navigator.geolocation){next&&next();return}
+function askWeather(next){if(CFG.wx!==undefined||!navigator.geolocation||PORTAL.name){next&&next();return}
  openModal(`<h2>CLIMA DE VERDADE?</h2><p>A janela da quitanda pode mostrar o <b>tempo real da sua cidade</b>: sol, nuvens, chuva e noite. Se vier tempo perigoso, o jogo te avisa.</p><p style="font-size:.78rem;opacity:.8">Usa sua localização aproximada só pra buscar a previsão (Open-Meteo). Nada é guardado fora do seu aparelho.</p><button class="big" id="wxy">SIM, MOSTRAR</button><br><button class="big alt" id="wxn">AGORA NÃO</button>`);
  $("wxn").onclick=()=>{CFG.wx=false;saveCfg();closeModal();next&&next()};
  $("wxy").onclick=()=>{closeModal();next&&next();try{navigator.geolocation.getCurrentPosition(p=>{CFG.loc=[+p.coords.latitude.toFixed(1),+p.coords.longitude.toFixed(1)];CFG.wx=true;saveCfg();fetchWX()},()=>{CFG.wx=false;saveCfg();toast("Sem localização: a janela mostra só a hora do dia")},{timeout:10000,maximumAge:3600000})}catch(e){CFG.wx=false;saveCfg()}}}
@@ -776,8 +776,26 @@ function endDay(){running=false;rec("bestDay",S.ds.earn,1);SFX.day();S.cust.forE
 setTimeout(()=>{S.cust=[null,null,null];renderCounter();save();showSummary()},900)}
 function showSummary(){const d=S.ds;openModal(`<h2>FIM DO DIA ${S.day}</h2><div class="row">${[...S.fruits].sort((a,b)=>b.gen-a.gen).slice(0,3).map(f=>`<img src="${fruitImg(f)}">`).join("")}</div>
 <div class="sum"><span>Lucro do dia</span><b>${d.earn} moedas</b><span>Clientes atendidos</span><b>${d.served}</b><span>Maior pagamento</span><b>${d.best}</b><span>Novas espécies</span><b>${d.dex}</b><span>Nível</span><b>${level()}</b></div>
-<p style="font-size:.85rem">+1 <b>presente da quitanda</b> pra começar o próximo dia!</p><p>${d.served>=6?"Dia incrível! A quitanda está famosa.":d.served>=3?"Bom dia de trabalho!":"Dia fraco... amanhã é outro dia!"}</p><button class="big" id="nextd">ABRIR DIA ${S.day+1}</button>`);
-$("nextd").onclick=()=>{setTimeout(()=>giveItem(rollItem(),innerWidth/2,innerHeight/2,"da quitanda"),600);S.day++;S.dayT=0;S.ds={earn:0,served:0,best:0,dex:0};save();closeModal();askWeather(()=>{if(!running)startDay()})}}
+<p style="font-size:.85rem">+1 <b>presente da quitanda</b> pra começar o próximo dia!</p><p>${d.served>=6?"Dia incrível! A quitanda está famosa.":d.served>=3?"Bom dia de trabalho!":"Dia fraco... amanhã é outro dia!"}</p>${PORTAL.ready?`<button class="big alt" id="rwd">ASSISTIR ANÚNCIO: +1 PRESENTE</button><br>`:""}<button class="big" id="nextd">ABRIR DIA ${S.day+1}</button>`);
+if($("rwd"))$("rwd").onclick=()=>{const b=$("rwd");b.disabled=true;portalAd("rewarded",()=>{b.remove();setTimeout(()=>giveItem(rollItem(),innerWidth/2,innerHeight/2,"do anúncio"),300)},()=>{b.disabled=false;toast("O anúncio não carregou agora. Tente de novo daqui a pouco.")})};
+$("nextd").onclick=()=>{S.day++;S.dayT=0;S.ds={earn:0,served:0,best:0,dex:0};save();closeModal();
+ portalAd("midgame",()=>{setTimeout(()=>giveItem(rollItem(),innerWidth/2,innerHeight/2,"da quitanda"),600);askWeather(()=>{if(!running)startDay()})})}}
+/* ================= portais de jogos (CrazyGames) =================
+   Só liga quando a página foi gerada para um portal (window.PORTAL_NAME, ver tools/build_portal.py).
+   No GitHub e no artifact nada disso roda e o jogo fica igual. Sem SDK, com bloqueador de anúncio
+   ou se o anúncio falhar, o jogo continua normalmente. */
+const PORTAL={name:window.PORTAL_NAME||null,sdk:null,ready:false,playing:false,ad:false};
+async function portalInit(){if(PORTAL.name!="crazygames"||!window.CrazyGames||!window.CrazyGames.SDK)return;
+ try{await window.CrazyGames.SDK.init();PORTAL.sdk=window.CrazyGames.SDK;PORTAL.ready=true;try{PORTAL.sdk.game.loadingStop()}catch(e){}}catch(e){PORTAL.ready=false}}
+const portalCall=fn=>{if(!PORTAL.ready)return;try{fn(PORTAL.sdk)}catch(e){}};
+function portalPlaying(on){if(on==PORTAL.playing)return;PORTAL.playing=on;portalCall(s=>on?s.game.gameplayStart():s.game.gameplayStop())}
+const portalHappy=()=>portalCall(s=>s.game.happytime());
+// durante o anúncio: som desligado e jogo parado (modalOpen congela o tempo dos clientes)
+function adMute(on){PORTAL.ad=on;if(!AC)return;if(on)AC.suspend().catch(()=>{});else if(!muted&&!document.hidden)AC.resume().catch(()=>{})}
+function portalAd(type,ok,fail){if(!PORTAL.ready){(type=="rewarded"?fail:ok)&&(type=="rewarded"?fail:ok)();return}
+ const was=modalOpen;modalOpen=true;portalPlaying(false);
+ PORTAL.sdk.ad.requestAd(type,{adStarted:()=>adMute(true),adFinished:()=>{adMute(false);modalOpen=was||$("modal").classList.contains("on");ok&&ok()},adError:()=>{adMute(false);modalOpen=was||$("modal").classList.contains("on");fail?fail():ok&&ok()}})}
+const SITE_TXT=()=>PORTAL.name?"FRUTÓDROMO":"FRUTÓDROMO · mendesoz.github.io/frutodromo";
 /* ================= modais ================= */
 function openModal(h){if(!$("modal").classList.contains("on"))SFX.open();modalOpen=true;$("mbox").innerHTML=h;$("modal").classList.add("on")}
 function closeModal(){if($("modal").classList.contains("on"))SFX.close();modalOpen=$("tv").classList.contains("on")||$("rv").classList.contains("on");$("modal").classList.remove("on")}
@@ -817,7 +835,7 @@ else body=rs.map(([a,b])=>a==b?`<span>${img(rep[a])}${rep[a][0]}${lock(rep[a])}<
 h+=`<div class="cg ${hi==c?"hi":""}" id="cg-${c}"><span class="big-sw" style="background:${hex(COLORS[c])}"></span><span class="nm2">${c.toUpperCase()}${have.has(c)?"<br><span style='font-size:.6rem;color:#3ca55c'>✔ já tem</span>":""}</span><div class="rcp">${body}</div></div>`});
 return h+"</div>"}
 function colorGuide(hi){openTree("cores",hi)}
-function reveal(k,shinyOnly){SFX.mut();showCard(k,true,shinyOnly)}
+function reveal(k,shinyOnly){SFX.mut();portalHappy();showCard(k,true,shinyOnly)}
 function cardFrame(g,st,col,shiny){const px=(x,y,c,s=4)=>{g.fillStyle=c;g.fillRect(x,y,s,s)};
 if(shiny){const rb=["#ff8ad8","#ffe84a","#8af0ff","#b48cff"];for(let i=0;i<300;i+=6){g.fillStyle=rb[(i/6|0)%4];g.fillRect(i,6,6,8);g.fillRect(i,406,6,8)}for(let i=0;i<420;i+=6){g.fillStyle=rb[(i/6|0)%4];g.fillRect(6,i,8,6);g.fillRect(286,i,8,6)}}
 if(st>=4){const gem=st>=5?"#e74c3c":"#8af0ff",gold=st>=5?"#f7c331":"#c9a7ff",dk=st>=5?"#a87b00":"#6a3fd0";
@@ -835,20 +853,20 @@ g.fillStyle="#2a1a12";g.font="bold 18px 'Pixelify Sans',monospace";g.textAlign="
 g.font="bold 22px 'Pixelify Sans',monospace";g.fillStyle=col;g.fillText("★".repeat(st)+"☆".repeat(5-st),150,248);
 g.textAlign="left";g.fillStyle="#2a1a12";g.font="14px 'Pixelify Sans',monospace";const ls=[lab+(t.shiny?" · BRILHANTE ✦":""),spLabel(k),`Doce ${t.st.doce} · Azedo ${t.st.az} · Tamanho ${t.st.tam}`,`Geração ${t.d} · Dia ${t.day||S.day}`];
 ls.forEach((l,i)=>{g.font=(i==0?"bold ":"")+(i==1?"12px":"14px")+" 'Pixelify Sans',monospace";let y=284+i*24;g.fillText(l.slice(0,36),26,y)});
-g.font="bold 10px 'Pixelify Sans',monospace";g.fillStyle="#8a6a50";g.textAlign="center";g.fillText("FRUTÓDROMO · mendesoz.github.io/frutodromo",150,396);res(c)};im.src=fruitImg(t.img)})}
+g.font="bold 10px 'Pixelify Sans',monospace";g.fillStyle="#8a6a50";g.textAlign="center";g.fillText(SITE_TXT(),150,396);res(c)};im.src=fruitImg(t.img)})}
 async function showCard(k,isNew,shinyOnly){const c=await cardCanvas(k),url=c.toDataURL("image/png"),t=S.tree[k];
 openModal(`<h2>${isNew?(shinyOnly?"✦ VERSÃO BRILHANTE!":"NOVA ESPÉCIE!"):"CARTA DA ESPÉCIE"}</h2><img id="cardimg" class="${isNew?"cin":""}" src="${url}">
 <button class="big" id="cdl">BAIXAR</button><button class="big" id="csh">COMPARTILHAR</button><br><button class="big alt" id="cl">${isNew?"CONTINUAR":"FECHAR"}</button>`);
 if(isNew)setTimeout(()=>{const r=$("cardimg").getBoundingClientRect();burst(r.left+r.width/2,r.top+r.height*.35,t.img.rgb,30);burst(r.left+r.width/2,r.top+r.height*.35,[255,240,160],16)},450);
 $("cl").onclick=closeModal;
 $("cdl").onclick=async()=>{if(window.self!==window.top){/* dentro do artifact do Claude: o download passa pela confirmação do próprio Claude */
- try{const dl=window.claude&&window.claude.use?await window.claude.use("downloads"):null;if(!dl)return toast("Aqui não dá pra baixar. Faça um print, ou abra mendesoz.github.io/frutodromo");
+ try{const dl=window.claude&&window.claude.use?await window.claude.use("downloads"):null;if(!dl)return toast(PORTAL.name?"Aqui não dá pra baixar. Faça um print!":"Aqui não dá pra baixar. Faça um print, ou abra mendesoz.github.io/frutodromo");
   const bin=atob(url.split(",")[1]),u8=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u8[i]=bin.charCodeAt(i);
   await dl.save({filename:`frutodromo-especie-${t.n}.png`,data:new Blob([u8],{type:"image/png"})});toast("Carta salva!")}catch(e){if(e&&e.code=="declined")return;toast("Não deu pra baixar aqui. Faça um print!")}return}
 try{const a=document.createElement("a");a.href=url;a.download=`frutodromo-especie-${t.n}.png`;document.body.appendChild(a);a.click();a.remove();toast("Carta baixada!")}catch(e){toast("Não deu pra baixar aqui. Faça um print!")}};
 $("csh").onclick=async()=>{try{const blob=await (await fetch(url)).blob(),file=new File([blob],`frutodromo-${t.n}.png`,{type:"image/png"});
-if(navigator.canShare&&navigator.canShare({files:[file]}))await navigator.share({files:[file],title:"Frutódromo",text:`Olha a fruta que eu descobri no Frutódromo: ${t.name}! mendesoz.github.io/frutodromo`});
-else{await navigator.clipboard.writeText(`Olha a fruta que eu descobri no Frutódromo: ${t.name} (${spLabel(k)})! mendesoz.github.io/frutodromo`);toast("Texto copiado! Cole junto com o print.")}}catch(e){toast("Compartilhar não funciona aqui. Abra pelo link do GitHub Pages!")}}}
+if(navigator.canShare&&navigator.canShare({files:[file]}))await navigator.share({files:[file],title:"Frutódromo",text:`Olha a fruta que eu descobri no Frutódromo: ${t.name}!${PORTAL.name?"":" mendesoz.github.io/frutodromo"}`});
+else{await navigator.clipboard.writeText(`Olha a fruta que eu descobri no Frutódromo: ${t.name} (${spLabel(k)})!${PORTAL.name?"":" mendesoz.github.io/frutodromo"}`);toast("Texto copiado! Cole junto com o print.")}}catch(e){toast("Compartilhar não funciona aqui. Abra pelo link do GitHub Pages!")}}}
 let tvTab="tree",tvSel=null,tvFilter=null,tvHelp=false,tvSugs=[];
 function spMatch(k,fl){if(!fl)return true;const[sz,c,t,el,h]=k.split("|"),T=S.tree[k];if(fl.startsWith("c:"))return c==fl.slice(2);if(fl.startsWith("e:"))return el==fl.slice(2);
 if(fl=="super")return !!h;if(fl=="shiny")return !!(T&&T.shiny);if(fl=="extreme")return ["Microscópica","Mini","Enorme","Gigantesca"].includes(sz);if(fl=="rare")return T&&stars(T)>=3;return true}
@@ -918,7 +936,7 @@ if(running&&!modalOpen){S.clock+=dt;if(!CFG.zen)S.dayT+=dt;if(S.dayT>=dayLen()){
 S.cust.forEach((c,i)=>{if(!c||c.leaving)return;const el=document.querySelector(`.cust[data-i="${i}"]`);if(!el)return;const left=leftOf(c),on=Math.ceil(left*10),pc=left>.5?"#3ce06f":left>.2?"#f4a261":"#e74c3c";
 el.querySelectorAll(".pat i").forEach((x,k)=>x.style.background=k<on?pc:"");const pb=el.querySelector(".pay b");if(pb)pb.textContent=pay(c);
 if((left<.2?"1":"0")!=el.dataset.low&&!document.querySelector(".fr.drag"))renderCounter()});
-if((saveT+=dt)>10000){saveT=0;save()}}hud();renderCombo()},250);
+if((saveT+=dt)>10000){saveT=0;save()}}portalPlaying(running&&!modalOpen&&!document.hidden);hud();renderCombo()},250);
 window.addEventListener("pagehide",()=>saveNow());
 document.addEventListener("visibilitychange",()=>{if(document.hidden){saveNow();if(AC&&AC.state=="running")AC.suspend().catch(()=>{});if(running&&!modalOpen)$("pauseb").click()}});
 window.addEventListener("resize",()=>{if($("tv").classList.contains("on"))drawFam();S.fruits.forEach(clampPos);renderTable();renderProps();placePot();freeFromPot()});setTimeout(()=>{try{freeFromPot()}catch(e){}},300);
@@ -927,4 +945,4 @@ document.addEventListener("pointerdown",e=>{const t=e.target.closest("button,.bt
  if(t.id=="go"||t.id=="cl"||t.id=="tvx"||t.id=="resume"||t.id=="nextd"||t.id=="rvx"||t.id=="pot")return;SFX.sel()},true);
 if("serviceWorker" in navigator&&location.hostname.endsWith("github.io"))navigator.serviceWorker.register("sw.js").catch(()=>{});
 delete S.ess;delete S.sk;S.tree=S.tree||{};
-migrate();if(!S.bag)S.bag=[{t:"grow"},{t:"shrink"}];S.bag=S.bag.filter(x=>ITEMS[x.t]);S.fruits.forEach(f=>{clampPos(f);treeAdd(f,null,true)});renderProps();renderAll();placePot();fetchWX();startScreen();
+migrate();if(!S.bag)S.bag=[{t:"grow"},{t:"shrink"}];S.bag=S.bag.filter(x=>ITEMS[x.t]);S.fruits.forEach(f=>{clampPos(f);treeAdd(f,null,true)});renderProps();renderAll();placePot();fetchWX();startScreen();portalInit();
