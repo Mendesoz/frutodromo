@@ -824,7 +824,11 @@ openModal(`<h2>${isNew?(shinyOnly?"✦ VERSÃO BRILHANTE!":"NOVA ESPÉCIE!"):"CA
 <button class="big" id="cdl">BAIXAR</button><button class="big" id="csh">COMPARTILHAR</button><br><button class="big alt" id="cl">${isNew?"CONTINUAR":"FECHAR"}</button>`);
 if(isNew)setTimeout(()=>{const r=$("cardimg").getBoundingClientRect();burst(r.left+r.width/2,r.top+r.height*.35,t.img.rgb,30);burst(r.left+r.width/2,r.top+r.height*.35,[255,240,160],16)},450);
 $("cl").onclick=closeModal;
-$("cdl").onclick=()=>{if(window.self!==window.top)return toast("Aqui não dá pra baixar. Faça um print, ou abra mendesoz.github.io/frutodromo");try{const a=document.createElement("a");a.href=url;a.download=`frutodromo-especie-${t.n}.png`;document.body.appendChild(a);a.click();a.remove();toast("Carta baixada!")}catch(e){toast("Não deu pra baixar aqui. Faça um print!")}};
+$("cdl").onclick=async()=>{if(window.self!==window.top){/* dentro do artifact do Claude: o download passa pela confirmação do próprio Claude */
+ try{const dl=window.claude&&window.claude.use?await window.claude.use("downloads"):null;if(!dl)return toast("Aqui não dá pra baixar. Faça um print, ou abra mendesoz.github.io/frutodromo");
+  const bin=atob(url.split(",")[1]),u8=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u8[i]=bin.charCodeAt(i);
+  await dl.save({filename:`frutodromo-especie-${t.n}.png`,data:new Blob([u8],{type:"image/png"})});toast("Carta salva!")}catch(e){if(e&&e.code=="declined")return;toast("Não deu pra baixar aqui. Faça um print!")}return}
+try{const a=document.createElement("a");a.href=url;a.download=`frutodromo-especie-${t.n}.png`;document.body.appendChild(a);a.click();a.remove();toast("Carta baixada!")}catch(e){toast("Não deu pra baixar aqui. Faça um print!")}};
 $("csh").onclick=async()=>{try{const blob=await (await fetch(url)).blob(),file=new File([blob],`frutodromo-${t.n}.png`,{type:"image/png"});
 if(navigator.canShare&&navigator.canShare({files:[file]}))await navigator.share({files:[file],title:"Frutódromo",text:`Olha a fruta que eu descobri no Frutódromo: ${t.name}! mendesoz.github.io/frutodromo`});
 else{await navigator.clipboard.writeText(`Olha a fruta que eu descobri no Frutódromo: ${t.name} (${spLabel(k)})! mendesoz.github.io/frutodromo`);toast("Texto copiado! Cole junto com o print.")}}catch(e){toast("Compartilhar não funciona aqui. Abra pelo link do GitHub Pages!")}}}
