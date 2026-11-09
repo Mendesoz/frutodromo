@@ -225,11 +225,11 @@ const BASE=[["Morango","heart","seeds","leaf","vermelha",7,3,2,3,1],["Banana","b
 /* ================= estado ================= */
 let S,running=false,modalOpen=false;
 let CFG={mus:60,sfx:80,vib:true,zen:false};try{Object.assign(CFG,JSON.parse(localStorage.getItem("frutodromo_cfg")||"{}"))}catch(e){}
-const saveCfg=()=>{try{localStorage.setItem("frutodromo_cfg",JSON.stringify(CFG))}catch(e){}};const sk=k=>false;const dayLen=()=>150000+(sk('t3')?60000:0);
+const saveCfg=()=>{try{localStorage.setItem("frutodromo_cfg",JSON.stringify(CFG))}catch(e){}};const dayLen=()=>150000;
 function level(){return 1+Math.floor(S.delivered/3)}
 const now=()=>S.clock;
 function baseFruit(b){const c=typeof b[4]=="string"?COLORS[b[4]].slice():b[4].slice();return{id:"f"+(S.id++),tip:b[0]=="Banana"?"#6b4423":b[0]=="Pimenta-Dragão"?"#3f9a3a":null,root:b[0].split(/[ -]/)[0],shape:b[1],pat:b[2],top:b[3],rgb:c,doce:b[5],az:b[6],tam:b[7],gen:0,mut:false,el:b[10]||null,hero:false,base:b[0]}}
-function fresh(){S={bag:[{t:"grow"},{t:"shrink"}],potPos:null,coins:25,delivered:0,id:1,fruits:[],pot:[],cust:[null,null,null],clock:0,day:1,dayT:0,ds:{earn:0,served:0,best:0,dex:0},dex:{},tree:{},started:false,ess:0,sk:{}};
+function fresh(){S={bag:[{t:"grow"},{t:"shrink"}],potPos:null,coins:25,delivered:0,id:1,fruits:[],pot:[],cust:[null,null,null],clock:0,day:1,dayT:0,ds:{earn:0,served:0,best:0,dex:0},dex:{},tree:{},started:false};
 [0,1,2,4,5,6].forEach((bi,i)=>{const f=baseFruit(BASE[bi]);f.x=14+(i%3)*104;f.y=12+Math.floor(i/3)*92;S.fruits.push(f)})}
 try{S=JSON.parse(localStorage.getItem("frutodromo9"))}catch(e){}if(!S||!S.fruits)fresh();
 const save=()=>{try{localStorage.setItem("frutodromo9",JSON.stringify(S))}catch(e){}};
@@ -285,7 +285,7 @@ const lvl=(v,k)=>v>=8?{k:k+"Min",v:8}:v>=6?{k:k+"Min",v:6}:v<=2?{k:k+"Max",v:2}:
 [lvl(t.doce,"doce"),lvl(t.az,"az")].forEach(r=>{if(r)normal.push(r)});
 special.sort(()=>Math.random()-.5);normal.sort(()=>Math.random()-.5);
 for(const r of [...special,...normal]){if(out.length>=n)break;out.push(r)}return out}
-function newCust(){if(running)setTimeout(()=>SFX.bell(),200);const L=level(),vip=L>=(sk('t4')?2:3)&&Math.random()<(sk('t4')?.3:.15);let n=Math.min(3,1+Math.floor((L-1)/2)+(Math.random()<.3?1:0));if(vip)n=Math.min(4,n+1);
+function newCust(){if(running)setTimeout(()=>SFX.bell(),200);const L=level(),vip=L>=3&&Math.random()<.15;let n=Math.min(3,1+Math.floor((L-1)/2)+(Math.random()<.3?1:0));if(vip)n=Math.min(4,n+1);
 const pool=reachPool(L),maxD=Math.max(...pool.map(x=>x.d));
 // alvo: nível baixo pede coisas perto da feira; VIP pede o mais fundo
 const want=vip?maxD:Math.min(maxD,R([0,1,1,2,2,3].filter(d=>d<=maxD))),cand=pool.filter(x=>x.d==want&&(L>=5||!x.hero)&&(L>=3||!x.el));
@@ -320,7 +320,7 @@ case"cor":return[r.v.toUpperCase(),"","cor"];case"el":return[ELEM[r.v].n.toUpper
 function reqHTML(r,f){const ok=f?meets(f,r):null,[w,n,ic]=reqWord(r);
 const icon=ic=="cor"?`<span class="sw" style="background:${hex(COLORS[r.v])}"></span>`:ic=="el"?`<img class="ico" src="${SPR[r.v]()}">`:`<img class="ico" src="${RICO[ic]()}">`;
 return `<div class="rq ${ok===true?"y":ok===false?"n":""} ${ic=="cor"?"cor":""}" ${ic=="cor"?`onclick="colorGuide('${r.v}')"`:""}>${icon}<b style="${w.length>9?"font-size:.56rem;letter-spacing:-.4px":""}">${w}</b>${n?`<span class="nb">${n}</span>`:""}${ok===null?"":`<i class="ck">${ok?"✓":"✗"}</i>`}</div>`}
-const leftOf=c=>CFG.zen?1:cl(1-(now()-c.t0)/c.pat,0,1),pay=c=>Math.round(c.rw*(.5+.5*leftOf(c))*(sk('cap')?1.5:1));
+const leftOf=c=>CFG.zen?1:cl(1-(now()-c.t0)/c.pat,0,1),pay=c=>Math.round(c.rw*(.5+.5*leftOf(c)));
 const WALK_IN=1500,WALK_OUT=1000;let sel=null,hoverCust=-1;const pcache={};
 function renderCounter(){const f=sel?S.fruits.find(x=>x.id==sel):null;
 if(!running&&S.cust.every(c=>!c)){$("custs").innerHTML=`<div class="closed">${S.started?'<span class="px" style="background:#f5efe0;padding:4px 10px">QUITANDA FECHADA</span>':""}</div>`;return}
@@ -339,7 +339,7 @@ const tbl=$("table");
 const scale=f=>f.tam==0?1:f.tam==1?2:f.tam<=3?3:f.tam<=7?4:f.tam<=10?5:f.tam==11?6:7,fsize=f=>f.tam==0?40:W*scale(f);
 function fxHTML(f,s){if(!f.el)return"";const src=SPR[f.el](),o=[];
 if(f.el=="fogo"){o.push(`<img class="fx fx-fogo" src="${src}" style="left:${s*.32}px;top:${-s*.22}px;width:${s*.36}px;height:${s*.44}px">`);o.push(`<img class="fx fx-fogo" src="${src}" style="left:${s*.02}px;top:${s*.18}px;width:${s*.22}px;height:${s*.27}px;animation-delay:-.15s">`);o.push(`<img class="fx fx-fogo" src="${src}" style="left:${s*.74}px;top:${s*.12}px;width:${s*.24}px;height:${s*.3}px;animation-delay:-.1s">`)}
-else{const cls=f.el=="veneno"?"fx-rise":"fx-tw",pos=[[.05,.05],[.78,.12],[.12,.72],[.82,.7],[.46,-.08]];pos.forEach(([x,y],k)=>o.push(`<img class="fx ${cls}" src="${src}" style="left:${s*x}px;top:${s*y}px;width:${Math.max(10,s*.18)}px;height:${Math.max(10,s*.18)}px;animation-delay:-${k*.27}s">`))}
+else{const cls="fx-tw",pos=[[.05,.05],[.78,.12],[.12,.72],[.82,.7],[.46,-.08]];pos.forEach(([x,y],k)=>o.push(`<img class="fx ${cls}" src="${src}" style="left:${s*x}px;top:${s*y}px;width:${Math.max(10,s*.18)}px;height:${Math.max(10,s*.18)}px;animation-delay:-${k*.27}s">`))}
 return o.join("")}
 function renderTable(newId){tbl.querySelectorAll(".fr").forEach(e=>e.remove());$("tip").style.display=S.fruits.length?"none":"";
 S.fruits.forEach(f=>{const d=document.createElement("div");d.className="fr"+(f.id==newId?" new":"")+(f.id==sel?" sel":"")+(f.tam==0?" micro":"")+(f.el?" el-"+f.el:"")+(f.shiny?" shiny":"");d.dataset.id=f.id;const s=fsize(f);
@@ -360,20 +360,20 @@ if(!mv&&armed){useItem(f);return}if(!mv){sel=sel==f.id?null:f.id;showInfo(sel?f:
 const[cx,cy]=center(el);const hc=custAt(cx,cy);hoverCust=-1;
 if(hc>=0&&S.cust[hc]&&!S.cust[hc].leaving){deliver(f,hc,ox,oy);return}
 if(inside(cx,cy,$("bin"))){sell(f);return}
-if(inside(cx,cy,$("pot"))){if(brewing||S.pot.length>=(sk("c3")?3:2)){f.x=ox;f.y=oy;renderTable();return toast("O caldeirão está ocupado!")}addToPot(f);return}
+if(inside(cx,cy,$("pot"))){if(brewing||S.pot.length>=2){f.x=ox;f.y=oy;renderTable();return toast("O caldeirão está ocupado!")}addToPot(f);return}
 f.x=ox+(e.clientX-sx);f.y=oy+(e.clientY-sy);clampPos(f);sel=null;save();renderTable();renderCounter()};
 el.addEventListener("pointerup",up);el.addEventListener("pointercancel",up)}
-function sell(f){const v=(sk('t2')?2:1)*(1+Math.floor(f.gen/2)+(f.mut?2:0)+(f.el?3:0)+(f.hero?6:0)+(f.tam==0||f.tam>=11?4:0));const br=$("bin").getBoundingClientRect();flyCoins(br.left+br.width/2,br.top+br.height/2,v,0);S.coins+=v;$("coins").textContent=S.coins;undoOffer(f,v);floatText(br.left+br.width/2,br.top,"+"+v);buzz(15);S.ds.earn+=v;
+function sell(f){const v=(1+Math.floor(f.gen/2)+(f.mut?2:0)+(f.el?3:0)+(f.hero?6:0)+(f.tam==0||f.tam>=11?4:0));const br=$("bin").getBoundingClientRect();flyCoins(br.left+br.width/2,br.top+br.height/2,v,0);S.coins+=v;$("coins").textContent=S.coins;undoOffer(f,v);floatText(br.left+br.width/2,br.top,"+"+v);buzz(15);S.ds.earn+=v;
 S.fruits=S.fruits.filter(x=>x!=f);sel=null;showInfo(null);save();renderTable();renderCounter();renderMarket()}
 function deliver(f,i,ox,oy){const c=S.cust[i];
 if(!c.reqs.every(r=>meets(f,r))){f.x=ox;f.y=oy;renderTable();c.mood="sad";renderCounter();SFX.bad();buzz(120);{const ce=document.querySelector(`.cust[data-i="${i}"] .bub`);if(ce){const r=ce.getBoundingClientRect();floatText(r.left+r.width/2,r.top+20,"✗","#ff5a4e")}}setTimeout(()=>{if(S.cust[i]==c){c.mood=null;renderCounter()}},1200);return toast(`${c.name}: "Não foi isso que eu pedi..."`)}
 const cb=comboHit(),bonus=cb>=2?Math.round(pay(c)*Math.min(.5,(cb-1)*.1)):0,v=pay(c)+bonus,L0=level();const ce=document.querySelector(`.cust[data-i="${i}"] .bub`).getBoundingClientRect();flyCoins(ce.left+ce.width/2,ce.top+ce.height/2,v,v);floatText(ce.left+ce.width/2,ce.top+10,"+"+v);if(cb>=2)setTimeout(()=>floatText(ce.left+ce.width/2,ce.top+40,`COMBO x${cb}!`,"#ff8ad8"),250);buzz([20,40,30]);
-S.delivered++;S.ds.served++;if(c.vip)rec("vips",1);tutDone("t2");gainEss(c.vip?3:1);S.ds.earn+=v;S.ds.best=Math.max(S.ds.best,v);S.fruits=S.fruits.filter(x=>x!=f);sel=null;showInfo(null);c.mood="happy";renderTable();renderCounter();renderMarket();
+S.delivered++;S.ds.served++;if(c.vip)rec("vips",1);tutDone("t2");S.ds.earn+=v;S.ds.best=Math.max(S.ds.best,v);S.fruits=S.fruits.filter(x=>x!=f);sel=null;showInfo(null);c.mood="happy";renderTable();renderCounter();renderMarket();
 toast(`${c.name} adorou! <b>+${v}</b> moedas${level()>L0?`<br><b>NÍVEL ${level()}!</b>${newUnlock(level())}`:""}`);if(level()>L0){SFX.lvl();shake(5);buzz([40,60,40,60,80])}
 {const first=!(S.rec&&S.rec.gifts),n=c.vip?2:(first||Math.random()<.35)?1:0;for(let g=0;g<n;g++)setTimeout(()=>giveItem(rollItem(),ce.left+ce.width/2,ce.top+ce.height/2,c.name),600+g*700);if(n)rec("gifts",n)}
 setTimeout(()=>{c.leaving=true;c.lt=Date.now();renderCounter();setTimeout(()=>{S.cust[i]=null;renderCounter();setTimeout(()=>{if(running&&!S.cust[i]){S.cust[i]=newCust();save();renderCounter()}},700)},WALK_OUT)},900)}
-function newUnlock(L){const u=[];const extra={2:"Clientes pedem frutas MINI e ENORMES",3:"Pedidos de FOGO e clientes VIP",4:"Pedidos de GELO e cores raras",5:"Microscópicas, Gigantescas e SUPER-FRUTAS"}[L];
-return (u.length?"<br>Nova na feira: "+u.join(", "):"")+(extra?"<br>"+extra:"")}
+function newUnlock(L){const extra={2:"Clientes pedem frutas MINI e ENORMES",3:"Pedidos de FOGO e clientes VIP",4:"Pedidos de GELO e cores raras",5:"Microscópicas, Gigantescas e SUPER-FRUTAS"}[L];
+return extra?"<br>"+extra:""}
 /* ================= info / feira ================= */
 function showInfo(f){const p=$("info");if(!f){p.classList.remove("on");return}if(S.tut&&S.tut.t2)tutDone("t3");
 const tw=(v,a,b)=>v>=8?"muito "+a:v>=6?a:v<=2?"nada "+a:v<=4?"pouco "+a:"",st=(l,v,c,w)=>`<div class="st"><span>${l}</span>${cells(i=>i<=v,c)}<b style="white-space:nowrap">${v}${w?` <small style="font-weight:400;opacity:.75">${w}</small>`:""}</b></div>`;
@@ -519,28 +519,27 @@ function renderProps(){const sc=$("scene"),Wd=sc.clientWidth,W=Math.ceil(Wd/2),H
 /* ================= caldeirão ================= */
 let brewing=false;
 function potImg(col){const PW=24,PH=22,g=blank(PW,PH),L=hex(lift(col,.45)),B=hex(col),D=hex(mul(col,.75));const body=ell(12,13,10.5,7.5);
-for(let y=0;y<PH;y++)for(let x=0;x<PW;x++){if(body(x,y)&&y>=7)g[y][x]=sk("cap")?(x<7?"#ffe27a":x>17?"#a87b00":"#e0b020"):(x<7?"#5d5d6e":x>17?"#26262e":"#3c3c48");
+for(let y=0;y<PH;y++)for(let x=0;x<PW;x++){if(body(x,y)&&y>=7)g[y][x]=x<7?"#5d5d6e":x>17?"#26262e":"#3c3c48";
 if(y>=4&&y<=7&&ell(12,6.4,8.6,1.8)(x,y))g[y][x]=(x+y)%4==0?L:x>15?D:B;
 if((y==7||y==8)&&x>=1&&x<=22)g[y][x]=y==7?"#6e6e80":"#4a4a58";
 if(y>=20&&(x==5||x==6||x==17||x==18))g[y][x]="#26262e"}
 [[8,3],[13,2],[15,4],[10,1]].forEach(([x,y])=>g[y][x]=L);g[9][4]=g[10][4]="#8a8aa0";return toImg(PW,PH,g,"#1a1a20")}
 function renderPot(){const p=S.pot;const col=p.length?p.reduce((a,f)=>a.map((x,i)=>x+f.rgb[i]/p.length),[0,0,0]):[123,92,255];
-$("potimg").src=potImg(col);$("pot").style.setProperty("--lq",hex(col));$("potslots").innerHTML=(sk("c3")?[0,1,2]:[0,1]).map(i=>`<div class="sl">${p[i]?`<img src="${fruitImg(p[i])}">`:""}</div>`).join("")}
+$("potimg").src=potImg(col);$("pot").style.setProperty("--lq",hex(col));$("potslots").innerHTML=[0,1].map(i=>`<div class="sl">${p[i]?`<img src="${fruitImg(p[i])}">`:""}</div>`).join("")}
 function addToPot(f){buzz(20);S.pot.push(f);S.fruits=S.fruits.filter(x=>x!=f);sel=null;showInfo(null);save();renderTable();renderCounter();renderPot();SFX.plop();
 const r=$("potimg").getBoundingClientRect();burst(r.left+r.width/2,r.top+18,f.rgb,10);
 if(S.pot.length<2)return toast("Coloque mais uma fruta no caldeirão");
-if(sk("c3")&&S.pot.length==2)return toast("Coloque a 3ª fruta ou toque no caldeirão pra misturar");
 brew()}
 function brew(){brewing=true;$("pot").classList.add("brew");toast("Misturando...");SFX.brew();
 setTimeout(()=>{$("pot").classList.remove("brew");const ing=S.pot;S.pot=[];brewing=false;
 const make=()=>{let c=cross(ing[0],ing[1]);if(ing[2]){c=cross(c,ing[2]);c.gen=Math.max(...ing.map(x=>x.gen))+1}return c};
-rec("crosses",1);const kids=[make()];if(sk("c2")&&Math.random()<.2)kids.push(make());
-kids.forEach((c,ki)=>{gainEss(1+(c.mut?2:0)+(c.hero?3:0));
+rec("crosses",1);const kids=[make()];
+kids.forEach((c,ki)=>{
 const tr=tbl.getBoundingClientRect(),pr=$("pot").getBoundingClientRect();c.x=pr.right-tr.left+8+ki*70;c.y=pr.top-tr.top-fsize(c)/3-ki*20;clampPos(c);
 S.fruits.push(c);sel=c.id;treeAdd(c,ing);if(c.shiny)rec("shiny",1);tutDone("t1");save();renderTable(c.id);renderPot();renderCounter();showInfo(c);
 const er=tbl.querySelector(`[data-id="${c.id}"]`).getBoundingClientRect(),ex=er.left+er.width/2,ey=er.top+er.height/2;burst(ex,ey,c.rgb,24);
 if(c.mut||c.hero||c.shiny){burst(ex,ey,[180,155,255],18);SFX.mut();shake(c.hero?7:4);buzz([40,30,80])}else{SFX.pop();buzz(35)}if(c.el=="fogo")SFX.fire();
-toast((kids.length>1?"<b>GÊMEOS!</b> ":"")+(c.hero?`<b>SUPER-FRUTA!</b> ${fname(c)}`:c.mut?`<b>MUTAÇÃO!</b> ${fname(c)}`:`Nasceu: <b>${fname(c)}</b>`))})},sk("c1")?550:1100)}
+toast((c.hero?`<b>SUPER-FRUTA!</b> ${fname(c)}`:c.mut?`<b>MUTAÇÃO!</b> ${fname(c)}`:`Nasceu: <b>${fname(c)}</b>`))})},1100)}
 function potTap(){if(brewing||!S.pot.length||modalOpen)return;if(S.pot.length>=2)return brew();const f=S.pot.pop();const tr=tbl.getBoundingClientRect(),pr=$("pot").getBoundingClientRect();f.x=pr.right-tr.left+8;f.y=pr.top-tr.top;clampPos(f);S.fruits.push(f);save();renderTable(f.id);renderPot()}
 function freeFromPot(){const pr=$("pot");if(!pr||!tbl)return;const X=pr.offsetLeft,Y=pr.offsetTop,W=pr.offsetWidth,H=pr.offsetHeight;let mv=0;
  S.fruits.forEach(f=>{const z=fsize(f),hit=()=>f.x+z>X+6&&f.x<X+W-6&&f.y+z>Y+6&&f.y<Y+H-6;if(!hit())return;let k=0;do{f.x=N(6,Math.max(6,tbl.clientWidth-z-6));f.y=N(6,Math.max(6,tbl.clientHeight-z-6));k++}while(k<40&&hit());clampPos(f);mv++});if(mv)renderTable()}
@@ -700,7 +699,6 @@ openModal(`<div class="logo">FRUTÓDROMO</div><p style="margin-top:0">A quitanda
 <button class="big" id="go">${cont?"CONTINUAR · DIA "+S.day:"ABRIR A QUITANDA"}</button><br><button class="big alt" id="sndb" onclick="toggleSnd()"></button><button class="big alt" onclick="settings(startScreen)">AJUSTES</button>${cont?'<button class="big alt" id="newg">NOVO JOGO</button>':""}`);sndLabel();
 $("go").onclick=()=>{ac();rainFruits(false);closeModal();const go=()=>{if(!running)startDay()};askWeather(go)};
 if(cont)$("newg").onclick=e=>{if(!armed){armed=true;e.target.textContent="TOQUE DE NOVO PRA APAGAR TUDO";return}fresh();S.fruits.forEach(f=>dexCheck(f,true));const pe=$("pot");pe.style.left="10px";pe.style.top="";pe.style.bottom="8px";save();sel=null;showInfo(null);ac();rainFruits(false);closeModal();renderAll();startDay()}}
-function gainEss(){}
 const HELLO={person:["Olá! ","Oi, tudo bem? ","Boa tarde! ","E aí! "],cat:["Miau... ","Mrrr... "],dog:["Au au! ","Oi oi oi! "],bear:["Hmm... ","Grrr, oi! "],bunny:["Oi oi! ","Hihi! "],frog:["Croac! "],penguin:["Brrr! "],robot:["BIP-BOP. SOLICITAÇÃO: "],alien:["Saudações, terráqueo. "],ghost:["Buuu... "]};
 function sayReq(r){const[w,n]=reqWord(r);return r.k=="cor"?"da cor "+w.toLowerCase():r.k=="el"?"de "+w:r.k=="hero"?"SUPER-FRUTA":w.toLowerCase()+(n?` (${n})`:"")}
 function showPortrait(i){const c=S.cust[i];if(!c||c.leaving)return;const left=leftOf(c),mood=c.mood||(left<.2?"sad":"ok");
@@ -813,4 +811,4 @@ S.pot=S.pot||[];if(S.pot.length==2){S.fruits.push(...S.pot);S.pot=[]}
 document.addEventListener("pointerdown",e=>{const t=e.target.closest("button,.btn,.big,.hint,.flt span,.sp,.cg,.tvh .btn,#pot,.pw");if(!t)return;ac();
  if(t.id=="go"||t.id=="cl"||t.id=="tvx"||t.id=="resume"||t.id=="nextd"||t.id=="rvx"||t.id=="pot")return;SFX.sel()},true);
 if("serviceWorker" in navigator&&location.hostname.endsWith("github.io"))navigator.serviceWorker.register("sw.js").catch(()=>{});
-S.ess=S.ess||0;S.sk=S.sk||{};S.tree=S.tree||{};if(!S.bag)S.bag=[{t:"grow"},{t:"shrink"}];S.fruits.forEach(f=>{clampPos(f);treeAdd(f,null,true)});renderProps();renderAll();placePot();fetchWX();startScreen();
+delete S.ess;delete S.sk;S.tree=S.tree||{};if(!S.bag)S.bag=[{t:"grow"},{t:"shrink"}];S.fruits.forEach(f=>{clampPos(f);treeAdd(f,null,true)});renderProps();renderAll();placePot();fetchWX();startScreen();
