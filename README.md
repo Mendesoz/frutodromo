@@ -54,6 +54,7 @@ O formato do filho é uma **fusão dos contornos dos pais**, então cada linhage
 - 🃏 **Álbum de cartas** com molduras por raridade (borda arco-íris pras brilhantes, cantos dourados pras lendárias)
 - 🏆 **17 troféus** com recompensa e painel de recordes
 - 📱 **Instalável como app** (PWA): no celular, abra o link e toque em "Adicionar à tela inicial". Funciona offline
+- 🌎 **Português e inglês**: segue o idioma do navegador e dá pra trocar em Ajustes → Idioma / Language (o progresso continua o mesmo)
 - 💾 Progresso salvo no navegador, com **código de backup** pra levar pra outro aparelho
 
 ## Estrutura
@@ -62,6 +63,7 @@ O formato do filho é uma **fusão dos contornos dos pais**, então cada linhage
 frutodromo/
 ├── index.html        # estrutura da página
 ├── css/style.css     # visual: pixel art, cena, mesa, árvore e cartas
+├── js/i18n.js       # tradução pro inglês (troca o texto na hora de mostrar)
 ├── js/game.js        # lógica: sprites gerados por código, genética, clientes, som e interface
 ├── manifest.json     # dados do app instalável (PWA)
 ├── sw.js             # service worker: funciona offline

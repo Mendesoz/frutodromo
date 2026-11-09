@@ -405,7 +405,7 @@ setTimeout(()=>{if(S.cust[i]==c){c.mood=null;renderCounter()}},1600);return toas
 const cb=comboHit(),bonus=cb>=2?Math.round(pay(c)*Math.min(.5,(cb-1)*.1)):0,v=pay(c)+bonus,L0=level();const ce=document.querySelector(`.cust[data-i="${i}"] .bub`).getBoundingClientRect();S.coins+=v;flyCoins(ce.left+ce.width/2,ce.top+ce.height/2,v,v);floatText(ce.left+ce.width/2,ce.top+10,"+"+v);if(cb>=2)setTimeout(()=>floatText(ce.left+ce.width/2,ce.top+40,`COMBO x${cb}!`,"#ff8ad8"),250);buzz([20,40,30]);
 S.delivered++;S.ds.served++;if(c.vip)rec("vips",1);checkAch();tutDone("t2");S.ds.earn+=v;S.ds.best=Math.max(S.ds.best,v);S.fruits=S.fruits.filter(x=>x!=f);sel=null;showInfo(null);c.mood="happy";renderTable();renderCounter();renderMarket();
 toast(`${c.name} adorou! <b>+${v}</b> moedas${level()>L0?`<br><b>NÍVEL ${level()}!</b>${newUnlock(level())}`:""}`);if(level()>L0){SFX.lvl();shake(5);buzz([40,60,40,60,80])}
-{const first=!(S.rec&&S.rec.gifts),n=c.vip?2:(first||Math.random()<.35)?1:0;for(let g=0;g<n;g++)setTimeout(()=>giveItem(rollItem(),ce.left+ce.width/2,ce.top+ce.height/2,c.name),600+g*700);if(n)rec("gifts",n)}
+{const first=!(S.rec&&S.rec.gifts),n=c.vip?2:(first||Math.random()<.35)?1:0;for(let g=0;g<n;g++)setTimeout(()=>giveItem(rollItem(),ce.left+ce.width/2,ce.top+ce.height/2,"de "+c.name),600+g*700);if(n)rec("gifts",n)}
 setTimeout(()=>{c.leaving=true;c.lt=Date.now();renderCounter();setTimeout(()=>{S.cust[i]=null;renderCounter();setTimeout(()=>{if(running&&!S.cust[i]){S.cust[i]=newCust();save();renderCounter()}},700)},WALK_OUT)},900)}
 function newUnlock(L){const extra={2:"Clientes pedem frutas MINI e ENORMES",3:"Pedidos de FOGO e clientes VIP",4:"Pedidos de GELO e cores raras",5:"Microscópicas, Gigantescas e SUPER-FRUTAS"}[L];
 return extra?"<br>"+extra:""}
@@ -459,7 +459,7 @@ morph:{n:"Molde Maluco",short:()=>"Molde",d:"Deforma a fruta num formato novo",i
 function rollItem(){const ks=Object.keys(ITEMS).filter(k=>ITEMS[k].w),tot=ks.reduce((s,k)=>s+ITEMS[k].w,0);let r=Math.random()*tot;for(const k of ks){if((r-=ITEMS[k].w)<0){const it={t:k};if(ITEMS[k].vals)it.v=R(ITEMS[k].vals);return it}}return{t:"grow"}}
 function giveItem(it,x,y,from){S.bag=S.bag||[];S.bag.push(it);save();const I=ITEMS[it.t],im=document.createElement("img");im.src=I.img(it.v);im.style.cssText=`position:fixed;left:${x}px;top:${y}px;width:36px;height:36px;z-index:130;image-rendering:pixelated;pointer-events:none`;document.body.appendChild(im);
 const bt=$("bagtab")||$("market"),r=bt.getBoundingClientRect();im.animate([{transform:"translate(-50%,-50%) scale(.5)"},{transform:"translate(-50%,-140%) scale(1.4)",offset:.3},{transform:`translate(${r.left+r.width/2-x-18}px,${r.top+r.height/2-y-18}px) scale(.6)`}],{duration:1100,easing:"ease-in"}).onfinish=()=>{im.remove();renderMarket();const b=$("bagtab");if(b){b.classList.remove("got");void b.offsetWidth;b.classList.add("got")}};
-setTimeout(()=>{toast(`<b>PRESENTE${from?" de "+from:""}!</b><br>${I.n}${it.v?" ("+it.v+")":""}`);SFX.dex();buzz([20,30,20])},500)}
+setTimeout(()=>{toast(`<b>PRESENTE${from?" "+from:""}!</b><br>${I.n}${it.v?" ("+it.v+")":""}`);SFX.dex();buzz([20,30,20])},500)}
 function armItem(k){armed=armed==k?null:k;renderMarket();const tip=$("armtip");if(armed){const it=(S.bag||[]).find(x=>x.t+(x.v||"")==armed),I=ITEMS[it.t];tip.innerHTML=`${I.n}${it.v?" ("+it.v+")":""}: ${I.d}<br><span style="font-weight:400">Toque numa fruta da mesa pra usar · toque de novo pra cancelar</span>`;tip.classList.add("on");tbl.classList.add("arming")}else{tip.classList.remove("on");tbl.classList.remove("arming")}}
 function useItem(f){const idx=(S.bag||[]).findIndex(x=>x.t+(x.v||"")==armed);if(idx<0){armItem(null);return}const it=S.bag[idx],I=ITEMS[it.t];
 const look=()=>JSON.stringify([f.tam,f.doce,f.az,f.rgb,f.rgb2,f.el,f.hero,f.cape,f.shiny,f.pat,f.mask,f.shape]),before=look();const old={...f,sp:f.sp},s0=fsize(f);I.go(f,it.v);{const s1=fsize(f);f.x-=(s1-s0)/2;f.y-=(s1-s0)/2}
@@ -697,7 +697,7 @@ function drawClock(){const im=$("clockimg");if(!im)return;const[c,g]=cvs(18,18),
  for(let k=0;k<12;k++){const a=k/12*Math.PI*2;px(g,Math.round(8.5+Math.sin(a)*5.6),Math.round(8.5-Math.cos(a)*5.6),k%3==0?"#2a1a12":"#b8a888")}
  const hand=(ang,len,col)=>{for(let t=0;t<=len;t+=.5)px(g,Math.round(8.5+Math.sin(ang)*t),Math.round(8.5-Math.cos(ang)*t),col)};
  hand(h/12*Math.PI*2,3.8,"#2a1a12");hand(m/60*Math.PI*2,5.6,"#c0392b");px(g,8,8,"#2a1a12",2,2);im.src=c.toDataURL();
- im.title=d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}
+ im.title=d.toLocaleTimeString(EN?"en-US":"pt-BR",{hour:"2-digit",minute:"2-digit"})}
 setInterval(drawClock,20000);
 const WX={ok:false};
 const hrsOf=iso=>{const t=(iso||"").split("T")[1]||"";const[a,b]=t.split(":").map(Number);return isNaN(a)?null:a+(b||0)/60};
@@ -740,6 +740,7 @@ function updateSky(){const sk=$("sky");if(!sk)return;const ws=wxState(),{ph,w,lv
  // relâmpago na tempestade (a cada 9 a 25 s) e o trovão chega um pouco depois; chuva com som conforme a intensidade
  if(w=="storm"&&Date.now()>lightT){if(lightT&&!document.hidden){if(!RM.matches)[1,2].forEach(n=>{const el=$("win"+n);if(el){el.classList.remove("flash");void el.offsetWidth;el.classList.add("flash")}});setTimeout(()=>ambThunder(),500+Math.random()*1200)}lightT=Date.now()+9000+Math.random()*16000}
  ambSet(w=="rain"||w=="storm"?lv:0)}
+function setLang(k){if(k==LANG)return;CFG.lang=k;saveCfg();try{saveNow()}catch(e){}location.reload()}
 function settings(back){const sl=(id,lab,v)=>`<div style="display:flex;align-items:center;gap:8px;margin:8px 0;text-align:left"><span style="width:80px">${lab}</span><input type="range" id="${id}" min="0" max="100" value="${v}" style="flex:1;accent-color:#3ca55c"><b id="${id}v" style="width:34px">${v}</b></div>`;
 const tg=(id,lab,on,desc)=>`<div class="cg" style="cursor:pointer" id="${id}"><span class="big-sw" style="width:26px;height:26px;background:${on?"#3ca55c":"#c9b99a"}"></span><div style="flex:1"><b>${lab}: ${on?"LIGADO":"DESLIGADO"}</b><br><span style="font-size:.72rem">${desc}</span></div></div>`;
 openModal(`<h2>AJUSTES</h2>${sl("smus","Música",CFG.mus)}${sl("ssfx","Efeitos",CFG.sfx)}
@@ -747,7 +748,8 @@ ${tg("svib","Vibração",CFG.vib,"Vibra o celular ao cruzar, entregar e descobri
 ${tg("szen","Modo Zen",CFG.zen,"Sem relógio e sem pressa: o dia não acaba e os clientes esperam pra sempre")}${tg("swx","Clima real na janela",!!CFG.wx,"Mostra o tempo da sua cidade e avisa sobre tempo perigoso")}
 ${tg("samb","Som de chuva",CFG.amb!==false,"Barulho de chuva e trovão quando estiver chovendo na janela")}
 <div style="text-align:left;margin:8px 0"><b>Estilo da música:</b><div class="flt" style="border:2px solid #2a1a12;margin-top:4px;flex-wrap:wrap">${[["auto","Automático (lo-fi na chuva e à noite)"],["chip","Chiptune"],["lofi","Lo-fi"]].map(([k,l])=>`<span class="${(CFG.musStyle||"auto")==k?"on":""}" onclick="CFG.musStyle='${k}';saveCfg();settings()">${l}</span>`).join("")}</div></div>
-<div style="text-align:left;margin:8px 0"><b>Ver clima na janela:</b><div class="flt" style="border:2px solid #2a1a12;margin-top:4px;flex-wrap:wrap">${[["auto","Automático"],["sol","Sol"],["nublado","Nublado"],["garoa","Garoa"],["chuva","Chuva"],["chuvaforte","Chuva forte"],["tempestade","Tempestade"],["entardecer","Entardecer"],["estrelada","Noite estrelada"],["noitechuva","Noite chuvosa"]].map(([k,l])=>`<span class="${(CFG.wxForce||"auto")==k?"on":""}" onclick="CFG.wxForce='${k}';saveCfg();updateSky();settings()">${l}</span>`).join("")}</div></div>
+<div style="text-align:left;margin:8px 0"><b>Ver clima na janela:</b><div class="flt" style="border:2px solid #2a1a12;margin-top:4px;flex-wrap:wrap">${[["auto","Automático"],["sol",EN?"Sunny":"Sol"],["nublado","Nublado"],["garoa","Garoa"],["chuva","Chuva"],["chuvaforte","Chuva forte"],["tempestade","Tempestade"],["entardecer","Entardecer"],["estrelada","Noite estrelada"],["noitechuva","Noite chuvosa"]].map(([k,l])=>`<span class="${(CFG.wxForce||"auto")==k?"on":""}" onclick="CFG.wxForce='${k}';saveCfg();updateSky();settings()">${l}</span>`).join("")}</div></div>
+<div style="text-align:left;margin:8px 0"><b>Idioma / Language:</b><div class="flt" style="border:2px solid #2a1a12;margin-top:4px">${[["pt","Português"],["en","English"]].map(([k,l])=>`<span class="${LANG==k?"on":""}" onclick="setLang('${k}')">${l}</span>`).join("")}</div></div>
 <button class="big alt" id="stut">REVER TUTORIAL</button><br><button class="big alt" id="sexp">EXPORTAR PROGRESSO</button><button class="big alt" id="simp">IMPORTAR</button><br><button class="big" id="cl">PRONTO</button>`);
 ["smus","ssfx"].forEach(id=>{$(id).oninput=e=>{const v=+e.target.value;$(id+"v").textContent=v;if(id=="smus")CFG.mus=v;else{CFG.sfx=v;SFX.coin()}saveCfg()}});
 $("svib").onclick=()=>{CFG.vib=!CFG.vib;saveCfg();buzz(40);settings(back)};$("samb").onclick=()=>{CFG.amb=CFG.amb===false;saveCfg();settings(back)};$("szen").onclick=()=>{CFG.zen=!CFG.zen;saveCfg();hud();renderCounter();settings(back)};$("swx").onclick=()=>{if(CFG.wx){CFG.wx=false;WX.ok=false;saveCfg();updateSky();settings(back)}else{delete CFG.wx;saveCfg();closeModal();askWeather(()=>settings(back))}};
@@ -810,11 +812,15 @@ openModal(`<div class="logo">FRUTÓDROMO</div><p style="margin-top:0">A quitanda
 $("go").onclick=()=>{ac();rainFruits(false);closeModal();if(!running)startDay()};
 if(cont)$("newg").onclick=e=>{if(!armed){armed=true;e.target.textContent="TOQUE DE NOVO PRA APAGAR TUDO";return}fresh();S.fruits.forEach(f=>dexCheck(f,true));const pe=$("pot");pe.style.left="10px";pe.style.top="";pe.style.bottom="8px";save();sel=null;showInfo(null);ac();rainFruits(false);closeModal();renderAll();startDay()}}
 const HELLO={person:["Olá! ","Oi, tudo bem? ","Boa tarde! ","E aí! "],cat:["Miau... ","Mrrr... "],dog:["Au au! ","Oi oi oi! "],bear:["Hmm... ","Grrr, oi! "],bunny:["Oi oi! ","Hihi! "],frog:["Croac! "],penguin:["Brrr! "],robot:["BIP-BOP. SOLICITAÇÃO: "],alien:["Saudações, terráqueo. "],ghost:["Buuu... "]};
+const HELLO_EN={person:["Hello! ","Hi, how are you? ","Good afternoon! ","Hey there! "],cat:["Meow... ","Mrrr... "],dog:["Woof woof! ","Hi hi hi! "],bear:["Hmm... ","Grrr, hi! "],bunny:["Hi hi! ","Hehe! "],frog:["Ribbit! "],penguin:["Brrr! "],robot:["BEEP-BOOP. REQUEST: "],alien:["Greetings, earthling. "],ghost:["Boooo... "]};
+function sayEN(c,left){const ps=c.reqs.map(r=>{const[w,n]=reqWord(r);return r.k=="cor"?tl(r.v):r.k=="el"?"with "+tl(ELEM[r.v].n).toLowerCase()+" power":r.k=="hero"?"a SUPER-FRUIT":tl(w).toLowerCase()+(n?` (${tl(n)})`:"")}).filter(Boolean);
+ const list=ps.length>1?ps.slice(0,-1).join(", ")+" and "+ps[ps.length-1]:ps[0]||"special";
+ return R(HELLO_EN[c.kind||"person"]||HELLO_EN.person)+"I want a fruit that's "+list+"."+(c.kind=="robot"?" END OF TRANSMISSION.":left<.2?" And quickly, please!":c.vip?" I pay well!":"")}
 function sayReq(r){const[w,n]=reqWord(r);return r.k=="cor"?"da cor "+w.toLowerCase():r.k=="el"?"de "+w:r.k=="hero"?"SUPER-FRUTA":w.toLowerCase()+(n?` (${n})`:"")}
 function showPortrait(i){const c=S.cust[i];if(!c||c.leaving)return;const left=leftOf(c),mood=c.mood||(left<.2?"sad":"ok");
 const parts=c.reqs.map(sayReq).filter(Boolean),last=parts.length>1?parts.slice(0,-1).join(", ")+" e "+parts[parts.length-1]:parts[0]||"especial";
 const hi=R(HELLO[c.kind||"person"]||HELLO.person),tail=c.kind=="robot"?" FIM DA TRANSMISSÃO.":left<.2?" E rápido, por favor!":c.vip?" Pago bem, viu?":"";
-const txt=`${hi}Quero uma fruta ${last}.${tail}`;
+const txt=EN?sayEN(c,left):`${hi}Quero uma fruta ${last}.${tail}`;
 openModal(`<h2>${c.name}${c.vip?' <span style="background:#d4a017;color:#2a1a12;font-size:.7rem;padding:1px 5px">VIP</span>':""}</h2><div class="prt"><img src="${personImg(c,mood)}"></div><div class="say" id="sayt"></div>
 <div style="display:flex;align-items:center;justify-content:center;gap:6px;font-weight:700"><span class="coin"></span>${pay(c)} moedas</div><button class="big" id="phint">COMO FAZER?</button><button class="big alt" id="cl">FECHAR</button>`);
 $("cl").onclick=closeModal;$("phint").onclick=()=>{closeModal();showHint(i)};
@@ -849,10 +855,10 @@ for(let i=0;i<24;i++){g.fillStyle=i%2?hex(lift(hexToRgb(col),.75)):"#efe4cf";g.b
 g.fillStyle="#f5efe0";g.fillRect(14,262,272,144);g.fillStyle="#2a1a12";g.fillRect(14,258,272,4);
 cardFrame(g,st,col,t.shiny);
 return new Promise(res=>{const im=new Image();im.onload=()=>{g.drawImage(im,60,40,180,180);
-g.fillStyle="#2a1a12";g.font="bold 18px 'Pixelify Sans',monospace";g.textAlign="center";g.fillText(`nº ${t.n} · ${t.name}`.slice(0,26),150,32);
+g.fillStyle="#2a1a12";g.font="bold 18px 'Pixelify Sans',monospace";g.textAlign="center";g.fillText(tl(`nº ${t.n} · ${t.name}`).slice(0,26),150,32);
 g.font="bold 22px 'Pixelify Sans',monospace";g.fillStyle=col;g.fillText("★".repeat(st)+"☆".repeat(5-st),150,248);
 g.textAlign="left";g.fillStyle="#2a1a12";g.font="14px 'Pixelify Sans',monospace";const ls=[lab+(t.shiny?" · BRILHANTE ✦":""),spLabel(k),`Doce ${t.st.doce} · Azedo ${t.st.az} · Tamanho ${t.st.tam}`,`Geração ${t.d} · Dia ${t.day||S.day}`];
-ls.forEach((l,i)=>{g.font=(i==0?"bold ":"")+(i==1?"12px":"14px")+" 'Pixelify Sans',monospace";let y=284+i*24;g.fillText(l.slice(0,36),26,y)});
+ls.forEach((l,i)=>{l=tl(l);g.font=(i==0?"bold ":"")+(i==1?"12px":"14px")+" 'Pixelify Sans',monospace";let y=284+i*24;g.fillText(l.slice(0,36),26,y)});
 g.font="bold 10px 'Pixelify Sans',monospace";g.fillStyle="#8a6a50";g.textAlign="center";g.fillText(SITE_TXT(),150,396);res(c)};im.src=fruitImg(t.img)})}
 async function showCard(k,isNew,shinyOnly){const c=await cardCanvas(k),url=c.toDataURL("image/png"),t=S.tree[k];
 openModal(`<h2>${isNew?(shinyOnly?"✦ VERSÃO BRILHANTE!":"NOVA ESPÉCIE!"):"CARTA DA ESPÉCIE"}</h2><img id="cardimg" class="${isNew?"cin":""}" src="${url}">
@@ -865,8 +871,8 @@ $("cdl").onclick=async()=>{if(window.self!==window.top){/* dentro do artifact do
   await dl.save({filename:`frutodromo-especie-${t.n}.png`,data:new Blob([u8],{type:"image/png"})});toast("Carta salva!")}catch(e){if(e&&e.code=="declined")return;toast("Não deu pra baixar aqui. Faça um print!")}return}
 try{const a=document.createElement("a");a.href=url;a.download=`frutodromo-especie-${t.n}.png`;document.body.appendChild(a);a.click();a.remove();toast("Carta baixada!")}catch(e){toast("Não deu pra baixar aqui. Faça um print!")}};
 $("csh").onclick=async()=>{try{const blob=await (await fetch(url)).blob(),file=new File([blob],`frutodromo-${t.n}.png`,{type:"image/png"});
-if(navigator.canShare&&navigator.canShare({files:[file]}))await navigator.share({files:[file],title:"Frutódromo",text:`Olha a fruta que eu descobri no Frutódromo: ${t.name}!${PORTAL.name?"":" mendesoz.github.io/frutodromo"}`});
-else{await navigator.clipboard.writeText(`Olha a fruta que eu descobri no Frutódromo: ${t.name} (${spLabel(k)})!${PORTAL.name?"":" mendesoz.github.io/frutodromo"}`);toast("Texto copiado! Cole junto com o print.")}}catch(e){toast("Compartilhar não funciona aqui. Abra pelo link do GitHub Pages!")}}}
+if(navigator.canShare&&navigator.canShare({files:[file]}))await navigator.share({files:[file],title:"Frutódromo",text:tl(`Olha a fruta que eu descobri no Frutódromo: ${t.name}!`)+(PORTAL.name?"":" mendesoz.github.io/frutodromo")});
+else{await navigator.clipboard.writeText(tl(`Olha a fruta que eu descobri no Frutódromo: ${t.name} (${spLabel(k)})!`)+(PORTAL.name?"":" mendesoz.github.io/frutodromo"));toast("Texto copiado! Cole junto com o print.")}}catch(e){toast("Compartilhar não funciona aqui. Abra pelo link do GitHub Pages!")}}}
 let tvTab="tree",tvSel=null,tvFilter=null,tvHelp=false,tvSugs=[];
 function spMatch(k,fl){if(!fl)return true;const[sz,c,t,el,h]=k.split("|"),T=S.tree[k];if(fl.startsWith("c:"))return c==fl.slice(2);if(fl.startsWith("e:"))return el==fl.slice(2);
 if(fl=="super")return !!h;if(fl=="shiny")return !!(T&&T.shiny);if(fl=="extreme")return ["Microscópica","Mini","Enorme","Gigantesca"].includes(sz);if(fl=="rare")return T&&stars(T)>=3;return true}
