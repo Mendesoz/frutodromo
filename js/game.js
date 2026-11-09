@@ -249,11 +249,11 @@ function normState(d,strict){const okF=f=>f&&typeof f=="object"&&typeof f.id=="s
  const mx=Math.max(0,...o.fruits.concat(o.pot).map(f=>parseInt(f.id.slice(1))||0));if(o.id<=mx)o.id=mx+1;return o}
 // saves antigos (v1): máscaras viram compactas e cada espécie ganha sua 1ª variedade com DNA
 function migrate(){S.tree=S.tree||{};if((S.v||1)<2){[...S.fruits,...(S.pot||[])].forEach(f=>{if(f.mask)f.mask=packMask(f.mask)});Object.values(S.tree).forEach(t=>{if(t.img&&t.img.mask)t.img.mask=packMask(t.img.mask);if(!t.v){const st=t.st||{};t.v={[dnaCode({...t.img,doce:st.doce,az:st.az,tam:st.tam,rgb:st.rgb||t.img.rgb,el:st.el,hero:st.hero,shiny:t.shiny})]:{n:1,t:t.t||Date.now()}}}});S.v=2}}
-try{S=normState(JSON.parse(localStorage.getItem("frutodromo9")))}catch(e){S=null}if(!S)fresh();
+try{S=normState(JSON.parse(localStorage.getItem("frutodromo9")))}catch(e){S=null}const HAD_LOCAL=!!S,LOCAL_TS=S&&S.ts||0;if(!S)fresh();
 // salvar: agrupa vários pedidos seguidos num só (800 ms); fechar/trocar de aba grava na hora; avisa uma vez se o espaço acabar
 let saveTimer=null,saveWarned=false;
 const cgData=()=>{try{return typeof PORTAL!="undefined"&&PORTAL.ready&&PORTAL.data?PORTAL.sdk.data:null}catch(e){return null}};
-const saveNow=()=>{clearTimeout(saveTimer);saveTimer=null;const js=JSON.stringify(S),d=cgData();if(d){try{d.setItem("frutodromo9",js);return}catch(e){}}try{localStorage.setItem("frutodromo9",js)}catch(e){if(!saveWarned&&typeof toast=="function"){saveWarned=true;toast("<b>Não deu pra salvar!</b> O espaço do navegador encheu.<br>Em Ajustes → EXPORTAR PROGRESSO guarde um backup.")}}};
+const saveNow=()=>{clearTimeout(saveTimer);saveTimer=null;S.ts=Date.now();const js=JSON.stringify(S),d=cgData();if(d){try{d.setItem("frutodromo9",js)}catch(e){}}try{localStorage.setItem("frutodromo9",js)}catch(e){if(!saveWarned&&typeof toast=="function"){saveWarned=true;toast("<b>Não deu pra salvar!</b> O espaço do navegador encheu.<br>Em Ajustes → EXPORTAR PROGRESSO guarde um backup.")}}};
 const save=()=>{if(!saveTimer)saveTimer=setTimeout(saveNow,800)};
 /* ================= genética ================= */
 function portmanteau(a,b){if(a==b)return a;const n=a.slice(0,Math.max(2,Math.ceil(a.length/2)))+b.slice(Math.floor(b.length/2)).toLowerCase();return n.replace(/([a-zà-ú])\1/gi,"$1")}
@@ -797,10 +797,10 @@ async function portalInit(){if(PORTAL.name!="crazygames"||!window.CrazyGames||!w
  // progresso pelo Data Module (sincroniza com a conta; visitante fica no próprio aparelho)
  try{const d=PORTAL.sdk.data;if(d&&typeof d.getItem=="function"){const raw=d.getItem("frutodromo9");PORTAL.data=true;
   const n=raw?normState(JSON.parse(raw)):null;
-  if(n){S=n;migrate();if(!S.bag)S.bag=[{t:"grow"},{t:"shrink"}];S.bag=S.bag.filter(x=>ITEMS[x.t]);S.pot=[];S.fruits.forEach(f=>{clampPos(f);treeAdd(f,null,true)});running=false;renderAll();placePot()}
+  if(n&&(!HAD_LOCAL||(n.ts||0)>LOCAL_TS)){const was=running;S=n;migrate();if(!S.bag)S.bag=[{t:"grow"},{t:"shrink"}];S.bag=S.bag.filter(x=>ITEMS[x.t]);S.pot=[];S.fruits.forEach(f=>{clampPos(f);treeAdd(f,null,true)});renderAll();placePot();running=was;if(was)S.cust.forEach((c,i)=>{if(!c)setTimeout(()=>{if(running&&!S.cust[i]){S.cust[i]=newCust();save();renderCounter()}},300+i*900)})}
   else saveNow()}}catch(e){PORTAL.data=false}}
 const portalCall=fn=>{if(!PORTAL.ready)return;try{fn(PORTAL.sdk)}catch(e){}};
-function portalPlaying(on){if(on==PORTAL.playing)return;PORTAL.playing=on;portalCall(s=>on?s.game.gameplayStart():s.game.gameplayStop())}
+function portalPlaying(on){if(!PORTAL.ready||on==PORTAL.playing)return;/* só marca depois do SDK pronto, senão o 1º gameplayStart se perde */PORTAL.playing=on;portalCall(s=>on?s.game.gameplayStart():s.game.gameplayStop())}
 const portalHappy=()=>portalCall(s=>s.game.happytime());
 // durante o anúncio: som desligado e jogo parado (modalOpen congela o tempo dos clientes)
 function adMute(on){PORTAL.ad=on;if(!AC)return;if(on)AC.suspend().catch(()=>{});else if(!muted&&!CGMUTE&&!document.hidden)AC.resume().catch(()=>{})}
@@ -965,4 +965,4 @@ if("serviceWorker" in navigator&&location.hostname.endsWith("github.io"))navigat
 delete S.ess;delete S.sk;S.tree=S.tree||{};
 migrate();if(!S.bag)S.bag=[{t:"grow"},{t:"shrink"}];S.bag=S.bag.filter(x=>ITEMS[x.t]);S.fruits.forEach(f=>{clampPos(f);treeAdd(f,null,true)});renderProps();renderAll();placePot();fetchWX();
 // nos portais o jogador cai direto na partida (exigência do CrazyGames); o menu ≡ continua abrindo a tela inicial
-if(PORTAL.name)Promise.race([portalInit(),new Promise(r=>setTimeout(r,5000))]).then(()=>{if(!running&&!modalOpen)startDay()});else{startScreen();portalInit()}
+if(PORTAL.name){startDay();portalInit()}else{startScreen();portalInit()}
