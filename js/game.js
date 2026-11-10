@@ -317,8 +317,8 @@ function newCust(){if(running)setTimeout(()=>SFX.bell(),200);const L=level(),vip
 const pool=reachPool(L),maxD=Math.max(...pool.map(x=>x.d));
 // alvo: nível baixo pede coisas perto da feira; VIP pede o mais fundo
 const want=vip?maxD:Math.min(maxD,R([0,1,1,2,2,3].filter(d=>d<=maxD))),cand=pool.filter(x=>x.d==want&&(L>=5||!x.hero)&&(L>=3||!x.el));
-const t=R(cand.length?cand:pool),reqs=reqsFrom(t,n,L);
-let rw=4+reqs.length*5+L*2+t.d*6;reqs.forEach(r=>{if(r.k=="el")rw+=12;if(r.k=="mini"||r.k=="enorme")rw+=10;if(r.k=="micro"||r.k=="giga")rw+=22;if(r.k=="hero")rw+=30});if(vip)rw*=3;
+const t=R(cand.length?cand:pool),spReq=!vip&&Math.random()<(L<=2?.7:.5),reqs=spReq?[{k:"sp",v:spKey(t),im:stImg(t)}]:reqsFrom(t,n,L);
+let rw=4+reqs.length*5+L*2+t.d*6+(spReq?8+t.d*4:0);reqs.forEach(r=>{if(r.k=="el")rw+=12;if(r.k=="mini"||r.k=="enorme")rw+=10;if(r.k=="micro"||r.k=="giga")rw+=22;if(r.k=="hero")rw+=30});if(vip)rw*=3;
 const kd=Math.random()<.45?R(KINDS):null;
 const vipN=vip?R(VIPS):null,kdN=kd?R(kd[2]):null,gen=vip?VIPG[vipN]:kd?(/^(Dona|Rã|Miss)|a$/.test(kdN)?"f":/^(Sr|Seu)|(ão|o)$/.test(kdN)?"m":"n"):R(["f","f","m","m","m","f","n"]);
 const ACC=gen=="f"?["freck","glass","ear","scarf","neck","bow","flower","leaf","ear","bow"]:gen=="m"?["freck","must","glass","scarf","neck","tie","leaf","tie"]:["freck","glass","scarf","neck","leaf"],acc=[];for(let q=0;q<N(0,2);q++)acc.push(R(ACC));
@@ -334,7 +334,7 @@ else if(t.d==0)h+=`<p>É só comprar na feira:</p><div class="rstep"><span class
 else{const st=recipeOf(t);h+=`<p>${st.length} cruzamento${st.length>1?"s":""} no caldeirão:</p>`+st.map((x,k)=>{const[a,b]=x.p,fi=y=>`<span class="fi"><img src="${fruitImg(stImg(y))}"><span class="nn">${stLabel(y)}</span></span>`;return `<div class="rstep"><b>${k+1}.</b>${fi(a)}<b>+</b>${fi(b)}<b>=</b>${fi(x)}</div>`}).join("")+`<p style="font-size:.75rem;opacity:.75">As frutas da feira estão lá embaixo. Use o resultado de cada passo no passo seguinte.</p>`}
 openModal(h+`<button class="big" id="cl">ENTENDI</button>`);$("cl").onclick=closeModal}
 function meets(f,r){switch(r.k){case"cor":return colorName(f.rgb)==r.v;case"doceMin":return f.doce>=r.v;case"doceMax":return f.doce<=r.v;case"azMin":return f.az>=r.v;case"azMax":return f.az<=r.v;
-case"tamMin":return f.tam>=r.v;case"tamMax":return f.tam<=r.v;case"media":return f.tam>=4&&f.tam<=7;case"mini":return f.tam<=1;case"micro":return f.tam==0;case"enorme":return f.tam>=11;case"giga":return f.tam==12;case"el":return f.el==r.v;case"hero":return !!f.hero}}
+case"tamMin":return f.tam>=r.v;case"tamMax":return f.tam<=r.v;case"media":return f.tam>=4&&f.tam<=7;case"mini":return f.tam<=1;case"micro":return f.tam==0;case"enorme":return f.tam>=11;case"giga":return f.tam==12;case"el":return f.el==r.v;case"hero":return !!f.hero;case"sp":return spKey(f)==r.v}}
 const LAB={doce:["DOCE","#ff5f9e"],az:["AZEDO","#9ccc2e"],tam:["TAM.","#3fa7e0"]};
 function cells(fn,col){let s="";for(let i=1;i<=10;i++)s+=`<i style="${fn(i)?"background:"+col:""}"></i>`;return `<span class="cells">${s}</span>`}
 const RICO={doce:()=>art(["..p..",".ppp.","ppwpp",".ppp.","..p.."],{p:"#ff5f9e",w:"#ffd0e4"},"#8a2050"),az:()=>art([".yy..","yyyy.","yyyyy",".yyyy","..yy."],{y:"#d6e84a"},"#5a6a10"),
@@ -344,10 +344,10 @@ case"doceMin":return[r.v>=8?"MUITO DOCE":"DOCE",r.v+"+","doce"];case"doceMax":re
 case"azMin":return[r.v>=8?"MUITO AZEDA":"AZEDA",r.v+"+","az"];case"azMax":return[r.v<=2?"NADA AZEDA":"POUCO AZEDA","até "+r.v,"az"];
 case"tamMin":return[r.v>=8?"GRANDE":"TAMANHO",r.v+"+","tam"];case"tamMax":return[r.v<=3?"PEQUENA":"TAMANHO","até "+r.v,"tam"];case"media":return["MÉDIA","4 a 7","tam"];
 case"mini":return["MINI","0 ou 1","tam"];case"micro":return["MICROSCÓPICA","0","tam"];case"enorme":return["ENORME","11+","tam"];case"giga":return["GIGANTESCA","12","tam"];
-case"cor":return[r.v.toUpperCase(),"","cor"];case"el":return[ELEM[r.v].n.toUpperCase(),"","el"];case"hero":return["SUPER-FRUTA","","hero"]}}
+case"cor":return[r.v.toUpperCase(),"","cor"];case"el":return[ELEM[r.v].n.toUpperCase(),"","el"];case"hero":return["SUPER-FRUTA","","hero"];case"sp":{const t=S.tree[r.v],[sz,,,el]=r.v.split("|");return[t?t.name.toUpperCase():"ESPÉCIE NOVA",t?"":sz+(el?" · "+ELEM[el].n:""),"sp"]}}}
 function reqHTML(r,f){const ok=f?meets(f,r):null,[w,n,ic]=reqWord(r);
-const icon=ic=="cor"?`<span class="sw" style="background:${hex(COLORS[r.v])}"></span>`:ic=="el"?`<img class="ico" src="${SPR[r.v]()}">`:`<img class="ico" src="${RICO[ic]()}">`;
-return `<div class="rq ${ok===true?"y":ok===false?"n":""} ${ic=="cor"?"cor":""}" ${ic=="cor"?`onclick="colorGuide('${r.v}')"`:""}>${icon}<b style="${w.length>9?"font-size:.56rem;letter-spacing:-.4px":""}">${w}</b>${n?`<span class="nb">${n}</span>`:""}${ok===null?"":`<i class="ck">${ok?"✓":"✗"}</i>`}</div>`}
+const icon=ic=="sp"?`<img class="spi" src="${fruitImg(r.im)}">`:ic=="cor"?`<span class="sw" style="background:${hex(COLORS[r.v])}"></span>`:ic=="el"?`<img class="ico" src="${SPR[r.v]()}">`:`<img class="ico" src="${RICO[ic]()}">`;
+return `<div class="rq ${ok===true?"y":ok===false?"n":""} ${ic=="cor"?"cor":""} ${ic=="sp"?"rsp":""}" ${ic=="cor"?`onclick="colorGuide('${r.v}')"`:""}>${icon}<b style="${w.length>9?"font-size:.56rem;letter-spacing:-.4px":""}">${w}</b>${n?`<span class="nb">${n}</span>`:""}${ok===null?"":`<i class="ck">${ok?"✓":"✗"}</i>`}</div>`}
 const leftOf=c=>CFG.zen?1:cl(1-(now()-c.t0)/c.pat,0,1),pay=c=>Math.round(c.rw*(.5+.5*leftOf(c)));
 const WALK_IN=1500,WALK_OUT=1000;let sel=null,hoverCust=-1;const pcache={};
 function renderCounter(){const f=sel?S.fruits.find(x=>x.id==sel):null;
@@ -581,7 +581,7 @@ const make=()=>{let c=cross(ing[0],ing[1]);if(ing[2]){c=cross(c,ing[2]);c.gen=Ma
 rec("crosses",1);const kids=[make()];
 kids.forEach((c,ki)=>{
 const tr=tbl.getBoundingClientRect(),pr=$("pot").getBoundingClientRect();c.x=pr.right-tr.left+8+ki*70;c.y=pr.top-tr.top-fsize(c)/3-ki*20;clampPos(c);freeSpot(c);
-S.fruits.push(c);sel=c.id;treeAdd(c,ing);if(c.shiny)rec("shiny",1);tutDone("t1");save();renderTable(c.id);renderPot();renderCounter();showInfo(c);infoAuto(c);
+S.fruits.push(c);sel=c.id;treeAdd(c,ing);if(c.shiny)rec("shiny",1);tutDone("t1");save();renderTable(c.id);renderPot();renderCounter();if(S.tut&&S.tut.t3){showInfo(c);infoAuto(c)}else sel=null;
 const er=tbl.querySelector(`[data-id="${c.id}"]`).getBoundingClientRect(),ex=er.left+er.width/2,ey=er.top+er.height/2;burst(ex,ey,c.rgb,24);
 if(c.mut||c.hero||c.shiny){burst(ex,ey,[180,155,255],18);SFX.mut();shake(c.hero?7:4);buzz([40,30,80])}else{SFX.pop();buzz(35)}if(c.el=="fogo")SFX.fire();
 toast((c.hero?`<b>SUPER-FRUTA!</b> ${fname(c)}`:c.mut?`<b>MUTAÇÃO!</b> ${fname(c)}`:`Nasceu: <b>${fname(c)}</b>`))})},1100)}
@@ -830,8 +830,9 @@ function sayReq(r){const[w,n]=reqWord(r);return r.k=="cor"?"da cor "+w.toLowerCa
 function showPortrait(i){const c=S.cust[i];if(!c||c.leaving)return;const left=leftOf(c),mood=c.mood||(left<.2?"sad":"ok");
 const parts=c.reqs.map(sayReq).filter(Boolean),last=parts.length>1?parts.slice(0,-1).join(", ")+" e "+parts[parts.length-1]:parts[0]||"especial";
 const hi=R(HELLO[c.kind||"person"]||HELLO.person),tail=c.kind=="robot"?" FIM DA TRANSMISSÃO.":left<.2?" E rápido, por favor!":c.vip?" Pago bem, viu?":"";
-const txt=EN?sayEN(c,left):`${hi}Quero uma fruta ${last}.${tail}`;
-openModal(`<h2>${c.name}${c.vip?' <span style="background:#d4a017;color:#2a1a12;font-size:.7rem;padding:1px 5px">VIP</span>':""}</h2><div class="prt"><img src="${personImg(c,mood)}"></div><div class="say" id="sayt"></div>
+const sp=c.reqs[0]&&c.reqs[0].k=="sp"?c.reqs[0]:null,spT=sp&&S.tree[sp.v];
+const txt=sp?(EN?(R(HELLO_EN[c.kind||"person"]||HELLO_EN.person)+(spT?"I want this one: "+tl(spT.name)+"!":"I want a fruit nobody has seen yet, like this one!")):`${hi}${spT?"Quero esta aqui: "+spT.name+"!":"Quero uma fruta que ninguém viu ainda, assim ó!"}${tail}`):EN?sayEN(c,left):`${hi}Quero uma fruta ${last}.${tail}`;
+openModal(`<h2>${c.name}${c.vip?' <span style="background:#d4a017;color:#2a1a12;font-size:.7rem;padding:1px 5px">VIP</span>':""}</h2><div class="prt"><img src="${personImg(c,mood)}"></div><div class="say" id="sayt"></div>${sp?`<div style="text-align:center"><img src="${fruitImg(sp.im)}" style="width:64px;height:64px;image-rendering:pixelated"></div>`:""}
 <div style="display:flex;align-items:center;justify-content:center;gap:6px;font-weight:700"><span class="coin"></span>${pay(c)} moedas</div><button class="big" id="phint">COMO FAZER?</button><button class="big alt" id="cl">FECHAR</button>`);
 $("cl").onclick=closeModal;$("phint").onclick=()=>{closeModal();showHint(i)};
 let n=0;const el=$("sayt"),tick=()=>{if(!el.isConnected)return;el.textContent=txt.slice(0,++n);if(n%3==0)tone(c.kind=="robot"?880:c.kind=="ghost"?300:520+Math.random()*120,.03,"square",.02);if(n<txt.length)setTimeout(tick,22)};tick()}

@@ -75,7 +75,7 @@ const D={
 "O anúncio não carregou agora. Tente de novo daqui a pouco.":"The ad didn't load. Try again in a bit.","Quase! Faltou:":"Almost! Missing:",
 "Olha a fruta que eu descobri no Frutódromo:":"Look at the fruit I discovered in Frutódromo:",
 "PRESENTE do anúncio":"GIFT from the ad","PRESENTE da quitanda":"GIFT from the stand",
-"NOVA ESPÉCIE":"NEW SPECIES","VARIEDADE NOVA":"NEW VARIETY","CARTA DA ESPÉCIE":"SPECIES CARD","VERSÃO BRILHANTE":"SHINY VERSION","SUPER-FRUTA":"SUPER-FRUIT","MUTAÇÃO":"MUTATION",
+"NOVA ESPÉCIE":"NEW SPECIES","ESPÉCIE NOVA":"NEW SPECIES","Quero esta aqui:":"I want this one:","Quero uma fruta que ninguém viu ainda, assim ó!":"I want a fruit nobody has seen yet, like this one!","VARIEDADE NOVA":"NEW VARIETY","CARTA DA ESPÉCIE":"SPECIES CARD","VERSÃO BRILHANTE":"SHINY VERSION","SUPER-FRUTA":"SUPER-FRUIT","MUTAÇÃO":"MUTATION",
 // clima
 "CLIMA DE VERDADE?":"REAL WEATHER?","A janela da quitanda pode mostrar o":"The stand's window can show the","tempo real da sua cidade":"live weather in your city",
 ": sol, nuvens, chuva e noite. Se vier tempo perigoso, o jogo te avisa.":": sun, clouds, rain and night. If dangerous weather comes, the game warns you.",

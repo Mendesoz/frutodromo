@@ -270,3 +270,7 @@ button,.btn,.big,.mk,.tabk,.hint,.cust,.sp,.flt span{touch-action:manipulation}
 #tvd .vr img{width:30px;height:30px}
 /* jogo: arrastar com o mouse não seleciona texto (o código de backup continua selecionável) */
 body{-webkit-user-select:none;user-select:none}textarea,input{-webkit-user-select:text;user-select:text}
+/* pedido de espécie: desenho da fruta no balão */
+.rq.rsp{padding:3px 2px}.rq .spi{width:30px;height:30px;image-rendering:pixelated;flex:0 0 auto}.rq.rsp b{white-space:normal;line-height:1.05}
+/* tutorial não bloqueia a mesa: dá pra arrastar fruta por baixo do balão */
+#tut{pointer-events:none}#tut .btn{pointer-events:auto}
