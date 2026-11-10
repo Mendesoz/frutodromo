@@ -958,6 +958,10 @@ if((left<.2?"1":"0")!=el.dataset.low&&!document.querySelector(".fr.drag"))render
 if((saveT+=dt)>10000){saveT=0;save()}}portalPlaying(running&&!modalOpen&&!document.hidden);hud();renderCombo()},250);
 window.addEventListener("pagehide",()=>saveNow());
 document.addEventListener("visibilitychange",()=>{if(document.hidden){saveNow();if(AC&&AC.state=="running")AC.suspend().catch(()=>{});if(running&&!modalOpen)$("pauseb").click()}});
+// enfeites do chão: caixotes e sacos com as frutas da feira (só visual)
+function addDeco(){const t=document.getElementById("table");if(!t||t.querySelector(".deco"))return;const im=n=>{const b=BASE.find(x=>x[0]==n);return b?`<img src="${fruitImg(baseFruit(b))}">`:""};
+t.insertAdjacentHTML("afterbegin",`<div class="deco l"><div class="crate">${im("Morango")}${im("Morango")}${im("Morango")}</div><div class="crate">${im("Uva")}${im("Banana")}${im("Uva")}</div></div><div class="deco r"><div class="sack">${im("Laranja")||im("Manga")}</div><div class="crate">${im("Limão")}${im("Abacaxi")}${im("Limão")}</div></div>`)}
+setTimeout(()=>{try{addDeco()}catch(e){}},0);
 // telas baixas (janela do CrazyGames, celular deitado): encolhe a cena pra mesa e o caldeirão caberem
 function fitScene(){const sc=document.getElementById("scene");if(!sc)return;const h=window.innerHeight,z=h>=650?1:Math.max(.42,Math.min(1,(h*.6-122)/280));sc.style.zoom=z<1?z.toFixed(3):""}
 fitScene();

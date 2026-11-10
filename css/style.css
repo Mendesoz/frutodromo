@@ -279,10 +279,13 @@ body{-webkit-user-select:none;user-select:none}textarea,input{-webkit-user-selec
 /* luz no centro da sala (vinheta): fica atrás das frutas, só escurece o chão e a parede nas bordas */
 #table::after{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 75% 70% at 45% 55%,#0000 45%,#0000002e 75%,#00000066 100%)}
 #scene::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse 80% 90% at 50% 70%,#0000 55%,#00000040 100%)}
-/* tapete no meio do chão, pra mesa não parecer vazia */
-#table::before{content:"";position:absolute;z-index:0;pointer-events:none;left:50%;top:52%;width:min(58%,460px);height:min(46%,230px);transform:translate(-45%,-50%);
- background:repeating-linear-gradient(90deg,#0000 0 10px,#ffffff14 10px 12px),linear-gradient(#7a2e2e,#7a2e2e) center/calc(100% - 24px) calc(100% - 24px) no-repeat,repeating-linear-gradient(45deg,#c8902e 0 6px,#a0402e 6px 12px);
- border:3px solid #2a1a12;border-radius:6px;box-shadow:0 5px 0 #0003,inset 0 0 0 9px #d9a441;opacity:.55;image-rendering:pixelated}
+/* três tapetinhos encostados no balcão (como na referência) */
+#table::before{content:"";position:absolute;z-index:0;pointer-events:none;left:0;right:0;top:10px;height:34px;
+ background:
+  linear-gradient(#8a8a5a,#8a8a5a) calc(22% + 3px) 3px/min(16%,100px) 24px no-repeat,linear-gradient(#2a1a12,#2a1a12) 22% 0/calc(min(16%,100px) + 6px) 30px no-repeat,
+  linear-gradient(#a8443a,#a8443a) calc(50% + 0px) 3px/min(18%,110px) 24px no-repeat,linear-gradient(#2a1a12,#2a1a12) 50% 0/calc(min(18%,110px) + 6px) 30px no-repeat,
+  linear-gradient(#8a8a5a,#8a8a5a) calc(78% - 3px) 3px/min(16%,100px) 24px no-repeat,linear-gradient(#2a1a12,#2a1a12) 78% 0/calc(min(16%,100px) + 6px) 30px no-repeat;
+ opacity:.8;filter:drop-shadow(0 3px 0 #0003)}
 /* sombras que dão volume (2.5D) */
 header{position:relative;z-index:6;box-shadow:0 3px 0 #0003,0 6px 12px #00000059}
 #table{box-shadow:inset 0 12px 14px -8px #000000b3}
@@ -297,3 +300,29 @@ header{position:relative;z-index:6;box-shadow:0 3px 0 #0003,0 6px 12px #00000059
 /* balões de pedido: cantos arredondados (o rabinho já aponta pra cabeça) */
 .bub{border-radius:8px}.bub:after{border-radius:0 0 3px 3px}
 .tip{align-items:flex-start;padding-top:22px}.tip .placa{font-size:.8rem;max-width:290px}
+
+/* caldeirão no centro do chão, com luz rosa-roxa no piso e fumacinha */
+#pot{left:calc(50% - 48px);bottom:16%}
+#pot::before{content:"";position:absolute;z-index:-1;left:50%;bottom:-6px;width:240px;height:110px;transform:translateX(-50%);pointer-events:none;
+ background:radial-gradient(ellipse at 50% 70%,#ff5fdc59 0,#b46cff33 40%,#0000 70%);animation:floorglow 2.4s ease-in-out infinite}
+@keyframes floorglow{50%{opacity:.75}}
+#pot::after{content:"";position:absolute;left:44px;top:-6px;width:8px;height:8px;background:#e8d6ff99;box-shadow:-10px -14px 0 2px #e8d6ff66,6px -28px 0 0 #e8d6ff55,-4px -44px 0 3px #e8d6ff33;pointer-events:none;animation:steam 2.6s steps(6) infinite}
+@keyframes steam{from{transform:translateY(6px);opacity:.9}to{transform:translateY(-14px);opacity:0}}
+#pot img{filter:drop-shadow(0 0 8px #ff6be0b3) drop-shadow(0 0 18px #9b4dffa6)}
+@keyframes potglow{50%{filter:drop-shadow(0 0 11px #ff8ae8e6) drop-shadow(0 0 26px #a45cffb3)}}
+/* placa vira pergaminho com as pontas enroladas */
+.tip{padding-top:56px}
+.tip .placa{position:relative;background:#e9d3a6;border-radius:3px;transform:none;padding:8px 18px}
+.tip .placa::before,.tip .placa::after{content:"";position:absolute;top:-6px;bottom:-6px;width:10px;background:linear-gradient(90deg,#b98c52,#f2dcb3 45%,#b98c52);border:3px solid #2a1a12;border-radius:5px}
+.tip .placa::before{left:-11px}.tip .placa::after{right:-11px}
+/* caixotes e sacos de fruta nos cantos do chão */
+.deco{position:absolute;z-index:0;pointer-events:none;display:flex;gap:4px;align-items:flex-end}
+.deco.l{left:6px;top:46px;flex-direction:column;align-items:flex-start}.deco.r{right:6px;top:72px;flex-direction:column;align-items:flex-end}
+.crate{width:46px;height:30px;background:repeating-linear-gradient(90deg,#9a6232 0 10px,#7a4a22 10px 12px);border:3px solid #2a1a12;position:relative;box-shadow:0 4px 0 #0003}
+.crate img{position:absolute;width:22px;height:22px;top:-12px;image-rendering:pixelated}.crate img:nth-child(1){left:-2px}.crate img:nth-child(2){left:12px;top:-15px}.crate img:nth-child(3){left:24px}
+.sack{width:40px;height:38px;background:#b88a55;border:3px solid #2a1a12;border-radius:45% 45% 30% 30%;position:relative;box-shadow:inset -5px -5px 0 #0002,0 4px 0 #0003}
+.sack img{position:absolute;width:22px;height:22px;left:6px;top:-10px;image-rendering:pixelated}
+@media (max-width:599px){.deco{transform:scale(.8);transform-origin:top left}.deco.r{transform-origin:top right}}
+/* celular: caldeirão embaixo e placa em cima; telas largas: placa ao lado do caldeirão */
+@media (max-width:699px){#pot{bottom:8px}}
+@media (min-width:700px){.tip{align-items:center;justify-content:flex-start;padding:0 0 0 calc(50% + 72px)}}
