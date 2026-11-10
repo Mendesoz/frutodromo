@@ -563,13 +563,20 @@ function renderProps(){const sc=$("scene"),Wd=sc.clientWidth,W=Math.ceil(Wd/2),H
  updateSky();drawClock()}
 /* ================= caldeirão ================= */
 let brewing=false;
-function potImg(col){const PW=24,PH=22,g=blank(PW,PH),L=hex(lift(col,.45)),B=hex(col),D=hex(mul(col,.75));const body=ell(12,13,10.5,7.5);
-for(let y=0;y<PH;y++)for(let x=0;x<PW;x++){if(body(x,y)&&y>=7)g[y][x]=x<7?"#5d5d6e":x>17?"#26262e":"#3c3c48";
-if(y>=4&&y<=7&&ell(12,6.4,8.6,1.8)(x,y))g[y][x]=(x+y)%4==0?L:x>15?D:B;
-if((y==7||y==8)&&x>=1&&x<=22)g[y][x]=y==7?"#6e6e80":"#4a4a58";
-if(y>=20&&(x==5||x==6||x==17||x==18))g[y][x]="#26262e"}
-[[8,3],[13,2],[15,4],[10,1]].forEach(([x,y])=>g[y][x]=L);g[9][4]=g[10][4]="#8a8aa0";return toImg(PW,PH,g,"#1a1a20")}
-function renderPot(){const p=S.pot;const col=p.length?p.reduce((a,f)=>a.map((x,i)=>x+f.rgb[i]/p.length),[0,0,0]):[123,92,255];
+function potImg(col){const PW=24,PH=22,g=blank(PW,PH),L=hex(lift(col,.5)),B=hex(col),D=hex(mul(col,.7));
+const body=ell(12,13,10,7.6),rim=ell(12,6.5,11,2.9),liq=ell(12,6.2,8.8,1.9),shine=ell(7,12,2.2,3.6,.5);
+for(let y=0;y<PH;y++)for(let x=0;x<PW;x++){
+ if(body(x,y)&&y>=7)g[y][x]=x<6?"#6f6890":x>18?"#2a2638":y>17?"#353048":"#4b4563";
+ if(shine(x,y)&&body(x,y)&&y>=9)g[y][x]="#8f88b4";
+ if(rim(x,y))g[y][x]=y<=5?"#8a84ac":y>=8?"#3d3852":"#625c80";
+ if(liq(x,y))g[y][x]=(x*3+y*5)%7==0?L:x>15?D:B;
+ if(y>=20&&(x==5||x==6||x==11||x==12||x==17||x==18))g[y][x]="#2a2638"}
+// alças
+[[0,10],[0,11],[1,12],[1,9],[23,10],[23,11],[22,12],[22,9]].forEach(([x,y])=>g[y][x]="#625c80");
+// brilho e bolhas no líquido
+g[6][8]=g[6][9]="#ffffff";g[5][14]=L;
+return toImg(PW,PH,g,"#17141f")}
+function renderPot(){const p=S.pot;const col=p.length?p.reduce((a,f)=>a.map((x,i)=>x+f.rgb[i]/p.length),[0,0,0]):[214,64,238];
 $("potimg").src=potImg(col);$("pot").style.setProperty("--lq",hex(col));$("potslots").innerHTML=[0,1].map(i=>`<div class="sl">${p[i]?`<img src="${fruitImg(p[i])}">`:""}</div>`).join("")}
 function addToPot(f){buzz(20);S.pot.push(f);S.fruits=S.fruits.filter(x=>x!=f);sel=null;showInfo(null);save();renderTable();renderCounter();renderPot();SFX.plop();
 const r=$("potimg").getBoundingClientRect();burst(r.left+r.width/2,r.top+18,f.rgb,10);
@@ -959,8 +966,14 @@ if((saveT+=dt)>10000){saveT=0;save()}}portalPlaying(running&&!modalOpen&&!docume
 window.addEventListener("pagehide",()=>saveNow());
 document.addEventListener("visibilitychange",()=>{if(document.hidden){saveNow();if(AC&&AC.state=="running")AC.suspend().catch(()=>{});if(running&&!modalOpen)$("pauseb").click()}});
 // enfeites do chão: caixotes e sacos com as frutas da feira (só visual)
-function addDeco(){const t=document.getElementById("table");if(!t||t.querySelector(".deco"))return;const im=n=>{const b=BASE.find(x=>x[0]==n);return b?`<img src="${fruitImg(baseFruit(b))}">`:""};
-t.insertAdjacentHTML("afterbegin",`<div class="deco l"><div class="crate">${im("Morango")}${im("Morango")}${im("Morango")}</div><div class="crate">${im("Uva")}${im("Banana")}${im("Uva")}</div></div><div class="deco r"><div class="sack">${im("Laranja")||im("Manga")}</div><div class="crate">${im("Limão")}${im("Abacaxi")}${im("Limão")}</div></div>`)}
+const CRATE=["pwwwwwwwwwwwwwwwwp","pllllllllllllllllp","pnwwwwwwwwwwwwwwnp","pggggggggggggggggp","pllllllllllllllllp","pnwwwwwwwwwwwwwwnp","pggggggggggggggggp","pllllllllllllllllp","pnwwwwwwwwwwwwwwnp","pwwwwwwwwwwwwwwwwp"],
+SACK=["...ssssssss...","..sSSSSSSSSs..",".sSssssssssSs.","sSssssssssssds","sSsssssdssssds","sSssssdsdsssds","sSsssssdsssdds","sSssssssssddds",".sSsssssssdds.","..ssssssssss.."];
+function addDeco(){const t=document.getElementById("table");if(!t||t.querySelector(".deco"))return;
+const fi=n=>{const b=BASE.find(x=>x[0]==n);return b?fruitImg(baseFruit(b)):""},im=(n,x,y,r)=>`<img class="df" src="${fi(n)}" style="left:${x}px;top:${y}px;${r?`transform:rotate(${r}deg)`:""}">`;
+const cf=art(CRATE,{p:"#7a4a22",w:"#b9814a",l:"#d09a5e",g:"#5a3416",n:"#3a2412"}),sf=art(SACK,{s:"#c49a62",S:"#dcb882",d:"#a37a48"});
+const crate=(n,cls)=>`<div class="crate ${cls||""}">${im(n,-2,-16,-12)}${im(n,16,-19)}${im(n,34,-16,14)}${im(n,7,-9,8)}${im(n,25,-9,-8)}<img class="cf" src="${cf}"></div>`;
+const sack=n=>`<div class="sack">${im(n,3,-13,-10)}${im(n,19,-14,12)}${im(n,11,-8)}<img class="cf" src="${sf}"></div>`;
+t.insertAdjacentHTML("afterbegin",`<div class="deco l"><div class="drow">${crate("Morango")}${crate("Uva","c2")}</div>${crate("Banana","c3")}<img class="df loose" src="${fi("Banana")}"></div><div class="deco r"><div class="drow">${sack("Manga")}${crate("Limão","c2")}</div>${sack("Coco")}</div>`)}
 setTimeout(()=>{try{addDeco()}catch(e){}},0);
 // telas baixas (janela do CrazyGames, celular deitado): encolhe a cena pra mesa e o caldeirão caberem
 function fitScene(){const sc=document.getElementById("scene");if(!sc)return;const h=window.innerHeight,z=h>=650?1:Math.max(.42,Math.min(1,(h*.6-122)/280));sc.style.zoom=z<1?z.toFixed(3):""}
