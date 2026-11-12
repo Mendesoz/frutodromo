@@ -1,4 +1,5 @@
 // Frutódromo — lógica do jogo: sprites gerados por código, genética das frutas, clientes, árvore de espécies, som e interface
+const T0=performance.now(); // início do script: nos 2,5 s seguintes a mesa ainda está assentando
 const R=a=>a[Math.floor(Math.random()*a.length)],N=(a,b)=>Math.floor(Math.random()*(b-a+1))+a,cl=(v,a,b)=>Math.max(a,Math.min(b,v));
 const $=id=>document.getElementById(id);
 /* ================= molduras de interface (9-slice em pixel art, geradas UMA vez no carregamento) =================
@@ -23,6 +24,8 @@ const F={
  lock:frame([[O,O],["#8a6244","#4a2e1c"],["#6b4a33","#6b4a33"]],"#6b4a33"),
  dark:frame([[O,O],["#93603a","#4a2a14"],["#6b4423","#6b4423"]],"#6b4423"),
  toast:frame([[O,O],["#f2d08a","#a87a2a"],["#2a1a12","#2a1a12"]],"#2a1a12"),
+ danger:frame([[O,O],["#e8705f","#7a1f16"],["#c0392b","#c0392b"]],"#c0392b"),
+ err:frame([[O,O],["#ffb8ac","#a43a2c"],["#ffe1dc","#ffe1dc"]],"#ffe1dc"),
  ok:frame([[O,O],["#f4fff0","#7ccf8a"],["#dcf8e0","#dcf8e0"]],"#dcf8e0"),
  modal:frame([[O,O],["#e2b878","#8f5c2c"],["#b47c42","#b47c42"],["#6a4020","#6a4020"],["#ffffff","#dccba6"]],"#fbf3df")};
 // rabinho do balão (7×4 px de arte, desenhado em 14×8 px CSS)
@@ -382,7 +385,7 @@ return `<div class="rq ${ok===true?"y":ok===false?"n":""} ${ic=="cor"?"cor":""} 
 const leftOf=c=>CFG.zen?1:cl(1-(now()-c.t0)/c.pat,0,1),pay=c=>Math.round(c.rw*(.5+.5*leftOf(c)));
 const WALK_IN=1500,WALK_OUT=1000;let sel=null,hoverCust=-1;const pcache={};
 function renderCounter(){const f=sel?S.fruits.find(x=>x.id==sel):null;
-if(!running&&S.cust.every(c=>!c)){$("custs").innerHTML=`<div class="closed">${S.started?'<span class="px" style="background:#f5efe0;padding:4px 10px">QUITANDA FECHADA</span>':""}</div>`;return}
+if(!running&&S.cust.every(c=>!c)){$("custs").innerHTML=`<div class="closed">${S.started?'<span class="px" style="padding:4px 10px">QUITANDA FECHADA</span>':""}</div>`;return}
 $("custs").innerHTML=S.cust.map((c,i)=>{if(!c)return `<div class="cust"></div>`;const left=leftOf(c);
 const ok=f&&c.reqs.every(r=>meets(f,r)),mood=c.mood||(left<.2?"sad":"ok"),pk=i+mood+c.t0+c.name;
 if(!pcache[pk])pcache[pk]=personImg(c,mood);if(!pcache[pk+"b"])pcache[pk+"b"]=personImg(c,mood,true);const on=Math.ceil(left*10),pc=left>.5?"#3ce06f":left>.2?"#f4a261":"#e74c3c";
@@ -426,13 +429,13 @@ if(!mv){mv=true;el.classList.add("drag");sel=f.id;showInfo(null);renderCounter()
 el.style.left=ox+dx+"px";el.style.top=oy+dy+"px";const[cx,cy]=center(el);
 {const op=!brewing&&inside(cx,cy,$("pot"));$("pot").classList.toggle("hot",op);el.classList.toggle("overpot",op)}$("bin").classList.toggle("hot",inside(cx,cy,$("bin")));
 const hc=custAt(cx,cy);if(hc!=hoverCust){hoverCust=hc;document.querySelectorAll(".cust").forEach(c=>c.classList.toggle("hot",c.dataset.i!==undefined&&+c.dataset.i===hc))}});
-const up=e=>{if(!on)return;on=false;el.classList.remove("drag");$("bin").classList.remove("hot");$("pot").classList.remove("hot");
+const up=e=>{if(!on)return;on=false;if(mv)SPREAD.delete(f);el.classList.remove("drag");$("bin").classList.remove("hot");$("pot").classList.remove("hot");
 if(!mv&&armed){useItem(f);return}if(!mv){sel=sel==f.id?null:f.id;showInfo(sel?f:null);renderCounter();tbl.querySelectorAll(".fr").forEach(x=>x.classList.toggle("sel",x.dataset.id==sel));return}
 const[cx,cy]=center(el);const hc=custAt(cx,cy);hoverCust=-1;
 if(hc>=0&&S.cust[hc]&&!S.cust[hc].leaving){deliver(f,hc,ox,oy);return}
 if(inside(cx,cy,$("bin"))){sell(f);return}
 if(inside(cx,cy,$("pot"))){if(brewing||S.pot.length>=2){f.x=ox;f.y=oy;renderTable();return toast("O caldeirão está ocupado!")}addToPot(f);return}
-f.x=ox+(e.clientX-sx);f.y=oy+(e.clientY-sy);clampPos(f);sel=null;save();renderTable();renderCounter()};
+f.x=ox+(e.clientX-sx);f.y=oy+(e.clientY-sy);clampPos(f);freeSpot(f,true);sel=null;save();renderTable();renderCounter()};
 // cancelamento do sistema (ligação, gesto do navegador...): volta tudo como estava, sem vender, entregar nem usar item
 const cancel=()=>{if(!on)return;on=false;el.classList.remove("drag","overpot");$("bin").classList.remove("hot");$("pot").classList.remove("hot");
  hoverCust=-1;document.querySelectorAll(".cust.hot").forEach(c=>c.classList.remove("hot"));if(mv){f.x=ox;f.y=oy;renderTable();renderCounter()}};
@@ -810,7 +813,7 @@ const er=tbl.querySelector(`[data-id="${c.id}"]`).getBoundingClientRect(),ex=er.
 if(c.mut||c.hero||c.shiny){burst(ex,ey,[180,155,255],18);SFX.mut();shake(c.hero?7:4);buzz([40,30,80])}else{SFX.pop();buzz(35)}if(c.el=="fogo")SFX.fire();
 toast((c.hero?`<b>SUPER-FRUTA!</b> ${fname(c)}`:c.mut?`<b>MUTAÇÃO!</b> ${fname(c)}`:`Nasceu: <b>${fname(c)}</b>`))})},1100)}
 function potTap(){if(brewing||!S.pot.length||modalOpen)return;if(S.pot.length>=2)return brew();const f=S.pot.pop();const tr=tbl.getBoundingClientRect(),pr=$("pot").getBoundingClientRect();f.x=pr.right-tr.left+8;f.y=pr.top-tr.top;clampPos(f);freeSpot(f,true);S.fruits.push(f);save();renderTable(f.id);renderPot()}
-function freeFromPot(){const pr=$("pot");if(!pr||!tbl)return;const X=pr.offsetLeft,Y=pr.offsetTop,W=pr.offsetWidth,H=pr.offsetHeight;let mv=0;
+function freeFromPot(){const pr=$("pot");if(!pr||!tbl)return;let busy=false;try{busy=ptrDown||!!document.querySelector(".fr.drag,#pot.mv")}catch(e){}if(busy){setTimeout(freeFromPot,300);return}const X=pr.offsetLeft,Y=pr.offsetTop,W=pr.offsetWidth,H=pr.offsetHeight;let mv=0;
  S.fruits.forEach(f=>{const z=fsize(f),hit=()=>f.x+z>X+6&&f.x<X+W-6&&f.y+z>Y+6&&f.y<Y+H-6;if(!hit())return;let k=0;do{f.x=N(6,Math.max(6,tbl.clientWidth-z-6));f.y=N(6,Math.max(6,tbl.clientHeight-z-6));k++}while(k<40&&hit());clampPos(f);mv++});if(mv){fixFruitDeco();renderTable()}}
 function placePot(){const p=$("pot");if(!tbl.clientWidth||!tbl.clientHeight)return;if(!S.potPos){p.style.left=p.style.top=p.style.bottom="";p.style.top=cl(Math.round(p.offsetTop),0,Math.max(0,Math.round(tbl.clientHeight-p.offsetHeight)))+"px";p.style.left=Math.round(p.offsetLeft)+"px";p.style.bottom="auto";return}const w=p.offsetWidth,h=p.offsetHeight;// só o valor aplicado é limitado: a posição salva do jogador não é reescrita
  p.style.left=Math.round(cl(S.potPos.x,0,Math.max(0,tbl.clientWidth-w)))+"px";p.style.top=Math.round(cl(S.potPos.y,0,Math.max(0,tbl.clientHeight-h)))+"px";p.style.bottom="auto"}
@@ -835,9 +838,10 @@ const plan=blocks=>{const hit=(x,y,s)=>blocks.some(([bx,by,bw,bh])=>x<bx+bw&&x+s
 const deco=decoBlocks(6);let pos=plan(base.concat(deco));
 // quem sobrou: procura qualquer vão (varredura de 6 em 6 px) que não cubra obstáculo nem fruta já posta; 1º evitando enfeites, depois ignorando-os; só então empilha
 const rect=(i)=>[pos[i][0],pos[i][1],fsize(list[i]),fsize(list[i])];
-pos.forEach((q,i)=>{if(q[2])return;const s=fsize(list[i]),lo=fruitTop(th,s);
+let noRoom=false; // sem vão em lugar nenhum: as outras frutas que sobraram nem varrem de novo
+pos.forEach((q,i)=>{if(q[2]||noRoom)return;const s=fsize(list[i]),lo=fruitTop(th,s);
  for(const blocks of[base.concat(deco),base]){const placed=pos.map((_,j)=>j).filter(j=>j!=i&&pos[j][2]).map(rect);
-  for(let yy=lo;yy<=th-s-2;yy+=6)for(let xx=4;xx<=tw-s-4;xx+=6){if(!blocks.some(([bx,by,bw,bh])=>xx<bx+bw&&xx+s>bx&&yy<by+bh&&yy+s>by)&&!placed.some(([bx,by,bw,bh])=>xx<bx+bw&&xx+s>bx&&yy<by+bh&&yy+s>by)){pos[i]=[xx,yy,true];return}}}})
+  for(let yy=lo;yy<=th-s-2;yy+=6)for(let xx=4;xx<=tw-s-4;xx+=6){if(!blocks.some(([bx,by,bw,bh])=>xx<bx+bw&&xx+s>bx&&yy<by+bh&&yy+s>by)&&!placed.some(([bx,by,bw,bh])=>xx<bx+bw&&xx+s>bx&&yy<by+bh&&yy+s>by)){pos[i]=[xx,yy,true];return}}}noRoom=true})
 list.forEach((f,i)=>{f.x=pos[i][0];f.y=pos[i][1];clampPos(f)});save();renderTable();SFX.plop();buzz(15)}
 $("tidy").onclick=tidy;
 function buzz(p){if(!CFG.vib)return;try{if(navigator.vibrate)navigator.vibrate(p)}catch(e){}}
@@ -953,7 +957,7 @@ function checkAlerts(){if(!WX.ok)return;const al=[];
  if(WX.temp<=3)al.push(["FRIO INTENSO",`A temperatura está em ${WX.temp}°C.`,"Agasalhe-se bem e proteja pessoas em situação de rua, idosos e animais."]);
  if(WX.gust>=70)al.push(["VENTOS FORTES",`Rajadas de até ${Math.round(WX.gust)} km/h.`,"Fique longe de árvores, placas e estruturas soltas."]);
  if(!al.length)return;const key=al.map(a=>a[0]).join()+new Date().toDateString()+new Date().getHours();if(CFG.lastAlert==key)return;CFG.lastAlert=key;saveCfg();
- const show=()=>{if(modalOpen){setTimeout(show,3000);return}SFX.bad();buzz([200,100,200]);openModal(`<h2 style="color:#c0392b">AVISO DO TEMPO</h2>${al.map(([t,a,b])=>`<div class="cg" style="border-color:#c0392b;background:#ffe6e0"><div style="text-align:left"><b>${t}</b><br>${a}<br><span style="font-size:var(--t12)">${b}</span></div></div>`).join("")}
+ const show=()=>{if(modalOpen){setTimeout(show,3000);return}SFX.bad();buzz([200,100,200]);openModal(`<h2 style="color:#c0392b">AVISO DO TEMPO</h2>${al.map(([t,a,b])=>`<div class="cg" style="border-image-source:var(--f-err)"><div style="text-align:left"><b>${t}</b><br>${a}<br><span style="font-size:var(--t12)">${b}</span></div></div>`).join("")}
  <p style="font-size:var(--t12);opacity:.8">Baseado na previsão do Open-Meteo pra sua região. <b>Não é um alerta oficial.</b> Pra avisos oficiais, acompanhe a <b>Defesa Civil (ligue 199)</b> e o <b>INMET</b>.</p><button class="big" id="cl">ENTENDI</button>`);$("cl").onclick=closeModal};show()}
 function realH(){const d=new Date();return d.getHours()+d.getMinutes()/60}
 function wxState(){const h=realH(),sr=WX.ok&&WX.sr!=null?WX.sr:6,ss=WX.ok&&WX.ss!=null?WX.ss:18;let ph=h<sr-.6||h>ss+.6?"night":h<sr+.8?"dawn":h>ss-.8?"dusk":"day";
@@ -1003,7 +1007,7 @@ $("sexp").onclick=()=>{save();const code="FRUTO1:"+btoa(unescape(encodeURICompon
 $("simp").onclick=()=>{openModal(`<h2>IMPORTAR</h2><p style="font-size:var(--t12)">Cole o código do seu progresso. Isso <b>substitui</b> o jogo atual deste aparelho.</p><textarea id="bk" style="width:100%;height:140px;font-size:var(--t10);font-family:monospace"></textarea><button class="big" id="bki">CARREGAR</button><button class="big alt" id="cl">VOLTAR</button>`);
  $("cl").onclick=()=>settings(back);$("bki").onclick=()=>{try{const v=$("bk").value.trim();if(!v.startsWith("FRUTO1:"))throw 0;const d=JSON.parse(decodeURIComponent(escape(atob(v.slice(7)))));const n=normState(d,true);if(!n)throw 0;n.bag=n.bag.filter(x=>ITEMS[x.t]);
   const old=S;S=n;try{migrate();S.fruits.forEach(f=>treeAdd(f,null,true));closeModal();running=false;renderAll();placePot()}catch(err){S=old;renderAll();placePot();throw err}
-  save();toast("Progresso carregado!");startScreen()}catch(e){toast("Código inválido. Confira se copiou inteiro. Seu progresso atual não foi alterado.")}}};$("cl").onclick=()=>{closeModal();if(back)back()}}
+  fixFruitDeco();save();toast("Progresso carregado!");startScreen()}catch(e){toast("Código inválido. Seu progresso não mudou.",{err:true})}}};$("cl").onclick=()=>{closeModal();if(back)back()}}
 const TUT=[["pot","Arraste <b>duas frutas</b> até o <b>caldeirão</b> pra criar uma nova!","t1"],["cust","Agora arraste uma fruta até o <b>cliente</b> que pediu algo parecido. Toque no <b>?</b> do balão se precisar da receita.","t2"],["dexb","Toque numa fruta pra ver os atributos. Na <b>ÁRVORE</b> ficam todas as espécies que você descobriu!","t3"],["market","<b>Segure</b> uma fruta da feira (ou passe o mouse) pra ver doce, azedo e tamanho antes de comprar.","t4"]];
 function tutStep(){S.tut=S.tut||{};const st=TUT.find(t=>!S.tut[t[2]]);const box=$("tut");if(!st||modalOpen||!running){box.classList.remove("on");return}
 if(box.dataset.k==st[2]&&box.classList.contains("on"))return;box.dataset.k=st[2];
@@ -1038,7 +1042,7 @@ async function portalInit(){if(PORTAL.name!="crazygames"||!window.CrazyGames||!w
  // progresso pelo Data Module (sincroniza com a conta; visitante fica no próprio aparelho)
  try{const d=PORTAL.sdk.data;if(d&&typeof d.getItem=="function"){const raw=d.getItem("frutodromo9");PORTAL.data=true;
   const n=raw?normState(JSON.parse(raw)):null;
-  if(n&&(!HAD_LOCAL||(n.ts||0)>LOCAL_TS)){const was=running;S=n;migrate();if(!S.bag)S.bag=[{t:"grow"},{t:"shrink"}];S.bag=S.bag.filter(x=>ITEMS[x.t]);S.pot=[];S.fruits.forEach(f=>{clampPos(f);treeAdd(f,null,true)});renderAll();placePot();running=was;if(was)S.cust.forEach((c,i)=>{if(!c)setTimeout(()=>{if(running&&!S.cust[i]){S.cust[i]=newCust();save();renderCounter()}},300+i*900)})}
+  if(n&&(!HAD_LOCAL||(n.ts||0)>LOCAL_TS)){const was=running;S=n;migrate();if(!S.bag)S.bag=[{t:"grow"},{t:"shrink"}];S.bag=S.bag.filter(x=>ITEMS[x.t]);S.pot=[];S.fruits.forEach(f=>{clampPos(f);treeAdd(f,null,true)});renderAll();placePot();fixFruitDeco();running=was;if(was)S.cust.forEach((c,i)=>{if(!c)setTimeout(()=>{if(running&&!S.cust[i]){S.cust[i]=newCust();save();renderCounter()}},300+i*900)})}
   else saveNow()}}catch(e){PORTAL.data=false}}
 const portalCall=fn=>{if(!PORTAL.ready)return;try{fn(PORTAL.sdk)}catch(e){}};
 function portalPlaying(on){if(!PORTAL.ready||on==PORTAL.playing)return;/* só marca depois do SDK pronto, senão o 1º gameplayStart se perde */PORTAL.playing=on;portalCall(s=>on?s.game.gameplayStart():s.game.gameplayStop())}
@@ -1061,7 +1065,7 @@ openModal(`<div class="logo">FRUTÓDROMO</div><p style="margin-top:0">A quitanda
 <ol class="how"><li><b>Cruze</b> 2 frutas no caldeirão</li><li><b>Entregue</b> o que os clientes pedem</li><li><b>Descubra</b> espécies novas pra sua árvore</li></ol><p class="how2">Presentes dos clientes ficam na <b>BOLSA</b> e mudam qualquer fruta.</p>
 <button class="big" id="go">${cont?"CONTINUAR · DIA "+S.day:"ABRIR A QUITANDA"}</button><br><button class="big alt" id="sndb" onclick="toggleSnd()"></button><button class="big alt" onclick="settings(startScreen)">AJUSTES</button>${cont?'<button class="big alt" id="newg">NOVO JOGO</button>':""}`);sndLabel();
 $("go").onclick=()=>{ac();rainFruits(false);closeModal();if(!running)startDay()};
-if(cont)$("newg").onclick=e=>{if(!armed){armed=true;e.target.textContent="TOQUE DE NOVO PRA APAGAR TUDO";return}fresh();S.fruits.forEach(f=>{SPREAD.add(f);dexCheck(f,true)});const pe=$("pot");pe.style.left=pe.style.top=pe.style.bottom="";placePot();save();sel=null;showInfo(null);ac();rainFruits(false);closeModal();renderAll();startDay()}}
+if(cont)$("newg").onclick=e=>{if(!armed){armed=true;e.target.textContent="TOQUE DE NOVO PRA APAGAR TUDO";return}fresh();S.fruits.forEach(f=>{SPREAD.add(f);dexCheck(f,true)});const pe=$("pot");pe.style.left=pe.style.top=pe.style.bottom="";placePot();save();sel=null;showInfo(null);ac();rainFruits(false);closeModal();renderAll();fixFruitDeco();startDay()}}
 const HELLO={person:["Olá! ","Oi, tudo bem? ","Boa tarde! ","E aí! "],cat:["Miau... ","Mrrr... "],dog:["Au au! ","Oi oi oi! "],bear:["Hmm... ","Grrr, oi! "],bunny:["Oi oi! ","Hihi! "],frog:["Croac! "],penguin:["Brrr! "],robot:["BIP-BOP. SOLICITAÇÃO: "],alien:["Saudações, terráqueo. "],ghost:["Buuu... "]};
 const HELLO_EN={person:["Hello! ","Hi, how are you? ","Good afternoon! ","Hey there! "],cat:["Meow... ","Mrrr... "],dog:["Woof woof! ","Hi hi hi! "],bear:["Hmm... ","Grrr, hi! "],bunny:["Hi hi! ","Hehe! "],frog:["Ribbit! "],penguin:["Brrr! "],robot:["BEEP-BOOP. REQUEST: "],alien:["Greetings, earthling. "],ghost:["Boooo... "]};
 function sayEN(c,left){const ps=c.reqs.map(r=>{const[w,n]=reqWord(r);return r.k=="cor"?tl(r.v):r.k=="el"?"with "+tl(ELEM[r.v].n).toLowerCase()+" power":r.k=="hero"?"a SUPER-FRUIT":tl(w).toLowerCase()+(n?` (${tl(n)})`:"")}).filter(Boolean);
@@ -1170,7 +1174,7 @@ else if(sel){const t=T[sel],kids=ks.filter(k=>T[k].par.includes(sel)).sort((a,b)
  <div class="drow"><span>VARIEDADES</span>${varRow(sel)}</div>
  <div class="drow"><span>FILHOS</span>${kids.length?kids.map(chip).join(""):"<i>Ainda nenhum. Cruze ela com outra!</i>"}</div>
  ${my.length?`<div class="drow"><span>TENTE</span>${my.map(q=>{const o=q.a==sel?q.b:q.a;return chip(o)}).join("")}</div>`:""}
- <button class="btn" style="background:#3ca55c;margin-top:4px" onclick="showCard('${esc(sel)}')">VER CARTA</button>`}
+ <button class="btn" style="border-image-source:var(--f-go);margin-top:4px" onclick="showCard('${esc(sel)}')">VER CARTA</button>`}
 else if(tvHelp)det=`<b>Como funciona a árvore</b><br>Cada combinação nova de <b>tamanho, cor, sabor e poder</b> vira uma espécie. As fileiras mostram de qual geração ela é: a Feira é a geração 0, e cada cruzamento cria a seguinte.<br>Regra: <b>parecidos se intensificam</b> (pequena + pequena encolhe, grande + grande cresce).<br>Toque numa fruta pra ver os pais e os filhos dela. Toque num <b>?</b> pra ver a receita da próxima descoberta.`;
 else det=`Toque numa fruta pra ver <b>de onde ela veio</b> e <b>o que ela já gerou</b>.`;
 $("tvd").innerHTML=det;$("tvd").classList.toggle("open",!!(sel||qsel||tvHelp))}
@@ -1229,7 +1233,10 @@ let decoKey="";function placeDeco(){const t=document.getElementById("table"),pt=
  fixFruitDeco()}
 // fruta que ficou sobre enfeite sólido (jogo novo, save, resize, troca de aba) sai de cima dele; só mexe em quem cruza (ou nas frutas iniciais até o jogo começar), nunca em fruta sendo arrastada
 function fixFruitDeco(){const t=document.getElementById("table");if(!S||!S.fruits||!t||!t.clientWidth||!t.clientHeight)return;
- const early=performance.now()<2500,blk=decoBlocks(4),cross=f=>{const z=fsize(f);return blk.some(([bx,by,bw,bh])=>f.x<bx+bw&&f.x+z>bx&&f.y<by+bh&&f.y+z>by)};let ch=0,mv=0;
+ // não recria as frutas no meio de um arraste (renderTable perderia o pointer capture): tenta de novo daqui a pouco
+ let busy=false;try{busy=ptrDown||!!document.querySelector(".fr.drag,#pot.mv")}catch(e){}
+ if(busy){clearTimeout(fxT);fxT=setTimeout(fixFruitDeco,300);return}
+ const early=performance.now()-T0<2500,blk=decoBlocks(4),cross=f=>{const z=fsize(f);return blk.some(([bx,by,bw,bh])=>f.x<bx+bw&&f.x+z>bx&&f.y<by+bh&&f.y+z>by)};let ch=0,mv=0;
  S.fruits.slice().sort((p,q)=>fsize(q)-fsize(p)).forEach(f=>{if(t.querySelector('.fr.drag[data-id="'+f.id+'"]'))return;const x0=f.x,y0=f.y;clampPos(f);const x1=f.x,y1=f.y,sp=SPREAD.has(f);if(sp||(!early&&cross(f))){freeSpot(f,!sp);if(cross(f))freeSpot(f,true)}if(f.x!=x1||f.y!=y1)mv++;if(f.x!=x0||f.y!=y0)ch++});
  if(ch)renderTable();if(mv)save()}
 
@@ -1241,6 +1248,7 @@ const ZMIN=530; // abaixo disso a mesa não comporta o caldeirão inteiro com a 
 function fitScene(){const sc=document.getElementById("scene");if(!sc)return;const h=window.innerHeight,par=v=>Math.round(v/2)*2,cp=v=>Math.max(252,Math.min(280,v));
  // só zoom 1 ou 0.5 (nunca fracionário); a altura da cena encolhe em passos pares pra caber a mesa
  const tb=document.getElementById("table");if(tb)tb.classList.toggle("low",h<ZMIN);
+let fxT=0;
  if(h>=650){sc.style.zoom="";sc.style.height=""}
  else if(h>=ZMIN){sc.style.zoom="";sc.style.height=cp(par(h*.6-108))+"px"}
  else{sc.style.zoom="0.5";sc.style.height=cp(par(2*(h*.6-122)))+"px"}

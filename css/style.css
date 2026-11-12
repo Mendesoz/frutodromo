@@ -23,7 +23,7 @@ img{display:block}
 /* molduras 9-slice (geradas em js/game.js): 3 px de arte = 6 px CSS. Estados trocam só a variável da moldura. */
 .px{border:6px solid transparent;border-image:var(--f-paper) 3 fill/6px stretch;background:none;image-rendering:pixelated}
 header{flex:0 0 auto;display:flex;gap:6px;align-items:center;padding:4px 6px;background:linear-gradient(#93603a 0 2px,#7a4a28 2px 4px,#6b4023 4px calc(100% - 4px),#4e2e16 calc(100% - 4px) calc(100% - 2px),#2a1a12 calc(100% - 2px));color:#ffe9b8;font-size:var(--t14)}
-.tag{border:6px solid transparent;border-image:var(--f-tag) 3 fill/6px stretch;background:none;padding:0 4px;min-height:28px;image-rendering:pixelated;display:flex;align-items:center;gap:4px;white-space:nowrap}
+.tag{border:6px solid transparent;border-image:var(--f-tag) 3 fill/6px stretch;background:none;padding:0 4px;min-height:28px;image-rendering:pixelated;display:flex;align-items:center;gap:4px;white-space:nowrap;line-height:16px}
 .tag.grow{flex:1;justify-content:center}
 .coin{width:12px;height:12px;background:#f7c331;box-shadow:inset -2px -2px 0 #b7841a,inset 2px 2px 0 #fff3a0;display:inline-block;flex:0 0 auto}
 .btn{font-family:inherit;font-size:var(--t12);font-weight:600;color:#fff3d6;border:6px solid transparent;border-image:var(--f-btn) 3 fill/6px stretch;background:none;padding:0 4px;min-height:28px;min-width:28px;image-rendering:pixelated;cursor:pointer}
@@ -55,12 +55,12 @@ header{flex:0 0 auto;display:flex;gap:6px;align-items:center;padding:4px 6px;bac
 .bub{position:relative;width:124px;padding:2px 0 0;font-size:var(--t12);line-height:1.1;margin-bottom:6px}
 .bub:after{content:"";position:absolute;bottom:-12px;left:50%;margin-left:-7px;width:14px;height:8px;background:var(--tail) 0 0/14px 8px no-repeat;image-rendering:pixelated}
 .cust.vip .bub:after{background-image:var(--tailv)}
-.rq{display:flex;align-items:center;gap:3px;margin:2px 0;padding:2px;font-size:var(--t12);letter-spacing:0}.rq b{flex:1;white-space:nowrap;overflow:hidden}.rq.y{background:#bff2c9}.rq.n{background:#ffd6d0}.rq .nb{font-size:var(--t10);opacity:.75;white-space:nowrap}.rq .ck{font-style:normal;font-weight:700;width:8px;font-size:var(--t12)}.rq.y .ck{color:#1e8a3a}.rq.n .ck{color:#c0392b}.rq .ico{width:12px;height:12px}
+.rq{display:flex;align-items:center;gap:3px;margin:2px 0;padding:2px;font-size:var(--t12);letter-spacing:0}.rq b{flex:1;white-space:nowrap;overflow:hidden}.rq.y{background:#bff2c9}.rq.n{background:#ffd6d0}.rq .nb{font-size:var(--t10);opacity:.8;white-space:nowrap}.rq .ck{font-style:normal;font-weight:700;width:8px;font-size:var(--t12)}.rq.y .ck{color:#1e8a3a}.rq.n .ck{color:#c0392b}.rq .ico{width:14px;height:14px}
 .rq .l{width:40px}.cells{display:flex;gap:1px;flex:1}.cells i{flex:1;height:6px;background:#e5dccb}
 .sw{width:12px;height:12px;border:2px solid #2a1a12;flex:0 0 auto}.ico{width:14px;height:14px;flex:0 0 auto}
-.pay{display:flex;align-items:center;gap:4px;font-weight:700;margin-top:2px;font-size:var(--t14)}
+.pay{display:flex;align-items:center;gap:4px;font-weight:700;margin-top:2px;font-size:var(--t14);line-height:16px}
 .pat{display:flex;gap:2px;margin-top:4px}.pat i{flex:1;height:4px;background:#ddd}
-.nm{position:absolute;bottom:-20px;font-size:var(--t12);color:#ffe9b8;z-index:3;text-shadow:1px 1px 0 #2a1a12}
+.nm{position:absolute;bottom:-20px;font-size:var(--t10);color:#ffe9b8;z-index:3;text-shadow:2px 2px 0 #2a1a12}
 /* mesa */
 #table{position:relative;flex:1 1 auto;overflow:hidden;touch-action:none;isolation:isolate;background-color:#c07c42;background-size:96px 44px,480px 160px;background-repeat:repeat-x,repeat;background-position:0 0,0 0;image-rendering:pixelated}
 #table.low{background-size:48px 22px,480px 160px}
@@ -81,15 +81,15 @@ header{flex:0 0 auto;display:flex;gap:6px;align-items:center;padding:4px 6px;bac
 .fx-tw{animation:tw 1s steps(2) infinite}@keyframes tw{50%{opacity:.15}}
 
 #bin{position:absolute;right:8px;bottom:8px;width:64px;height:64px;border-image:var(--f-dark) 3 fill/6px stretch;color:#ffe9b8;font-size:var(--t10);text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.15;pointer-events:none;z-index:1}
-#bin.hot{border-image-source:var(--f-rare)}
+#bin.hot{border-image-source:var(--f-danger)}
 #pot{position:absolute;left:10px;bottom:8px;width:96px;z-index:3;cursor:grab;touch-action:none;user-select:none}#pot.mv{z-index:45;cursor:grabbing;transform:translateY(-4px);filter:drop-shadow(0 8px 0 #0004)}#pot img{pointer-events:none}
 #potslots{display:flex;gap:4px;justify-content:center;margin-bottom:2px;min-height:40px}
 #potslots .sl{width:40px;height:40px;background:#0003;border:2px dashed #ffe9b880;display:flex;align-items:center;justify-content:center}#potslots .sl img{width:36px;height:36px}
 @media (max-height:579px){#potslots{min-height:22px}#potslots .sl{width:22px;height:22px}#potslots .sl img{width:18px;height:18px}}
-#potlab{text-align:center;color:#ffe9b8;font-size:var(--t10);text-shadow:1px 1px 0 #2a1a12;margin-top:2px}
+#potlab{text-align:center;color:#ffe9b8;font-size:var(--t10);text-shadow:2px 2px 0 #2a1a12;margin-top:2px}
 /* feira */
 #market{flex:0 0 auto;display:flex;gap:6px;overflow-x:auto;padding:6px 6px 4px;background:linear-gradient(#2a1a12 0 2px,#93603a 2px 4px,#6b4023 4px calc(100% - 2px),#4e2e16 calc(100% - 2px))}
-.mk.tabk{flex:0 0 56px;background:none;color:#ffe9b8;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;border:6px solid transparent;border-image:var(--f-dark) 3 fill/6px stretch}.mk.tabk.on{border-image-source:var(--f-btnOn);color:#2a1a12}
+.mk.tabk{flex:0 0 56px;background:none;color:#ffe9b8;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;font-size:var(--t12);border:6px solid transparent;border-image:var(--f-dark) 3 fill/6px stretch}.mk.tabk.on{border-image-source:var(--f-btnOn);color:#2a1a12}
 .mk.tabk .cnt2{position:absolute;top:-10px;right:-10px;background:#e74c3c;color:#fff;font-size:var(--t10);padding:0 4px;border:2px solid #2a1a12}
 .mk.itm{border-image-source:var(--f-item)}.itm.in{animation:itin .22s steps(3) both}@keyframes itin{from{transform:translateY(14px);opacity:0}}
 .tabk.on .bagi{animation:bago .3s steps(3)}@keyframes bago{40%{transform:scale(1.25,.8)}70%{transform:scale(.9,1.15)}}
@@ -98,7 +98,7 @@ header{flex:0 0 auto;display:flex;gap:6px;align-items:center;padding:4px 6px;bac
 .armtip{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);z-index:140;background:#f7c331;color:#2a1a12;border:4px solid #2a1a12;padding:5px 10px;font-size:var(--t12);font-weight:700;display:none}.armtip.on{display:block}
 .fr.target>img{filter:drop-shadow(0 0 3px #f7c331) drop-shadow(0 0 2px #fff)!important}
 .mk{position:relative;flex:0 0 68px;border:6px solid transparent;border-image:var(--f-card) 3 fill/6px stretch;image-rendering:pixelated;text-align:center;font-size:var(--t10);padding:0 0 2px;cursor:pointer;user-select:none;color:#2a1a12;line-height:1.1}
-.mk img{width:36px;height:36px;margin:0 auto 2px}.mk.off{opacity:.45}.mk .pr{display:flex;align-items:center;justify-content:center;gap:3px;font-weight:700;margin-top:2px;font-size:var(--t12)}
+.mk img{width:36px;height:36px;margin:0 auto 2px}.mk.off{opacity:.45}.mk .pr{display:flex;align-items:center;justify-content:center;gap:3px;font-weight:700;margin-top:1px;font-size:var(--t12);line-height:14px}
 .mk.rare{border-image-source:var(--f-rare)}.mk.lock{border-image-source:var(--f-lock);color:#ffe9b8;opacity:.8}.mk.lock img{filter:brightness(0);opacity:.5}
 /* info */
 #info{position:fixed;left:8px;right:8px;top:326px;padding:6px 8px;display:none;gap:10px;align-items:center;z-index:60;max-width:440px;margin:0 auto}
@@ -221,7 +221,7 @@ img.curt{z-index:2;transform-origin:50% 0;animation:sway 10s ease-in-out infinit
 .logo{animation:lgo 1.2s steps(4) infinite}@keyframes lgo{50%{transform:translateY(-4px) scale(1.04)}}
 /* rodada 3 */
 #undo{position:fixed;left:50%;bottom:92px;transform:translateX(-50%) translateY(20px);z-index:140;background:#2a1a12;color:#ffe9b8;border:4px solid #ffe9b8;padding:5px 8px;display:flex;align-items:center;gap:8px;opacity:0;pointer-events:none;transition:.2s;font-size:var(--t14);position:fixed}
-#undo.on{opacity:1;pointer-events:auto;transform:translateX(-50%)}#undo .btn{background:#f7c331;color:#2a1a12}
+#undo.on{opacity:1;pointer-events:auto;transform:translateX(-50%)}#undo .btn{border-image-source:var(--f-btnOn);color:#2a1a12}
 #undo i{position:absolute;left:0;bottom:0;height:3px;background:#f7c331;width:100%}#undo.on i{animation:undoBar 3.2s linear forwards}@keyframes undoBar{to{width:0}}
 #tut{position:fixed;z-index:150;max-width:250px;color:#2a1a12;border:6px solid transparent;border-image:var(--f-vip) 3 fill/6px stretch;image-rendering:pixelated;padding:4px 6px;font-size:var(--t14);line-height:1.35;display:none}
 #tut.on{display:block;animation:popin .3s steps(3)}#tut .btn{margin-top:6px;border-image-source:var(--f-go);color:#fff}
@@ -288,9 +288,6 @@ body{-webkit-user-select:none;user-select:none}textarea,input{-webkit-user-selec
 /* sombras que dão volume (2.5D) */
 header{position:relative;z-index:6;box-shadow:0 4px 0 #0003}
 #market{position:relative;z-index:6;box-shadow:0 -4px 0 #0002}
-/* brilho mágico no caldeirão */
-/* placa de madeira deitada com as instruções */
-/* balões de pedido: cantos arredondados (o rabinho já aponta pra cabeça) */
 .tip{align-items:flex-start;padding-top:22px}.tip .placa{max-width:290px}
 
 /* caldeirão no centro do chão, com luz rosa-roxa no piso e fumacinha */
@@ -303,7 +300,6 @@ header{position:relative;z-index:6;box-shadow:0 4px 0 #0003}
 /* celular: caldeirão embaixo e placa em cima; telas largas: placa ao lado do caldeirão */
 @media (max-width:699px){#pot{bottom:8px}}
 @media (min-width:700px){.tip{align-items:center;justify-content:flex-start;padding:0 0 0 calc(50% + 72px)}}
-/* luz do caldeirão mais forte no piso, como na referência */
 /* ===== Etapa 2: luz das janelas e escurecimento do chão ===== */
 #tamb{position:absolute;inset:0;z-index:0;pointer-events:none;mix-blend-mode:multiply;transition:background 2s}
 #flight{position:absolute;inset:0;z-index:0;pointer-events:none;transition:opacity 2s;opacity:0;background:radial-gradient(ellipse 150px 120px at var(--w1x,33%) 0,var(--wlc,#ffe2a8) 0,#0000 100%),radial-gradient(ellipse 150px 120px at var(--w2x,66%) 0,var(--wlc,#ffe2a8) 0,#0000 100%);mix-blend-mode:soft-light}
@@ -354,13 +350,8 @@ header{position:relative;z-index:6;box-shadow:0 4px 0 #0003}
 #scene.lit .lhalo{opacity:1}
 
 
-/* ===== Etapa 5A: alvos de toque e ajustes finos da interface ===== */
-.nm{font-size:var(--t10);text-shadow:2px 2px 0 #2a1a12}
-#potlab{text-shadow:2px 2px 0 #2a1a12}
-.rq .nb{font-size:var(--t10);opacity:.8}.rq .ck{font-size:var(--t12);width:8px}.rq .ico{width:14px;height:14px}
-.mk.tabk{font-size:var(--t12)}
+/* ===== telas estreitas: alvos de toque (≥40 px) e árvore compacta ===== */
 /* celular: botões do cabeçalho e ARRUMAR com 40 px ou mais nos dois eixos (cabeçalho 48 px) */
 @media (max-width:599px){header .btn{min-height:40px;min-width:40px}header .tag{min-height:40px}#tidy{min-height:40px}}
-.tag{line-height:16px}.mk .pr{line-height:14px;margin-top:1px}.pay{line-height:16px}
 /* árvore em tela estreita: abas mais compactas pra o contador de espécies caber */
 @media (max-width:599px){.tvh{gap:4px;padding:4px}.tvh .btn{padding:0 2px;min-width:0}.tvh .cnt{font-size:var(--t10)}}
