@@ -9,8 +9,7 @@ Antes de começar, marque aqui (e faça push). Ao terminar, apague a linha.
 
 | Agente | Área | Arquivos / funções | Desde |
 |---|---|---|---|
-| Claude | Etapa 4 (ajustes finais da decoração) | `js/game.js` (`placeDeco`) | 12/11 18:05 |
-| Claude | Etapa 5 — Interface (planejamento) | `css/style.css`, `js/game.js` (HUD, feira, balões, toasts, tutorial, modais) | 12/11 18:05 |
+| Claude | Etapa 5 — Interface (5A: fonte, escala de texto, molduras, alvos de toque) | `index.html`, `css/style.css` (quase todo), `js/game.js` (HUD, feira, balões, modais), `tools/bundle.py`, `tools/build_portal.py`, `sw.js`, `fonts/` | 12/11 18:20 |
 
 ## Pendências abertas (qualquer agente pode pegar, marcando acima)
 - Toasts: lugar fixo e previsível (hoje podem cobrir a fruta recém-nascida e o tutorial) — Etapa 5.
@@ -20,14 +19,15 @@ Antes de começar, marque aqui (e faça push). Ao terminar, apague a linha.
 - Texto dos balões pequeno abaixo de 530 px de altura (zoom 0,5) — Etapa 5.
 - Balões de pedido vizinhos se sobrepõem em 393×760 — Etapa 5.
 - `brew()`: corrida rara se o save for trocado durante a mistura (já tem guarda).
+- Coco sobre barril/caixote marrom perde contraste — Etapa 8 (polimento).
 
 | Etapa | Tema | Status | Notas |
 |---|---|---|---|
 | 1 | Fundação visual (grade de pixels, escala, nitidez) | concluída (11/11) | escala só inteira; cena sem zoom fracionário |
 | 2 | Cenário (chão, parede, janelas, balcão, luz ambiente) | concluída (11/11) | chão 240×80, frente do balcão, lambri, luz por clima |
 | 3 | Caldeirão (poção animada, fumaça, partículas, reflexo) | concluída (12/11) | corpo 48×44 a 2x, poção em 4 quadros, halo sem blur |
-| 4 | Decoração (caixotes, barris, cestos, lampiões, placas, balança) | em teste | |
-| 5 | Interface (HUD, inventário, feira, balões, botões) | em planejamento | |
+| 4 | Decoração (caixotes, barris, cestos, lampiões, placas, balança) | concluída (12/11) | 3 a 10 enfeites por faixa de tela, lampiões acesos à noite |
+| 5 | Interface (HUD, inventário, feira, balões, botões) | em andamento (5A) | 5A base: fonte embutida, escala de texto, molduras; 5B avisos; 5C tutorial, feira, balões |
 | 6 | Personagens (sprites, expressões, roupas, respiração) | pendente | |
 | 7 | Game feel (ambiente, reações, luz dinâmica, feedback) | pendente | |
 | 8 | Polimento (desempenho, responsividade, regressão) | pendente | |
@@ -95,3 +95,13 @@ Antes de começar, marque aqui (e faça push). Ao terminar, apague a linha.
 - Guarda em `brew()` se o save for trocado no meio da mistura; partículas não rodam com movimento reduzido.
 
 **Testes:** tester (7 tamanhos, arraste real, movimento reduzido, inglês, CPU 4x) sem erros; revisor aprovou.
+
+### Etapa 4 — Decoração (concluída em 12/11/2026)
+**O que mudou**
+- Enfeites em pixel art gerados por código: caixotes, barril, cesto de laranjas, sacos, lousa, balança, caixa registradora, vaso, tapetes e 2 lampiões.
+- Posição por faixa de tela (largo 10, baixo 7, celular 5, celular baixo 3); nunca cruzam o caldeirão (recalcula ao mover o caldeirão) e não recriam à toa.
+- Lampiões apagados de dia e acesos no entardecer, tempestade e noite, com halo em degraus; parados com movimento reduzido.
+- Sombra de contato sob as frutas.
+- Todos com `pointer-events:none`: não atrapalham arrastar.
+
+**Testes:** tester com 24 verificações em 7 tamanhos, em inglês e com movimento reduzido, sem erros; desempenho sem piora. Achados levados para a Etapa 5 (aviso de 3 linhas cobre o caldeirão em 375×553; sombra das frutas em meio-pixel).
