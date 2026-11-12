@@ -9,12 +9,10 @@ Antes de começar, marque aqui (e faça push). Ao terminar, apague a linha.
 
 | Agente | Área | Arquivos / funções | Desde |
 |---|---|---|---|
-| Claude | Etapa 5C — tutorial, setas da feira, balão lateral em janela baixa, feedback ao segurar fruta | `js/game.js` (tutorial, `renderMarket`, `reqHTML`/balões, `fitScene`), `css/style.css` | 12/11 19:40 |
+| Claude | Etapa 5 (correções do teste e da revisão) | `js/game.js`, `css/style.css` (interface) | 12/11 19:55 |
+| Claude | Etapa 6 — Personagens (planejamento) | `js/game.js` (`charImg`, `personImg`, clientes) | 12/11 19:55 |
 
 ## Pendências abertas (qualquer agente pode pegar, marcando acima)
-- Balões do tutorial cobrem as frutas que mandam usar — Etapa 5.
-- Barra de rolagem nativa visível na feira — Etapa 5.
-- Texto dos balões pequeno abaixo de 530 px de altura (zoom 0,5) — Etapa 5.
 - Balões de pedido vizinhos se sobrepõem em 393×760 — Etapa 5.
 - `brew()`: corrida rara se o save for trocado durante a mistura (já tem guarda).
 - Coco sobre barril/caixote marrom perde contraste — Etapa 8 (polimento).
@@ -25,8 +23,8 @@ Antes de começar, marque aqui (e faça push). Ao terminar, apague a linha.
 | 2 | Cenário (chão, parede, janelas, balcão, luz ambiente) | concluída (11/11) | chão 240×80, frente do balcão, lambri, luz por clima |
 | 3 | Caldeirão (poção animada, fumaça, partículas, reflexo) | concluída (12/11) | corpo 48×44 a 2x, poção em 4 quadros, halo sem blur |
 | 4 | Decoração (caixotes, barris, cestos, lampiões, placas, balança) | concluída (12/11) | 3 a 10 enfeites por faixa de tela, lampiões acesos à noite |
-| 5 | Interface (HUD, inventário, feira, balões, botões) | em andamento (5A e 5B no ar, 5C a seguir) | 5A base: fonte embutida, escala de texto, molduras; 5B avisos; 5C tutorial, feira, balões |
-| 6 | Personagens (sprites, expressões, roupas, respiração) | pendente | |
+| 5 | Interface (HUD, inventário, feira, balões, botões) | no ar, em teste e revisão (12/11) | 5A base: fonte embutida, escala de texto, molduras; 5B avisos; 5C tutorial, feira, balões |
+| 6 | Personagens (sprites, expressões, roupas, respiração) | em planejamento | |
 | 7 | Game feel (ambiente, reações, luz dinâmica, feedback) | pendente | |
 | 8 | Polimento (desempenho, responsividade, regressão) | pendente | |
 
@@ -103,3 +101,9 @@ Antes de começar, marque aqui (e faça push). Ao terminar, apague a linha.
 - Todos com `pointer-events:none`: não atrapalham arrastar.
 
 **Testes:** tester com 24 verificações em 7 tamanhos, em inglês e com movimento reduzido, sem erros; desempenho sem piora. Achados levados para a Etapa 5 (aviso de 3 linhas cobre o caldeirão em 375×553; sombra das frutas em meio-pixel).
+
+### Etapa 5 — Interface (no ar em 12/11/2026; teste e revisão finais em andamento)
+- 5A: fonte Pixelify Sans embutida (sem Google Fonts), texto só em 10/12/14/16/20/28 px, molduras 9-slice em pixel art, alvos de toque de 40 px no celular, ligaduras desligadas ("fi" virava "A").
+- 5B: avisos num letreiro fixo sob o cabeçalho (fila, ×N, erros em vermelho), feedback de espécie errada ("Toque no ? pra ver a receita").
+- 5C: tutorial fora da mesa com contorno no alvo, feira com abas fixas e setas, balão ao lado do cliente em janela baixa, cliente que aceita a fruta segurada fica verde.
+- Frutas não ficam sobre enfeites (ARRUMAR, compra, nascimento, jogo novo, soltar).
