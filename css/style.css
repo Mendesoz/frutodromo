@@ -389,3 +389,11 @@ header{position:relative;z-index:6;box-shadow:0 4px 0 #0003}
 /* sweat e puff seguem o retrato: o conjunto (retrato 80 + 6 + balão 2*bw) fica centrado na coluna */
 #scene.low .sweat{right:auto;left:calc(50% - (92px + 2 * var(--bw,180px)) / 2 + 58px)}
 #scene.low .puff{left:calc(50% - (92px + 2 * var(--bw,180px)) / 2 + 12px)}
+/* 5C: ao segurar uma fruta, o balão diz sozinho se ela serve (só CSS; sem :has() fica como antes: cada pedido verde/rosa) */
+@supports selector(:has(*)){
+ .cust .bub:has(.rq.y):not(:has(.rq.n)){border-image-source:var(--f-ok);transform:translateY(-4px)}
+ .cust .bub:has(.rq.y):not(:has(.rq.n)):after{background-image:var(--tailok)}
+ #scene.low .cust .bub:has(.rq.y):not(:has(.rq.n)):after{background-image:var(--tailLok)}
+ .cust .bub:has(.rq.n):not(:has(.rq.y)){opacity:.6}
+ .cust .bub:has(.rq.n):not(:has(.rq.y)) .rq.n{background:none}
+}

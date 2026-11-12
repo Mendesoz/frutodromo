@@ -1038,8 +1038,9 @@ if(box.dataset.k!=st[2]||!box.classList.contains("on")){box.dataset.k=st[2];
  box.innerHTML=`<span>${st[1]}</span><button class="btn" onclick="S.tut['${st[2]}']=1;save();tutClear();$('tut').classList.remove('on');setTimeout(tutStep,400)">ENTENDI</button>`;box.classList.add("on")}
 tg.classList.add("tutfocus");tutPlace(st)}
 function tutPlace(st){const box=$("tut"),ev=v=>Math.round(v/2)*2,sc=$("scene").getBoundingClientRect(),mk=$("market").getBoundingClientRect();
+ const onMk=st[0]=="cust"||(st[0]=="pot"&&$("scene").style.zoom=="0.5"); // janela baixa: o balão de pedido ocupa a cena toda, então o passo do caldeirão também vai sobre a feira
  box.style.maxWidth=ev(Math.min(380,innerWidth-16))+"px";const bw=box.offsetWidth,bh=box.offsetHeight;
- const x=ev(sc.left+(sc.width-bw)/2),y=st[0]=="cust"?ev(mk.bottom-bh-4):ev(Math.max(sc.top+2,sc.bottom-bh-34));box.style.left=x+"px";box.style.top=y+"px"}
+ const x=ev(sc.left+(sc.width-bw)/2),y=onMk?ev(Math.max(mk.top,mk.bottom-bh-4)):ev(Math.max(sc.top+2,sc.bottom-bh-34));box.style.left=x+"px";box.style.top=y+"px"}
 window.addEventListener("resize",()=>{const box=$("tut");if(!box.classList.contains("on"))return;const st=TUT.find(t=>!S.tut[t[2]]);if(st)tutPlace(st)});
 function tutDone(k){S.tut=S.tut||{};if(!S.tut[k]){S.tut[k]=1;save();tutClear();$("tut").classList.remove("on");setTimeout(tutStep,900)}}
 function hud(){updateSky();showCoins();const rem=dayLen()-S.dayT;const wide=innerWidth>=440,tm=CFG.zen?"ZEN":running?fmt(rem):"--:--";$("day").textContent=wide?`DIA ${S.day} · NÍVEL ${level()} · ${tm}`:`D${S.day} · NV${level()} · ${tm}`;$("day").classList.toggle("low",running&&!CFG.zen&&rem<20000)}
