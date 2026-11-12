@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Guarda do agente frutodromo-tester (QA).
+"""Guarda dos agentes de somente leitura: tester, code-reviewer e art-director.
 
 Roda antes de cada comando Bash do testador (hook PreToolUse).
 Sai com código 2 para BLOQUEAR o comando; a mensagem em stderr volta pro agente.
@@ -17,7 +17,7 @@ QA = "/tmp/frutodromo-qa"
 
 
 def block(msg):
-    print("BLOQUEADO pelo guarda do testador: " + msg, file=sys.stderr)
+    print("BLOQUEADO pelo guarda de somente leitura (tester, code-reviewer, art-director): " + msg, file=sys.stderr)
     sys.exit(2)
 
 

@@ -1,0 +1,97 @@
+# Roadmap visual do Frutódromo
+
+Objetivo: estética de jogo indie profissional em pixel art, sem mudar mecânicas, economia, progressão nem salvamento.
+Modo: autônomo, autorizado pelo Eric em 10/11/2026. O Claude decide e executa etapa por etapa, com teste e revisão a cada uma.
+Desde 12/11/2026 cada etapa testada vai para a `main` (e para o site) aos poucos, e o Codex trabalha junto. Regras de convivência em `AGENTS.md`.
+
+## Quem está mexendo em quê
+Antes de começar, marque aqui (e faça push). Ao terminar, apague a linha.
+
+| Agente | Área | Arquivos / funções | Desde |
+|---|---|---|---|
+| Claude | Etapa 4 (ajustes finais da decoração) | `js/game.js` (`placeDeco`) | 12/11 18:05 |
+| Claude | Etapa 5 — Interface (planejamento) | `css/style.css`, `js/game.js` (HUD, feira, balões, toasts, tutorial, modais) | 12/11 18:05 |
+
+## Pendências abertas (qualquer agente pode pegar, marcando acima)
+- Toasts: lugar fixo e previsível (hoje podem cobrir a fruta recém-nascida e o tutorial) — Etapa 5.
+- Feedback de entrega errada em pedido de espécie ("Faltou: ESPÉCIE NOVA Média" não diz qual) — Etapa 5.
+- Balões do tutorial cobrem as frutas que mandam usar — Etapa 5.
+- Barra de rolagem nativa visível na feira — Etapa 5.
+- Texto dos balões pequeno abaixo de 530 px de altura (zoom 0,5) — Etapa 5.
+- Balões de pedido vizinhos se sobrepõem em 393×760 — Etapa 5.
+- `brew()`: corrida rara se o save for trocado durante a mistura (já tem guarda).
+
+| Etapa | Tema | Status | Notas |
+|---|---|---|---|
+| 1 | Fundação visual (grade de pixels, escala, nitidez) | concluída (11/11) | escala só inteira; cena sem zoom fracionário |
+| 2 | Cenário (chão, parede, janelas, balcão, luz ambiente) | concluída (11/11) | chão 240×80, frente do balcão, lambri, luz por clima |
+| 3 | Caldeirão (poção animada, fumaça, partículas, reflexo) | concluída (12/11) | corpo 48×44 a 2x, poção em 4 quadros, halo sem blur |
+| 4 | Decoração (caixotes, barris, cestos, lampiões, placas, balança) | em teste | |
+| 5 | Interface (HUD, inventário, feira, balões, botões) | em planejamento | |
+| 6 | Personagens (sprites, expressões, roupas, respiração) | pendente | |
+| 7 | Game feel (ambiente, reações, luz dinâmica, feedback) | pendente | |
+| 8 | Polimento (desempenho, responsividade, regressão) | pendente | |
+
+## Regras inegociáveis
+- Não alterar mecânicas, economia, progressão ou salvamento.
+- Não prejudicar o sistema de frutas nem o arrastar e soltar.
+- Não adicionar dependências sem justificativa.
+- Respeitar `prefers-reduced-motion`.
+- Não sacrificar desempenho por efeito visual.
+- Grade de pixels consistente, mantendo a hierarquia visual e as proporções das frutas.
+
+## Registro por etapa
+(cada etapa concluída ganha aqui: o que mudou, arquivos, testes, problemas e riscos)
+
+### Etapa 1 — Fundação visual (concluída em 11/11/2026)
+**Motivo:** o CrazyGames recusou o jogo por qualidade geral, e as diretrizes deles pedem resolução consistente. Na janela deles (1024×600) a cena era encolhida por zoom de 0,85 e ficava borrada.
+
+**O que mudou**
+- Pixel lógico: 1 pixel de arte = 2 px CSS no mundo; objetos de destaque em múltiplos inteiros (frutas 2–7x, caldeirão 4x, retrato 4x).
+- `fitScene`: sem zoom fracionário. Entre 530 e 649 px de altura a cena é cortada (252–280 px) em vez de encolhida; abaixo de 530 usa zoom 0,5 exato.
+- Parede pode ser mais baixa (`renderProps`, `winLayout(W,H)`).
+- Ícones, sol, folha e fruta do balão em tamanho nativo ×2 (`ADIM` e `sz()`).
+- Frutas fora da mesa em múltiplos de 18 (slots 36, árvore 54, álbum 72, revelação 198, confete 36/54); MICRO 36 px.
+- Efeitos de elemento (`fxHTML`) em escala inteira; caixotes sem `scale` nem `rotate`; animações `idle` e `flk` só com `translateY`.
+- Caldeirão e moldura do desktop em px inteiros; caldeirão acompanha a mesa com `ResizeObserver`; NOVO JOGO recentraliza o caldeirão.
+- Resize com debounce; balão de espécie nova sem corte de texto; `image-rendering: pixelated` na ordem certa; cache v32.
+
+**Arquivos:** `js/game.js`, `css/style.css`, `sw.js`.
+
+**Testes:** tester (Playwright, 6 tamanhos, arraste real): regressão completa sem erros, 0 sprites com escala fracionária, layout de balões e caldeirão ok, movimento reduzido e inglês ok. Revisor: aprovado com ressalvas; as 6 ressalvas foram corrigidas na rodada 2 e reverificadas.
+
+**Riscos e pendências**
+- Abaixo de 530 px de altura o texto dos balões fica pequeno (zoom 0,5): tratar na Etapa 5.
+- Abaixo de ~400 px de altura o caldeirão não cabe na mesa (já era assim antes).
+- Pixel das frutas grandes (até 7 px) segue maior que o do cenário: escolha consciente para manter os tamanhos.
+
+### Etapa 2 — Cenário (concluída em 11/11/2026)
+**O que mudou**
+- Chão: ladrilho 240×80 (exibido 480×160) com tábuas de comprimento variável, emendas desencontradas, veios, nós, pregos discretos e duas manchas; sem costura.
+- Balcão: tampo com quina, beiral e veios; nova frente ripada com rodapé e sombra de contato em 5 degraus (`buildCounterFront`, 48×22 a 2x; 1x com zoom 0,5).
+- Parede: tábuas de larguras variadas, veios, nós e pregos; lambri com almofadas; prateleira com mão-francesa e sombra; janelas com moldura de 4 px, brilho no vidro e peitoril; toldo com luz, sombra e contorno.
+- Luz: camadas `#tamb`, `#flight`, `#flamp` e feixes `.wlight` controlados por `wxLight()` no fim de `updateSky()` (dia, amanhecer, entardecer, nublado, tempestade, noite). O chão escurece à noite; as frutas não mudam de cor. Vinhetas novas.
+- Correções: janelas grandes usavam a classe `.big` dos botões e ficavam deslocadas (agora `.wbig`); `#lamp` à noite 0,8 → 0,5 para não estourar o rosto do cliente.
+- Frutas: topo mínimo de 24 px na mesa (não ficam sobre a face do balcão); `clampPos` roda também quando a mesa muda de tamanho (troca de aba, jogo novo em tela baixa).
+- `placePot` não reescreve mais `S.potPos` quando a mesa está escondida.
+- Ladrilho e frente memoizados; `renderProps` ficou mais rápido que antes.
+
+**Arquivos:** `js/game.js`, `css/style.css`, `index.html`, `sw.js` (cache v33).
+
+**Testes:** tester (10 tamanhos, 9 climas, arraste real, movimento reduzido, inglês, desempenho): sem erros; fruta com a mesma cor em todos os climas; quadro mediano 16,7 ms durante o arraste. Revisor: aprovado com ressalvas, todas corrigidas e reverificadas.
+
+**Riscos e pendências**
+- Coco e frutas marrons têm contraste baixo sobre o chão e os caixotes (o contorno salva). Rever na Etapa 4.
+- Tapetes ficaram lavados (translúcidos): Etapa 4.
+- Em mesa muito baixa (1024×530) as 6 frutas iniciais se sobrepõem até o jogador arrumar.
+- Custo de `mix-blend-mode` em celular fraco não medido em aparelho real.
+
+### Etapa 3 — Caldeirão (concluída em 12/11/2026)
+**O que mudou**
+- Corpo do caldeirão redesenhado em 48×44 nativo, exibido a 2x (96×88): bojo com luz e sombra, cinta com rebites, argolas, 3 pés. Gerado uma vez.
+- Poção animada em 4 quadros (`steps(4)`), na cor média das frutas; misturando mostra as duas cores girando; bolhas, fumaça, faíscas e respingos em pixel art; halo de 2 px sem desfoque; luz no chão em degraus.
+- Sem `rotate` nem blur: tremida só com translação de 2 px.
+- Cache dos sprites por cor (máx. 24). Nenhum `toDataURL` com o jogo parado.
+- Guarda em `brew()` se o save for trocado no meio da mistura; partículas não rodam com movimento reduzido.
+
+**Testes:** tester (7 tamanhos, arraste real, movimento reduzido, inglês, CPU 4x) sem erros; revisor aprovou.
