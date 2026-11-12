@@ -9,7 +9,7 @@ Antes de começar, marque aqui (e faça push). Ao terminar, apague a linha.
 
 | Agente | Área | Arquivos / funções | Desde |
 |---|---|---|---|
-| Claude | Etapa 5 — Interface (5A: fonte, escala de texto, molduras, alvos de toque) | `index.html`, `css/style.css` (quase todo), `js/game.js` (HUD, feira, balões, modais), `tools/bundle.py`, `tools/build_portal.py`, `sw.js`, `fonts/` | 12/11 18:20 |
+| Claude | Etapa 5B — avisos (toasts) e feedback de entrega errada | `js/game.js` (`toast()`, entrega/recusa, textos), `css/style.css` (#toast, .nudge), `js/i18n.js` | 12/11 19:00 |
 
 ## Pendências abertas (qualquer agente pode pegar, marcando acima)
 - Toasts: lugar fixo e previsível (hoje podem cobrir a fruta recém-nascida e o tutorial) — Etapa 5.
@@ -27,7 +27,7 @@ Antes de começar, marque aqui (e faça push). Ao terminar, apague a linha.
 | 2 | Cenário (chão, parede, janelas, balcão, luz ambiente) | concluída (11/11) | chão 240×80, frente do balcão, lambri, luz por clima |
 | 3 | Caldeirão (poção animada, fumaça, partículas, reflexo) | concluída (12/11) | corpo 48×44 a 2x, poção em 4 quadros, halo sem blur |
 | 4 | Decoração (caixotes, barris, cestos, lampiões, placas, balança) | concluída (12/11) | 3 a 10 enfeites por faixa de tela, lampiões acesos à noite |
-| 5 | Interface (HUD, inventário, feira, balões, botões) | em andamento (5A) | 5A base: fonte embutida, escala de texto, molduras; 5B avisos; 5C tutorial, feira, balões |
+| 5 | Interface (HUD, inventário, feira, balões, botões) | em andamento (5A no ar, 5B em andamento) | 5A base: fonte embutida, escala de texto, molduras; 5B avisos; 5C tutorial, feira, balões |
 | 6 | Personagens (sprites, expressões, roupas, respiração) | pendente | |
 | 7 | Game feel (ambiente, reações, luz dinâmica, feedback) | pendente | |
 | 8 | Polimento (desempenho, responsividade, regressão) | pendente | |
