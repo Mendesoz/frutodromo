@@ -287,7 +287,7 @@ try{S=normState(JSON.parse(localStorage.getItem("frutodromo9")))}catch(e){S=null
 // salvar: agrupa vários pedidos seguidos num só (800 ms); fechar/trocar de aba grava na hora; avisa uma vez se o espaço acabar
 let saveTimer=null,saveWarned=false;
 const cgData=()=>{try{return typeof PORTAL!="undefined"&&PORTAL.ready&&PORTAL.data?PORTAL.sdk.data:null}catch(e){return null}};
-const saveNow=()=>{clearTimeout(saveTimer);saveTimer=null;S.ts=Date.now();const js=JSON.stringify(S),d=cgData();if(d){try{d.setItem("frutodromo9",js)}catch(e){}}try{localStorage.setItem("frutodromo9",js)}catch(e){if(!saveWarned&&typeof toast=="function"){saveWarned=true;toast("<b>Não deu pra salvar!</b> O espaço do navegador encheu.<br>Em Ajustes → EXPORTAR PROGRESSO guarde um backup.")}}};
+const saveNow=()=>{clearTimeout(saveTimer);saveTimer=null;S.ts=Date.now();const js=JSON.stringify(S),d=cgData();if(d){try{d.setItem("frutodromo9",js)}catch(e){}}try{localStorage.setItem("frutodromo9",js)}catch(e){if(!saveWarned&&typeof toast=="function"){saveWarned=true;toast("<b>Não deu pra salvar!</b> Faça um backup em Ajustes.",{err:true})}}};
 const save=()=>{if(!saveTimer)saveTimer=setTimeout(saveNow,800)};
 /* ================= genética ================= */
 function portmanteau(a,b){if(a==b)return a;const n=a.slice(0,Math.max(2,Math.ceil(a.length/2)))+b.slice(Math.floor(b.length/2)).toLowerCase();return n.replace(/([a-zà-ú])\1/gi,"$1")}
@@ -444,7 +444,8 @@ function sell(f){const v=(1+Math.floor(f.gen/2)+(f.mut?2:0)+(f.el?3:0)+(f.hero?6
 S.fruits=S.fruits.filter(x=>x!=f);sel=null;showInfo(null);save();renderTable();renderCounter();renderMarket()}
 function deliver(f,i,ox,oy){const c=S.cust[i];
 if(!c.reqs.every(r=>meets(f,r))){f.x=ox;f.y=oy;renderTable();c.mood="sad";renderCounter();SFX.bad();buzz(120);{const ce=document.querySelector(`.cust[data-i="${i}"] .bub`);if(ce){const r=ce.getBoundingClientRect();floatText(r.left+r.width/2,r.top+20,"✗","#ff5a4e")}}const miss=c.reqs.map((r,k)=>[r,k]).filter(([r])=>!meets(f,r));document.querySelectorAll(`.cust[data-i="${i}"] .rq`).forEach((e,k)=>{if(miss.some(m=>m[1]==k))e.classList.add("n","miss")});
-setTimeout(()=>{if(S.cust[i]==c){c.mood=null;renderCounter()}},1600);return toast(`${c.name}: "Quase! Faltou: <b>${miss.map(([r])=>{const[w,n]=reqWord(r);return w+(n?" "+n:"")}).join(", ")}</b>"`)}
+setTimeout(()=>{if(S.cust[i]==c){c.mood=null;renderCounter()}},1600);if(miss.some(([r])=>r.k=="sp")){const h=document.querySelector(`.cust[data-i="${i}"] .hint`);if(h)h.classList.add("nudge");return toast("Não é essa espécie! Toque no <b>?</b> pra ver a receita.")}
+return toast(`Faltou: <b>${miss.map(([r])=>{const[w,n]=reqWord(r);return w+(n?" "+n:"")}).join(", ")}</b>`)}
 const cb=comboHit(),bonus=cb>=2?Math.round(pay(c)*Math.min(.5,(cb-1)*.1)):0,v=pay(c)+bonus,L0=level();const ce=document.querySelector(`.cust[data-i="${i}"] .bub`).getBoundingClientRect();S.coins+=v;flyCoins(ce.left+ce.width/2,ce.top+ce.height/2,v,v);floatText(ce.left+ce.width/2,ce.top+10,"+"+v);if(cb>=2)setTimeout(()=>floatText(ce.left+ce.width/2,ce.top+40,`COMBO x${cb}!`,"#ff8ad8"),250);buzz([20,40,30]);
 S.delivered++;S.ds.served++;if(c.vip)rec("vips",1);checkAch();tutDone("t2");S.ds.earn+=v;S.ds.best=Math.max(S.ds.best,v);S.fruits=S.fruits.filter(x=>x!=f);sel=null;showInfo(null);c.mood="happy";renderTable();renderCounter();renderMarket();
 toast(`${c.name} adorou! <b>+${v}</b> moedas${level()>L0?`<br><b>NÍVEL ${level()}!</b>${newUnlock(level())}`:""}`);if(level()>L0){SFX.lvl();shake(5);buzz([40,60,40,60,80])}
@@ -802,7 +803,7 @@ function addToPot(f){buzz(20);S.pot.push(f);S.fruits=S.fruits.filter(x=>x!=f);se
 const r=$("potimg").getBoundingClientRect();burst(r.left+r.width/2,r.top+18,f.rgb,10);
 if(S.pot.length<2)return toast("Coloque mais uma fruta no caldeirão");
 brew()}
-function brew(){brewing=true;const sc=S.pot.map(f=>f.rgb);$("pot").classList.add("brew");toast("Misturando...");SFX.brew();[0,350,700].forEach(t=>setTimeout(()=>potSplash(sc,5),t));
+function brew(){brewing=true;const sc=S.pot.map(f=>f.rgb);$("pot").classList.add("brew");SFX.brew();[0,350,700].forEach(t=>setTimeout(()=>potSplash(sc,5),t));
 setTimeout(()=>{$("pot").classList.remove("brew");const ing=S.pot;if(!ing||ing.length<2||ing.some(f=>!f)){brewing=false;renderPot();return}S.pot=[];brewing=false;
 const make=()=>{let c=cross(ing[0],ing[1]);if(ing[2]){c=cross(c,ing[2]);c.gen=Math.max(...ing.map(x=>x.gen))+1}return c};
 rec("crosses",1);const kids=[make()];
@@ -1126,8 +1127,8 @@ $("cl").onclick=closeModal;
 $("cdl").onclick=async()=>{if(window.self!==window.top&&window.claude&&!PORTAL.name){/* dentro do artifact do Claude: o download passa pela confirmação do próprio Claude */
  try{const dl=window.claude&&window.claude.use?await window.claude.use("downloads"):null;if(!dl)return toast(PORTAL.name?"Aqui não dá pra baixar. Faça um print!":"Aqui não dá pra baixar. Faça um print, ou abra mendesoz.github.io/frutodromo");
   const bin=atob(url.split(",")[1]),u8=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u8[i]=bin.charCodeAt(i);
-  await dl.save({filename:`frutodromo-especie-${t.n}.png`,data:new Blob([u8],{type:"image/png"})});toast("Carta salva!")}catch(e){if(e&&e.code=="declined")return;toast("Não deu pra baixar aqui. Faça um print!")}return}
-try{const a=document.createElement("a");a.href=url;a.download=`frutodromo-especie-${t.n}.png`;document.body.appendChild(a);a.click();a.remove();toast("Carta baixada!")}catch(e){toast("Não deu pra baixar aqui. Faça um print!")}};
+  await dl.save({filename:`frutodromo-especie-${t.n}.png`,data:new Blob([u8],{type:"image/png"})});toast("Carta salva!")}catch(e){if(e&&e.code=="declined")return;toast("Não deu pra baixar aqui. Faça um print!",{err:true})}return}
+try{const a=document.createElement("a");a.href=url;a.download=`frutodromo-especie-${t.n}.png`;document.body.appendChild(a);a.click();a.remove();toast("Carta baixada!")}catch(e){toast("Não deu pra baixar aqui. Faça um print!",{err:true})}};
 $("csh").onclick=async()=>{try{const blob=await (await fetch(url)).blob(),file=new File([blob],`frutodromo-${t.n}.png`,{type:"image/png"});
 if(navigator.canShare&&navigator.canShare({files:[file]}))await navigator.share({files:[file],title:"Frutódromo",text:tl(`Olha a fruta que eu descobri no Frutódromo: ${t.name}!`)+(PORTAL.name?"":" mendesoz.github.io/frutodromo")});
 else{await navigator.clipboard.writeText(tl(`Olha a fruta que eu descobri no Frutódromo: ${t.name} (${spLabel(k)})!`)+(PORTAL.name?"":" mendesoz.github.io/frutodromo"));toast("Texto copiado! Cole junto com o print.")}}catch(e){toast(PORTAL.name?"Compartilhar não funciona aqui. Faça um print!":"Compartilhar não funciona aqui. Abra pelo link do GitHub Pages!")}}}
@@ -1192,15 +1193,33 @@ $("tabT").onclick=()=>{tvTab="tree";renderTree()};$("tabA").onclick=()=>{tvTab="
 $("tvhelp").onclick=()=>{tvHelp=!tvHelp;tvSel=null;renderTree()};
 $("dexb").onclick=()=>{tvSel=null;openTree("tree")};$("pauseb").onclick=()=>{if(!running)return;openModal(`<h2>PAUSADO</h2><p>O tempo e a paciência dos clientes estão congelados.</p><button class="big" id="resume">CONTINUAR</button><br><button class="big alt" id="sndb" onclick="toggleSnd()"></button><button class="big alt" onclick="settings()">AJUSTES</button>`);sndLabel();$("resume").onclick=closeModal};$("menub").onclick=startScreen;
 /* ================= laço ================= */
-let tt;function toast(h){const t=$("toast");t.innerHTML=h;{// posição: acima das casas do caldeirão (dentro da mesa); se não couber, ao lado do corpo do caldeirão (livre de ARRUMAR e da lixeira); nunca cobre clientes, balões, feira nem o corpo do caldeirão
- t.style.maxWidth="";t.style.transform="none";t.style.left="0px";t.style.top="0px";
- const R=id=>$(id).getBoundingClientRect(),tr=R("table"),hb=document.querySelector("header").getBoundingClientRect().bottom,sl=R("potslots"),pw=R("potw"),bn=R("bin"),td=R("tidy"),W=innerWidth,H=innerHeight;
- const lo=Math.max(tr.top+2,hb+4),hit=(a,b)=>!(a.right<=b.left||b.right<=a.left||a.bottom<=b.top||b.bottom<=a.top);let th=t.offsetHeight,tw=t.offsetWidth,x=null,y=null;
- if(sl.top-4-th>=lo){y=sl.top-4-th;x=Math.min(Math.max((pw.left+pw.right)/2-tw/2,4),W-tw-4)}
- else for(const side of[-1,1]){const sp=side>0?W-pw.right-12:pw.left-12;if(sp<110)continue;t.style.maxWidth=Math.min(sp,200)+"px";th=t.offsetHeight;tw=t.offsetWidth;if(tw>sp||th>tr.bottom-lo-4)continue;
-  const cx=side>0?pw.right+8:pw.left-8-tw,cy=Math.max(lo+2,Math.min(pw.bottom-th,tr.bottom-th-2)),q={left:cx,right:cx+tw,top:cy,bottom:cy+th};if(hit(q,bn)||hit(q,td))continue;x=cx;y=cy;break}
- if(x==null){t.style.maxWidth="";th=t.offsetHeight;tw=t.offsetWidth;y=Math.max(Math.min(tr.top+28,H-4-th),lo);x=(W-tw)/2}
- t.style.left=Math.round(x)+"px";t.style.top=Math.round(y)+"px"}t.classList.add("on");clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("on"),2600)}
+/* ================= avisos (toasts): letreiro fixo sobre o toldo, um por vez, com fila ================= */
+// posição 1: topo da cena + 2 px, centrado (sob o cabeçalho). Com modal, árvore ou revelação abertos vai pro topo da tela (z 250).
+// posição 2 (só se a posição 1 cobrir o tutorial, um balão de pedido ou um nome de cliente): topo da mesa, 1 linha, sobre a frente do balcão, sem encostar no ARRUMAR.
+// fila: mín. 1,2 s na tela se há outro esperando, 2,4 s se não há, erro 4,5 s; igual ao da tela ou ao último da fila vira ×N; máx. 3 na fila.
+const TQ=[];let tCur=null,tTimer=0,tAt=0;const T_MIN=1200,T_DUR=2400,T_ERR=4500,T_MAXQ=3;
+function toastPlace(){const t=$("toast"),over=modalOpen||$("tv").classList.contains("on")||$("rv").classList.contains("on");t.classList.toggle("ovr",over);
+ const sc=$("scene").getBoundingClientRect(),tr=$("table").getBoundingClientRect(),td=$("tidy").getBoundingClientRect(),ev=v=>Math.round(v/2)*2;
+ const hits=(sel,x,y,w,h)=>[...document.querySelectorAll(sel)].some(e=>{const r=e.getBoundingClientRect();return r.width&&!(r.right<=x||x+w<=r.left||r.bottom<=y||y+h<=r.top)});
+ // candidatas em ordem: 1) topo da cena, 2 linhas; 2) topo da cena, 1 linha; 3) topo da mesa (frente do balcão), 1 linha, sem encostar no ARRUMAR
+ const pick=c=>{t.classList.toggle("one",c.one);t.style.transform="none";let mw=over?Math.min(innerWidth-24,420):Math.min(420,sc.width-16);if(c.p==2)mw=Math.min(420,tr.width-2*(Math.ceil(tr.right-td.left)+12));t.style.maxWidth=ev(mw)+"px";
+  const w=t.offsetWidth,h=t.offsetHeight;return{c,w,h,x:ev(over?(innerWidth-w)/2:c.p==2?tr.left+(tr.width-w)/2:sc.left+(sc.width-w)/2),y:over?8:c.p==2?ev(tr.top+2):ev(sc.top+2)}};
+ let best=null;
+ if(over)best=pick({one:false,p:1});
+ else{const L=[{one:false,p:1},{one:true,p:1},{one:true,p:2}].map(pick);
+  const hard=q=>hits("#tut.on,.bub",q.x,q.y,q.w,q.h),tab=q=>q.c.p==2&&hits(".fr,#pot,#info.on",q.x,q.y,q.w,q.h); // a etiqueta do nome (.bn) pode ficar por baixo; balão e tutorial não
+  best=L.find(q=>!hard(q)&&!tab(q))||L[0];pick(best.c)}
+ t.style.left=best.x+"px";t.style.top=best.y+"px"}
+function toastShow(o){tCur=o;const t=$("toast");t.innerHTML=o.h+(o.n>1?` <i class="tn">×${o.n}</i>`:"");t.classList.toggle("err",!!o.err);toastPlace();t.classList.add("on");tAt=Date.now();toastArm();setTimeout(()=>{if(tCur===o)toastPlace()},350)}
+function toastArm(){clearTimeout(tTimer);const d=tCur.err?T_ERR:TQ.length?T_MIN:T_DUR;tTimer=setTimeout(toastNext,Math.max(60,d-(Date.now()-tAt)))}
+function toastNext(){if(TQ.length)return toastShow(TQ.shift());tCur=null;$("toast").classList.remove("on")}
+function toast(h,opt){h=String(h).replace(/<br\s*\/?>/gi," ");const o={h,n:1,err:!!(opt&&opt.err)};
+ if(tCur&&tCur.h==h){tCur.n++;tAt=Date.now();return toastShow(tCur)}
+ const last=TQ[TQ.length-1];if(last&&last.h==h){last.n++;return}
+ if(!tCur)return toastShow(o);
+ TQ.push(o);while(TQ.length>T_MAXQ){const k=TQ.findIndex(q=>!q.err);TQ.splice(k<0?0:k,1)}
+ toastArm()}
+window.addEventListener("resize",()=>{if(tCur)toastPlace()});
 function renderAll(n){hud();renderPot();renderCounter();renderTable(n);renderMarket()}
 let last=performance.now(),saveT=0;
 setInterval(()=>{const t=performance.now(),dt=Math.min(1000,t-last);last=t;
@@ -1232,6 +1251,7 @@ let decoKey="";function placeDeco(){const t=document.getElementById("table"),pt=
  t.insertAdjacentHTML("afterbegin",o.join(""));
  fixFruitDeco()}
 // fruta que ficou sobre enfeite sólido (jogo novo, save, resize, troca de aba) sai de cima dele; só mexe em quem cruza (ou nas frutas iniciais até o jogo começar), nunca em fruta sendo arrastada
+let fxT=0;
 function fixFruitDeco(){const t=document.getElementById("table");if(!S||!S.fruits||!t||!t.clientWidth||!t.clientHeight)return;
  // não recria as frutas no meio de um arraste (renderTable perderia o pointer capture): tenta de novo daqui a pouco
  let busy=false;try{busy=ptrDown||!!document.querySelector(".fr.drag,#pot.mv")}catch(e){}
@@ -1248,7 +1268,6 @@ const ZMIN=530; // abaixo disso a mesa não comporta o caldeirão inteiro com a 
 function fitScene(){const sc=document.getElementById("scene");if(!sc)return;const h=window.innerHeight,par=v=>Math.round(v/2)*2,cp=v=>Math.max(252,Math.min(280,v));
  // só zoom 1 ou 0.5 (nunca fracionário); a altura da cena encolhe em passos pares pra caber a mesa
  const tb=document.getElementById("table");if(tb)tb.classList.toggle("low",h<ZMIN);
-let fxT=0;
  if(h>=650){sc.style.zoom="";sc.style.height=""}
  else if(h>=ZMIN){sc.style.zoom="";sc.style.height=cp(par(h*.6-108))+"px"}
  else{sc.style.zoom="0.5";sc.style.height=cp(par(2*(h*.6-122)))+"px"}

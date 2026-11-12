@@ -253,8 +253,17 @@ img.curt{z-index:2;transform-origin:50% 0;animation:sway 10s ease-in-out infinit
 .dx{background:#e9dcc3;padding:5px 3px;font-size:var(--t10);line-height:1.15;border:2px solid #2a1a1240}
 .dx img{width:44px;height:44px;margin:0 auto 2px}.dx.lk img{filter:brightness(0);opacity:.25}.dx.lk{color:#0007}
 .dxh{text-align:left;font-weight:700;margin:10px 0 0;font-size:var(--t14)}
-.toast{position:fixed;left:50%;top:40%;transform:translateX(-50%);max-width:92%;background:#2a1a12;color:#ffe9b8;padding:7px 12px;border:4px solid #ffe9b8;opacity:0;transition:opacity .2s;pointer-events:none;z-index:150;text-align:center;font-size:var(--t14);line-height:1.35}
-.toast.on{opacity:1}.toast b{color:#f7c331}
+/* avisos: letreiro 2 linhas no máximo, moldura 9-slice, sem transição suave (aparece em 2 passos) */
+.toast{position:fixed;left:0;top:0;max-width:420px;border:6px solid transparent;border-image:var(--f-toast) 3 fill/6px stretch;background:none;color:#ffe9b8;font-size:var(--t12);line-height:16px;padding:0 6px;image-rendering:pixelated;pointer-events:none;z-index:140;text-align:center;
+ display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;max-height:44px;visibility:hidden}
+.toast.on{visibility:visible;animation:tin .16s steps(2)}@keyframes tin{from{transform:translateY(-6px)}}
+.toast b{color:#f7c331}.toast .tn{font-style:normal;color:#f7c331;margin-left:4px}
+.toast.err{border-image-source:var(--f-err);color:#2a1a12}.toast.err b{color:#9c2a24}.toast.err .tn{color:#9c2a24}
+.toast.ovr{z-index:250}
+.toast.one{-webkit-line-clamp:1;max-height:28px}@media (min-width:700px){.toast.one{max-height:30px}}
+@media (min-width:700px){.toast{font-size:var(--t14);line-height:18px;max-height:48px}}
+/* "?" do balão pisca em amarelo 4 vezes quando a entrega errada é de espécie */
+.hint.nudge{animation:hnudge .5s steps(1) 4}@keyframes hnudge{0%,100%{background:#2a1a12;color:#ffe9b8}50%{background:#f7c331;color:#2a1a12}}
 .pt{position:fixed;width:6px;height:6px;z-index:120;pointer-events:none}
 .fc{position:fixed;width:12px;height:12px;z-index:120;pointer-events:none;background:#f7c331;box-shadow:inset -2px -2px 0 #b7841a,inset 2px 2px 0 #fff3a0}
 
@@ -268,7 +277,7 @@ img.curt{z-index:2;transform-origin:50% 0;animation:sway 10s ease-in-out infinit
 /* toque rápido não dá zoom duplo (o zoom com dois dedos continua liberado) */
 button,.btn,.big,.mk,.tabk,.hint,.cust,.sp,.flt span{touch-action:manipulation}
 /* acessibilidade: movimento reduzido no sistema */
-@media (prefers-reduced-motion: reduce){*,*:before,*:after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}
+@media (prefers-reduced-motion: reduce){.hint.nudge{animation:none;background:#f7c331;color:#2a1a12}.toast.on{animation:none}*,*:before,*:after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}
 .mk{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
 /* variedades (DNA) */
 .sp .vc{position:absolute;right:-7px;bottom:-6px;background:#7b5cff;color:#fff;font-size:var(--t10);padding:0 3px;border:2px solid #2a1a12;line-height:1.3}

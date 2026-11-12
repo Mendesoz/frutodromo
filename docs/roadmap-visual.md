@@ -9,11 +9,9 @@ Antes de começar, marque aqui (e faça push). Ao terminar, apague a linha.
 
 | Agente | Área | Arquivos / funções | Desde |
 |---|---|---|---|
-| Claude | Etapa 5B — avisos (toasts) e feedback de entrega errada | `js/game.js` (`toast()`, entrega/recusa, textos), `css/style.css` (#toast, .nudge), `js/i18n.js` | 12/11 19:00 |
+| Claude | Etapa 5C — tutorial, setas da feira, balão lateral em janela baixa, feedback ao segurar fruta | `js/game.js` (tutorial, `renderMarket`, `reqHTML`/balões, `fitScene`), `css/style.css` | 12/11 19:40 |
 
 ## Pendências abertas (qualquer agente pode pegar, marcando acima)
-- Toasts: lugar fixo e previsível (hoje podem cobrir a fruta recém-nascida e o tutorial) — Etapa 5.
-- Feedback de entrega errada em pedido de espécie ("Faltou: ESPÉCIE NOVA Média" não diz qual) — Etapa 5.
 - Balões do tutorial cobrem as frutas que mandam usar — Etapa 5.
 - Barra de rolagem nativa visível na feira — Etapa 5.
 - Texto dos balões pequeno abaixo de 530 px de altura (zoom 0,5) — Etapa 5.
@@ -27,7 +25,7 @@ Antes de começar, marque aqui (e faça push). Ao terminar, apague a linha.
 | 2 | Cenário (chão, parede, janelas, balcão, luz ambiente) | concluída (11/11) | chão 240×80, frente do balcão, lambri, luz por clima |
 | 3 | Caldeirão (poção animada, fumaça, partículas, reflexo) | concluída (12/11) | corpo 48×44 a 2x, poção em 4 quadros, halo sem blur |
 | 4 | Decoração (caixotes, barris, cestos, lampiões, placas, balança) | concluída (12/11) | 3 a 10 enfeites por faixa de tela, lampiões acesos à noite |
-| 5 | Interface (HUD, inventário, feira, balões, botões) | em andamento (5A no ar, 5B em andamento) | 5A base: fonte embutida, escala de texto, molduras; 5B avisos; 5C tutorial, feira, balões |
+| 5 | Interface (HUD, inventário, feira, balões, botões) | em andamento (5A e 5B no ar, 5C a seguir) | 5A base: fonte embutida, escala de texto, molduras; 5B avisos; 5C tutorial, feira, balões |
 | 6 | Personagens (sprites, expressões, roupas, respiração) | pendente | |
 | 7 | Game feel (ambiente, reações, luz dinâmica, feedback) | pendente | |
 | 8 | Polimento (desempenho, responsividade, regressão) | pendente | |
