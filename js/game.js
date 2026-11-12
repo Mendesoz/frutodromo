@@ -1,6 +1,36 @@
 // Frutódromo — lógica do jogo: sprites gerados por código, genética das frutas, clientes, árvore de espécies, som e interface
 const R=a=>a[Math.floor(Math.random()*a.length)],N=(a,b)=>Math.floor(Math.random()*(b-a+1))+a,cl=(v,a,b)=>Math.max(a,Math.min(b,v));
 const $=id=>document.getElementById(id);
+/* ================= molduras de interface (9-slice em pixel art, geradas UMA vez no carregamento) =================
+frame(anéis, miolo): canvas (2·n+1)², anéis = [[luz, sombra], ...] de fora pra dentro; o 1º anel é o contorno. Canto de fora transparente (arredonda 1 px).
+Usadas por border-image: var(--f-x) 3 fill / 6px stretch (modal: 5 / 10px), ou seja, 1 pixel de arte = 2 px CSS. */
+(function(){const O="#2a1a12";
+function frame(rings,center){const s=rings.length,n=2*s+1,c=document.createElement("canvas");c.width=c.height=n;const g=c.getContext("2d");
+ for(let y=0;y<n;y++)for(let x=0;x<n;x++){const d=Math.min(x,y,n-1-x,n-1-y);if(d==0&&(x==0||x==n-1)&&(y==0||y==n-1))continue;let col=center;
+  if(d<s){const[tl,br]=rings[d],top=y==d,left=x==d,bot=y==n-1-d,right=x==n-1-d;col=(bot&&!right&&left)?br:(top||left)&&!(bot||right&&!top)?tl:br}
+  g.fillStyle=col;g.fillRect(x,y,1,1)}
+ return c.toDataURL()}
+const F={
+ paper:frame([[O,O],["#ffffff","#dccba6"],["#fbf3df","#fbf3df"]],"#fbf3df"),
+ vip:frame([[O,O],["#fffbe6","#e2c878"],["#fff3c4","#fff3c4"]],"#fff3c4"),
+ btn:frame([[O,O],["#d9a465","#6e4424"],["#9a6234","#9a6234"]],"#9a6234"),
+ btnOn:frame([[O,O],["#fff3a0","#b7841a"],["#f7c331","#f7c331"]],"#f7c331"),
+ go:frame([[O,O],["#8fe09a","#27753f"],["#3ca55c","#3ca55c"]],"#3ca55c"),
+ tag:frame([[O,O],["#1a0f08","#7a4a28"],["#2a1a12","#2a1a12"]],"#2a1a12"),
+ card:frame([[O,O],["#f0c684","#96602f"],["#cf9858","#cf9858"]],"#cf9858"),
+ rare:frame([[O,O],["#f3dcff","#9a62c8"],["#d9a6ff","#d9a6ff"]],"#d9a6ff"),
+ item:frame([[O,O],["#f1e8ff","#9a86c8"],["#d8c4f0","#d8c4f0"]],"#d8c4f0"),
+ lock:frame([[O,O],["#8a6244","#4a2e1c"],["#6b4a33","#6b4a33"]],"#6b4a33"),
+ dark:frame([[O,O],["#93603a","#4a2a14"],["#6b4423","#6b4423"]],"#6b4423"),
+ toast:frame([[O,O],["#f2d08a","#a87a2a"],["#2a1a12","#2a1a12"]],"#2a1a12"),
+ ok:frame([[O,O],["#f4fff0","#7ccf8a"],["#dcf8e0","#dcf8e0"]],"#dcf8e0"),
+ modal:frame([[O,O],["#e2b878","#8f5c2c"],["#b47c42","#b47c42"],["#6a4020","#6a4020"],["#ffffff","#dccba6"]],"#fbf3df")};
+// rabinho do balão (7×4 px de arte, desenhado em 14×8 px CSS)
+function tail(face){const rows=["offfffo",".offfo.","..ofo..","...o..."],c=document.createElement("canvas"),g=c.getContext("2d");c.width=7;c.height=4;
+ rows.forEach((r,y)=>[...r].forEach((ch,x)=>{if(ch==".")return;g.fillStyle=ch=="o"?O:face;g.fillRect(x,y,1,1)}));return c.toDataURL()}
+const rs=document.documentElement.style;Object.entries(F).forEach(([k,v])=>rs.setProperty("--f-"+k,`url(${v})`));
+rs.setProperty("--tail",`url(${tail("#fbf3df")})`);rs.setProperty("--tailv",`url(${tail("#fff3c4")})`);rs.setProperty("--tailok",`url(${tail("#dcf8e0")})`);
+})();
 /* ================= cores ================= */
 const COLORS={vermelha:[214,48,49],rosa:[247,143,179],laranja:[243,140,32],amarela:[247,205,55],verde:[106,176,58],roxa:[118,56,150],marrom:[133,88,50],cinza:[150,150,150],azul:[52,120,222],branca:[240,238,226]};
 const MUT_ONLY=["branca","rosa"];
@@ -235,6 +265,7 @@ const saveCfg=()=>{try{localStorage.setItem("frutodromo_cfg",JSON.stringify(CFG)
 function level(){return 1+Math.floor(S.delivered/3)}
 const now=()=>S.clock;
 function baseFruit(b){const c=typeof b[4]=="string"?COLORS[b[4]].slice():b[4].slice();return{id:"f"+(S.id++),tip:b[0]=="Banana"?"#6b4423":b[0]=="Pimenta-Dragão"?"#3f9a3a":null,root:b[0].split(/[ -]/)[0],shape:b[1],pat:b[2],top:b[3],rgb:c,doce:b[5],az:b[6],tam:b[7],gen:0,mut:false,el:b[10]||null,hero:false,base:b[0]}}
+let SPREAD=new WeakSet(); // frutas iniciais de jogo novo: placeDeco as afasta de enfeites e de outras frutas uma vez
 function fresh(){S={v:2,bag:[{t:"grow"},{t:"shrink"}],potPos:null,coins:25,delivered:0,id:1,fruits:[],pot:[],cust:[null,null,null],clock:0,day:1,dayT:0,ds:{earn:0,served:0,best:0,dex:0},dex:{},tree:{},started:false};
 [0,1,2,4,5,6].forEach((bi,i)=>{const f=baseFruit(BASE[bi]);f.x=14+(i%3)*104;f.y=12+Math.floor(i/3)*92;S.fruits.push(f)})}
 // Confere um progresso vindo do save ou de um backup e completa o que faltar. Retorna null se não der pra usar.
@@ -249,7 +280,7 @@ function normState(d,strict){const okF=f=>f&&typeof f=="object"&&typeof f.id=="s
  const mx=Math.max(0,...o.fruits.concat(o.pot).map(f=>parseInt(f.id.slice(1))||0));if(o.id<=mx)o.id=mx+1;return o}
 // saves antigos (v1): máscaras viram compactas e cada espécie ganha sua 1ª variedade com DNA
 function migrate(){S.tree=S.tree||{};if((S.v||1)<2){[...S.fruits,...(S.pot||[])].forEach(f=>{if(f.mask)f.mask=packMask(f.mask)});Object.values(S.tree).forEach(t=>{if(t.img&&t.img.mask)t.img.mask=packMask(t.img.mask);if(!t.v){const st=t.st||{};t.v={[dnaCode({...t.img,doce:st.doce,az:st.az,tam:st.tam,rgb:st.rgb||t.img.rgb,el:st.el,hero:st.hero,shiny:t.shiny})]:{n:1,t:t.t||Date.now()}}}});S.v=2}}
-try{S=normState(JSON.parse(localStorage.getItem("frutodromo9")))}catch(e){S=null}const HAD_LOCAL=!!S,LOCAL_TS=S&&S.ts||0;if(!S)fresh();
+try{S=normState(JSON.parse(localStorage.getItem("frutodromo9")))}catch(e){S=null}const HAD_LOCAL=!!S,LOCAL_TS=S&&S.ts||0;if(!S){fresh();S.fruits.forEach(f=>SPREAD.add(f))}
 // salvar: agrupa vários pedidos seguidos num só (800 ms); fechar/trocar de aba grava na hora; avisa uma vez se o espaço acabar
 let saveTimer=null,saveWarned=false;
 const cgData=()=>{try{return typeof PORTAL!="undefined"&&PORTAL.ready&&PORTAL.data?PORTAL.sdk.data:null}catch(e){return null}};
@@ -331,7 +362,7 @@ function showHint(i){const c=S.cust[i];if(!c)return;const L=level(),pool=reachPo
 let h=`<h2>COMO FAZER?</h2><p style="margin-top:0">Pedido de <b>${c.name}</b></p>`;
 if(!t)h+="<p>Hmm, esse pedido ficou difícil. Pode trocar por outro cliente esperando ele ir embora.</p>";
 else if(t.d==0)h+=`<p>É só comprar na feira:</p><div class="rstep"><span class="fi"><img src="${fruitImg(stImg(t))}"><span class="nn">${t.name}</span></span></div>`;
-else{const st=recipeOf(t);h+=`<p>${st.length} cruzamento${st.length>1?"s":""} no caldeirão:</p>`+st.map((x,k)=>{const[a,b]=x.p,fi=y=>`<span class="fi"><img src="${fruitImg(stImg(y))}"><span class="nn">${stLabel(y)}</span></span>`;return `<div class="rstep"><b>${k+1}.</b>${fi(a)}<b>+</b>${fi(b)}<b>=</b>${fi(x)}</div>`}).join("")+`<p style="font-size:.75rem;opacity:.75">As frutas da feira estão lá embaixo. Use o resultado de cada passo no passo seguinte.</p>`}
+else{const st=recipeOf(t);h+=`<p>${st.length} cruzamento${st.length>1?"s":""} no caldeirão:</p>`+st.map((x,k)=>{const[a,b]=x.p,fi=y=>`<span class="fi"><img src="${fruitImg(stImg(y))}"><span class="nn">${stLabel(y)}</span></span>`;return `<div class="rstep"><b>${k+1}.</b>${fi(a)}<b>+</b>${fi(b)}<b>=</b>${fi(x)}</div>`}).join("")+`<p style="font-size:var(--t12);opacity:.75">As frutas da feira estão lá embaixo. Use o resultado de cada passo no passo seguinte.</p>`}
 openModal(h+`<button class="big" id="cl">ENTENDI</button>`);$("cl").onclick=closeModal}
 function meets(f,r){switch(r.k){case"cor":return colorName(f.rgb)==r.v;case"doceMin":return f.doce>=r.v;case"doceMax":return f.doce<=r.v;case"azMin":return f.az>=r.v;case"azMax":return f.az<=r.v;
 case"tamMin":return f.tam>=r.v;case"tamMax":return f.tam<=r.v;case"media":return f.tam>=4&&f.tam<=7;case"mini":return f.tam<=1;case"micro":return f.tam==0;case"enorme":return f.tam>=11;case"giga":return f.tam==12;case"el":return f.el==r.v;case"hero":return !!f.hero;case"sp":return spKey(f)==r.v}}
@@ -347,7 +378,7 @@ case"mini":return["MINI","0 ou 1","tam"];case"micro":return["MICROSCÓPICA","0",
 case"cor":return[r.v.toUpperCase(),"","cor"];case"el":return[ELEM[r.v].n.toUpperCase(),"","el"];case"hero":return["SUPER-FRUTA","","hero"];case"sp":{const t=S.tree[r.v],[sz,,,el]=r.v.split("|");return[t?t.name.toUpperCase():"ESPÉCIE NOVA",t?"":sz+(el?" · "+ELEM[el].n:""),"sp"]}}}
 function reqHTML(r,f){const ok=f?meets(f,r):null,[w,n,ic]=reqWord(r);
 const icon=ic=="sp"?`<img class="spi" src="${fruitImg(r.im)}">`:ic=="cor"?`<span class="sw" style="background:${hex(COLORS[r.v])}"></span>`:ic=="el"?(u=>`<img class="ico" src="${u}" style="${sz(u)}">`)(SPR[r.v]()):(u=>`<img class="ico" src="${u}" style="${sz(u)}">`)(RICO[ic]());
-return `<div class="rq ${ok===true?"y":ok===false?"n":""} ${ic=="cor"?"cor":""} ${ic=="sp"?"rsp":""}" ${ic=="cor"?`onclick="colorGuide('${r.v}')"`:""}>${icon}${ic=="sp"?`<span class="spt"><b style="${w.length>9?"font-size:.56rem;letter-spacing:-.4px":""}">${w}</b>${n?`<span class="nb">${n}</span>`:""}</span>`:`<b style="${w.length>9?"font-size:.56rem;letter-spacing:-.4px":""}">${w}</b>${n?`<span class="nb">${n}</span>`:""}`}${ok===null?"":`<i class="ck">${ok?"✓":"✗"}</i>`}</div>`}
+return `<div class="rq ${ok===true?"y":ok===false?"n":""} ${ic=="cor"?"cor":""} ${ic=="sp"?"rsp":""}" ${ic=="cor"?`onclick="colorGuide('${r.v}')"`:""}>${icon}${ic=="sp"?`<span class="spt"><b style="${w.length>9?"font-size:var(--t10);letter-spacing:-.4px":""}">${w}</b>${n?`<span class="nb">${n}</span>`:""}</span>`:`<b style="${w.length>9?"font-size:var(--t10);letter-spacing:-.4px":""}">${w}</b>${n?`<span class="nb">${n}</span>`:""}`}${ok===null?"":`<i class="ck">${ok?"✓":"✗"}</i>`}</div>`}
 const leftOf=c=>CFG.zen?1:cl(1-(now()-c.t0)/c.pat,0,1),pay=c=>Math.round(c.rw*(.5+.5*leftOf(c)));
 const WALK_IN=1500,WALK_OUT=1000;let sel=null,hoverCust=-1;const pcache={};
 function renderCounter(){const f=sel?S.fruits.find(x=>x.id==sel):null;
@@ -378,7 +409,10 @@ function decoBlocks(pad){return[...tbl.querySelectorAll(".dobj")].filter(e=>e.da
 // decoOnly: só evita caldeirão, lixeira e enfeites (frutas novas); sem ele evita também outras frutas
 function freeSpot(f,decoOnly){const s=fsize(f),pr=$("pot"),br=$("bin"),blk=[[pr.offsetLeft,pr.offsetTop,pr.offsetWidth,pr.offsetHeight],[br.offsetLeft,br.offsetTop,br.offsetWidth,br.offsetHeight],...decoBlocks(4)];
  const hit=(x,y)=>blk.some(([bx,by,bw,bh])=>x<bx+bw&&x+s>bx&&y<by+bh&&y+s>by)||(!decoOnly&&S.fruits.some(o=>o!=f&&x<o.x+fsize(o)-8&&x+s>o.x+8&&y<o.y+fsize(o)-8&&y+s>o.y+8));
- if(!hit(f.x,f.y))return;const x0=f.x,y0=f.y;for(let r=20;r<400;r+=18)for(let a=0;a<12;a++){const x=cl(x0+Math.cos(a/12*Math.PI*2)*r,0,Math.max(0,tbl.clientWidth-s)),y=cl(y0+Math.sin(a/12*Math.PI*2)*r,fruitTop(tbl.clientHeight,s),Math.max(fruitTop(tbl.clientHeight,s),tbl.clientHeight-s));if(!hit(x,y)){f.x=x;f.y=y;return}}}
+ if(!hit(f.x,f.y))return;const x0=f.x,y0=f.y;for(let r=20;r<400;r+=18)for(let a=0;a<12;a++){const x=cl(x0+Math.cos(a/12*Math.PI*2)*r,0,Math.max(0,tbl.clientWidth-s)),y=cl(y0+Math.sin(a/12*Math.PI*2)*r,fruitTop(tbl.clientHeight,s),Math.max(fruitTop(tbl.clientHeight,s),tbl.clientHeight-s));if(!hit(x,y)){f.x=x;f.y=y;return}}
+ // anéis não acharam: varre a mesa inteira de 6 em 6 px e fica com o vão livre mais perto
+ const lo=fruitTop(tbl.clientHeight,s);let bd=1e9,bx=null,by=0;for(let y=lo;y<=Math.max(lo,tbl.clientHeight-s);y+=6)for(let x=0;x<=Math.max(0,tbl.clientWidth-s);x+=6)if(!hit(x,y)){const d=(x-x0)**2+(y-y0)**2;if(d<bd){bd=d;bx=x;by=y}}
+ if(bx!=null){f.x=bx;f.y=by}}
 // topo mínimo das frutas: os 24 px de cima da mesa são a face vertical do balcão
 const TOPMIN=24,fruitTop=(th,s)=>Math.min(TOPMIN,Math.max(0,th-s));
 function clampPos(f){if(!tbl.clientWidth||!tbl.clientHeight)return;const s=fsize(f),lo=fruitTop(tbl.clientHeight,s);f.x=cl(f.x,0,Math.max(0,tbl.clientWidth-s));f.y=cl(f.y,lo,Math.max(lo,tbl.clientHeight-s))}
@@ -429,7 +463,7 @@ const tw=(v,a,b)=>v>=8?"muito "+a:v>=6?a:v<=2?"nada "+a:v<=4?"pouco "+a:"",st=(l
 const tamTxt=f.tam==0?`<div class="st"><span>Tamanho</span><b>MICROSCÓPICA</b></div>`:f.tam>=11?`<div class="st"><span>Tamanho</span>${cells(()=>1,"#3fa7e0")}<b>${f.tam}!</b></div>`:st("Tamanho",f.tam,"#3fa7e0");
 p.innerHTML=`<span class="x" onclick="sel=null;showInfo(null);renderCounter();renderTable()">X</span><img src="${fruitImg(f)}"><div style="flex:1"><div class="t">${fname(f)}</div>
 <div class="g">${f.gen?"Geração "+f.gen:"Da feira"} · cor ${colorName(f.rgb)} · ${sizeName(f.tam)} · <b>DNA #${f.dna||dnaCode(f)}</b>${f.mut?'<span class="chip" style="background:#7b5cff">MUTANTE</span>':""}${f.el?`<span class="chip" style="background:${ELEM[f.el].c}">${ELEM[f.el].n.toUpperCase()}</span>`:""}${f.hero?'<span class="chip" style="background:#d63031">SUPER</span>':""}${f.shiny?'<span class="chip" style="background:linear-gradient(90deg,#ff8ad8,#ffe84a,#8af0ff);color:#2a1a12">BRILHANTE</span>':""}</div>
-${st("Doce",f.doce,"#ff5f9e",tw(f.doce,"doce"))}${st("Azedo",f.az,"#9ccc2e",tw(f.az,"azeda"))}${tamTxt}${S.pot.length==1&&!S.pot.includes(f)?`<div style="font-size:.68rem;margin-top:4px;background:#e4dbff;padding:3px 5px"><b>PREVISÃO</b> com ${fname(S.pot[0])}:<br>${predict(f,S.pot[0])}</div>`:""}</div>`;p.classList.add("on")}
+${st("Doce",f.doce,"#ff5f9e",tw(f.doce,"doce"))}${st("Azedo",f.az,"#9ccc2e",tw(f.az,"azeda"))}${tamTxt}${S.pot.length==1&&!S.pot.includes(f)?`<div style="font-size:var(--t12);margin-top:4px;background:#e4dbff;padding:3px 5px"><b>PREVISÃO</b> com ${fname(S.pot[0])}:<br>${predict(f,S.pot[0])}</div>`:""}</div>`;p.classList.add("on")}
 const POT=(c)=>art(["..kk..","..kk..",".gggg.","gccccg","gcwccg","gccccg",".gggg."],{k:"#8a5a34",g:"#cfe6ee",c,w:"#ffffff"},"#2a1a12");
 const P16=rows=>{rows=rows.map(r=>{const p=16-r.length;return ".".repeat(Math.floor(p/2))+r+".".repeat(Math.ceil(p/2))});while(rows.length<16)rows.length%2?rows.unshift(".".repeat(16)):rows.push(".".repeat(16));return rows};
 const FLASK=(c,big,extra)=>{const L=hex(lift(hexToRgb(c),.35)),D=hex(mul(hexToRgb(c),.68));const rows=big?["......kkkk......","......kKKk......",".....gggggg.....","......geeg......","......geeg......",".....geeeeg.....","...gglccccgg....","..gwcccccccccg..",".gwwcccccccccDg.",".gwcccbcccccDDg.",".gccccccccccDDg.",".gcccccbcccccDg.",".gccccccccccDDg.","..gccccccccDDg..","...ggcccccDDgg..",".....gggggg....."]:["................","................","................","................",".......kk.......",".......KK.......","......gggg......",".......ge.......","......gccg......",".....gwcccg.....","....gwccccDg....","....gccbccDg....","....gcccccDg....",".....gccDDg.....","......gggg......","................"];
@@ -478,7 +512,7 @@ let mkTab="feira",armed=null,bagAnim=0;
 function bagCount(){return (S.bag||[]).length}
 function renderMarket(){const L=level();const tabs=`<div class="mk tabk ${mkTab=="feira"?"on":""}" onclick="if(mkTab!='feira')SFX.bagc();mkTab='feira';armed=null;renderMarket()"><b>FEIRA</b></div><div class="mk tabk ${mkTab=="bolsa"?"on":""}" id="bagtab" onclick="if(mkTab!='bolsa')SFX.bag();mkTab='bolsa';renderMarket()"><img class="bagi" src="${ITEMS.bag.img()}" style="width:36px;height:36px"><b>BOLSA</b>${bagCount()?`<span class="cnt2">${bagCount()}</span>`:""}</div>`;
 if(mkTab=="bolsa"){const groups={};(S.bag||[]).forEach(it=>{const k=it.t+(it.v||"");(groups[k]=groups[k]||{it,n:0}).n++});const gs=Object.values(groups);
- $("market").innerHTML=tabs+(gs.length?gs.map(({it,n},gi)=>{const I=ITEMS[it.t],k=it.t+(it.v||"");return `<div class="mk px itm ${armed==k?"arm":""} ${bagAnim?"in":""}" style="animation-delay:${gi*45}ms" onclick="armItem('${k}')"><img src="${I.img(it.v)}">${I.short(it.v)}<div class="pr">x${n}</div></div>`}).join(""):`<div style="color:#ffe9b8;font-size:.75rem;padding:8px;align-self:center">Vazia. Clientes dão <b>presentes</b> quando você entrega!</div>`);return}
+ $("market").innerHTML=tabs+(gs.length?gs.map(({it,n},gi)=>{const I=ITEMS[it.t],k=it.t+(it.v||"");return `<div class="mk px itm ${armed==k?"arm":""} ${bagAnim?"in":""}" style="animation-delay:${gi*45}ms" onclick="armItem('${k}')"><img src="${I.img(it.v)}">${I.short(it.v)}<div class="pr">x${n}</div></div>`}).join(""):`<div style="color:#ffe9b8;font-size:var(--t12);padding:8px;align-self:center">Vazia. Clientes dão <b>presentes</b> quando você entrega!</div>`);return}
 $("market").innerHTML=tabs+BASE.map((b,i)=>{const f={shape:b[1],pat:b[2],top:b[3],rgb:typeof b[4]=="string"?COLORS[b[4]]:b[4],tip:b[0]=="Banana"?"#6b4423":b[0]=="Pimenta-Dragão"?"#3f9a3a":null};const lock=false,rare=!!b[10];
 return `<div class="mk px ${lock?"lock":S.coins<b[8]?"off":""} ${rare&&!lock?"rare":""}" onclick="if(mkSkip){mkSkip=0;return}buy(${i})" onpointerdown="mkDown(${i},event)" onpointerup="mkUp()" onpointercancel="mkUp()" onpointerenter="mkEnter(${i},event)" onpointerleave="mkLeave(event)"><img src="${fruitImg(f)}">${lock?"???":b[0]}<div class="pr">${lock?"NÍVEL "+b[9]:`<span class="coin"></span>${b[8]}`}</div></div>`}).join("")}
 function buy(i){const b=BASE[i];if(S.coins<b[8])return toast("Moedas insuficientes");S.coins-=b[8];const f=baseFruit(b);
@@ -777,7 +811,7 @@ if(c.mut||c.hero||c.shiny){burst(ex,ey,[180,155,255],18);SFX.mut();shake(c.hero?
 toast((c.hero?`<b>SUPER-FRUTA!</b> ${fname(c)}`:c.mut?`<b>MUTAÇÃO!</b> ${fname(c)}`:`Nasceu: <b>${fname(c)}</b>`))})},1100)}
 function potTap(){if(brewing||!S.pot.length||modalOpen)return;if(S.pot.length>=2)return brew();const f=S.pot.pop();const tr=tbl.getBoundingClientRect(),pr=$("pot").getBoundingClientRect();f.x=pr.right-tr.left+8;f.y=pr.top-tr.top;clampPos(f);freeSpot(f,true);S.fruits.push(f);save();renderTable(f.id);renderPot()}
 function freeFromPot(){const pr=$("pot");if(!pr||!tbl)return;const X=pr.offsetLeft,Y=pr.offsetTop,W=pr.offsetWidth,H=pr.offsetHeight;let mv=0;
- S.fruits.forEach(f=>{const z=fsize(f),hit=()=>f.x+z>X+6&&f.x<X+W-6&&f.y+z>Y+6&&f.y<Y+H-6;if(!hit())return;let k=0;do{f.x=N(6,Math.max(6,tbl.clientWidth-z-6));f.y=N(6,Math.max(6,tbl.clientHeight-z-6));k++}while(k<40&&hit());clampPos(f);mv++});if(mv)renderTable()}
+ S.fruits.forEach(f=>{const z=fsize(f),hit=()=>f.x+z>X+6&&f.x<X+W-6&&f.y+z>Y+6&&f.y<Y+H-6;if(!hit())return;let k=0;do{f.x=N(6,Math.max(6,tbl.clientWidth-z-6));f.y=N(6,Math.max(6,tbl.clientHeight-z-6));k++}while(k<40&&hit());clampPos(f);mv++});if(mv){fixFruitDeco();renderTable()}}
 function placePot(){const p=$("pot");if(!tbl.clientWidth||!tbl.clientHeight)return;if(!S.potPos){p.style.left=p.style.top=p.style.bottom="";p.style.top=cl(Math.round(p.offsetTop),0,Math.max(0,Math.round(tbl.clientHeight-p.offsetHeight)))+"px";p.style.left=Math.round(p.offsetLeft)+"px";p.style.bottom="auto";return}const w=p.offsetWidth,h=p.offsetHeight;// só o valor aplicado é limitado: a posição salva do jogador não é reescrita
  p.style.left=Math.round(cl(S.potPos.x,0,Math.max(0,tbl.clientWidth-w)))+"px";p.style.top=Math.round(cl(S.potPos.y,0,Math.max(0,tbl.clientHeight-h)))+"px";p.style.bottom="auto"}
 (()=>{const p=$("pot");let sx,sy,ox,oy,on=false,mv=false;
@@ -909,7 +943,7 @@ async function fetchWX(){if(!CFG.wx||!CFG.loc)return;try{const[la,lo]=CFG.loc;
  updateSky();checkAlerts()}catch(e){WX.ok=false}}
 setInterval(fetchWX,20*60000);
 function askWeather(next){if(CFG.wx!==undefined||!navigator.geolocation||PORTAL.name){next&&next();return}
- openModal(`<h2>CLIMA DE VERDADE?</h2><p>A janela da quitanda pode mostrar o <b>tempo real da sua cidade</b>: sol, nuvens, chuva e noite. Se vier tempo perigoso, o jogo te avisa.</p><p style="font-size:.78rem;opacity:.8">Usa sua localização aproximada só pra buscar a previsão (Open-Meteo). Nada é guardado fora do seu aparelho.</p><button class="big" id="wxy">SIM, MOSTRAR</button><br><button class="big alt" id="wxn">AGORA NÃO</button>`);
+ openModal(`<h2>CLIMA DE VERDADE?</h2><p>A janela da quitanda pode mostrar o <b>tempo real da sua cidade</b>: sol, nuvens, chuva e noite. Se vier tempo perigoso, o jogo te avisa.</p><p style="font-size:var(--t12);opacity:.8">Usa sua localização aproximada só pra buscar a previsão (Open-Meteo). Nada é guardado fora do seu aparelho.</p><button class="big" id="wxy">SIM, MOSTRAR</button><br><button class="big alt" id="wxn">AGORA NÃO</button>`);
  $("wxn").onclick=()=>{CFG.wx=false;saveCfg();closeModal();next&&next()};
  $("wxy").onclick=()=>{closeModal();next&&next();try{navigator.geolocation.getCurrentPosition(p=>{CFG.loc=[+p.coords.latitude.toFixed(1),+p.coords.longitude.toFixed(1)];CFG.wx=true;saveCfg();fetchWX()},()=>{CFG.wx=false;saveCfg();toast("Sem localização: a janela mostra só a hora do dia")},{timeout:10000,maximumAge:3600000})}catch(e){CFG.wx=false;saveCfg()}}}
 function checkAlerts(){if(!WX.ok)return;const al=[];
@@ -919,8 +953,8 @@ function checkAlerts(){if(!WX.ok)return;const al=[];
  if(WX.temp<=3)al.push(["FRIO INTENSO",`A temperatura está em ${WX.temp}°C.`,"Agasalhe-se bem e proteja pessoas em situação de rua, idosos e animais."]);
  if(WX.gust>=70)al.push(["VENTOS FORTES",`Rajadas de até ${Math.round(WX.gust)} km/h.`,"Fique longe de árvores, placas e estruturas soltas."]);
  if(!al.length)return;const key=al.map(a=>a[0]).join()+new Date().toDateString()+new Date().getHours();if(CFG.lastAlert==key)return;CFG.lastAlert=key;saveCfg();
- const show=()=>{if(modalOpen){setTimeout(show,3000);return}SFX.bad();buzz([200,100,200]);openModal(`<h2 style="color:#c0392b">AVISO DO TEMPO</h2>${al.map(([t,a,b])=>`<div class="cg" style="border-color:#c0392b;background:#ffe6e0"><div style="text-align:left"><b>${t}</b><br>${a}<br><span style="font-size:.8rem">${b}</span></div></div>`).join("")}
- <p style="font-size:.72rem;opacity:.8">Baseado na previsão do Open-Meteo pra sua região. <b>Não é um alerta oficial.</b> Pra avisos oficiais, acompanhe a <b>Defesa Civil (ligue 199)</b> e o <b>INMET</b>.</p><button class="big" id="cl">ENTENDI</button>`);$("cl").onclick=closeModal};show()}
+ const show=()=>{if(modalOpen){setTimeout(show,3000);return}SFX.bad();buzz([200,100,200]);openModal(`<h2 style="color:#c0392b">AVISO DO TEMPO</h2>${al.map(([t,a,b])=>`<div class="cg" style="border-color:#c0392b;background:#ffe6e0"><div style="text-align:left"><b>${t}</b><br>${a}<br><span style="font-size:var(--t12)">${b}</span></div></div>`).join("")}
+ <p style="font-size:var(--t12);opacity:.8">Baseado na previsão do Open-Meteo pra sua região. <b>Não é um alerta oficial.</b> Pra avisos oficiais, acompanhe a <b>Defesa Civil (ligue 199)</b> e o <b>INMET</b>.</p><button class="big" id="cl">ENTENDI</button>`);$("cl").onclick=closeModal};show()}
 function realH(){const d=new Date();return d.getHours()+d.getMinutes()/60}
 function wxState(){const h=realH(),sr=WX.ok&&WX.sr!=null?WX.sr:6,ss=WX.ok&&WX.ss!=null?WX.ss:18;let ph=h<sr-.6||h>ss+.6?"night":h<sr+.8?"dawn":h>ss-.8?"dusk":"day";
  let w="sun",lv=0;if(WX.ok){const c=WX.code;w=c>=95?"storm":isSnow(c)?"snow":isRain(c)?"rain":isFog(c)?"fog":WX.cloud>=70||c==3?"cloud":WX.cloud>=30||c==2?"few":"sun";
@@ -951,7 +985,7 @@ function updateSky(){const sk=$("sky");if(!sk)return;const ws=wxState(),{ph,w,lv
  ambSet(w=="rain"||w=="storm"?lv:0)}
 function setLang(k){if(k==LANG)return;CFG.lang=k;saveCfg();try{saveNow()}catch(e){}location.reload()}
 function settings(back){const sl=(id,lab,v)=>`<div style="display:flex;align-items:center;gap:8px;margin:8px 0;text-align:left"><span style="width:80px">${lab}</span><input type="range" id="${id}" min="0" max="100" value="${v}" style="flex:1;accent-color:#3ca55c"><b id="${id}v" style="width:34px">${v}</b></div>`;
-const tg=(id,lab,on,desc)=>`<div class="cg" style="cursor:pointer" id="${id}"><span class="big-sw" style="width:26px;height:26px;background:${on?"#3ca55c":"#c9b99a"}"></span><div style="flex:1"><b>${lab}: ${on?"LIGADO":"DESLIGADO"}</b><br><span style="font-size:.72rem">${desc}</span></div></div>`;
+const tg=(id,lab,on,desc)=>`<div class="cg" style="cursor:pointer" id="${id}"><span class="big-sw" style="width:26px;height:26px;background:${on?"#3ca55c":"#c9b99a"}"></span><div style="flex:1"><b>${lab}: ${on?"LIGADO":"DESLIGADO"}</b><br><span style="font-size:var(--t12)">${desc}</span></div></div>`;
 openModal(`<h2>AJUSTES</h2>${sl("smus","Música",CFG.mus)}${sl("ssfx","Efeitos",CFG.sfx)}
 ${tg("svib","Vibração",CFG.vib,"Vibra o celular ao cruzar, entregar e descobrir")}
 ${tg("szen","Modo Zen",CFG.zen,"Sem relógio e sem pressa: o dia não acaba e os clientes esperam pra sempre")}${tg("swx","Clima real na janela",!!CFG.wx,"Mostra o tempo da sua cidade e avisa sobre tempo perigoso")}
@@ -964,9 +998,9 @@ ${tg("samb","Som de chuva",CFG.amb!==false,"Barulho de chuva e trovão quando es
 $("svib").onclick=()=>{CFG.vib=!CFG.vib;saveCfg();buzz(40);settings(back)};$("samb").onclick=()=>{CFG.amb=CFG.amb===false;saveCfg();settings(back)};$("szen").onclick=()=>{CFG.zen=!CFG.zen;saveCfg();hud();renderCounter();settings(back)};$("swx").onclick=()=>{if(CFG.wx){CFG.wx=false;WX.ok=false;saveCfg();updateSky();settings(back)}else{delete CFG.wx;saveCfg();closeModal();askWeather(()=>settings(back))}};
 $("stut").onclick=()=>{S.tut={};save();closeModal();tutStep()};
 $("sexp").onclick=()=>{save();const code="FRUTO1:"+btoa(unescape(encodeURIComponent(JSON.stringify(S))));
- openModal(`<h2>SEU CÓDIGO</h2><p style="font-size:.8rem">Guarde esse código (num bloco de notas ou mande pra você mesmo). Ele leva tudo: frutas, espécies, cartas e conquistas.</p><textarea id="bk" readonly style="width:100%;height:140px;font-size:.6rem;font-family:monospace">${code}</textarea><button class="big" id="bkc">COPIAR</button><button class="big alt" id="cl">VOLTAR</button>`);
+ openModal(`<h2>SEU CÓDIGO</h2><p style="font-size:var(--t12)">Guarde esse código (num bloco de notas ou mande pra você mesmo). Ele leva tudo: frutas, espécies, cartas e conquistas.</p><textarea id="bk" readonly style="width:100%;height:140px;font-size:var(--t10);font-family:monospace">${code}</textarea><button class="big" id="bkc">COPIAR</button><button class="big alt" id="cl">VOLTAR</button>`);
  $("bkc").onclick=async()=>{try{await navigator.clipboard.writeText(code);toast("Código copiado!")}catch(e){$("bk").select();toast("Selecionei o código. Copie manualmente.")}};$("cl").onclick=()=>settings(back)};
-$("simp").onclick=()=>{openModal(`<h2>IMPORTAR</h2><p style="font-size:.8rem">Cole o código do seu progresso. Isso <b>substitui</b> o jogo atual deste aparelho.</p><textarea id="bk" style="width:100%;height:140px;font-size:.6rem;font-family:monospace"></textarea><button class="big" id="bki">CARREGAR</button><button class="big alt" id="cl">VOLTAR</button>`);
+$("simp").onclick=()=>{openModal(`<h2>IMPORTAR</h2><p style="font-size:var(--t12)">Cole o código do seu progresso. Isso <b>substitui</b> o jogo atual deste aparelho.</p><textarea id="bk" style="width:100%;height:140px;font-size:var(--t10);font-family:monospace"></textarea><button class="big" id="bki">CARREGAR</button><button class="big alt" id="cl">VOLTAR</button>`);
  $("cl").onclick=()=>settings(back);$("bki").onclick=()=>{try{const v=$("bk").value.trim();if(!v.startsWith("FRUTO1:"))throw 0;const d=JSON.parse(decodeURIComponent(escape(atob(v.slice(7)))));const n=normState(d,true);if(!n)throw 0;n.bag=n.bag.filter(x=>ITEMS[x.t]);
   const old=S;S=n;try{migrate();S.fruits.forEach(f=>treeAdd(f,null,true));closeModal();running=false;renderAll();placePot()}catch(err){S=old;renderAll();placePot();throw err}
   save();toast("Progresso carregado!");startScreen()}catch(e){toast("Código inválido. Confira se copiou inteiro. Seu progresso atual não foi alterado.")}}};$("cl").onclick=()=>{closeModal();if(back)back()}}
@@ -982,12 +1016,12 @@ if(r.top>bh+20&&st[0]!="cust"){y=r.top-bh-12;ar.style.cssText=`left:${r.left+r.w
 box.style.left=x+"px";box.style.top=y+"px"}
 function tutDone(k){S.tut=S.tut||{};if(!S.tut[k]){S.tut[k]=1;save();$("tut").classList.remove("on");setTimeout(tutStep,900)}}
 function hud(){updateSky();showCoins();const rem=dayLen()-S.dayT;const wide=innerWidth>=440,tm=CFG.zen?"ZEN":running?fmt(rem):"--:--";$("day").textContent=wide?`DIA ${S.day} · NÍVEL ${level()} · ${tm}`:`D${S.day} · NV${level()} · ${tm}`;$("day").classList.toggle("low",running&&!CFG.zen&&rem<20000)}
-function startDay(){setTimeout(tutStep,2500);running=true;S.started=true;S.cust.forEach((c,i)=>{if(!c)setTimeout(()=>{if(running&&!S.cust[i]){S.cust[i]=newCust();save();renderCounter()}},300+i*1400)});renderCounter();hud()}
+function startDay(){setTimeout(tutStep,2500);setTimeout(()=>{try{fixFruitDeco()}catch(e){}SPREAD=new WeakSet()},1200);running=true;S.started=true;S.cust.forEach((c,i)=>{if(!c)setTimeout(()=>{if(running&&!S.cust[i]){S.cust[i]=newCust();save();renderCounter()}},300+i*1400)});renderCounter();hud()}
 function endDay(){running=false;rec("bestDay",S.ds.earn,1);SFX.day();S.cust.forEach(c=>{if(c){c.leaving=true;c.lt=Date.now()}});renderCounter();
 setTimeout(()=>{S.cust=[null,null,null];renderCounter();save();showSummary()},900)}
 function showSummary(){const d=S.ds;openModal(`<h2>FIM DO DIA ${S.day}</h2><div class="row">${[...S.fruits].sort((a,b)=>b.gen-a.gen).slice(0,3).map(f=>`<img src="${fruitImg(f)}">`).join("")}</div>
 <div class="sum"><span>Lucro do dia</span><b>${d.earn} moedas</b><span>Clientes atendidos</span><b>${d.served}</b><span>Maior pagamento</span><b>${d.best}</b><span>Novas espécies</span><b>${d.dex}</b><span>Nível</span><b>${level()}</b></div>
-<p style="font-size:.85rem">+1 <b>presente da quitanda</b> pra começar o próximo dia!</p><p>${d.served>=6?"Dia incrível! A quitanda está famosa.":d.served>=3?"Bom dia de trabalho!":"Dia fraco... amanhã é outro dia!"}</p>${PORTAL.ready?`<button class="big alt" id="rwd">ASSISTIR ANÚNCIO: +1 PRESENTE</button><br>`:""}<button class="big" id="nextd">ABRIR DIA ${S.day+1}</button>`);
+<p style="font-size:var(--t14)">+1 <b>presente da quitanda</b> pra começar o próximo dia!</p><p>${d.served>=6?"Dia incrível! A quitanda está famosa.":d.served>=3?"Bom dia de trabalho!":"Dia fraco... amanhã é outro dia!"}</p>${PORTAL.ready?`<button class="big alt" id="rwd">ASSISTIR ANÚNCIO: +1 PRESENTE</button><br>`:""}<button class="big" id="nextd">ABRIR DIA ${S.day+1}</button>`);
 if($("rwd"))$("rwd").onclick=()=>{const b=$("rwd");b.disabled=true;portalAd("rewarded",()=>{b.remove();setTimeout(()=>giveItem(rollItem(),innerWidth/2,innerHeight/2,"do anúncio"),300)},()=>{b.disabled=false;toast("O anúncio não carregou agora. Tente de novo daqui a pouco.")})};
 $("nextd").onclick=()=>{S.day++;S.dayT=0;S.ds={earn:0,served:0,best:0,dex:0};save();closeModal();
  portalAd("midgame",()=>{setTimeout(()=>giveItem(rollItem(),innerWidth/2,innerHeight/2,"da quitanda"),600);askWeather(()=>{if(!running)startDay()})})}}
@@ -1027,7 +1061,7 @@ openModal(`<div class="logo">FRUTÓDROMO</div><p style="margin-top:0">A quitanda
 <ol class="how"><li><b>Cruze</b> 2 frutas no caldeirão</li><li><b>Entregue</b> o que os clientes pedem</li><li><b>Descubra</b> espécies novas pra sua árvore</li></ol><p class="how2">Presentes dos clientes ficam na <b>BOLSA</b> e mudam qualquer fruta.</p>
 <button class="big" id="go">${cont?"CONTINUAR · DIA "+S.day:"ABRIR A QUITANDA"}</button><br><button class="big alt" id="sndb" onclick="toggleSnd()"></button><button class="big alt" onclick="settings(startScreen)">AJUSTES</button>${cont?'<button class="big alt" id="newg">NOVO JOGO</button>':""}`);sndLabel();
 $("go").onclick=()=>{ac();rainFruits(false);closeModal();if(!running)startDay()};
-if(cont)$("newg").onclick=e=>{if(!armed){armed=true;e.target.textContent="TOQUE DE NOVO PRA APAGAR TUDO";return}fresh();S.fruits.forEach(f=>dexCheck(f,true));const pe=$("pot");pe.style.left=pe.style.top=pe.style.bottom="";placePot();save();sel=null;showInfo(null);ac();rainFruits(false);closeModal();renderAll();startDay()}}
+if(cont)$("newg").onclick=e=>{if(!armed){armed=true;e.target.textContent="TOQUE DE NOVO PRA APAGAR TUDO";return}fresh();S.fruits.forEach(f=>{SPREAD.add(f);dexCheck(f,true)});const pe=$("pot");pe.style.left=pe.style.top=pe.style.bottom="";placePot();save();sel=null;showInfo(null);ac();rainFruits(false);closeModal();renderAll();startDay()}}
 const HELLO={person:["Olá! ","Oi, tudo bem? ","Boa tarde! ","E aí! "],cat:["Miau... ","Mrrr... "],dog:["Au au! ","Oi oi oi! "],bear:["Hmm... ","Grrr, oi! "],bunny:["Oi oi! ","Hihi! "],frog:["Croac! "],penguin:["Brrr! "],robot:["BIP-BOP. SOLICITAÇÃO: "],alien:["Saudações, terráqueo. "],ghost:["Buuu... "]};
 const HELLO_EN={person:["Hello! ","Hi, how are you? ","Good afternoon! ","Hey there! "],cat:["Meow... ","Mrrr... "],dog:["Woof woof! ","Hi hi hi! "],bear:["Hmm... ","Grrr, hi! "],bunny:["Hi hi! ","Hehe! "],frog:["Ribbit! "],penguin:["Brrr! "],robot:["BEEP-BOOP. REQUEST: "],alien:["Greetings, earthling. "],ghost:["Boooo... "]};
 function sayEN(c,left){const ps=c.reqs.map(r=>{const[w,n]=reqWord(r);return r.k=="cor"?tl(r.v):r.k=="el"?"with "+tl(ELEM[r.v].n).toLowerCase()+" power":r.k=="hero"?"a SUPER-FRUIT":tl(w).toLowerCase()+(n?` (${tl(n)})`:"")}).filter(Boolean);
@@ -1039,7 +1073,7 @@ const parts=c.reqs.map(sayReq).filter(Boolean),last=parts.length>1?parts.slice(0
 const hi=R(HELLO[c.kind||"person"]||HELLO.person),tail=c.kind=="robot"?" FIM DA TRANSMISSÃO.":left<.2?" E rápido, por favor!":c.vip?" Pago bem, viu?":"";
 const sp=c.reqs[0]&&c.reqs[0].k=="sp"?c.reqs[0]:null,spT=sp&&S.tree[sp.v];
 const txt=sp?(EN?(R(HELLO_EN[c.kind||"person"]||HELLO_EN.person)+(spT?"I want this one: "+tl(spT.name)+"!":"I want a fruit nobody has seen yet, like this one!")):`${hi}${spT?"Quero esta aqui: "+spT.name+"!":"Quero uma fruta que ninguém viu ainda, assim ó!"}${tail}`):EN?sayEN(c,left):`${hi}Quero uma fruta ${last}.${tail}`;
-openModal(`<h2>${c.name}${c.vip?' <span style="background:#d4a017;color:#2a1a12;font-size:.7rem;padding:1px 5px">VIP</span>':""}</h2><div class="prt"><img src="${personImg(c,mood)}"></div><div class="say" id="sayt"></div>${sp?`<div style="text-align:center"><img src="${fruitImg(sp.im)}" style="width:64px;height:64px;image-rendering:pixelated"></div>`:""}
+openModal(`<h2>${c.name}${c.vip?' <span style="background:#d4a017;color:#2a1a12;font-size:var(--t12);padding:1px 5px">VIP</span>':""}</h2><div class="prt"><img src="${personImg(c,mood)}"></div><div class="say" id="sayt"></div>${sp?`<div style="text-align:center"><img src="${fruitImg(sp.im)}" style="width:64px;height:64px;image-rendering:pixelated"></div>`:""}
 <div style="display:flex;align-items:center;justify-content:center;gap:6px;font-weight:700"><span class="coin"></span>${pay(c)} moedas</div><button class="big" id="phint">COMO FAZER?</button><button class="big alt" id="cl">FECHAR</button>`);
 $("cl").onclick=closeModal;$("phint").onclick=()=>{closeModal();showHint(i)};
 let n=0;const el=$("sayt"),tick=()=>{if(!el.isConnected)return;el.textContent=txt.slice(0,++n);if(n%3==0)tone(c.kind=="robot"?880:c.kind=="ghost"?300:520+Math.random()*120,.03,"square",.02);if(n<txt.length)setTimeout(tick,22)};tick()}
@@ -1051,12 +1085,12 @@ BASE.forEach(b=>{const c=typeof b[4]=="string"?b[4]:colorName(b[4]);const cur=re
 const img=b=>`<img src="${fruitImg({shape:b[1],pat:b[2],top:b[3],rgb:COLORS[b[4]],tip:b[0]=="Banana"?"#6b4423":b[0]=="Pimenta-Dragão"?"#3f9a3a":null})}">`;
 const recipes={};const cols=Object.keys(rep);
 cols.forEach((a,i)=>cols.slice(i).forEach(b=>{const r=colorName(COLORS[a].map((x,k)=>(x+COLORS[b][k])/2));(recipes[r]=recipes[r]||[]).push([a,b])}));
-const have=new Set(Object.keys(S.tree||{}).map(k=>k.split("|")[1]));let h=`<div class="cgw"><p style="font-size:.8rem;margin-top:0">A cor do filho é a <b>mistura das cores dos pais</b>, como tinta. Híbridos podem ser misturados de novo pra chegar em outras cores.</p>`;
+const have=new Set(Object.keys(S.tree||{}).map(k=>k.split("|")[1]));let h=`<div class="cgw"><p style="font-size:var(--t12);margin-top:0">A cor do filho é a <b>mistura das cores dos pais</b>, como tinta. Híbridos podem ser misturados de novo pra chegar em outras cores.</p>`;
 CORDER.forEach(c=>{const rs=(recipes[c]||[]).filter(([a,b])=>a!=b||rep[a]).sort((x,y)=>(x[0]==x[1])-(y[0]==y[1])).slice(0,4);
 const lock=b=>"";
 let body;if(MUT_ONLY.includes(c))body=`<div style="white-space:normal">Só por <b>mutação</b>: chance pequena ao cruzar qualquer fruta</div>`;
 else body=rs.map(([a,b])=>a==b?`<span>${img(rep[a])}${rep[a][0]}${lock(rep[a])}</span>`:`<span>${img(rep[a])}<span class="mini-sw" style="background:${hex(COLORS[a])}"></span>+${img(rep[b])}<span class="mini-sw" style="background:${hex(COLORS[b])}"></span>${lock(rep[a])}${lock(rep[b])}</span>`).join("")||"<span>—</span>";
-h+=`<div class="cg ${hi==c?"hi":""}" id="cg-${c}"><span class="big-sw" style="background:${hex(COLORS[c])}"></span><span class="nm2">${c.toUpperCase()}${have.has(c)?"<br><span style='font-size:.6rem;color:#3ca55c'>✔ já tem</span>":""}</span><div class="rcp">${body}</div></div>`});
+h+=`<div class="cg ${hi==c?"hi":""}" id="cg-${c}"><span class="big-sw" style="background:${hex(COLORS[c])}"></span><span class="nm2">${c.toUpperCase()}${have.has(c)?"<br><span style='font-size:var(--t10);color:#3ca55c'>✔ já tem</span>":""}</span><div class="rcp">${body}</div></div>`});
 return h+"</div>"}
 function colorGuide(hi){openTree("cores",hi)}
 function reveal(k,shinyOnly){SFX.mut();portalHappy();showCard(k,true,shinyOnly)}
@@ -1108,7 +1142,7 @@ if(tvTab=="album"){const ord=ks.slice().sort((a,b)=>stars(T[b])-stars(T[a])||(T[
  $("tvd").innerHTML=`<b>${ks.length} cartas</b> · ${ks.filter(k=>T[k].shiny).length} brilhantes · ${ks.filter(k=>stars(T[k])>=5).length} lendárias. Toque numa carta pra abrir, baixar ou compartilhar.`;return}
 if(tvTab=="ach"){S.rec=S.rec||{};S.ach=S.ach||{};const done=ACH.filter(a=>S.ach[a[0]]).length;
  $("tvb").innerHTML=`<div class="cgw"><div class="recs">${[["Espécies",ks.length],["Variedades",totalVars()],["Clientes atendidos",S.delivered],["Cruzamentos",S.rec.crosses||0],["Brilhantes achadas",S.rec.shiny||0],["Maior combo","x"+(S.rec.maxCombo||0)],["Melhor dia",(S.rec.bestDay||0)+" moedas"],["VIPs atendidos",S.rec.vips||0],["Dias jogados",S.day]].map(([a,b])=>`<div><span>${a}</span><b>${b}</b></div>`).join("")}</div>
- ${ACH.map(([id,n,d,ok,rw])=>`<div class="cg ${S.ach[id]?"hi":""}"><span class="big-sw" style="background:${S.ach[id]?"#f7c331":"#c9b99a"};display:flex;align-items:center;justify-content:center;font-size:1rem">${S.ach[id]?`<img src="${TROPHY()}" style="width:22px;height:22px">`:"?"}</span><div style="flex:1;text-align:left"><b>${n}</b><br><span style="font-size:.74rem">${d}</span></div><span style="font-size:.72rem;font-weight:700">+${rw}</span></div>`).join("")}</div>`;
+ ${ACH.map(([id,n,d,ok,rw])=>`<div class="cg ${S.ach[id]?"hi":""}"><span class="big-sw" style="background:${S.ach[id]?"#f7c331":"#c9b99a"};display:flex;align-items:center;justify-content:center;font-size:var(--t16)">${S.ach[id]?`<img src="${TROPHY()}" style="width:22px;height:22px">`:"?"}</span><div style="flex:1;text-align:left"><b>${n}</b><br><span style="font-size:var(--t12)">${d}</span></div><span style="font-size:var(--t12);font-weight:700">+${rw}</span></div>`).join("")}</div>`;
  $("tvd").innerHTML=`<b>${done} de ${ACH.length} conquistas</b> · cada uma dá moedas de presente.`;return}
 if(tvTab=="cores"){$("tvb").innerHTML=colorGuideHTML(hi);$("tvd").innerHTML="Toque no requisito de COR de um cliente pra abrir direto aqui.";if(hi){const e=$("cg-"+hi);if(e)setTimeout(()=>e.scrollIntoView({block:"center"}),30)}return}
 // Árvore: espécies em fileiras por geração, sem teia de linhas. Ao tocar numa fruta, só a família dela
@@ -1187,11 +1221,18 @@ let decoKey="";function placeDeco(){const t=document.getElementById("table"),pt=
  if(!small)add("crate","uva",68,44);
  if(!low){add("barrel",null,4,96);if(!small)add("crate","banana",52,108)}
  // direita (abaixo do ARRUMAR, acima da lixeira)
- if(low){add("basket","laranja",tw-124,8);if(!small)add("sack",null,tw-176,12)}else{add("basket","laranja",tw-56,40);
+ if(low){add("basket","laranja",tw-124,8);if(!small)add("sack",null,tw-176,12)}else{const dy=small?8:0;add("basket","laranja",tw-56,40+dy);
   if(!small)add("sack",null,tw-104,36);
   if(th>=210&&!small)add("board",null,tw-48,84);
-  if(small)add("sack",null,tw-44,84)}
- t.insertAdjacentHTML("afterbegin",o.join(""))}
+  if(small)add("sack",null,tw-44,84+dy)}
+ t.insertAdjacentHTML("afterbegin",o.join(""));
+ fixFruitDeco()}
+// fruta que ficou sobre enfeite sólido (jogo novo, save, resize, troca de aba) sai de cima dele; só mexe em quem cruza (ou nas frutas iniciais até o jogo começar), nunca em fruta sendo arrastada
+function fixFruitDeco(){const t=document.getElementById("table");if(!S||!S.fruits||!t||!t.clientWidth||!t.clientHeight)return;
+ const early=performance.now()<2500,blk=decoBlocks(4),cross=f=>{const z=fsize(f);return blk.some(([bx,by,bw,bh])=>f.x<bx+bw&&f.x+z>bx&&f.y<by+bh&&f.y+z>by)};let ch=0,mv=0;
+ S.fruits.slice().sort((p,q)=>fsize(q)-fsize(p)).forEach(f=>{if(t.querySelector('.fr.drag[data-id="'+f.id+'"]'))return;const x0=f.x,y0=f.y;clampPos(f);const x1=f.x,y1=f.y,sp=SPREAD.has(f);if(sp||(!early&&cross(f))){freeSpot(f,!sp);if(cross(f))freeSpot(f,true)}if(f.x!=x1||f.y!=y1)mv++;if(f.x!=x0||f.y!=y0)ch++});
+ if(ch)renderTable();if(mv)save()}
+
 function addDeco(){placeDeco()}
 function lantSync(){$("scene").classList.toggle("lit",(parseFloat($("lamp").style.opacity)||0)>0)}
 setTimeout(()=>{try{addDeco()}catch(e){}},0);
@@ -1217,6 +1258,7 @@ document.addEventListener("pointerdown",e=>{const t=e.target.closest("button,.bt
  if(t.id=="go"||t.id=="cl"||t.id=="tvx"||t.id=="resume"||t.id=="nextd"||t.id=="rvx"||t.id=="pot")return;SFX.sel()},true);
 if("serviceWorker" in navigator&&location.hostname.endsWith("github.io"))navigator.serviceWorker.register("sw.js").catch(()=>{});
 delete S.ess;delete S.sk;S.tree=S.tree||{};
+setTimeout(()=>{try{fixFruitDeco()}catch(e){}},2600); // save carregado: tira fruta de cima de enfeite depois que a mesa assentou
 migrate();if(!S.bag)S.bag=[{t:"grow"},{t:"shrink"}];S.bag=S.bag.filter(x=>ITEMS[x.t]);S.fruits.forEach(f=>{clampPos(f);treeAdd(f,null,true)});renderProps();renderAll();placePot();fetchWX();
 // nos portais o jogador cai direto na partida (exigência do CrazyGames); o menu ≡ continua abrindo a tela inicial
 if(PORTAL.name){startDay();portalInit()}else{startScreen();portalInit()}
