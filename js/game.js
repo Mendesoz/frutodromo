@@ -837,12 +837,18 @@ const plan=blocks=>{const hit=(x,y,s)=>blocks.some(([bx,by,bw,bh])=>x<bx+bw&&x+s
  list.forEach(f=>{const s=fsize(f);let guard=0,ok=false;while(guard++<200){if(x+s>tw-4){x=8;y+=rowH+6;rowH=0}if(y+s>th-4)break;if(!hit(x,y,s)){ok=true;break}x+=10}
   if(!ok)y=th-s-4;pos.push([x,y,ok]);x+=s+6;rowH=Math.max(rowH,s)});return pos};
 const deco=decoBlocks(6);let pos=plan(base.concat(deco));
-// quem sobrou: procura qualquer vão (varredura de 6 em 6 px) que não cubra obstáculo nem fruta já posta; 1º evitando enfeites, depois ignorando-os; só então empilha
-const rect=(i)=>[pos[i][0],pos[i][1],fsize(list[i]),fsize(list[i])];
-let noRoom=false; // sem vão em lugar nenhum: as outras frutas que sobraram nem varrem de novo
-pos.forEach((q,i)=>{if(q[2]||noRoom)return;const s=fsize(list[i]),lo=fruitTop(th,s);
- for(const blocks of[base.concat(deco),base]){const placed=pos.map((_,j)=>j).filter(j=>j!=i&&pos[j][2]).map(rect);
-  for(let yy=lo;yy<=th-s-2;yy+=6)for(let xx=4;xx<=tw-s-4;xx+=6){if(!blocks.some(([bx,by,bw,bh])=>xx<bx+bw&&xx+s>bx&&yy<by+bh&&yy+s>by)&&!placed.some(([bx,by,bw,bh])=>xx<bx+bw&&xx+s>bx&&yy<by+bh&&yy+s>by)){pos[i]=[xx,yy,true];return}}}noRoom=true})
+// quem sobrou (maiores primeiro): varredura de 8 em 8 px por qualquer vão que não cubra obstáculo nem fruta já posta.
+// 1ª rodada evitando enfeites pra TODAS as que sobraram; só as que não couberam mesmo vão pra 2ª rodada (ignora enfeites); sem vão nenhum, empilha no fundo
+const rect=i=>[pos[i][0],pos[i][1],fsize(list[i]),fsize(list[i])],ov=([bx,by,bw,bh],xx,yy,s)=>xx<bx+bw&&xx+s>bx&&yy<by+bh&&yy+s>by;
+const scan=(i,blocks,st=8)=>{const s=fsize(list[i]),lo=fruitTop(th,s),placed=pos.map((_,j)=>j).filter(j=>j!=i&&pos[j][2]).map(rect);
+ for(let yy=lo;yy<=th-s-2;yy+=st)for(let xx=4;xx<=tw-s-4;xx+=st)if(!blocks.some(b=>ov(b,xx,yy,s))&&!placed.some(b=>ov(b,xx,yy,s))){pos[i]=[xx,yy,true];return true}return false};
+const left=pos.map((q,i)=>i).filter(i=>!pos[i][2]).sort((a,b)=>fsize(list[b])-fsize(list[a]));
+let left2=left.filter(i=>!scan(i,base.concat(deco)));
+if(left2.length){ // o arranjo por fileira desperdiçou espaço: refaz tudo, maiores primeiro, varredura de 6 em 6 px (só vale se sobrar menos fruta sem lugar)
+ const keep=pos.map(q=>q.slice());pos=list.map(()=>[0,0,false]);const all=list.map((f,i)=>i).sort((a,b)=>fsize(list[b])-fsize(list[a]));
+ const l2=all.filter(i=>!scan(i,base.concat(deco),6));
+ if(l2.length<left2.length)left2=l2;else pos=keep}
+left2.forEach(i=>scan(i,base,6));
 list.forEach((f,i)=>{f.x=pos[i][0];f.y=pos[i][1];clampPos(f)});save();renderTable();SFX.plop();buzz(15)}
 $("tidy").onclick=tidy;
 function buzz(p){if(!CFG.vib)return;try{if(navigator.vibrate)navigator.vibrate(p)}catch(e){}}
