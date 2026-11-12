@@ -7,6 +7,8 @@
 :root{--t10:10px;--t12:12px;--t14:14px;--t16:16px;--t20:20px;--t28:28px}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%;overflow:hidden;font-family:"Pixelify Sans",monospace;color:#2a1a12}
+/* a ligadura "fi" da Pixelify Sans está quebrada (sai "A"): desliga todas as ligaduras, inclusive nos controles que não herdam a fonte */
+html,body,input,button,textarea,select{font-variant-ligatures:none;font-feature-settings:"liga" 0,"clig" 0}
 body{display:flex;flex-direction:column;background:#2a1a12}
 :root{--fx:0px;--fy:0px}
 /* navegador no computador: jogo numa moldura de tamanho fixo, centralizada (como em sites de jogos) */
