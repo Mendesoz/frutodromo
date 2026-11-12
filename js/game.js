@@ -373,8 +373,11 @@ function renderTable(newId){tbl.querySelectorAll(".fr").forEach(e=>e.remove());$
 S.fruits.forEach(f=>{const d=document.createElement("div");d.className="fr"+(f.id==newId?" new":"")+(f.id==sel?" sel":"")+(f.tam==0?" micro":"")+(f.el?" el-"+f.el:"")+(f.shiny?" shiny":"");d.dataset.id=f.id;const s=fsize(f);
 d.style.width=d.style.height=s+"px";d.style.left=f.x+"px";d.style.top=f.y+"px";d.style.setProperty("--d",(parseInt(f.id.slice(1))%7)*.3+"s");d.innerHTML=`<img src="${fruitImg(f)}">`+fxHTML(f,s)+(f.shiny?[[.1,.15],[.75,.05],[.85,.65],[.2,.8]].map(([x,y],k)=>`<span class="spk" style="left:${Math.round(s*x)}px;top:${Math.round(s*y)}px;animation-delay:-${k*.3}s"></span>`).join(""):"")+(f.mut?'<span class="mut">MUT</span>':"");tbl.appendChild(d);drag(d,f)})}
 // procura um lugar livre perto de onde a fruta está (não cobre outra fruta nem o caldeirão/lixo)
-function freeSpot(f){const s=fsize(f),pr=$("pot"),br=$("bin"),blk=[[pr.offsetLeft,pr.offsetTop,pr.offsetWidth,pr.offsetHeight],[br.offsetLeft,br.offsetTop,br.offsetWidth,br.offsetHeight]];
- const hit=(x,y)=>blk.some(([bx,by,bw,bh])=>x<bx+bw&&x+s>bx&&y<by+bh&&y+s>by)||S.fruits.some(o=>o!=f&&x<o.x+fsize(o)-8&&x+s>o.x+8&&y<o.y+fsize(o)-8&&y+s>o.y+8);
+// enfeites sólidos do chão (caixotes, barril, cesto, saco, balança): obstáculo pras frutas. Tapetes (data-k="rug") ficam de fora: pode ter fruta por cima.
+function decoBlocks(pad){return[...tbl.querySelectorAll(".dobj")].filter(e=>e.dataset.k!="rug").map(e=>[e.offsetLeft-pad,e.offsetTop-pad,e.offsetWidth+2*pad,e.offsetHeight+2*pad])}
+// decoOnly: só evita caldeirão, lixeira e enfeites (frutas novas); sem ele evita também outras frutas
+function freeSpot(f,decoOnly){const s=fsize(f),pr=$("pot"),br=$("bin"),blk=[[pr.offsetLeft,pr.offsetTop,pr.offsetWidth,pr.offsetHeight],[br.offsetLeft,br.offsetTop,br.offsetWidth,br.offsetHeight],...decoBlocks(4)];
+ const hit=(x,y)=>blk.some(([bx,by,bw,bh])=>x<bx+bw&&x+s>bx&&y<by+bh&&y+s>by)||(!decoOnly&&S.fruits.some(o=>o!=f&&x<o.x+fsize(o)-8&&x+s>o.x+8&&y<o.y+fsize(o)-8&&y+s>o.y+8));
  if(!hit(f.x,f.y))return;const x0=f.x,y0=f.y;for(let r=20;r<400;r+=18)for(let a=0;a<12;a++){const x=cl(x0+Math.cos(a/12*Math.PI*2)*r,0,Math.max(0,tbl.clientWidth-s)),y=cl(y0+Math.sin(a/12*Math.PI*2)*r,fruitTop(tbl.clientHeight,s),Math.max(fruitTop(tbl.clientHeight,s),tbl.clientHeight-s));if(!hit(x,y)){f.x=x;f.y=y;return}}}
 // topo mínimo das frutas: os 24 px de cima da mesa são a face vertical do balcão
 const TOPMIN=24,fruitTop=(th,s)=>Math.min(TOPMIN,Math.max(0,th-s));
@@ -479,7 +482,7 @@ if(mkTab=="bolsa"){const groups={};(S.bag||[]).forEach(it=>{const k=it.t+(it.v||
 $("market").innerHTML=tabs+BASE.map((b,i)=>{const f={shape:b[1],pat:b[2],top:b[3],rgb:typeof b[4]=="string"?COLORS[b[4]]:b[4],tip:b[0]=="Banana"?"#6b4423":b[0]=="Pimenta-Dragão"?"#3f9a3a":null};const lock=false,rare=!!b[10];
 return `<div class="mk px ${lock?"lock":S.coins<b[8]?"off":""} ${rare&&!lock?"rare":""}" onclick="if(mkSkip){mkSkip=0;return}buy(${i})" onpointerdown="mkDown(${i},event)" onpointerup="mkUp()" onpointercancel="mkUp()" onpointerenter="mkEnter(${i},event)" onpointerleave="mkLeave(event)"><img src="${fruitImg(f)}">${lock?"???":b[0]}<div class="pr">${lock?"NÍVEL "+b[9]:`<span class="coin"></span>${b[8]}`}</div></div>`}).join("")}
 function buy(i){const b=BASE[i];if(S.coins<b[8])return toast("Moedas insuficientes");S.coins-=b[8];const f=baseFruit(b);
-{const pr=$("pot"),pw={x:pr.offsetLeft,y:pr.offsetTop,w:pr.offsetWidth,h:pr.offsetHeight};let k=0;do{f.x=N(10,Math.max(10,tbl.clientWidth-110));f.y=N(10,Math.max(10,tbl.clientHeight-110));k++}while(k<30&&f.x+fsize(f)>pw.x&&f.x<pw.x+pw.w&&f.y+fsize(f)>pw.y&&f.y<pw.y+pw.h)}clampPos(f);S.fruits.push(f);dexCheck(f);SFX.buy();save();showCoins();renderTable(f.id);renderMarket()}
+{const pr=$("pot"),pw={x:pr.offsetLeft,y:pr.offsetTop,w:pr.offsetWidth,h:pr.offsetHeight};let k=0;do{f.x=N(10,Math.max(10,tbl.clientWidth-110));f.y=N(10,Math.max(10,tbl.clientHeight-110));k++}while(k<30&&f.x+fsize(f)>pw.x&&f.x<pw.x+pw.w&&f.y+fsize(f)>pw.y&&f.y<pw.y+pw.h)}clampPos(f);freeSpot(f,true);S.fruits.push(f);dexCheck(f);SFX.buy();save();showCoins();renderTable(f.id);renderMarket()}
 /* ================= cenário ================= */
 const JAR=["cccccc","cccccc",".gggg.","gjjjjg","gwjjjg","gwjjjg","gjjjjg","gjjjjg",".gggg."];
 const PLANT=["....l..l....","..l.ll.l.l..","...lLLll....",".l.lLllLl.l.","..lLLllLLl..","...lLllLl...",".....ll.....","..pppppppp..","..pPPPPPPp..","...pppppp...","...pppppp...","....pppp...."];
@@ -772,7 +775,7 @@ S.fruits.push(c);sel=c.id;treeAdd(c,ing);if(c.shiny)rec("shiny",1);tutDone("t1")
 const er=tbl.querySelector(`[data-id="${c.id}"]`).getBoundingClientRect(),ex=er.left+er.width/2,ey=er.top+er.height/2;burst(ex,ey,c.rgb,24);
 if(c.mut||c.hero||c.shiny){burst(ex,ey,[180,155,255],18);SFX.mut();shake(c.hero?7:4);buzz([40,30,80])}else{SFX.pop();buzz(35)}if(c.el=="fogo")SFX.fire();
 toast((c.hero?`<b>SUPER-FRUTA!</b> ${fname(c)}`:c.mut?`<b>MUTAÇÃO!</b> ${fname(c)}`:`Nasceu: <b>${fname(c)}</b>`))})},1100)}
-function potTap(){if(brewing||!S.pot.length||modalOpen)return;if(S.pot.length>=2)return brew();const f=S.pot.pop();const tr=tbl.getBoundingClientRect(),pr=$("pot").getBoundingClientRect();f.x=pr.right-tr.left+8;f.y=pr.top-tr.top;clampPos(f);S.fruits.push(f);save();renderTable(f.id);renderPot()}
+function potTap(){if(brewing||!S.pot.length||modalOpen)return;if(S.pot.length>=2)return brew();const f=S.pot.pop();const tr=tbl.getBoundingClientRect(),pr=$("pot").getBoundingClientRect();f.x=pr.right-tr.left+8;f.y=pr.top-tr.top;clampPos(f);freeSpot(f,true);S.fruits.push(f);save();renderTable(f.id);renderPot()}
 function freeFromPot(){const pr=$("pot");if(!pr||!tbl)return;const X=pr.offsetLeft,Y=pr.offsetTop,W=pr.offsetWidth,H=pr.offsetHeight;let mv=0;
  S.fruits.forEach(f=>{const z=fsize(f),hit=()=>f.x+z>X+6&&f.x<X+W-6&&f.y+z>Y+6&&f.y<Y+H-6;if(!hit())return;let k=0;do{f.x=N(6,Math.max(6,tbl.clientWidth-z-6));f.y=N(6,Math.max(6,tbl.clientHeight-z-6));k++}while(k<40&&hit());clampPos(f);mv++});if(mv)renderTable()}
 function placePot(){const p=$("pot");if(!tbl.clientWidth||!tbl.clientHeight)return;if(!S.potPos){p.style.left=p.style.top=p.style.bottom="";p.style.top=cl(Math.round(p.offsetTop),0,Math.max(0,Math.round(tbl.clientHeight-p.offsetHeight)))+"px";p.style.left=Math.round(p.offsetLeft)+"px";p.style.bottom="auto";return}const w=p.offsetWidth,h=p.offsetHeight;// só o valor aplicado é limitado: a posição salva do jogador não é reescrita
@@ -787,13 +790,21 @@ const cancel=()=>{if(!on)return;on=false;p.classList.remove("mv");if(mv){save();
 function burst(x,y,rgb,n){if(RM.matches)return;for(let i=0;i<n;i++){const d=document.createElement("div");d.className="pt";d.style.background=i%3==0?"#ffffff":hex(i%2?rgb:lift(rgb,.4));d.style.left=x+"px";d.style.top=y+"px";document.body.appendChild(d);
 const a=Math.random()*Math.PI*2,r=28+Math.random()*50;d.animate([{transform:"translate(0,0)",opacity:1},{transform:`translate(${Math.cos(a)*r}px,${Math.sin(a)*r-18}px)`,opacity:0}],{duration:600+Math.random()*300,easing:"steps(6)"}).onfinish=()=>d.remove()}}
 let undoT=null;function undoOffer(f,v){const u=$("undo");clearTimeout(undoT);u.innerHTML=`Vendida por ${v} <button class="btn" id="undob">DESFAZER</button><i></i>`;u.classList.remove("on");void u.offsetWidth;u.classList.add("on");
-$("undob").onclick=()=>{clearTimeout(undoT);u.classList.remove("on");if(S.fruits.includes(f))return;if(S.coins<v){toast("Não dá pra desfazer: você já gastou as moedas dessa venda.");return}S.coins-=v;S.ds.earn-=v;S.fruits.push(f);clampPos(f);save();hud();renderTable(f.id);renderMarket();SFX.plop();toast("Venda desfeita!")};
+$("undob").onclick=()=>{clearTimeout(undoT);u.classList.remove("on");if(S.fruits.includes(f))return;if(S.coins<v){toast("Não dá pra desfazer: você já gastou as moedas dessa venda.");return}S.coins-=v;S.ds.earn-=v;S.fruits.push(f);clampPos(f);freeSpot(f,true);save();hud();renderTable(f.id);renderMarket();SFX.plop();toast("Venda desfeita!")};
 undoT=setTimeout(()=>u.classList.remove("on"),3200)}
-function tidy(){const pr=$("pot"),br=$("bin"),tw=tbl.clientWidth,th=tbl.clientHeight;const blocks=[[pr.offsetLeft-6,pr.offsetTop-6,pr.offsetWidth+12,pr.offsetHeight+12],[br.offsetLeft-6,br.offsetTop-6,br.offsetWidth+12,br.offsetHeight+12],[tw-90,0,90,34]];
-const hit=(x,y,s)=>blocks.some(([bx,by,bw,bh])=>x<bx+bw&&x+s>bx&&y<by+bh&&y+s>by);
-const list=S.fruits.slice().sort((a,b)=>(a.sp||"").localeCompare(b.sp||"")||a.gen-b.gen);let x=8,y=TOPMIN,rowH=0;
-list.forEach(f=>{const s=fsize(f);let guard=0;while(guard++<200){if(x+s>tw-4){x=8;y+=rowH+6;rowH=0}if(y+s>th-4){y=th-s-4;break}if(!hit(x,y,s))break;x+=10}
-f.x=x;f.y=y;x+=s+6;rowH=Math.max(rowH,s)});save();renderTable();SFX.plop();buzz(15)}
+function tidy(){const pr=$("pot"),br=$("bin"),tw=tbl.clientWidth,th=tbl.clientHeight;const base=[[pr.offsetLeft-6,pr.offsetTop-6,pr.offsetWidth+12,pr.offsetHeight+12],[br.offsetLeft-6,br.offsetTop-6,br.offsetWidth+12,br.offsetHeight+12],[tw-90,0,90,34]];
+const list=S.fruits.slice().sort((a,b)=>(a.sp||"").localeCompare(b.sp||"")||a.gen-b.gen);
+// fileira por fileira, pulando os obstáculos. Fruta que não achou lugar livre vai pro fim da lista (ok=false)
+const plan=blocks=>{const hit=(x,y,s)=>blocks.some(([bx,by,bw,bh])=>x<bx+bw&&x+s>bx&&y<by+bh&&y+s>by);let x=8,y=TOPMIN,rowH=0;const pos=[];
+ list.forEach(f=>{const s=fsize(f);let guard=0,ok=false;while(guard++<200){if(x+s>tw-4){x=8;y+=rowH+6;rowH=0}if(y+s>th-4)break;if(!hit(x,y,s)){ok=true;break}x+=10}
+  if(!ok)y=th-s-4;pos.push([x,y,ok]);x+=s+6;rowH=Math.max(rowH,s)});return pos};
+const deco=decoBlocks(6);let pos=plan(base.concat(deco));
+// quem sobrou: procura qualquer vão (varredura de 6 em 6 px) que não cubra obstáculo nem fruta já posta; 1º evitando enfeites, depois ignorando-os; só então empilha
+const rect=(i)=>[pos[i][0],pos[i][1],fsize(list[i]),fsize(list[i])];
+pos.forEach((q,i)=>{if(q[2])return;const s=fsize(list[i]),lo=fruitTop(th,s);
+ for(const blocks of[base.concat(deco),base]){const placed=pos.map((_,j)=>j).filter(j=>j!=i&&pos[j][2]).map(rect);
+  for(let yy=lo;yy<=th-s-2;yy+=6)for(let xx=4;xx<=tw-s-4;xx+=6){if(!blocks.some(([bx,by,bw,bh])=>xx<bx+bw&&xx+s>bx&&yy<by+bh&&yy+s>by)&&!placed.some(([bx,by,bw,bh])=>xx<bx+bw&&xx+s>bx&&yy<by+bh&&yy+s>by)){pos[i]=[xx,yy,true];return}}}})
+list.forEach((f,i)=>{f.x=pos[i][0];f.y=pos[i][1];clampPos(f)});save();renderTable();SFX.plop();buzz(15)}
 $("tidy").onclick=tidy;
 function buzz(p){if(!CFG.vib)return;try{if(navigator.vibrate)navigator.vibrate(p)}catch(e){}}
 function floatText(x,y,t,c){const d=document.createElement("div");d.className="ftx";d.textContent=t;d.style.left=x+"px";d.style.top=y+"px";d.style.color=c||"#f7c331";document.body.appendChild(d);
