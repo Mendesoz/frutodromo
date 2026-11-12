@@ -7,12 +7,13 @@ body{display:flex;flex-direction:column;background:#2a1a12}
 @media (min-width:1200px) and (min-height:600px){
  :root{--fw:min(calc(100vw - 48px),1100px);--fh:min(calc(100vh - 32px),860px);--fx:calc((100vw - var(--fw)) / 2);--fy:calc((100vh - var(--fh)) / 2)}
  html{background:#1c120c;background-image:linear-gradient(45deg,#24170f 25%,#0000 25%,#0000 75%,#24170f 75%),linear-gradient(45deg,#24170f 25%,#0000 25%,#0000 75%,#24170f 75%);background-size:32px 32px;background-position:0 0,16px 16px}
- body{width:var(--fw);height:var(--fh);margin:var(--fy) auto 0;border:4px solid #2a1a12;outline:4px solid #6b4423;box-shadow:0 0 0 8px #2a1a12,0 18px 40px #000a}
+ body{width:var(--fw);height:var(--fh);margin:var(--fy) 0 0 var(--fx);border:4px solid #2a1a12;outline:4px solid #6b4423;box-shadow:0 0 0 8px #2a1a12,0 18px 40px #000a}
  html .combo{right:calc(var(--fx) + 8px);top:calc(var(--fy) + 44px)}
  html .armtip,html #undo{bottom:calc(var(--fy) + 92px)}
  html #tv{inset:var(--fy) var(--fx)}
 }
-img{image-rendering:pixelated;image-rendering:crisp-edges;display:block}
+img,canvas{image-rendering:crisp-edges;image-rendering:pixelated}
+img{display:block}
 .px{border:3px solid #2a1a12;box-shadow:inset -3px -3px 0 #0002,inset 3px 3px 0 #fff5}
 header{flex:0 0 auto;display:flex;gap:4px;align-items:center;padding:5px 4px;background:#4a2e1c;border-bottom:3px solid #2a1a12;color:#ffe9b8;font-size:.82rem}
 .tag{background:#2a1a12;padding:3px 6px;display:flex;align-items:center;gap:4px;white-space:nowrap}
@@ -22,7 +23,7 @@ header{flex:0 0 auto;display:flex;gap:4px;align-items:center;padding:5px 4px;bac
 .tag.bump{animation:hb .3s steps(2)}@keyframes hb{50%{transform:scale(1.2)}}
 .timer.low{color:#ff6b5b}
 /* cena */
-#scene{position:relative;flex:0 0 auto;height:280px;overflow:hidden;background:#d9b98a}
+#scene{position:relative;flex:0 0 auto;height:280px;overflow:hidden;background:#d8aa6c}
 @media (max-width:599px) and (min-height:600px){#scene{height:318px}}
 #scene:before{display:none;content:"";position:absolute;left:0;right:0;top:0;height:22px;background:repeating-linear-gradient(90deg,#c0392b 0 16px,#f5efe0 16px 32px);border-bottom:3px solid #2a1a12;z-index:1}
 #props{position:absolute;inset:0;z-index:0;pointer-events:none}#props img,#cprops img{position:absolute;image-rendering:pixelated}#props img{z-index:1}
@@ -52,30 +53,30 @@ header{flex:0 0 auto;display:flex;gap:4px;align-items:center;padding:5px 4px;bac
 .pat{display:flex;gap:1px;margin-top:3px}.pat i{flex:1;height:4px;background:#ddd}
 .nm{position:absolute;bottom:-20px;font-size:.68rem;color:#ffe9b8;z-index:3;text-shadow:1px 1px 0 #2a1a12}
 /* mesa */
-#table{position:relative;flex:1 1 auto;overflow:hidden;touch-action:none;background:#b8794a;background-size:120px 80px;image-rendering:pixelated;border-top:3px solid #2a1a12}
+#table{position:relative;flex:1 1 auto;overflow:hidden;touch-action:none;isolation:isolate;background-color:#c07c42;background-size:96px 44px,480px 160px;background-repeat:repeat-x,repeat;background-position:0 0,0 0;image-rendering:pixelated}
+#table.low{background-size:48px 22px,480px 160px}
 #table:after{display:none;content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(90deg,#0000 0 120px,#00000014 120px 123px)}
 .tip{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;color:#ffe9b8;font-size:.9rem;pointer-events:none;text-shadow:2px 2px 0 #2a1a12;line-height:1.5;z-index:1}
 .fr{position:absolute;touch-action:none;user-select:none;cursor:grab;z-index:4}
 .fr>img{width:100%;height:100%;pointer-events:none}
-.fr:before{content:"";position:absolute;left:18%;right:18%;bottom:-2px;height:8px;background:#0003}
+.fr:before{content:"";position:absolute;left:12%;right:12%;bottom:-4px;height:8px;pointer-events:none;background:linear-gradient(#1e0c0470,#1e0c0470) 4px 0/calc(100% - 8px) 4px no-repeat,linear-gradient(#1e0c0440,#1e0c0440) 0 4px/100% 4px no-repeat}
 .fr.drag{z-index:40;transform:translateY(-6px)}
 .fr.sel>img{filter:drop-shadow(2px 0 0 #fff) drop-shadow(-2px 0 0 #fff) drop-shadow(0 2px 0 #fff) drop-shadow(0 -2px 0 #fff)}
 .fr.new{animation:bump .35s steps(4)}@keyframes bump{0%{transform:scale(.4)}50%{transform:scale(1.2)}100%{transform:none}}
-.fr.micro{border:2px dashed #ffe9b8;border-radius:50%}.fr.micro>img{width:18px;height:18px;margin:9px}
+.fr.micro{border:2px dashed #ffe9b8;border-radius:50%}.fr.micro>img{width:36px;height:36px;margin:0}
 .fr.micro:after{content:"MICRO";position:absolute;bottom:-14px;left:50%;transform:translateX(-50%);font-size:.55rem;color:#ffe9b8;text-shadow:1px 1px 0 #2a1a12}
 .fr .mut{position:absolute;top:-6px;right:-6px;background:#7b5cff;color:#fff;font-size:.6rem;padding:0 3px;border:2px solid #2a1a12;z-index:3}
 .el-fogo{filter:drop-shadow(0 0 5px #ff7b00)}.el-gelo{filter:drop-shadow(0 0 5px #8fdcff)}.el-raio{filter:drop-shadow(0 0 5px #ffe84a)}.el-veneno{filter:drop-shadow(0 0 5px #7dff6a)}.el-cosmico{filter:drop-shadow(0 0 6px #c9a7ff)}
 .fx{position:absolute;pointer-events:none;z-index:3}
-.fx-fogo{animation:flk .3s steps(2) infinite;transform-origin:bottom}@keyframes flk{50%{transform:scaleY(.75) scaleX(1.15)}}
+.fx-fogo{animation:flk .3s steps(2) infinite;transform-origin:bottom}@keyframes flk{50%{transform:translateY(-2px)}}
 .fx-tw{animation:tw 1s steps(2) infinite}@keyframes tw{50%{opacity:.15}}
 
 #bin{position:absolute;right:8px;bottom:8px;width:60px;height:60px;background:#5b3a22;color:#ffe9b8;font-size:.6rem;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.15;pointer-events:none;z-index:1}
 #bin.hot{background:#c0392b}
 #pot{position:absolute;left:10px;bottom:8px;width:96px;z-index:3;cursor:grab;touch-action:none;user-select:none}#pot.mv{z-index:45;cursor:grabbing;transform:translateY(-4px);filter:drop-shadow(0 8px 0 #0004)}#pot img{pointer-events:none}
-#pot img{width:96px;height:88px}#pot.hot img{filter:drop-shadow(3px 0 0 #b49bff) drop-shadow(-3px 0 0 #b49bff) drop-shadow(0 -3px 0 #b49bff)}
-#pot.brew img{animation:brew .12s steps(2) infinite}@keyframes brew{50%{transform:translate(3px,-2px) rotate(2deg)}}
-#potslots{display:flex;gap:4px;justify-content:center;margin-bottom:2px;min-height:30px}
-#potslots .sl{width:30px;height:30px;background:#0003;border:2px dashed #ffe9b880;display:flex;align-items:center;justify-content:center}#potslots .sl img{width:26px;height:26px}
+#potslots{display:flex;gap:4px;justify-content:center;margin-bottom:2px;min-height:40px}
+#potslots .sl{width:40px;height:40px;background:#0003;border:2px dashed #ffe9b880;display:flex;align-items:center;justify-content:center}#potslots .sl img{width:36px;height:36px}
+@media (max-height:579px){#potslots{min-height:22px}#potslots .sl{width:22px;height:22px}#potslots .sl img{width:18px;height:18px}}
 #potlab{text-align:center;color:#ffe9b8;font-size:.62rem;text-shadow:1px 1px 0 #2a1a12;margin-top:2px}
 /* feira */
 #market{flex:0 0 auto;display:flex;gap:4px;overflow-x:auto;padding:6px;background:#4a2e1c;border-top:3px solid #2a1a12}
@@ -117,7 +118,7 @@ header{flex:0 0 auto;display:flex;gap:4px;align-items:center;padding:5px 4px;bac
 .cg .nm2{font-weight:700;width:68px;flex:0 0 auto;font-size:.85rem}
 .rcp{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:.72rem;flex:1}
 .rcp span{display:inline-flex;align-items:center;gap:2px;white-space:nowrap}
-.rcp img{width:20px;height:20px}.mini-sw{width:10px;height:10px;border:2px solid #2a1a12;display:inline-block}
+.rcp img{width:18px;height:18px}.mini-sw{width:10px;height:10px;border:2px solid #2a1a12;display:inline-block}
 .rq.cor{cursor:pointer;text-decoration:underline dotted}
 /* árvore de espécies (tela cheia) */
 #tv{position:fixed;inset:0;z-index:210;background:#f5efe0;display:none;flex-direction:column}#tv.on{display:flex}
@@ -132,8 +133,8 @@ header{flex:0 0 auto;display:flex;gap:4px;align-items:center;padding:5px 4px;bac
 .gg{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:14px 6px}
 .empty{text-align:center;color:#8a6a50;padding:30px 10px}
 .sp{position:relative;min-width:0;text-align:center;font-size:.58rem;line-height:1.15;cursor:pointer;color:#2a1a12;transition:opacity .2s}.sp .lb{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 1px}
-.sp .ic{position:relative;z-index:3;width:58px;height:58px;margin:0 auto 3px;background:#fff;border:3px solid #2a1a12;display:flex;align-items:center;justify-content:center;box-shadow:inset -3px -3px 0 #0001}
-.sp .ic img{width:48px;height:48px}.sp .no{position:absolute;z-index:4;top:-6px;left:calc(50% - 34px);background:#2a1a12;color:#ffe9b8;font-size:.5rem;padding:0 3px}
+.sp .ic{position:relative;z-index:3;width:60px;height:60px;margin:0 auto 3px;background:#fff;border:3px solid #2a1a12;display:flex;align-items:center;justify-content:center;box-shadow:inset -3px -3px 0 #0001}
+.sp .ic img{width:54px;height:54px}.sp .no{position:absolute;z-index:4;top:-6px;left:calc(50% - 34px);background:#2a1a12;color:#ffe9b8;font-size:.5rem;padding:0 3px}
 .sp.q .ic{background:#00000010;border-style:dashed;border-color:#8a6a50}.sp.q .ic img{filter:brightness(0);opacity:.28}.sp.q{color:#8a6a50}
 .sp.cur .ic{outline:3px solid #f7c331;outline-offset:2px;background:#fff6cf}.sp.fam .ic{outline:3px solid #e67e22;outline-offset:2px}.sp.cur .lb,.sp.fam .lb{font-weight:700}.sp.new .ic{background:#fff6cf}
 #tvd{flex:0 0 auto;background:#e9dcc3;border-top:3px solid #2a1a12;padding:7px 10px;font-size:.78rem;max-height:46vh;overflow:auto;line-height:1.35}
@@ -157,19 +158,14 @@ header{flex:0 0 auto;display:flex;gap:4px;align-items:center;padding:5px 4px;bac
 #rv.on{display:flex}#rv .rays{position:absolute;width:900px;height:900px;left:50%;top:42%;margin:-450px 0 0 -450px;background:repeating-conic-gradient(var(--rc) 0 10deg,#0000 10deg 20deg);opacity:.35;animation:spin 8s steps(48) infinite}
 @keyframes spin{to{transform:rotate(360deg)}}#rv>*{position:relative}
 #rv .t1{font-size:1rem;letter-spacing:2px}#rv .t2{font-size:1.6rem;font-weight:700;color:#fff;text-shadow:3px 3px 0 #2a1a12;margin:4px 0}
-#rv .big{margin-top:14px}#rv .fimg{width:200px;height:200px;animation:rin .8s steps(8) both}@keyframes rin{0%{transform:scale(0) rotate(-30deg)}70%{transform:scale(1.15)}100%{transform:none}}
+#rv .big{margin-top:14px}#rv .fimg{width:198px;height:198px;animation:rin .8s steps(8) both}@keyframes rin{0%{transform:scale(0) rotate(-30deg)}70%{transform:scale(1.15)}100%{transform:none}}
 .stars{font-size:1.5rem;letter-spacing:4px;margin:4px 0}.rar{display:inline-block;padding:2px 10px;border:3px solid #2a1a12;color:#fff;font-weight:700}
 #cardimg.cin{animation:cin .6s steps(6) both}@keyframes cin{0%{transform:scale(.2) rotate(-12deg);opacity:0}70%{transform:scale(1.06) rotate(2deg);opacity:1}100%{transform:none}}
 #cardimg{width:min(300px,78vw);image-rendering:pixelated;border:3px solid #2a1a12;margin:8px auto;display:block}
 /* sensação de jogo */
 .ftx{position:fixed;z-index:130;pointer-events:none;font-weight:700;font-size:1.1rem;text-shadow:2px 2px 0 #2a1a12,-1px -1px 0 #2a1a12;transform:translate(-50%,-50%);white-space:nowrap}
-.fr>img{animation:idle 2.4s steps(2) infinite;animation-delay:calc(var(--d,0s) * -1);transform-origin:50% 100%}@keyframes idle{50%{transform:scaleY(.96) scaleX(1.03)}}
+.fr>img{animation:idle 2.4s steps(2) infinite;animation-delay:calc(var(--d,0s) * -1);transform-origin:50% 100%}@keyframes idle{50%{transform:translateY(-2px)}}
 .fr.drag>img{animation:none}.fr.overpot>img{filter:drop-shadow(0 0 4px #b48cff) drop-shadow(0 0 2px #fff)!important}
-#pot .bb{position:absolute;width:6px;height:6px;background:var(--lq,#b48cff);box-shadow:inset -2px -2px 0 #0003,inset 1px 1px 0 #fff8;left:50%;top:40px;pointer-events:none;animation:bub 1.8s steps(6) infinite;opacity:0}
-@keyframes bub{0%{transform:translate(0,0);opacity:0}15%{opacity:1}100%{transform:translate(var(--dx,0),-34px);opacity:0}}
-#pot .stm{position:absolute;width:14px;height:10px;background:var(--lq,#b48cff);opacity:0;left:50%;top:26px;pointer-events:none;animation:stm 2.6s steps(5) infinite;filter:brightness(1.4)}
-@keyframes stm{0%{transform:translate(-50%,0) scale(.6);opacity:0}30%{opacity:.35}100%{transform:translate(calc(-50% + var(--dx,0px)),-46px) scale(1.6);opacity:0}}
-#pot.brew .bb{animation-duration:.6s}#pot.brew .stm{animation-duration:1s}
 .combo{position:fixed;right:8px;top:44px;z-index:20;background:#f7c331;color:#2a1a12;border:3px solid #2a1a12;padding:2px 8px;font-weight:700;display:none;box-shadow:inset -2px -2px 0 #0003}
 .combo.on{display:block;animation:hb .3s steps(2)}.combo i{display:block;height:3px;background:#2a1a12;margin-top:2px;transition:width .25s linear}
 /* rodada 2 */
@@ -184,13 +180,13 @@ header{flex:0 0 auto;display:flex;gap:4px;align-items:center;padding:5px 4px;bac
 #lamp{position:absolute;z-index:4;pointer-events:none;left:50%;top:22px;width:260px;height:210px;margin-left:-130px;background:radial-gradient(#ffd87a 0,#ffd87a00 65%);mix-blend-mode:screen;opacity:0;transition:opacity 2s}
 .win{position:absolute;z-index:0;overflow:hidden}
 .win:before,.win:after{display:none}.win:before{left:50%;top:0;bottom:0;width:3px;margin-left:-1px}.win:after{top:50%;left:0;right:0;height:3px;margin-top:-1px}
-.win .sun{position:absolute;width:14px;height:14px;image-rendering:pixelated;transition:top 2s,left 2s,background 2s;z-index:1}
+.win .sun{position:absolute;width:18px;height:18px;image-rendering:pixelated;transition:top 2s,left 2s,background 2s;z-index:1}
 .win .cl{position:absolute;left:0;right:0;background-repeat:repeat-x;image-rendering:pixelated;opacity:0;z-index:2;animation:cscr linear infinite;transition:opacity 2s,filter 2s}
 .win .cl.a{top:0;height:62%;animation-duration:70s}.win .cl.b{bottom:0;height:72%;animation-duration:42s}
 @keyframes cscr{to{background-position-x:calc(-1 * var(--tw))}}
 .win.few .cl{background-image:var(--cs);opacity:1}.win.cloudy .cl{background-image:var(--cd);opacity:1}.win.few .cl.a{opacity:.75}
 .win.night .cl{filter:brightness(.42) saturate(.6)}.win.storm .cl{filter:brightness(.62)}.win.night.storm .cl{filter:brightness(.35)}
-.win .leaf{position:absolute;left:-12px;top:22%;width:12px;height:10px;image-rendering:pixelated;z-index:3;opacity:0;animation:leaf 20s linear infinite}.win.snow .leaf,.win.storm .leaf{display:none}.win.night .leaf{filter:brightness(.45)}
+.win .leaf{position:absolute;left:-14px;top:22%;width:14px;height:12px;image-rendering:pixelated;z-index:3;opacity:0;animation:leaf 20s linear infinite}.win.snow .leaf,.win.storm .leaf{display:none}.win.night .leaf{filter:brightness(.45)}
 @keyframes leaf{0%,85.9%{opacity:0;transform:none}86%{opacity:1;transform:translate(0,0) rotate(0)}89%{transform:translate(calc(var(--lw)*.35),-6px) rotate(140deg)}92%{transform:translate(calc(var(--lw)*.7),2px) rotate(260deg)}95%{opacity:1;transform:translate(calc(var(--lw) + 10px),-4px) rotate(400deg)}95.1%,100%{opacity:0}}
 .win .stars span{position:absolute;width:2px;height:2px;background:#fff;opacity:0}.win.starry .stars span{opacity:1;animation:tw 2.2s steps(2) infinite}
 .win .wfx{position:absolute;inset:0;z-index:3;pointer-events:none}
@@ -228,7 +224,7 @@ img.curt{z-index:2;transform-origin:50% 0;animation:sway 10s ease-in-out infinit
 /* álbum e conquistas */
 .alb{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px;padding:10px}
 .ac{position:relative;background:#f5efe0;border:4px solid;box-shadow:0 0 0 2px #2a1a12;padding:6px 4px;text-align:center;font-size:.6rem;line-height:1.15;cursor:pointer}
-.ac img{width:64px;height:64px;margin:2px auto}.ac b{display:block;font-size:.8rem}.ac .no{position:absolute;top:2px;left:4px;font-size:.55rem;opacity:.6}
+.ac img{width:72px;height:72px;margin:2px auto}.ac b{display:block;font-size:.8rem}.ac .no{position:absolute;top:2px;left:4px;font-size:.55rem;opacity:.6}
 .ac.shn{background:linear-gradient(135deg,#fff0fb,#fffbe0,#e8fdff);animation:shn 1.6s steps(8) infinite}
 .recs{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px}.recs div{background:#e9dcc3;border:2px solid #2a1a1240;padding:6px;text-align:left;font-size:.72rem}.recs b{display:block;font-size:1.05rem}
 .tvh .btn{padding:2px 5px}
@@ -247,7 +243,7 @@ img.curt{z-index:2;transform-origin:50% 0;animation:sway 10s ease-in-out infinit
 .dx{background:#e9dcc3;padding:5px 3px;font-size:.62rem;line-height:1.15;border:2px solid #2a1a1240}
 .dx img{width:44px;height:44px;margin:0 auto 2px}.dx.lk img{filter:brightness(0);opacity:.25}.dx.lk{color:#0007}
 .dxh{text-align:left;font-weight:700;margin:10px 0 0;font-size:.85rem}
-.toast{position:fixed;left:50%;top:64%;transform:translateX(-50%);max-width:92%;background:#2a1a12;color:#ffe9b8;padding:7px 12px;border:3px solid #ffe9b8;opacity:0;transition:opacity .2s;pointer-events:none;z-index:150;text-align:center;font-size:.85rem;line-height:1.35}
+.toast{position:fixed;left:50%;top:40%;transform:translateX(-50%);max-width:92%;background:#2a1a12;color:#ffe9b8;padding:7px 12px;border:3px solid #ffe9b8;opacity:0;transition:opacity .2s;pointer-events:none;z-index:150;text-align:center;font-size:.85rem;line-height:1.35}
 .toast.on{opacity:1}.toast b{color:#f7c331}
 .pt{position:fixed;width:6px;height:6px;z-index:120;pointer-events:none}
 .fc{position:fixed;width:12px;height:12px;z-index:120;pointer-events:none;background:#f7c331;box-shadow:inset -2px -2px 0 #b7841a,inset 2px 2px 0 #fff3a0}
@@ -271,29 +267,18 @@ button,.btn,.big,.mk,.tabk,.hint,.cust,.sp,.flt span{touch-action:manipulation}
 /* jogo: arrastar com o mouse não seleciona texto (o código de backup continua selecionável) */
 body{-webkit-user-select:none;user-select:none}textarea,input{-webkit-user-select:text;user-select:text}
 /* pedido de espécie: desenho da fruta no balão */
-.rq.rsp{padding:3px 2px}.rq .spi{width:30px;height:30px;image-rendering:pixelated;flex:0 0 auto}.rq.rsp b{white-space:normal;line-height:1.05}
+.rq.rsp{padding:3px 2px}.rq .spi{width:36px;height:36px;image-rendering:pixelated;flex:0 0 auto}.rq.rsp b{white-space:normal;line-height:1.05}.rq .spt{flex:1;min-width:0;display:flex;flex-direction:column}.rq .spt b{flex:none;white-space:normal;overflow:visible;line-height:1.05}.rq .spt .nb{line-height:1.05}
 /* tutorial não bloqueia a mesa: dá pra arrastar fruta por baixo do balão */
 #tut{pointer-events:none}#tut .btn{pointer-events:auto}
 
 /* ===== polimento visual: luz, profundidade e chão ===== */
 /* luz no centro da sala (vinheta): fica atrás das frutas, só escurece o chão e a parede nas bordas */
-#table::after{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 75% 70% at 45% 55%,#0000 45%,#0000002e 75%,#00000066 100%)}
-#scene::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse 80% 90% at 50% 70%,#0000 55%,#00000040 100%)}
-/* três tapetinhos encostados no balcão (como na referência) */
-#table::before{content:"";position:absolute;z-index:0;pointer-events:none;left:0;right:0;top:10px;height:34px;
- background:
-  linear-gradient(#8a8a5a,#8a8a5a) calc(22% + 3px) 3px/min(16%,100px) 24px no-repeat,linear-gradient(#2a1a12,#2a1a12) 22% 0/calc(min(16%,100px) + 6px) 30px no-repeat,
-  linear-gradient(#a8443a,#a8443a) calc(50% + 0px) 3px/min(18%,110px) 24px no-repeat,linear-gradient(#2a1a12,#2a1a12) 50% 0/calc(min(18%,110px) + 6px) 30px no-repeat,
-  linear-gradient(#8a8a5a,#8a8a5a) calc(78% - 3px) 3px/min(16%,100px) 24px no-repeat,linear-gradient(#2a1a12,#2a1a12) 78% 0/calc(min(16%,100px) + 6px) 30px no-repeat;
- opacity:.8;filter:drop-shadow(0 3px 0 #0003)}
+#table::after{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 78% 74% at 50% 52%,#0000 48%,#2a120424 76%,#2a120459 100%)}
+#scene::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse 85% 95% at 50% 72%,#0000 55%,#2a120438 100%)}
 /* sombras que dão volume (2.5D) */
 header{position:relative;z-index:6;box-shadow:0 3px 0 #0003,0 6px 12px #00000059}
-#table{box-shadow:inset 0 12px 14px -8px #000000b3}
 #market{position:relative;z-index:6;box-shadow:0 -4px 0 #0002,0 -8px 14px -4px #00000080}
 /* brilho mágico no caldeirão */
-#pot img{filter:drop-shadow(0 0 6px #b06cffb3) drop-shadow(0 0 14px #7b3df066);animation:potglow 2.4s ease-in-out infinite}
-@keyframes potglow{50%{filter:drop-shadow(0 0 9px #c792ffd9) drop-shadow(0 0 20px #8b4dff80)}}
-#pot.mv img{animation:none}
 /* placa de madeira deitada com as instruções */
 .tip .placa{background:#e3c598;color:#2a1a12;text-shadow:none;border:3px solid #2a1a12;border-radius:6px;padding:10px 16px;
  box-shadow:inset 0 0 0 3px #f2dcb3,inset 0 -6px 0 #c9a56f,0 6px 0 #00000040,0 10px 16px #00000059;transform:perspective(420px) rotateX(16deg);max-width:320px}
@@ -303,34 +288,61 @@ header{position:relative;z-index:6;box-shadow:0 3px 0 #0003,0 6px 12px #00000059
 
 /* caldeirão no centro do chão, com luz rosa-roxa no piso e fumacinha */
 #pot{left:calc(50% - 48px);bottom:16%}
-#pot::before{content:"";position:absolute;z-index:-1;left:50%;bottom:-6px;width:240px;height:110px;transform:translateX(-50%);pointer-events:none;
- background:radial-gradient(ellipse at 50% 70%,#ff5fdc59 0,#b46cff33 40%,#0000 70%);animation:floorglow 2.4s ease-in-out infinite}
-@keyframes floorglow{50%{opacity:.75}}
-#pot::after{content:"";position:absolute;left:44px;top:-6px;width:8px;height:8px;background:#e8d6ff99;box-shadow:-10px -14px 0 2px #e8d6ff66,6px -28px 0 0 #e8d6ff55,-4px -44px 0 3px #e8d6ff33;pointer-events:none;animation:steam 2.6s steps(6) infinite}
-@keyframes steam{from{transform:translateY(6px);opacity:.9}to{transform:translateY(-14px);opacity:0}}
-#pot img{filter:drop-shadow(0 0 8px #ff6be0b3) drop-shadow(0 0 18px #9b4dffa6)}
-@keyframes potglow{50%{filter:drop-shadow(0 0 11px #ff8ae8e6) drop-shadow(0 0 26px #a45cffb3)}}
 /* placa vira pergaminho com as pontas enroladas */
 .tip{padding-top:56px}
 .tip .placa{position:relative;background:#e9d3a6;border-radius:3px;transform:none;padding:8px 18px}
 .tip .placa::before,.tip .placa::after{content:"";position:absolute;top:-6px;bottom:-6px;width:10px;background:linear-gradient(90deg,#b98c52,#f2dcb3 45%,#b98c52);border:3px solid #2a1a12;border-radius:5px}
 .tip .placa::before{left:-11px}.tip .placa::after{right:-11px}
-/* caixotes e sacos de fruta nos cantos do chão (sprites em pixel art) */
-.deco{position:absolute;z-index:0;pointer-events:none;display:flex;flex-direction:column;gap:20px}
-.deco.l{left:4px;top:40px;align-items:flex-start}.deco.r{right:4px;top:64px;align-items:flex-end}
-.drow{display:flex;gap:2px;align-items:flex-end}.deco.l .c2{margin-bottom:-14px}
-.crate{position:relative;width:60px;height:36px;filter:drop-shadow(0 4px 0 #0000004d)}
-.crate::before{content:"";position:absolute;left:3px;right:3px;top:-8px;height:12px;background:#4a2a12;border:3px solid #2a1a12;border-bottom:0}
-.sack{position:relative;width:48px;height:36px;filter:drop-shadow(0 4px 0 #0000004d)}
-.deco .df{position:absolute;width:26px;height:26px;image-rendering:pixelated}
-.deco .cf{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated}
-.deco .loose{position:static;margin:-14px 0 0 66px;transform:rotate(-30deg);width:22px;height:22px}
-@media (max-width:599px){.deco{transform:scale(.72);transform-origin:top left;gap:14px}.deco.r{transform-origin:top right}.deco .c2,.deco.r .sack:last-child,.deco .loose{display:none}}
 /* celular: caldeirão embaixo e placa em cima; telas largas: placa ao lado do caldeirão */
 @media (max-width:699px){#pot{bottom:8px}}
 @media (min-width:700px){.tip{align-items:center;justify-content:flex-start;padding:0 0 0 calc(50% + 72px)}}
 /* luz do caldeirão mais forte no piso, como na referência */
-#pot::before{width:300px;height:150px;bottom:-22px;background:radial-gradient(ellipse at 50% 62%,#ff4fe08c 0,#d24dff59 30%,#a04dff26 55%,#0000 72%)}
-#pot img{filter:drop-shadow(0 0 7px #ff7af0cc) drop-shadow(0 0 20px #c44dffb3)}
-@keyframes potglow{50%{filter:drop-shadow(0 0 11px #ff9df5f2) drop-shadow(0 0 30px #c95cffcc)}}
-#pot::after{background:#f0c8ffb3;box-shadow:-10px -14px 0 2px #f0c8ff80,6px -28px 0 0 #f0c8ff66,-4px -44px 0 3px #f0c8ff40}
+/* ===== Etapa 2: luz das janelas e escurecimento do chão ===== */
+#tamb{position:absolute;inset:0;z-index:0;pointer-events:none;mix-blend-mode:multiply;transition:background 2s}
+#flight{position:absolute;inset:0;z-index:0;pointer-events:none;transition:opacity 2s;opacity:0;background:radial-gradient(ellipse 150px 120px at var(--w1x,33%) 0,var(--wlc,#ffe2a8) 0,#0000 100%),radial-gradient(ellipse 150px 120px at var(--w2x,66%) 0,var(--wlc,#ffe2a8) 0,#0000 100%);mix-blend-mode:soft-light}
+.wlight{position:absolute;z-index:1;pointer-events:none;transition:opacity 2s;opacity:0;mix-blend-mode:soft-light;background:linear-gradient(var(--wlc,#ffe2a8),#0000);clip-path:polygon(18% 0,82% 0,100% 100%,0 100%)}
+#flamp{position:absolute;z-index:0;pointer-events:none;left:50%;top:0;width:520px;height:240px;margin-left:-260px;background:radial-gradient(ellipse at 50% 0,#ffc86a 0,#ffc86a00 68%);mix-blend-mode:soft-light;opacity:0;transition:opacity 2s}
+/* ===== Etapa 3: caldeirão (corpo 48×44 a 2x, poção em folha de 4 quadros, halo e luz sem desfoque) ===== */
+#potw{position:relative;width:96px;height:88px}
+#potimg{width:96px;height:88px}
+#potw::before{content:"";position:absolute;z-index:-1;left:-80px;top:36px;width:256px;height:96px;background:var(--gl) 0 0/256px 96px no-repeat;image-rendering:pixelated;pointer-events:none;animation:pglow 2.4s steps(1) infinite}
+@keyframes pglow{50%{opacity:.8}}
+/* halo sem desfoque: contorno de 2 px na cor da poção, pulsando em 2 passos */
+#pot #potimg{filter:drop-shadow(2px 0 0 var(--hl)) drop-shadow(-2px 0 0 var(--hl)) drop-shadow(0 -2px 0 var(--hl)) drop-shadow(0 2px 0 var(--hl));animation:phalo 2.4s steps(1) infinite}
+@keyframes phalo{50%{filter:drop-shadow(2px 0 0 var(--hl2)) drop-shadow(-2px 0 0 var(--hl2)) drop-shadow(0 -2px 0 var(--hl2)) drop-shadow(0 2px 0 var(--hl2))}}
+#pot.hot #potimg{animation:none;filter:drop-shadow(4px 0 0 #fff) drop-shadow(-4px 0 0 #fff) drop-shadow(0 -4px 0 #fff) drop-shadow(0 4px 0 #fff)}
+#pot.mv #potimg,#pot.brew #potimg{animation:none}
+/* poção: folha de 4 quadros, troca por steps() */
+#potliq{position:absolute;left:0;top:0;width:96px;height:36px;pointer-events:none;image-rendering:pixelated;background:var(--pi) 0 0/384px 36px no-repeat;animation:pliq 1.28s steps(4) infinite}
+@keyframes pliq{to{background-position:-384px 0}}
+#pot.has1 #potliq{animation-duration:.96s}
+#pot.brew #potliq{background-image:var(--pb);animation-duration:.44s}
+#pot.pop #potliq{filter:brightness(1.8)}
+/* tremida ao misturar: só translação em passos de 2 px (sem rotate) */
+#pot.brew #potw{animation:pshake .16s steps(1) infinite}
+@keyframes pshake{25%{transform:translate(2px,0)}50%{transform:translate(0,-2px)}75%{transform:translate(-2px,0)}}
+#pot.brew #potw::before{animation-duration:.44s;filter:brightness(1.3)}
+/* bolhas que sobem */
+#pot .bb{position:absolute;left:50%;top:14px;width:6px;height:6px;background:var(--bbi) 0 0/6px 6px;image-rendering:pixelated;pointer-events:none;opacity:0;animation:pbub 2.4s steps(6) infinite}
+@keyframes pbub{0%{transform:translate(0,0);opacity:0}16%{opacity:1}100%{transform:translate(var(--dx,0),-36px);opacity:0}}
+#pot .bb.b3{display:none}#pot.has1 .bb.b3,#pot.brew .bb.b3{display:block}
+#pot.has1 .bb{animation-duration:1.6s}#pot.brew .bb{animation-duration:.6s}
+/* fumaça: tira de 3 quadros 9×7 a 2x, sobe 8 px por passo */
+#pot .stm{position:absolute;left:50%;top:-8px;width:18px;height:14px;background:var(--pf) 0 0/54px 14px no-repeat;image-rendering:pixelated;pointer-events:none;opacity:0;animation:psmk 3.2s steps(8) infinite,psmf 3.2s steps(3) infinite}
+@keyframes psmk{0%{transform:translate(-50%,0);opacity:0}12%{opacity:.9}70%{opacity:.7}100%{transform:translate(calc(-50% + var(--dx,0px)),-64px);opacity:0}}
+@keyframes psmf{to{background-position:-54px 0}}
+#pot.brew .stm{animation-duration:1.2s,1.2s}
+/* faíscas 5×5 a 2x piscando em 2 passos */
+.psp{position:absolute;width:10px;height:10px;background:var(--spk) 0 0/10px 10px;image-rendering:pixelated;pointer-events:none;animation:tw 1.6s steps(2) infinite;display:none}
+.psp.p0{left:-12px;top:30px;display:block}.psp.p1{left:98px;top:14px;display:block;animation-delay:-.8s}.psp.p2{left:16px;top:-14px;animation-delay:-.4s}.psp.p3{left:84px;top:56px;animation-delay:-1.1s}.psp.p4{left:60px;top:-20px;animation-delay:-.6s}
+#pot.has1 .psp.p2{display:block}#pot.brew .psp,#pot.pop .psp{display:block;animation-duration:.4s}
+.pt.psm{width:4px;height:4px}
+@media (prefers-reduced-motion:reduce){#pot .stm{opacity:.7;transform:translate(-50%,-24px)}#pot .bb{display:none!important}}
+/* ===== Etapa 4: enfeites do chão e lampiões do toldo ===== */
+.dobj{position:absolute;z-index:0;pointer-events:none;image-rendering:pixelated}
+.lant{position:absolute;z-index:1;width:18px;height:36px;pointer-events:none;image-rendering:pixelated;background:var(--lant) 0 0/72px 36px no-repeat}
+#scene.lit .lant{animation:lantf .6s steps(3) infinite;background-position:-18px 0}
+@keyframes lantf{from{background-position:-18px 0}to{background-position:-72px 0}}
+.lhalo{position:absolute;z-index:5;width:80px;height:80px;pointer-events:none;image-rendering:pixelated;background:var(--lhalo) 0 0/80px 80px no-repeat;opacity:0;transition:opacity 2s;mix-blend-mode:screen;clip-path:inset(24px 0 0 0)}
+#scene.lit .lhalo{opacity:1}
+
