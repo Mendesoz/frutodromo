@@ -486,3 +486,26 @@ header{box-shadow:0 3px 0 #24130780,0 6px 10px #24130724}
  .cust.come .pw,.cust.come .bub{animation:none}
  .fr.new{animation:none}
 }
+
+/* ===== Etapa 8C: acabamento responsivo e acessibilidade ===== */
+/* Navegação por teclado com foco visível nos controles já existentes. */
+.mk:focus-visible,.mkar:focus-visible,.btn:focus-visible{outline:3px solid #fff5a6;outline-offset:2px}
+.rq.cor:focus-visible{outline:2px solid #7654bb;outline-offset:1px}
+/* Área rolável da feira: rolagem suave apenas quando permitida. */
+@media(prefers-reduced-motion:no-preference){.mkscroll{scroll-behavior:smooth}}
+/* Evita que textos longos invadam as bordas dos cartões. */
+.mk{overflow-wrap:anywhere}
+.rq .spt,.rq b{min-width:0}
+.rq .nb{font-variant-numeric:tabular-nums}
+/* Estados de toque sem mudar os eventos do jogo. */
+.btn:active{filter:brightness(1.1)}
+.mkar:active{filter:brightness(1.2)}
+/* iPhone e outras telas estreitas: indicadores e pedidos continuam legíveis. */
+@media(max-width:599px){
+ .rq .ck{flex:0 0 8px}
+ .rq .ico{flex:0 0 14px}
+ .mk .pr{font-variant-numeric:tabular-nums}
+ .mkscroll{overscroll-behavior-inline:contain}
+}
+/* O modo de movimento reduzido prevalece sobre a rolagem decorativa. */
+@media(prefers-reduced-motion:reduce){.mkscroll{scroll-behavior:auto}}
