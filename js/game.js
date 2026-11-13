@@ -1415,7 +1415,8 @@ if(window.ResizeObserver)new ResizeObserver(()=>{try{onTable()}catch(e){}}).obse
 S.pot=S.pot||[];if(S.pot.length==2){S.fruits.push(...S.pot);S.pot=[]}
 document.addEventListener("pointerdown",e=>{const t=e.target.closest("button,.btn,.big,.hint,.flt span,.sp,.cg,.tvh .btn,#pot,.pw");if(!t)return;ac();
  if(t.id=="go"||t.id=="cl"||t.id=="tvx"||t.id=="resume"||t.id=="nextd"||t.id=="rvx"||t.id=="pot")return;SFX.sel()},true);
-if("serviceWorker" in navigator&&location.hostname.endsWith("github.io"))navigator.serviceWorker.register("sw.js").catch(()=>{});
+// PWA offline: registra o service worker em qualquer https (GitHub Pages, Cloudflare Pages) e no localhost; nunca no portal (o zip do CrazyGames é um HTML único, sem sw.js)
+if("serviceWorker" in navigator&&!PORTAL.name&&(location.protocol=="https:"||/^(localhost|127\.0\.0\.1)$/.test(location.hostname)))navigator.serviceWorker.register("sw.js").catch(()=>{});
 delete S.ess;delete S.sk;S.tree=S.tree||{};
 setTimeout(()=>{try{fixFruitDeco()}catch(e){}},2600); // save carregado: tira fruta de cima de enfeite depois que a mesa assentou
 migrate();if(!S.bag)S.bag=[{t:"grow"},{t:"shrink"}];S.bag=S.bag.filter(x=>ITEMS[x.t]);S.fruits.forEach(f=>{clampPos(f);treeAdd(f,null,true)});renderProps();renderAll();placePot();fetchWX();
