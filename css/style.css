@@ -464,3 +464,25 @@ header{box-shadow:0 3px 0 #24130780,0 6px 10px #24130724}
  .rq.miss{animation:none}
  .cust.hot .bub,.cust.happy .bub{transition:none}
 }
+
+/* ===== Etapa 8B: personagens e celebrações — apenas apresentação ===== */
+/* Reações existentes ganham leitura mais expressiva sem alterar tempos de jogo. */
+.cust.happy .bn{background:#2e7842;color:#fff5cb}
+.cust.sad .bn{background:#8d453d;color:#fff2dd}
+.cust.angry .bn{box-shadow:inset 0 -2px 0 #e87951}
+.cust.vip.happy .bn{background:#d4a017;color:#2a1a12;box-shadow:0 2px 0 #fff2a8}
+/* A entrada dos clientes destaca discretamente o retrato. */
+.cust.come .pw{filter:drop-shadow(0 3px 0 #2a1a1233)}
+/* Descobertas e recompensas: destaque pontual nos estados já existentes. */
+.fr.new:not(.drag):not(.gsrc)>img{filter:drop-shadow(0 0 3px #fff3b0)}
+.mk.rare:not(.off){filter:drop-shadow(0 1px 0 #e7b54a70)}
+.mk.rare:not(.off):active{filter:brightness(1.15)}
+/* Partículas do caldeirão: apenas efeito luminoso, sem alterar a mistura. */
+#pot.pop .psp{filter:drop-shadow(0 0 4px #ffe8a1)}
+#pot.has1 .psp.p2{filter:drop-shadow(0 0 2px #b8a4ff)}
+/* Evita animações extras em aparelhos com movimento reduzido. */
+@media(prefers-reduced-motion:reduce){
+ .cust.happy .pw,.cust.sad .pw,.cust.angry .pw{animation:none}
+ .cust.come .pw,.cust.come .bub{animation:none}
+ .fr.new{animation:none}
+}
