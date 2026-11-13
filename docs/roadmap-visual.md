@@ -9,8 +9,7 @@ Antes de começar, marque aqui (e faça push). Ao terminar, apague a linha.
 
 | Agente | Área | Arquivos / funções | Desde |
 |---|---|---|---|
-| Claude | Etapa 5 (correções do teste e da revisão) | `js/game.js`, `css/style.css` (interface) | 12/11 19:55 |
-| Claude | Etapa 6 — Personagens (planejamento) | `js/game.js` (`charImg`, `personImg`, clientes) | 12/11 19:55 |
+| Claude | Etapa 6A — Personagens | `js/game.js` (`charImg`, `personImg`, `renderCounter` só o `.pw`, loop de 250 ms, `showPortrait`), `css/style.css` (`.pw`, `.chr`, `bob`, `blk`, `.sweat`) | 13/11 14:15 |
 
 ## Pendências abertas (qualquer agente pode pegar, marcando acima)
 - Balões de pedido vizinhos se sobrepõem em 393×760 — Etapa 5.
@@ -23,8 +22,8 @@ Antes de começar, marque aqui (e faça push). Ao terminar, apague a linha.
 | 2 | Cenário (chão, parede, janelas, balcão, luz ambiente) | concluída (11/11) | chão 240×80, frente do balcão, lambri, luz por clima |
 | 3 | Caldeirão (poção animada, fumaça, partículas, reflexo) | concluída (12/11) | corpo 48×44 a 2x, poção em 4 quadros, halo sem blur |
 | 4 | Decoração (caixotes, barris, cestos, lampiões, placas, balança) | concluída (12/11) | 3 a 10 enfeites por faixa de tela, lampiões acesos à noite |
-| 5 | Interface (HUD, inventário, feira, balões, botões) | no ar, em teste e revisão (12/11) | 5A base: fonte embutida, escala de texto, molduras; 5B avisos; 5C tutorial, feira, balões |
-| 6 | Personagens (sprites, expressões, roupas, respiração) | em planejamento | |
+| 5 | Interface (HUD, inventário, feira, balões, botões) | concluída (13/11) | 5A base: fonte embutida, escala de texto, molduras; 5B avisos; 5C tutorial, feira, balões |
+| 6 | Personagens (sprites, expressões, roupas, respiração) | em andamento (6A) | 6A folha de sprites e 5 expressões; 6B movimento e VIP |
 | 7 | Game feel (ambiente, reações, luz dinâmica, feedback) | pendente | |
 | 8 | Polimento (desempenho, responsividade, regressão) | pendente | |
 
@@ -102,8 +101,9 @@ Antes de começar, marque aqui (e faça push). Ao terminar, apague a linha.
 
 **Testes:** tester com 24 verificações em 7 tamanhos, em inglês e com movimento reduzido, sem erros; desempenho sem piora. Achados levados para a Etapa 5 (aviso de 3 linhas cobre o caldeirão em 375×553; sombra das frutas em meio-pixel).
 
-### Etapa 5 — Interface (no ar em 12/11/2026; teste e revisão finais em andamento)
+### Etapa 5 — Interface (concluída em 13/11/2026)
 - 5A: fonte Pixelify Sans embutida (sem Google Fonts), texto só em 10/12/14/16/20/28 px, molduras 9-slice em pixel art, alvos de toque de 40 px no celular, ligaduras desligadas ("fi" virava "A").
 - 5B: avisos num letreiro fixo sob o cabeçalho (fila, ×N, erros em vermelho), feedback de espécie errada ("Toque no ? pra ver a receita").
 - 5C: tutorial fora da mesa com contorno no alvo, feira com abas fixas e setas, balão ao lado do cliente em janela baixa, cliente que aceita a fruta segurada fica verde.
 - Frutas não ficam sobre enfeites (ARRUMAR, compra, nascimento, jogo novo, soltar).
+- 5D (13/11): fruta arrastada visível fora da mesa (fantasma em camada fixa), avisos e tutorial se reposicionam ao girar a tela, ajustes da revisão.
