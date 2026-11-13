@@ -371,14 +371,14 @@ const save=()=>{if(!saveTimer)saveTimer=setTimeout(saveNow,800)};
 function portmanteau(a,b){if(a==b)return a;const n=a.slice(0,Math.max(2,Math.ceil(a.length/2)))+b.slice(Math.floor(b.length/2)).toLowerCase();return n.replace(/([a-zà-ú])\1/gi,"$1")}
 // regra única: parecidos se intensificam
 function inh(x,y,max){if(x<=3&&y<=3)return Math.max(0,Math.min(x,y)-1);if(x>=8&&y>=8)return Math.min(max,Math.max(x,y)+1);return Math.round((x+y)/2)}
-function elOut(a,b){if(a.el&&b.el&&a.el!=b.el)return{el:R([a.el,b.el]),hero:true};return{el:a.el||b.el||null,hero:!!(a.hero||b.hero)}}
+function elOut(a,b){if(a.el&&b.el&&a.el!=b.el)return{el:a.el,hero:true};return{el:a.el||b.el||null,hero:!!(a.hero||b.hero)}}
 function cross(a,b){const fa=Math.random()<.5,P=fa?a:b,Q=fa?b:a,e=elOut(a,b);
 const c={id:"f"+(S.id++),gen:Math.max(a.gen,b.gen)+1,mut:false,root:portmanteau(P.root,Q.root),shape:"mix",mask:a.shape==b.shape&&!a.mask&&!b.mask?null:morph(a,b),pat:Math.random()<.5?Q.pat:P.pat,top:R([a.top,b.top]),
 doce:inh(a.doce,b.doce,10),az:inh(a.az,b.az,10),tam:inh(a.tam,b.tam,12),rgb:a.rgb.map((x,i)=>Math.round((x+b.rgb[i])/2)),el:e.el,hero:e.hero};
 {const da=a.rgb.reduce((s,x,i)=>s+(x-c.rgb[i])**2,0),db=b.rgb.reduce((s,x,i)=>s+(x-c.rgb[i])**2,0),far=da>db?a:b;if(Math.max(da,db)>1500){c.rgb2=far.rgb.map(Math.round);if(Math.random()<.35)c.pat="marble";else if(c.pat=="none"||c.pat=="pores"||c.pat=="fibers")c.pat=R(["spots","stripes","seeds"])}}
 c.shiny=Math.random()<((a.shiny||b.shiny)?.25:.04);
 if(!c.mask)c.shape=a.shape;if(c.hero)c.cape=(a.hero&&a.cape)||(b.hero&&b.cape)||R(["#d63031","#2d6cdf","#8e44ad","#16a085","#f39c12"]);
-if(Math.random()<.08){c.mut=true;if(Math.random()<.6)c.rgb=COLORS[R(["rosa","branca","azul","cinza"])].slice();else c.pat=R(["spots","stripes","seeds","none","blush"])}
+if(Math.random()<.08){c.mut=true;c.pat=R(["spots","stripes","seeds","none","blush","marble"])}
 return c}
 function stars(t){let s=1;if(t.d>=2)s++;if(t.d>=4)s++;if(t.st.el)s++;if(t.st.hero)s++;if(t.st.tam==0||t.st.tam>=11)s++;if(t.shiny)s++;return Math.min(5,s)}
 const RAR=[null,["COMUM","#8d99ae"],["INCOMUM","#3ca55c"],["RARA","#2d6cdf"],["ÉPICA","#9b5de5"],["LENDÁRIA","#f39c12"]];
@@ -402,7 +402,7 @@ if(!silent){S.ds.dex++;setTimeout(checkAch,0);const t=S.tree[k],n=t.n,st=stars(t
 else if(f.shiny&&!S.tree[k].shiny){S.tree[k].shiny=true}return true}
 const dexCheck=(f,silent)=>treeAdd(f,null,silent);
 function predictSt(a,b){const e=a.el&&b.el&&a.el!=b.el?{el:a.el,hero:true}:{el:a.el||b.el||null,hero:!!(a.hero||b.hero)};
-return{doce:inh(a.doce,b.doce,10),az:inh(a.az,b.az,10),tam:inh(a.tam,b.tam,12),rgb:a.rgb.map((x,q)=>(x+b.rgb[q])/2),el:e.el,hero:e.hero}}
+return{doce:inh(a.doce,b.doce,10),az:inh(a.az,b.az,10),tam:inh(a.tam,b.tam,12),rgb:a.rgb.map((x,q)=>Math.round((x+b.rgb[q])/2)),el:e.el,hero:e.hero}}
 function suggestions(max,only){const ks=Object.keys(S.tree||{}),out=[],seen=new Set();
 for(let i=0;i<ks.length;i++)for(let j=i;j<ks.length;j++){if(only&&ks[i]!=only&&ks[j]!=only)continue;const c=predictSt(S.tree[ks[i]].st,S.tree[ks[j]].st),k=spKey(c);if(S.tree[k]||seen.has(k))continue;seen.add(k);
 out.push({k,a:ks[i],b:ks[j],c,score:Math.abs(c.tam-6)*1.5+(c.hero?5:0)+(c.el?1:0)+(c.doce==10||c.az==10?3:0)+((i*7+j*13)%10)/10})}
@@ -437,13 +437,16 @@ const ACC=gen=="f"?["freck","glass","ear","scarf","neck","bow","flower","leaf","
 const hsG=gen=="f"?[1,1,2,2,3,5,7,4]:gen=="m"?[0,0,0,6,8,4,0,8]:[0,2,4,8,6];
 const nc={name:vipN||(kd?kdN:R(gen=="f"?NAMESF:gen=="m"?NAMESM:NAMESN)),gen,kind:kd?kd[0]:"person",fur:kd?R(kd[1]):null,vip,skin:R(SKIN),hair:R(HAIR),hs:R(hsG),eyeC:N(0,5),hat:Math.random()<.25?N(1,3):0,hat2:R(SHIRT),sp:N(0,4),acc,acc2:R(SHIRT),mouth:N(0,1),blinkD:Math.random()*4,shirt:R(SHIRT),gl:false,reqs,rw,t0:now(),
 pat:(95000+t.d*45000+reqs.length*15000)*(vip?.85:1),come:true,ct:Date.now(),tg:rk(t),td:t.d};charSheet(nc);return nc} // a folha já nasce pronta (antes do cliente entrar), sem travar a chegada
-function stImg(x){if(x.img)return x.img;let a=x;while(a.p)a=a.p[0];return {...a.img,rgb:x.rgb,hero:x.hero,cape:x.hero?"#d63031":null}}
+function stImg(x){if(x.img)return x.img;
+const a=stImg(x.p[0]),b=stImg(x.p[1]),same=a.shape==b.shape&&!a.mask&&!b.mask;
+return x.img={shape:same?a.shape:"mix",mask:same?null:morph(a,b),pat:a.pat,top:a.top,tip:a.tip,rgb:x.rgb,hero:x.hero,cape:x.hero?"#d63031":null}}
+
 function stLabel(x){return x.d==0?x.name:(x.hero?"Super ":"")+sizeName(x.tam)+" "+colorName(x.rgb)+(x.el?" "+ELEM[x.el].n:"")}
-function showHint(i){const c=S.cust[i];if(!c)return;const L=level(),pool=reachPool(L);const ok=pool.filter(x=>c.reqs.every(r=>meets(x,r))).map(x=>[x,recipeOf(x).length]).sort((a,b)=>a[1]-b[1]);let t=ok.length?ok[0][0]:null;
+function showHint(i){const c=S.cust[i];if(!c)return;const L=level(),pool=reachPool(L);const exact=pool.find(x=>rk(x)==c.tg&&c.reqs.every(r=>meets(x,r)));const ok=pool.filter(x=>c.reqs.every(r=>meets(x,r))).map(x=>[x,recipeOf(x).length]).sort((a,b)=>a[1]-b[1]);let t=exact||(ok.length?ok[0][0]:null);
 let h=`<h2>COMO FAZER?</h2><p style="margin-top:0">Pedido de <b>${c.name}</b></p>`;
 if(!t)h+="<p>Hmm, esse pedido ficou difícil. Pode trocar por outro cliente esperando ele ir embora.</p>";
 else if(t.d==0)h+=`<p>É só comprar na feira:</p><div class="rstep"><span class="fi"><img src="${fruitImg(stImg(t))}"><span class="nn">${t.name}</span></span></div>`;
-else{const st=recipeOf(t);h+=`<p>${st.length} cruzamento${st.length>1?"s":""} no caldeirão:</p>`+st.map((x,k)=>{const[a,b]=x.p,fi=y=>`<span class="fi"><img src="${fruitImg(stImg(y))}"><span class="nn">${stLabel(y)}</span></span>`;return `<div class="rstep"><b>${k+1}.</b>${fi(a)}<b>+</b>${fi(b)}<b>=</b>${fi(x)}</div>`}).join("")+`<p style="font-size:var(--t12);opacity:.75">As frutas da feira estão lá embaixo. Use o resultado de cada passo no passo seguinte.</p>`}
+else{const st=recipeOf(t);h+=`<p>${st.length} cruzamento${st.length>1?"s":""} no caldeirão:</p>`+st.map((x,k)=>{const[a,b]=x.p,fi=y=>`<span class="fi"><img src="${fruitImg(stImg(y))}"><span class="nn">${stLabel(y)}</span></span>`;return `<div class="rstep"><b>${k+1}.</b>${fi(a)}<b>+</b>${fi(b)}<b>=</b>${fi(x)}</div>`}).join("")+`<p style="font-size:var(--t12);opacity:.75">As frutas da feira estão lá embaixo. Use o resultado de cada passo no passo seguinte. A estampa pode variar; cor, tamanho e poderes seguem a receita.</p>`}
 openModal(h+`<button class="big" id="cl">ENTENDI</button>`);$("cl").onclick=closeModal}
 function meets(f,r){switch(r.k){case"cor":return colorName(f.rgb)==r.v;case"doceMin":return f.doce>=r.v;case"doceMax":return f.doce<=r.v;case"azMin":return f.az>=r.v;case"azMax":return f.az<=r.v;
 case"tamMin":return f.tam>=r.v;case"tamMax":return f.tam<=r.v;case"media":return f.tam>=4&&f.tam<=7;case"mini":return f.tam<=1;case"micro":return f.tam==0;case"enorme":return f.tam>=11;case"giga":return f.tam==12;case"el":return f.el==r.v;case"hero":return !!f.hero;case"sp":return spKey(f)==r.v}}
@@ -470,7 +473,7 @@ let pat="";for(let s=0;s<10;s++)pat+=`<i style="${s<on?"background:"+pc:""}"></i
 const nowR=Date.now(),inT=nowR-(c.ct||0),outT=nowR-(c.lt||0),coming=!c.leaving&&inT<WALK_IN,Wsc=$("scene").clientWidth,cx=(i+.5)*Wsc/3,dir=i==0?-1:i==2?1:((c.ct||0)%2?1:-1),fx=2*Math.round((dir<0?-(cx+70):(Wsc-cx+70))/2);
 const cls=(hoverCust==i||ok?"hot ":"")+(c.leaving?"leave ":"")+(coming?"come ":"")+(c.mood=="sad"?"sad ":"")+(c.vip?"vip":"");
 return `<div class="cust ${cls} ${c.mood=="happy"?"happy":""} ${left<.12&&!c.mood?"angry":""}" data-i="${i}" data-low="${left<.2?1:0}" style="--fx:${fx}px;--wd:-${Math.min(inT,WALK_IN)}ms;--bd:${Math.max(0,WALK_IN-inT)}ms;--ld:-${Math.min(outT,WALK_OUT)}ms"><div class="bub px"><span class="bn">${c.name}</span>${c.vip?'<span class="vipb">VIP x3</span>':""}${c.reqs.map(r=>reqHTML(r,f)).join("")}
-<div class="pay"><span class="coin"></span><b>${pay(c)}</b><span class="hint" onclick="event.stopPropagation();showHint(${i})">?</span></div><div class="pat">${pat}</div></div><div class="pw" onclick="showPortrait(${i})"><div class="chr" data-ex="${ex}" style="background-image:url(${sh.url});animation-delay:-${(c.blinkD||0).toFixed(2)}s"></div></div>${left<.2&&!c.leaving?'<span class="sweat"></span>':""}${left<.12&&!c.leaving?'<span class="puff"><i></i><i></i></span>':""}</div>`}).join("");
+<div class="pay"><span class="coin"></span><b>${pay(c)}</b>${CFG.hints!==false?`<span class="hint" onclick="event.stopPropagation();showHint(${i})">?</span>`:""}</div><div class="pat">${pat}</div></div><div class="pw" onclick="showPortrait(${i})"><div class="chr" data-ex="${ex}" style="background-image:url(${sh.url});animation-delay:-${(c.blinkD||0).toFixed(2)}s"></div></div>${left<.2&&!c.leaving?'<span class="sweat"></span>':""}${left<.12&&!c.leaving?'<span class="puff"><i></i><i></i></span>':""}</div>`}).join("");
 S.cust.forEach(c=>{if(c)c.come=false});
  const wl=S.cust.map(c=>c&&!c.leaving?WALK_IN-(Date.now()-(c.ct||0)):-1).filter(t=>t>0);if(wl.length){clearTimeout(renderCounter.wt);renderCounter.wt=setTimeout(renderCounter,Math.max(...wl)+60)}}
 /* ================= mesa ================= */
@@ -1093,14 +1096,14 @@ function settings(back){const sl=(id,lab,v)=>`<div style="display:flex;align-ite
 const tg=(id,lab,on,desc)=>`<div class="cg" style="cursor:pointer" id="${id}"><span class="big-sw" style="width:26px;height:26px;background:${on?"#3ca55c":"#c9b99a"}"></span><div style="flex:1"><b>${lab}: ${on?"LIGADO":"DESLIGADO"}</b><br><span style="font-size:var(--t12)">${desc}</span></div></div>`;
 openModal(`<h2>AJUSTES</h2>${sl("smus","Música",CFG.mus)}${sl("ssfx","Efeitos",CFG.sfx)}
 ${tg("svib","Vibração",CFG.vib,"Vibra o celular ao cruzar, entregar e descobrir")}
-${tg("szen","Modo Zen",CFG.zen,"Sem relógio e sem pressa: o dia não acaba e os clientes esperam pra sempre")}${tg("swx","Clima real na janela",!!CFG.wx,"Mostra o tempo da sua cidade e avisa sobre tempo perigoso")}
+${tg("szen","Modo Zen",CFG.zen,"Sem relógio e sem pressa: o dia não acaba e os clientes esperam pra sempre")}${tg("sdica","Modo dica",CFG.hints!==false,"Mostra o botão ? com a receita dos pedidos. Desligue para descobrir sozinho.")}${tg("swx","Clima real na janela",!!CFG.wx,"Mostra o tempo da sua cidade e avisa sobre tempo perigoso")}
 ${tg("samb","Som de chuva",CFG.amb!==false,"Barulho de chuva e trovão quando estiver chovendo na janela")}
 <div style="text-align:left;margin:8px 0"><b>Estilo da música:</b><div class="flt" style="border:2px solid #2a1a12;margin-top:4px;flex-wrap:wrap">${[["auto","Automático (lo-fi na chuva e à noite)"],["chip","Chiptune"],["lofi","Lo-fi"]].map(([k,l])=>`<span class="${(CFG.musStyle||"auto")==k?"on":""}" onclick="CFG.musStyle='${k}';saveCfg();settings()">${l}</span>`).join("")}</div></div>
 <div style="text-align:left;margin:8px 0"><b>Ver clima na janela:</b><div class="flt" style="border:2px solid #2a1a12;margin-top:4px;flex-wrap:wrap">${[["auto","Automático"],["sol",EN?"Sunny":"Sol"],["nublado","Nublado"],["garoa","Garoa"],["chuva","Chuva"],["chuvaforte","Chuva forte"],["tempestade","Tempestade"],["entardecer","Entardecer"],["estrelada","Noite estrelada"],["noitechuva","Noite chuvosa"]].map(([k,l])=>`<span class="${(CFG.wxForce||"auto")==k?"on":""}" onclick="CFG.wxForce='${k}';saveCfg();updateSky();settings()">${l}</span>`).join("")}</div></div>
 <div style="text-align:left;margin:8px 0"><b>Idioma / Language:</b><div class="flt" style="border:2px solid #2a1a12;margin-top:4px">${[["pt","Português"],["en","English"]].map(([k,l])=>`<span class="${LANG==k?"on":""}" onclick="setLang('${k}')">${l}</span>`).join("")}</div></div>
 <button class="big alt" id="stut">REVER TUTORIAL</button><br><button class="big alt" id="sexp">EXPORTAR PROGRESSO</button><button class="big alt" id="simp">IMPORTAR</button><br><button class="big" id="cl">PRONTO</button>`);
 ["smus","ssfx"].forEach(id=>{$(id).oninput=e=>{const v=+e.target.value;$(id+"v").textContent=v;if(id=="smus")CFG.mus=v;else{CFG.sfx=v;SFX.coin()}saveCfg()}});
-$("svib").onclick=()=>{CFG.vib=!CFG.vib;saveCfg();buzz(40);settings(back)};$("samb").onclick=()=>{CFG.amb=CFG.amb===false;saveCfg();settings(back)};$("szen").onclick=()=>{CFG.zen=!CFG.zen;saveCfg();hud();renderCounter();settings(back)};$("swx").onclick=()=>{if(CFG.wx){CFG.wx=false;WX.ok=false;saveCfg();updateSky();settings(back)}else{delete CFG.wx;saveCfg();closeModal();askWeather(()=>settings(back))}};
+$("sdica").onclick=()=>{CFG.hints=CFG.hints===false;saveCfg();renderCounter();settings(back)};$("svib").onclick=()=>{CFG.vib=!CFG.vib;saveCfg();buzz(40);settings(back)};$("samb").onclick=()=>{CFG.amb=CFG.amb===false;saveCfg();settings(back)};$("szen").onclick=()=>{CFG.zen=!CFG.zen;saveCfg();hud();renderCounter();settings(back)};$("swx").onclick=()=>{if(CFG.wx){CFG.wx=false;WX.ok=false;saveCfg();updateSky();settings(back)}else{delete CFG.wx;saveCfg();closeModal();askWeather(()=>settings(back))}};
 $("stut").onclick=()=>{S.tut={};save();closeModal();tutStep()};
 $("sexp").onclick=()=>{save();const code="FRUTO1:"+btoa(unescape(encodeURIComponent(JSON.stringify(S))));
  openModal(`<h2>SEU CÓDIGO</h2><p style="font-size:var(--t12)">Guarde esse código (num bloco de notas ou mande pra você mesmo). Ele leva tudo: frutas, espécies, cartas e conquistas.</p><textarea id="bk" readonly style="width:100%;height:140px;font-size:var(--t10);font-family:monospace">${code}</textarea><button class="big" id="bkc">COPIAR</button><button class="big alt" id="cl">VOLTAR</button>`);
