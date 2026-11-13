@@ -30,3 +30,7 @@ Preservar `main`; implementar/testar em branch separada; pedir aprovação para 
 5. Levantar commits históricos das etapas 1–6A para auditoria completa, sem inventar detalhes.
 
 Jogo principal: https://mendesoz.github.io/frutodromo/ — não alterar sem autorização.
+
+## Plano de conclusão coordenado (2026-11-13)
+Fonte de verdade para divisão de tarefas e handoff ao Claude: https://github.com/Mendesoz/ai-game-studio/blob/main/projects/FRUTODROMO_FINISH_PLAN.md
+Meta estimada: 4 dias para candidato, até 7 com contingências. Claude cuida de QA de interface/Safari/PWA/performance em branch própria; ChatGPT cuida de receitas, pedidos, dificuldade e salvamento. Sem funcionalidades novas, sem alterações diretas em `main`, sem publicação sem autorização. Consultar o plano para critérios de aceite, sequência de trabalho, testes e modelo de relatório.
