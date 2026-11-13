@@ -509,3 +509,12 @@ header{box-shadow:0 3px 0 #24130780,0 6px 10px #24130724}
 }
 /* O modo de movimento reduzido prevalece sobre a rolagem decorativa. */
 @media(prefers-reduced-motion:reduce){.mkscroll{scroll-behavior:auto}}
+
+/* ===== QA Claude: toque em telas largas (iPhone/iPad deitado, tablet) ===== */
+/* A regra de 40 px só valia abaixo de 600 px de largura; no celular deitado os botões do topo e o ARRUMAR ficavam com 28 px.
+   Aumenta só a área de toque (pseudo-elemento invisível), sem mudar o desenho nem a altura do cabeçalho. */
+@media (pointer:coarse) and (min-width:600px){
+ header .btn{position:relative}
+ /* o .btn tem borda de 6 px (moldura): o pseudo-elemento parte da caixa interna, por isso 6 px a mais em cada lado */
+ header .btn::after,#tidy::after{content:"";position:absolute;left:-9px;right:-9px;top:-12px;bottom:-12px}
+}
