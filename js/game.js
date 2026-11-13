@@ -148,9 +148,9 @@ function shade(L,flat,band){const out=blank(PW,PH),bb={};
 function build(c){
  const k=c.kind||"person",human=k=="person",furry=["cat","dog","bear","bunny"].includes(k),r=rng(hsh(ckey(c))),pick=a=>a[Math.floor(r()*a.length)];
  const SK=c.skin||[232,180,142],FU=c.fur||SK,HA=c.hair||[74,44,23],SH=c.shirt||[69,123,157],AC=c.acc2||[214,48,49],acc=c.acc||[],sp=c.sp||0;
- const role=null; // figurinos VIP: 6B
+ const role=c.vip?({"Chef Estrelado":"chef","Crítica Gourmet":"critic","Cientista Maluca":"sci","Prefeito":"mayor","Influencer Fit":"fit","Colecionador":"coll"}[c.name]||null):null; // 6B: papel visual derivado do nome já salvo
  const sw=pick([11,12,12,13]),hOff=human||furry?pick([0,0,1,1,2]):0; // largura de ombro e altura (0–2 px de arte) saem da semente: o save não ganha campo
- let gar=sp==3?"overall":sp==4?"shirt":pick(["tee","tee","hoodie","tank","sweater"]);
+ let gar=role?({chef:"chefj",critic:"blazer",sci:"coat",mayor:"suit",fit:"tank",coll:"vest"}[role]):sp==3?"overall":sp==4?"shirt":pick(["tee","tee","hoodie","tank","sweater"]);
  const SKa=human?SK:FU; // pele dos braços
  /* ---------- CORPO (camada parada) ---------- */
  const B=layer(),WHt=[245,239,224],DEN=[61,90,138];
@@ -218,7 +218,8 @@ function build(c){
   if(hs==4)H((x,y)=>ell(19.5,12,15.5,11)(x,y)&&y<=8);
   if(hs==6)H((x,y)=>cap(x,y)&&y>=10&&y<=18&&dx(x)>=10);
   if(hs==8)H((x,y)=>(cap(x,y)&&y<=8)||(y>=1&&y<=6&&dx(x)<=(role=="sci"?14:11)&&(x%5<3)&&y>=6-(x%5)*2.2)||(role=="sci"&&dx(x)>=10&&dx(x)<=14.5&&y>=5&&y<=15&&(y%4<3)));
-  const HT=c.hat2||SH;
+  if(role=="chef"){F((x,y)=>y>=1&&y<=9&&dx(x)<=9.5&&(y>=4||dx(x)<=7.5),WHt,"hat");F((x,y)=>y>=9&&y<=11&&dx(x)<=10.5,shd(WHt),"brim")}
+   const HT=c.hat2||SH;
   if(hat==1){F((x,y)=>y>=1&&y<=7&&cap(x,y),HT,"hat");F((x,y)=>y>=7&&y<=8&&x>=8&&x<=36,shd(HT),"brim")}
   if(hat==2){F((x,y)=>ell(19.5,8,13,7.2)(x,y)&&y<=8,HT,"hat");F((x,y)=>y>=7&&y<=9&&dx(x)<=12.5,lit(lit(HT)),"fold");F((x,y)=>(x-19.5)**2+(y-1.6)**2<=5,WHt,"pom")}
   if(hat==3){F((x,y)=>dx(x)<=8.5&&y>=1&&y<=7&&!(y==1&&dx(x)>7),[233,196,106],"hat");F((x,y)=>dx(x)<=16-(y==9?1:0)&&y>=8&&y<=9,[233,196,106],"brim");F((x,y)=>dx(x)<=8.5&&y>=5&&y<=6,[192,57,43],"band")}
