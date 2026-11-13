@@ -33,3 +33,12 @@ Escopo: revisão estática de `js/game.js` na branch `stage9-dynamic-difficulty`
 
 ## Política de refinamento
 Sem novas mecânicas nesta fase. Priorizar bugs reproduzíveis, clareza das dicas, dificuldade equilibrada, desempenho e preservação de saves. Não alterar `main` nem publicar sem autorização.
+
+## Atualização — refinamento aplicado
+Commit: `27f85e7fe0bc544b96ef80df2a398b39f7592ac9`.
+- Corrigido: tentativas incorretas repetidas para o mesmo cliente contam apenas uma vez para a sequência adaptativa. A entrega correta continua contando como acerto.
+- Corrigido parcialmente: categorias de seleção não se sobrepõem (fácil = profundidade 0, médio = 1, difícil = profundidade máxima disponível). Nos níveis 1–2, difícil não é sorteado; níveis 3–4 têm profundidade máxima 2; níveis 5+ até 3. Quando o alvo da profundidade não passa pelos filtros de desbloqueio, há fallback para profundidades menores.
+- O tempo de paciência e a configuração de dicas não foram alterados.
+- O custo real de uma receita pode superar sua profundidade `d` quando ambos os ingredientes requerem cruzamentos; medir `recipeOf(t).length` em QA.
+- **Validação feita:** oito verificações estáticas de presença das mudanças, preservação de regras e isolamento da branch. **Não executado:** navegador, PWA, distribuição empírica, compilação de JS.
+- **Pendência:** confirmar se a política de contabilizar erro e acerto no mesmo cliente é adequada; avaliar reset de `DIFF` em novo jogo, fluxo de saves, VIPs e dicas.
