@@ -410,3 +410,27 @@ header{position:relative;z-index:6;box-shadow:0 4px 0 #0003}
 .mkscroll.more{padding:0 30px;scroll-padding:0 30px}
 #market.tutfocus{outline-offset:-4px;animation:tfocm 1s steps(1) infinite}@keyframes tfocm{50%{outline-color:#fff3a0}}
 @media (prefers-reduced-motion: reduce){#market.tutfocus{animation:none}}
+
+/* ===== Etapa 7: polimento visual, sem mudanças nas mecânicas ===== */
+/* Camadas decorativas não interceptam toques nem arrastes. */
+#scene::before,#scene::after,#table::after{pointer-events:none}
+/* Profundidade suave nos painéis existentes, preservando a pixel art. */
+header{box-shadow:0 3px 0 #24130780,0 6px 10px #24130724}
+#market{box-shadow:0 -3px 0 #24130770,0 -7px 12px #24130724}
+#scene{box-shadow:inset 0 5px 0 #fff2c21c,inset 0 -5px 0 #2a12042b}
+#table{box-shadow:inset 0 5px 0 #fff3cc12,inset 0 -7px 0 #32180828}
+/* Estados de foco legíveis ao usar teclado, sem mudar a área de toque. */
+.btn:focus-visible,.mk:focus-visible,.mkar:focus-visible{outline:3px solid #fff3a0;outline-offset:2px}
+/* Pedidos: reforço de contraste nos estados de sucesso e falha. */
+.rq.y{background:#c9f5d0;color:#173d24}
+.rq.n{background:#ffe0d9;color:#61251d}
+.cust.vip .bn{text-shadow:0 1px 0 #fff3b466}
+/* Reações expressivas apenas por CSS; não afetam a lógica dos clientes. */
+.cust.hot .pw{filter:drop-shadow(0 2px 0 #1e6c39a0)}
+.cust.sad .bub{filter:drop-shadow(0 2px 0 #a42e2e77)}
+/* O brilho do caldeirão responde aos estados já existentes. */
+#pot.hot #potw::before{filter:brightness(1.25)}
+#pot.brew .psp{filter:drop-shadow(0 0 3px #fff1a0)}
+@media (prefers-reduced-motion:reduce){
+ .cust.hot .pw,.cust.sad .bub,#pot.hot #potw::before{transition:none}
+}
