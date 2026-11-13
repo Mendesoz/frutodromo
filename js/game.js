@@ -427,14 +427,18 @@ function clampPos(f){if(!tbl.clientWidth||!tbl.clientHeight)return;const s=fsize
 function center(el){const r=el.getBoundingClientRect();return[r.left+r.width/2,r.top+r.height/2]}
 function inside(x,y,el){const r=el.getBoundingClientRect();return x>r.left&&x<r.right&&y>r.top&&y<r.bottom}
 function custAt(x,y){let k=-1;document.querySelectorAll(".cust").forEach(c=>{if(c.dataset.i!==undefined&&inside(x,y,c))k=+c.dataset.i});return k}
-function drag(el,f){let sx,sy,ox,oy,mv=false,on=false;
+function drag(el,f){let sx,sy,ox,oy,mv=false,on=false,gh=null;
+// #table tem overflow:hidden: durante o arraste a fruta aparece num "fantasma" fixo no body (visível sobre cena, balões e feira); o original fica invisível mas é ele que recebe os eventos e dá a posição
+const ghMake=()=>{const r=el.getBoundingClientRect();gh=el.cloneNode(true);gh.removeAttribute("data-id");gh.classList.remove("drag","sel","new");gh.classList.add("gh");gh.style.cssText=`left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px`;document.body.appendChild(gh);el.classList.add("gsrc")};
+const ghMove=()=>{if(!gh)return;if(!el.isConnected){ghKill();return}const r=el.getBoundingClientRect();gh.style.left=r.left+"px";gh.style.top=r.top+"px"};
+const ghKill=()=>{if(gh){gh.remove();gh=null}el.classList.remove("gsrc")};
 el.addEventListener("pointerdown",e=>{if(modalOpen)return;e.preventDefault();el.setPointerCapture(e.pointerId);sx=e.clientX;sy=e.clientY;ox=f.x;oy=f.y;mv=false;on=true});
 el.addEventListener("pointermove",e=>{if(!on)return;const dx=e.clientX-sx,dy=e.clientY-sy;if(!mv&&Math.abs(dx)+Math.abs(dy)<6)return;
-if(!mv){mv=true;el.classList.add("drag");sel=f.id;showInfo(null);renderCounter()}
-el.style.left=ox+dx+"px";el.style.top=oy+dy+"px";const[cx,cy]=center(el);
-{const op=!brewing&&inside(cx,cy,$("pot"));$("pot").classList.toggle("hot",op);el.classList.toggle("overpot",op)}$("bin").classList.toggle("hot",inside(cx,cy,$("bin")));
+if(!mv){mv=true;el.classList.add("drag");sel=f.id;showInfo(null);renderCounter();ghMake()}
+el.style.left=ox+dx+"px";el.style.top=oy+dy+"px";const[cx,cy]=center(el);ghMove();
+{const op=!brewing&&inside(cx,cy,$("pot"));$("pot").classList.toggle("hot",op);el.classList.toggle("overpot",op);if(gh)gh.classList.toggle("overpot",op)}$("bin").classList.toggle("hot",inside(cx,cy,$("bin")));
 const hc=custAt(cx,cy);if(hc!=hoverCust){hoverCust=hc;document.querySelectorAll(".cust").forEach(c=>c.classList.toggle("hot",c.dataset.i!==undefined&&+c.dataset.i===hc))}});
-const up=e=>{if(!on)return;on=false;if(mv)SPREAD.delete(f);el.classList.remove("drag");$("bin").classList.remove("hot");$("pot").classList.remove("hot");
+const up=e=>{if(!on)return;on=false;ghKill();if(mv)SPREAD.delete(f);el.classList.remove("drag");$("bin").classList.remove("hot");$("pot").classList.remove("hot");
 if(!mv&&armed){useItem(f);return}if(!mv){sel=sel==f.id?null:f.id;showInfo(sel?f:null);renderCounter();tbl.querySelectorAll(".fr").forEach(x=>x.classList.toggle("sel",x.dataset.id==sel));return}
 const[cx,cy]=center(el);const hc=custAt(cx,cy);hoverCust=-1;
 if(hc>=0&&S.cust[hc]&&!S.cust[hc].leaving){deliver(f,hc,ox,oy);return}
@@ -442,7 +446,7 @@ if(inside(cx,cy,$("bin"))){sell(f);return}
 if(inside(cx,cy,$("pot"))){if(brewing||S.pot.length>=2){f.x=ox;f.y=oy;renderTable();return toast("O caldeirão está ocupado!")}addToPot(f);return}
 f.x=ox+(e.clientX-sx);f.y=oy+(e.clientY-sy);clampPos(f);freeSpot(f,true);sel=null;save();renderTable();renderCounter()};
 // cancelamento do sistema (ligação, gesto do navegador...): volta tudo como estava, sem vender, entregar nem usar item
-const cancel=()=>{if(!on)return;on=false;el.classList.remove("drag","overpot");$("bin").classList.remove("hot");$("pot").classList.remove("hot");
+const cancel=()=>{if(!on)return;on=false;ghKill();el.classList.remove("drag","overpot");$("bin").classList.remove("hot");$("pot").classList.remove("hot");
  hoverCust=-1;document.querySelectorAll(".cust.hot").forEach(c=>c.classList.remove("hot"));if(mv){f.x=ox;f.y=oy;renderTable();renderCounter()}};
 el.addEventListener("pointerup",up);el.addEventListener("pointercancel",cancel)}
 function sell(f){const v=(1+Math.floor(f.gen/2)+(f.mut?2:0)+(f.el?3:0)+(f.hero?6:0)+(f.tam==0||f.tam>=11?4:0));const br=$("bin").getBoundingClientRect();flyCoins(br.left+br.width/2,br.top+br.height/2,v,0);S.coins+=v;showCoins();undoOffer(f,v);floatText(br.left+br.width/2,br.top,"+"+v);buzz(15);S.ds.earn+=v;

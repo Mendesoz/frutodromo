@@ -397,3 +397,8 @@ header{position:relative;z-index:6;box-shadow:0 4px 0 #0003}
  .cust .bub:has(.rq.n):not(:has(.rq.y)){opacity:.6}
  .cust .bub:has(.rq.n):not(:has(.rq.y)) .rq.n{background:none}
 }
+
+/* 5D: fruta arrastrada vive numa camada fixa (o #table corta com overflow:hidden); o original some mas continua no layout */
+.fr.gsrc{opacity:0}
+.fr.gh{position:fixed;z-index:270;pointer-events:none;transform:translateY(0);cursor:grabbing}
+.fr.gh>img{animation:none}
