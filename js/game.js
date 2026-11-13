@@ -429,7 +429,8 @@ for(const r of [...special,...normal]){if(out.length>=n)break;out.push(r)}return
    Apenas a seleção dos pedidos muda. O relógio do cliente permanece igual. */
 let DIFF={wins:0,misses:0,streak:0};
 try{Object.assign(DIFF,JSON.parse(localStorage.getItem("frutodromo_difficulty")||"{}"))}catch(e){}
-function diffRecord(ok){if(ok){DIFF.wins++;DIFF.streak=Math.max(0,DIFF.streak)+1}else{DIFF.misses++;DIFF.streak=Math.min(0,DIFF.streak)-1}
+function diffRecord(ok,c){if(!ok&&c){if(c.diffMissed)return;c.diffMissed=true}
+ if(ok){DIFF.wins++;DIFF.streak=Math.max(0,DIFF.streak)+1}else{DIFF.misses++;DIFF.streak=Math.min(0,DIFF.streak)-1}
  DIFF.wins=Math.min(DIFF.wins,30);DIFF.misses=Math.min(DIFF.misses,30);
  try{localStorage.setItem("frutodromo_difficulty",JSON.stringify(DIFF))}catch(e){}}
 function diffTier(L){if(L<=2)return Math.random()<.85?0:1;
@@ -440,10 +441,13 @@ function diffTier(L){if(L<=2)return Math.random()<.85?0:1;
 function newCust(){if(running)setTimeout(()=>SFX.bell(),200);const L=level(),vip=L>=3&&Math.random()<.15;let n=Math.min(3,1+Math.floor((L-1)/2)+(Math.random()<.3?1:0));if(vip)n=Math.min(4,n+1);
 const pool=reachPool(L),maxD=Math.max(...pool.map(x=>x.d));
 // alvo: nível baixo pede coisas perto da feira; VIP pede o mais fundo
-const tier=diffTier(L),depths=tier==0?[0,1]:tier==1?[1,2]:[2,3];
-const allowed=depths.filter(d=>d<=maxD),want=vip?maxD:R(allowed.length?allowed:[0]);
-const cand=pool.filter(x=>x.d==want&&(L>=5||!x.hero)&&(L>=3||!x.el));
-const t=R(cand.length?cand:pool),spReq=!vip&&Math.random()<(L<=2?.7:.5),reqs=spReq?[{k:"sp",v:spKey(t),im:stImg(t)}]:reqsFrom(t,n,L);
+const tier=diffTier(L);
+// Classes sem sobreposição: fácil = feira, médio = 1 cruzamento, difícil = 2+.
+// Níveis iniciais sem receitas avançadas rebaixam a classe indisponível.
+const depth=tier==0?0:tier==1?Math.min(1,maxD):maxD;
+const eligible=pool.filter(x=>x.d==depth&&(L>=5||!x.hero)&&(L>=3||!x.el));
+const fallback=pool.filter(x=>x.d<=depth&&(L>=5||!x.hero)&&(L>=3||!x.el));
+const t=R(eligible.length?eligible:fallback.length?fallback:pool),spReq=!vip&&Math.random()<(L<=2?.7:.5),reqs=spReq?[{k:"sp",v:spKey(t),im:stImg(t)}]:reqsFrom(t,n,L);
 let rw=4+reqs.length*5+L*2+t.d*6+(spReq?8+t.d*4:0);reqs.forEach(r=>{if(r.k=="el")rw+=12;if(r.k=="mini"||r.k=="enorme")rw+=10;if(r.k=="micro"||r.k=="giga")rw+=22;if(r.k=="hero")rw+=30});if(vip)rw*=3;
 const kd=Math.random()<.45?R(KINDS):null;
 const vipN=vip?R(VIPS):null,kdN=kd?R(kd[2]):null,gen=vip?VIPG[vipN]:kd?(/^(Dona|Rã|Miss)|a$/.test(kdN)?"f":/^(Sr|Seu)|(ão|o)$/.test(kdN)?"m":"n"):R(["f","f","m","m","m","f","n"]);
@@ -541,11 +545,11 @@ el.addEventListener("pointerup",up);el.addEventListener("pointercancel",cancel)}
 function sell(f){const v=(1+Math.floor(f.gen/2)+(f.mut?2:0)+(f.el?3:0)+(f.hero?6:0)+(f.tam==0||f.tam>=11?4:0));const br=$("bin").getBoundingClientRect();flyCoins(br.left+br.width/2,br.top+br.height/2,v,0);S.coins+=v;showCoins();undoOffer(f,v);floatText(br.left+br.width/2,br.top,"+"+v);buzz(15);S.ds.earn+=v;
 S.fruits=S.fruits.filter(x=>x!=f);sel=null;showInfo(null);save();renderTable();renderCounter();renderMarket()}
 function deliver(f,i,ox,oy){const c=S.cust[i];
-if(!c.reqs.every(r=>meets(f,r))){diffRecord(false);f.x=ox;f.y=oy;renderTable();c.mood="sad";renderCounter();SFX.bad();buzz(120);{const ce=document.querySelector(`.cust[data-i="${i}"] .bub`);if(ce){const r=ce.getBoundingClientRect();floatText(r.left+r.width/2,r.top+20,"✗","#ff5a4e")}}const miss=c.reqs.map((r,k)=>[r,k]).filter(([r])=>!meets(f,r));document.querySelectorAll(`.cust[data-i="${i}"] .rq`).forEach((e,k)=>{if(miss.some(m=>m[1]==k))e.classList.add("n","miss")});
+if(!c.reqs.every(r=>meets(f,r))){diffRecord(false,c);f.x=ox;f.y=oy;renderTable();c.mood="sad";renderCounter();SFX.bad();buzz(120);{const ce=document.querySelector(`.cust[data-i="${i}"] .bub`);if(ce){const r=ce.getBoundingClientRect();floatText(r.left+r.width/2,r.top+20,"✗","#ff5a4e")}}const miss=c.reqs.map((r,k)=>[r,k]).filter(([r])=>!meets(f,r));document.querySelectorAll(`.cust[data-i="${i}"] .rq`).forEach((e,k)=>{if(miss.some(m=>m[1]==k))e.classList.add("n","miss")});
 setTimeout(()=>{if(S.cust[i]==c){c.mood=null;renderCounter()}},1600);if(miss.some(([r])=>r.k=="sp")){const h=document.querySelector(`.cust[data-i="${i}"] .hint`);if(h)h.classList.add("nudge");return toast("Não é essa espécie! Toque no <b>?</b> pra ver a receita.")}
 return toast(`Faltou: <b>${miss.map(([r])=>{const[w,n]=reqWord(r);return w+(n?" "+n:"")}).join(", ")}</b>`)}
 const cb=comboHit(),bonus=cb>=2?Math.round(pay(c)*Math.min(.5,(cb-1)*.1)):0,v=pay(c)+bonus,L0=level();const ce=document.querySelector(`.cust[data-i="${i}"] .bub`).getBoundingClientRect();S.coins+=v;flyCoins(ce.left+ce.width/2,ce.top+ce.height/2,v,v);floatText(ce.left+ce.width/2,ce.top+10,"+"+v);if(cb>=2)setTimeout(()=>floatText(ce.left+ce.width/2,ce.top+40,`COMBO x${cb}!`,"#ff8ad8"),250);buzz([20,40,30]);
-diffRecord(true);S.delivered++;S.ds.served++;if(c.vip)rec("vips",1);checkAch();tutDone("t2");S.ds.earn+=v;S.ds.best=Math.max(S.ds.best,v);S.fruits=S.fruits.filter(x=>x!=f);sel=null;showInfo(null);c.mood="happy";renderTable();renderCounter();renderMarket();
+diffRecord(true,c);S.delivered++;S.ds.served++;if(c.vip)rec("vips",1);checkAch();tutDone("t2");S.ds.earn+=v;S.ds.best=Math.max(S.ds.best,v);S.fruits=S.fruits.filter(x=>x!=f);sel=null;showInfo(null);c.mood="happy";renderTable();renderCounter();renderMarket();
 toast(`${c.name} adorou! <b>+${v}</b> moedas${level()>L0?`<br><b>NÍVEL ${level()}!</b>${newUnlock(level())}`:""}`);if(level()>L0){SFX.lvl();shake(5);buzz([40,60,40,60,80])}
 {const first=!(S.rec&&S.rec.gifts),n=c.vip?2:(first||Math.random()<.35)?1:0;for(let g=0;g<n;g++)setTimeout(()=>giveItem(rollItem(),ce.left+ce.width/2,ce.top+ce.height/2,"de "+c.name),600+g*700);if(n)rec("gifts",n)}
 setTimeout(()=>{c.leaving=true;c.lt=Date.now();renderCounter();setTimeout(()=>{S.cust[i]=null;renderCounter();setTimeout(()=>{if(running&&!S.cust[i]){S.cust[i]=newCust();save();renderCounter()}},700)},WALK_OUT)},900)}
