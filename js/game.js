@@ -529,13 +529,16 @@ if(mkTab=="bolsa"){const groups={};(S.bag||[]).forEach(it=>{const k=it.t+(it.v||
 mkSet(tabs,BASE.map((b,i)=>{const f={shape:b[1],pat:b[2],top:b[3],rgb:typeof b[4]=="string"?COLORS[b[4]]:b[4],tip:b[0]=="Banana"?"#6b4423":b[0]=="Pimenta-Dragão"?"#3f9a3a":null};const lock=false,rare=!!b[10];
 return `<div class="mk px ${lock?"lock":S.coins<b[8]?"off":""} ${rare&&!lock?"rare":""}" onclick="if(mkSkip){mkSkip=0;return}buy(${i})" onpointerdown="mkDown(${i},event)" onpointerup="mkUp()" onpointercancel="mkUp()" onpointerenter="mkEnter(${i},event)" onpointerleave="mkLeave(event)"><img src="${fruitImg(f)}">${lock?"???":b[0]}<div class="pr">${lock?"NÍVEL "+b[9]:`<span class="coin"></span>${b[8]}`}</div></div>`}).join(""))}
 // FEIRA/BOLSA ficam fixas; só a pista .mkscroll rola (sem barra nativa). Setas de pixel só aparecem do lado que ainda tem conteúdo
-function mkSet(tabs,cards){const m=$("market"),old=m.querySelector(".mkscroll"),sl=old?old.scrollLeft:0;
- m.innerHTML=tabs+`<div class="mkscroll">${cards}</div><button class="mkar l" hidden></button><button class="mkar r" hidden></button>`;
- const sc=m.querySelector(".mkscroll");sc.scrollLeft=sl;
- const L=m.querySelector(".mkar.l"),R=m.querySelector(".mkar.r"),upd=()=>{const more=sc.scrollWidth-sc.clientWidth>2;L.hidden=!more||sc.scrollLeft<=1;R.hidden=!more||sc.scrollLeft>=sc.scrollWidth-sc.clientWidth-1;
+const mkSL={feira:0,bolsa:0};let mkHTML="";
+function mkSet(tabs,cards){const m=$("market"),html=tabs+`<div class="mkscroll">${cards}</div><button class="mkar l" hidden aria-label="Anterior"></button><button class="mkar r" hidden aria-label="Próximo"></button>`;
+ if(html==mkHTML&&m.querySelector(".mkscroll")){mkUpd&&mkUpd();return} // nada mudou: não recria (não interrompe a rolagem suave)
+ mkHTML=html;m.innerHTML=html;
+ const sc=m.querySelector(".mkscroll");sc.scrollLeft=mkSL[mkTab]||0; // cada aba lembra a própria posição
+ const L=m.querySelector(".mkar.l"),R=m.querySelector(".mkar.r"),upd=()=>{const pad=sc.classList.contains("more")?60:0,more=sc.scrollWidth-pad-sc.clientWidth>2;sc.classList.toggle("more",more); // .more reserva 30px de cada lado pras setas não cobrirem cartas
+  L.hidden=!more||sc.scrollLeft<=1;R.hidden=!more||sc.scrollLeft>=sc.scrollWidth-sc.clientWidth-1;
   const x=sc.offsetLeft;L.style.left=x+"px";R.style.left=(x+sc.clientWidth-28)+"px"};
  const go=d=>()=>{const c=sc.querySelector(".mk");const w=c?c.offsetWidth+6:74;sc.scrollBy({left:d*2*w,behavior:RM.matches?"auto":"smooth"})};
- L.onclick=go(-1);R.onclick=go(1);sc.addEventListener("scroll",upd,{passive:true});mkUpd=upd;upd()}
+ L.onclick=go(-1);R.onclick=go(1);sc.addEventListener("scroll",()=>{mkSL[mkTab]=sc.scrollLeft;upd()},{passive:true});mkUpd=upd;upd();sc.scrollLeft=mkSL[mkTab]||0}
 let mkUpd=null;window.addEventListener("resize",()=>setTimeout(()=>mkUpd&&mkUpd(),150));
 function buy(i){const b=BASE[i];if(S.coins<b[8])return toast("Moedas insuficientes");S.coins-=b[8];const f=baseFruit(b);
 {const pr=$("pot"),pw={x:pr.offsetLeft,y:pr.offsetTop,w:pr.offsetWidth,h:pr.offsetHeight};let k=0;do{f.x=N(10,Math.max(10,tbl.clientWidth-110));f.y=N(10,Math.max(10,tbl.clientHeight-110));k++}while(k<30&&f.x+fsize(f)>pw.x&&f.x<pw.x+pw.w&&f.y+fsize(f)>pw.y&&f.y<pw.y+pw.h)}clampPos(f);freeSpot(f,true);S.fruits.push(f);dexCheck(f);SFX.buy();save();showCoins();renderTable(f.id);renderMarket()}
@@ -832,7 +835,7 @@ const er=tbl.querySelector(`[data-id="${c.id}"]`).getBoundingClientRect(),ex=er.
 if(c.mut||c.hero||c.shiny){burst(ex,ey,[180,155,255],18);SFX.mut();shake(c.hero?7:4);buzz([40,30,80])}else{SFX.pop();buzz(35)}if(c.el=="fogo")SFX.fire();
 toast((c.hero?`<b>SUPER-FRUTA!</b> ${fname(c)}`:c.mut?`<b>MUTAÇÃO!</b> ${fname(c)}`:`Nasceu: <b>${fname(c)}</b>`))})},1100)}
 function potTap(){if(brewing||!S.pot.length||modalOpen)return;if(S.pot.length>=2)return brew();const f=S.pot.pop();const tr=tbl.getBoundingClientRect(),pr=$("pot").getBoundingClientRect();f.x=pr.right-tr.left+8;f.y=pr.top-tr.top;clampPos(f);freeSpot(f,true);S.fruits.push(f);save();renderTable(f.id);renderPot()}
-function freeFromPot(){const pr=$("pot");if(!pr||!tbl)return;let busy=false;try{busy=ptrDown||!!document.querySelector(".fr.drag,#pot.mv")}catch(e){}if(busy){setTimeout(freeFromPot,300);return}const X=pr.offsetLeft,Y=pr.offsetTop,W=pr.offsetWidth,H=pr.offsetHeight;let mv=0;
+function freeFromPot(){const pr=$("pot");if(!pr||!tbl)return;let busy=false;try{busy=ptrDown||!!document.querySelector(".fr.drag,#pot.mv")}catch(e){}if(busy){clearTimeout(window.fpT);window.fpT=setTimeout(freeFromPot,300);return}const X=pr.offsetLeft,Y=pr.offsetTop,W=pr.offsetWidth,H=pr.offsetHeight;let mv=0;
  S.fruits.forEach(f=>{const z=fsize(f),hit=()=>f.x+z>X+6&&f.x<X+W-6&&f.y+z>Y+6&&f.y<Y+H-6;if(!hit())return;let k=0;do{f.x=N(6,Math.max(6,tbl.clientWidth-z-6));f.y=N(6,Math.max(6,tbl.clientHeight-z-6));k++}while(k<40&&hit());clampPos(f);mv++});if(mv){fixFruitDeco();renderTable()}}
 function placePot(){const p=$("pot");if(!tbl.clientWidth||!tbl.clientHeight)return;if(!S.potPos){p.style.left=p.style.top=p.style.bottom="";p.style.top=cl(Math.round(p.offsetTop),0,Math.max(0,Math.round(tbl.clientHeight-p.offsetHeight)))+"px";p.style.left=Math.round(p.offsetLeft)+"px";p.style.bottom="auto";return}const w=p.offsetWidth,h=p.offsetHeight;// só o valor aplicado é limitado: a posição salva do jogador não é reescrita
  p.style.left=Math.round(cl(S.potPos.x,0,Math.max(0,tbl.clientWidth-w)))+"px";p.style.top=Math.round(cl(S.potPos.y,0,Math.max(0,tbl.clientHeight-h)))+"px";p.style.bottom="auto"}
@@ -867,6 +870,7 @@ if(left2.length){ // o arranjo por fileira desperdiçou espaço: refaz tudo, mai
  const l2=all.filter(i=>!scan(i,base.concat(deco),6));
  if(l2.length<left2.length)left2=l2;else pos=keep}
 left2.forEach(i=>scan(i,base,6));
+pos.forEach((q,i)=>{if(!q[2]){const s=fsize(list[i]),y=Math.max(0,th-s-4);let x=null;for(let xx=4;xx<=tw-s-4&&x===null;xx+=8)if(!base.some(b=>ov(b,xx,y,s)))x=xx;pos[i]=[x===null?cl(8+i*20,4,Math.max(4,tw-s-4)):x,y,false]}}); // sem vão nenhum: fundo da mesa, nunca [0,0]
 list.forEach((f,i)=>{f.x=pos[i][0];f.y=pos[i][1];clampPos(f)});save();renderTable();SFX.plop();buzz(15)}
 $("tidy").onclick=tidy;
 function buzz(p){if(!CFG.vib)return;try{if(navigator.vibrate)navigator.vibrate(p)}catch(e){}}
@@ -886,7 +890,7 @@ const ACH=[["var25","Banco de sementes","Colete 25 variedades",()=>totalVars()>=
 const TROPHY=()=>art(["y.yyy.y","yyyyyyy",".yyyyy.","..yyy..","...y...","..yyy..",".ddddd."],{y:"#f7c331",d:"#a87b00"},"#6b4a10");
 const spAny=fn=>Object.keys(S.tree||{}).some(fn);
 function checkAch(){S.ach=S.ach||{};S.rec=S.rec||{};ACH.forEach(([id,n,d,ok,rw])=>{if(S.ach[id]||!ok())return;S.ach[id]=Date.now();portalHappy();S.coins+=rw;save();
- setTimeout(()=>{toast(`<img src="${TROPHY()}" style="width:18px;height:18px;display:inline-block;vertical-align:-3px;image-rendering:pixelated"> <b>CONQUISTA!</b> ${n}<br>+${rw} moedas`);SFX.lvl();buzz([30,40,30]);hud()},1600)})}
+ setTimeout(()=>{toast(`<img src="${TROPHY()}" style="width:16px;height:16px;display:inline-block;vertical-align:-4px;image-rendering:pixelated"> <b>CONQUISTA!</b> ${n}<br>+${rw} moedas`);SFX.lvl();buzz([30,40,30]);hud()},1600)})}
 function renderCombo(){const e=$("combo");if(!e)return;const left=combo>=2?1-(now()-comboT)/COMBO_WIN:0;if(left<=0){e.classList.remove("on");if(left<=0&&combo>=2&&now()-comboT>=COMBO_WIN)combo=0;return}
 if(!e.classList.contains("on")){e.classList.add("on")}e.innerHTML=`COMBO x${combo}<i style="width:${Math.max(0,left*100)}%"></i>`}
 // moedas "voando": já estão no saldo (S.coins), mas o contador do topo só mostra quando chegam
@@ -1036,20 +1040,21 @@ $("simp").onclick=()=>{openModal(`<h2>IMPORTAR</h2><p style="font-size:var(--t12
 const TUT=[["pot","Arraste <b>duas frutas</b> até o <b>caldeirão</b> pra criar uma nova!","t1"],["cust","Agora arraste uma fruta até o <b>cliente</b> que pediu algo parecido. Toque no <b>?</b> do balão se precisar da receita.","t2"],["dexb","Toque numa fruta pra ver os atributos. Na <b>ÁRVORE</b> ficam todas as espécies que você descobriu!","t3"],["market","<b>Segure</b> uma fruta da feira (ou passe o mouse) pra ver doce, azedo e tamanho antes de comprar.","t4"]];
 // tutorial: o balão nunca fica sobre a mesa. Fica na parte de baixo da cena (ou sobre a feira no passo do cliente) e o alvo ganha um contorno amarelo piscando.
 const tutClear=()=>document.querySelectorAll(".tutfocus").forEach(e=>e.classList.remove("tutfocus"));
-function tutStep(){S.tut=S.tut||{};const st=TUT.find(t=>!S.tut[t[2]]);const box=$("tut");tutClear();if(!st||modalOpen||!running){box.classList.remove("on");return}
+function tutStep(){S.tut=S.tut||{};const st=TUT.find(t=>!(S.tut||{})[t[2]]);const box=$("tut");tutClear();if(!st||modalOpen||!running){box.classList.remove("on");return}
 const tg={pot:$("pot"),cust:$("custs"),dexb:$("dexb"),market:$("market")}[st[0]];if(!tg)return;
 if(box.dataset.k!=st[2]||!box.classList.contains("on")){box.dataset.k=st[2];
  box.innerHTML=`<span>${st[1]}</span><button class="btn" onclick="S.tut['${st[2]}']=1;save();tutClear();$('tut').classList.remove('on');setTimeout(tutStep,400)">ENTENDI</button>`;box.classList.add("on")}
 tg.classList.add("tutfocus");tutPlace(st)}
-function tutPlace(st){const box=$("tut"),ev=v=>Math.round(v/2)*2,sc=$("scene").getBoundingClientRect(),mk=$("market").getBoundingClientRect();
+// posição da cena medida por elementos sem zoom (motores antigos dividem o rect do #scene pelo zoom): x e largura da feira, y do header até a mesa
+function sceneBox(){const mk=$("market").getBoundingClientRect(),hd=document.querySelector("header").getBoundingClientRect(),tr=$("table").getBoundingClientRect();return{left:mk.left,width:mk.width,top:hd.bottom,bottom:tr.top}}
+function tutPlace(st){const box=$("tut"),ev=v=>Math.round(v/2)*2,sc=sceneBox(),mk=$("market").getBoundingClientRect();
  const onMk=st[0]=="cust"||(st[0]=="pot"&&$("scene").style.zoom=="0.5"); // janela baixa: o balão de pedido ocupa a cena toda, então o passo do caldeirão também vai sobre a feira
  box.style.maxWidth=ev(Math.min(380,innerWidth-16))+"px";const bw=box.offsetWidth,bh=box.offsetHeight;
  const x=ev(sc.left+(sc.width-bw)/2),y=onMk?ev(Math.max(mk.top,mk.bottom-bh-4)):ev(Math.max(sc.top+2,sc.bottom-bh-34));box.style.left=x+"px";box.style.top=y+"px"}
-window.addEventListener("resize",()=>{const box=$("tut");if(!box.classList.contains("on"))return;const st=TUT.find(t=>!S.tut[t[2]]);if(st)tutPlace(st)});
 function tutDone(k){S.tut=S.tut||{};if(!S.tut[k]){S.tut[k]=1;save();tutClear();$("tut").classList.remove("on");setTimeout(tutStep,900)}}
 function hud(){updateSky();showCoins();const rem=dayLen()-S.dayT;const wide=innerWidth>=440,tm=CFG.zen?"ZEN":running?fmt(rem):"--:--";$("day").textContent=wide?`DIA ${S.day} · NÍVEL ${level()} · ${tm}`:`D${S.day} · NV${level()} · ${tm}`;$("day").classList.toggle("low",running&&!CFG.zen&&rem<20000)}
 function startDay(){setTimeout(tutStep,2500);setTimeout(()=>{try{fixFruitDeco()}catch(e){}SPREAD=new WeakSet()},1200);running=true;S.started=true;S.cust.forEach((c,i)=>{if(!c)setTimeout(()=>{if(running&&!S.cust[i]){S.cust[i]=newCust();save();renderCounter()}},300+i*1400)});renderCounter();hud()}
-function endDay(){running=false;rec("bestDay",S.ds.earn,1);SFX.day();S.cust.forEach(c=>{if(c){c.leaving=true;c.lt=Date.now()}});renderCounter();
+function endDay(){running=false;tutStep();rec("bestDay",S.ds.earn,1);SFX.day();S.cust.forEach(c=>{if(c){c.leaving=true;c.lt=Date.now()}});renderCounter();
 setTimeout(()=>{S.cust=[null,null,null];renderCounter();save();showSummary()},900)}
 function showSummary(){const d=S.ds;openModal(`<h2>FIM DO DIA ${S.day}</h2><div class="row">${[...S.fruits].sort((a,b)=>b.gen-a.gen).slice(0,3).map(f=>`<img src="${fruitImg(f)}">`).join("")}</div>
 <div class="sum"><span>Lucro do dia</span><b>${d.earn} moedas</b><span>Clientes atendidos</span><b>${d.served}</b><span>Maior pagamento</span><b>${d.best}</b><span>Novas espécies</span><b>${d.dex}</b><span>Nível</span><b>${level()}</b></div>
@@ -1082,8 +1087,8 @@ function portalAd(type,ok,fail){if(!PORTAL.ready){(type=="rewarded"?fail:ok)&&(t
  PORTAL.sdk.ad.requestAd(type,{adStarted:()=>adMute(true),adFinished:()=>{adMute(false);modalOpen=was||$("modal").classList.contains("on");ok&&ok()},adError:()=>{adMute(false);modalOpen=was||$("modal").classList.contains("on");fail?fail():ok&&ok()}})}
 const SITE_TXT=()=>PORTAL.name?"FRUTÓDROMO":"FRUTÓDROMO · mendesoz.github.io/frutodromo";
 /* ================= modais ================= */
-function openModal(h){if(!$("modal").classList.contains("on"))SFX.open();modalOpen=true;$("mbox").innerHTML=h;$("modal").classList.add("on")}
-function closeModal(){if($("modal").classList.contains("on"))SFX.close();modalOpen=$("tv").classList.contains("on")||$("rv").classList.contains("on");$("modal").classList.remove("on")}
+function openModal(h){if(!$("modal").classList.contains("on"))SFX.open();modalOpen=true;$("mbox").innerHTML=h;$("modal").classList.add("on");tutStep();if(tCur)toastPlace()}
+function closeModal(){if($("modal").classList.contains("on"))SFX.close();modalOpen=$("tv").classList.contains("on")||$("rv").classList.contains("on");$("modal").classList.remove("on");if(tCur)toastPlace()}
 function rainFruits(on){document.querySelectorAll(".fall").forEach(e=>e.remove());if(!on||RM.matches)return;
 for(let i=0;i<12;i++){const b=BASE[i%8],f={shape:b[1],pat:b[2],top:b[3],rgb:COLORS[b[4]],tip:b[0]=="Banana"?"#6b4423":null},im=document.createElement("img");im.className="fall";im.src=fruitImg(f);
 im.style.left=(Math.random()*95)+"vw";im.style.animationDuration=(5+Math.random()*6)+"s";im.style.animationDelay=(-Math.random()*10)+"s";im.style.width=im.style.height=R([36,54])+"px";document.body.appendChild(im)}}
@@ -1165,8 +1170,8 @@ if(fl=="super")return !!h;if(fl=="shiny")return !!(T&&T.shiny);if(fl=="extreme")
 function renderFilter(){const f=$("tvf");if(tvTab!="tree"){f.style.display="none";return}f.style.display="";const have=new Set(Object.keys(S.tree||{}).map(k=>k.split("|")[1]));
 const chip=(id,lab)=>`<span class="${tvFilter==id||(!tvFilter&&!id)?"on":""}" onclick="tvFilter=${id?`'${id}'`:"null"};renderTree()">${lab}</span>`;
 f.innerHTML=chip(null,"TODAS")+chip("rare","★3+")+chip("shiny","✦ BRILHANTES")+chip("super","SUPER")+chip("extreme","TAMANHO EXTREMO")+Object.keys(ELEM).filter(e=>Object.keys(S.tree||{}).some(k=>k.split("|")[3]==e)).map(e=>chip("e:"+e,ELEM[e].n.toUpperCase())).join("")+CORDER.filter(c=>have.has(c)).map(c=>chip("c:"+c,`<i class="dt" style="background:${hex(COLORS[c])}"></i>${c}`)).join("")}
-function openTree(tab,hi){SFX.open();if(S.tut&&S.tut.t2)tutDone("t3");$("tut").classList.remove("on");tvTab=tab||"tree";modalOpen=true;$("tv").classList.add("on");tvHelp=false;$("tvb").scrollTop=0;renderTree(hi);if(tvTab=="tree")setTimeout(()=>{const e=$("tvb").querySelector(".sp.new");if(e&&!hi)e.scrollIntoView({block:"center"});drawFam()},30)}
-function closeTree(){SFX.close();$("tv").classList.remove("on");modalOpen=false;tvSel=null}
+function openTree(tab,hi){SFX.open();if(S.tut&&S.tut.t2)tutDone("t3");$("tut").classList.remove("on");tvTab=tab||"tree";modalOpen=true;$("tv").classList.add("on");if(tCur)toastPlace();tvHelp=false;$("tvb").scrollTop=0;renderTree(hi);if(tvTab=="tree")setTimeout(()=>{const e=$("tvb").querySelector(".sp.new");if(e&&!hi)e.scrollIntoView({block:"center"});drawFam()},30)}
+function closeTree(){SFX.close();$("tv").classList.remove("on");modalOpen=false;tvSel=null;if(tCur)toastPlace()}
 function renderTree(hi){const T=S.tree||{},ks=Object.keys(T);renderFilter();$("tabT").classList.toggle("on",tvTab=="tree");$("tabC").classList.toggle("on",tvTab=="cores");$("tabA").classList.toggle("on",tvTab=="album");$("tabQ").classList.toggle("on",tvTab=="ach");
 $("tvcnt").textContent=tvFilter?`${ks.filter(k=>spMatch(k,tvFilter)).length} de ${ks.length}`:(innerWidth<520?`${ks.length} esp. · ${totalVars()} var.`:`${ks.length} espécies · ${totalVars()} variedades`);$("tvhelp").style.display=tvTab=="tree"?"":"none";$("tvhelp").classList.toggle("on",tvHelp);$("tvcnt").style.display=tvTab=="tree"||tvTab=="cores"?"":"none";
 if(tvTab=="album"){const ord=ks.slice().sort((a,b)=>stars(T[b])-stars(T[a])||(T[b].shiny?1:0)-(T[a].shiny?1:0)||T[a].n-T[b].n);
@@ -1226,27 +1231,29 @@ $("dexb").onclick=()=>{tvSel=null;openTree("tree")};$("pauseb").onclick=()=>{if(
 // fila: mín. 1,2 s na tela se há outro esperando, 2,4 s se não há, erro 4,5 s; igual ao da tela ou ao último da fila vira ×N; máx. 3 na fila.
 const TQ=[];let tCur=null,tTimer=0,tAt=0;const T_MIN=1200,T_DUR=2400,T_ERR=4500,T_MAXQ=3;
 function toastPlace(){const t=$("toast"),over=modalOpen||$("tv").classList.contains("on")||$("rv").classList.contains("on");t.classList.toggle("ovr",over);
- const sc=$("scene").getBoundingClientRect(),tr=$("table").getBoundingClientRect(),td=$("tidy").getBoundingClientRect(),ev=v=>Math.round(v/2)*2;
+ const sc=sceneBox(),tr=$("table").getBoundingClientRect(),td=$("tidy").getBoundingClientRect(),ev=v=>Math.round(v/2)*2;
  const hits=(sel,x,y,w,h)=>[...document.querySelectorAll(sel)].some(e=>{const r=e.getBoundingClientRect();return r.width&&!(r.right<=x||x+w<=r.left||r.bottom<=y||y+h<=r.top)});
  // candidatas em ordem: 1) topo da cena, 2 linhas; 2) topo da cena, 1 linha; 3) topo da mesa (frente do balcão), 1 linha, sem encostar no ARRUMAR
  const pick=c=>{t.classList.toggle("one",c.one);t.style.transform="none";let mw=over?Math.min(innerWidth-24,420):Math.min(420,sc.width-16);if(c.p==2)mw=Math.min(420,tr.width-2*(Math.ceil(tr.right-td.left)+12));t.style.maxWidth=ev(mw)+"px";
-  const w=t.offsetWidth,h=t.offsetHeight;return{c,w,h,x:ev(over?(innerWidth-w)/2:c.p==2?tr.left+(tr.width-w)/2:sc.left+(sc.width-w)/2),y:over?8:c.p==2?ev(tr.top+2):ev(sc.top+2)}};
+  let fits=true;if(c.one){t.classList.remove("one");fits=t.offsetHeight<=(innerWidth>=700?18:16)+14;t.classList.add("one")} // 1 linha só vale se o texto couber nela
+  const w=t.offsetWidth,h=t.offsetHeight;return{c,w,h,fits,x:ev(over?(innerWidth-w)/2:c.p==2?tr.left+(tr.width-w)/2:sc.left+(sc.width-w)/2),y:over?8:c.p==2?ev(tr.top+2):ev(sc.top+2)}};
  let best=null;
  if(over)best=pick({one:false,p:1});
- else{const L=[{one:false,p:1},{one:true,p:1},{one:true,p:2}].map(pick);
+ else{const L=[{one:false,p:1},{one:true,p:1},{one:true,p:2},{one:false,p:2}].map(pick);
   const hard=q=>hits("#tut.on,.bub",q.x,q.y,q.w,q.h),tab=q=>q.c.p==2&&hits(".fr,#pot,#info.on",q.x,q.y,q.w,q.h); // a etiqueta do nome (.bn) pode ficar por baixo; balão e tutorial não
-  best=L.find(q=>!hard(q)&&!tab(q))||L[0];pick(best.c)}
+  best=L.find(q=>q.fits&&!hard(q)&&!tab(q))||(!hard(L[0])?L[0]:L[3]);pick(best.c)}
  t.style.left=best.x+"px";t.style.top=best.y+"px"}
-function toastShow(o){tCur=o;const t=$("toast");t.innerHTML=o.h+(o.n>1?` <i class="tn">×${o.n}</i>`:"");t.classList.toggle("err",!!o.err);toastPlace();t.classList.add("on");tAt=Date.now();toastArm();setTimeout(()=>{if(tCur===o)toastPlace()},350)}
-function toastArm(){clearTimeout(tTimer);const d=tCur.err?T_ERR:TQ.length?T_MIN:T_DUR;tTimer=setTimeout(toastNext,Math.max(60,d-(Date.now()-tAt)))}
+function toastShow(o,keepAt){tCur=o;const t=$("toast");t.innerHTML=o.h+(o.n>1?` <i class="tn">×${o.n}</i>`:"");t.classList.toggle("err",!!o.err);try{toastPlace()}catch(e){}t.classList.add("on");if(!keepAt)tAt=Date.now();toastArm();setTimeout(()=>{try{if(tCur===o)toastPlace()}catch(e){}},350)}
+function toastArm(){clearTimeout(tTimer);const d=tCur.err?T_ERR:TQ.length?(tCur.keep?1600:T_MIN):T_DUR;tTimer=setTimeout(toastNext,Math.max(60,d-(Date.now()-tAt)))}
 function toastNext(){if(TQ.length)return toastShow(TQ.shift());tCur=null;$("toast").classList.remove("on")}
-function toast(h,opt){h=String(h).replace(/<br\s*\/?>/gi," ");const o={h,n:1,err:!!(opt&&opt.err)};
- if(tCur&&tCur.h==h){tCur.n++;tAt=Date.now();return toastShow(tCur)}
+function toast(h,opt){h=String(h).replace(/<br\s*\/?>/gi," ");const o={h,n:1,err:!!(opt&&opt.err),keep:/NÍVEL|CONQUISTA/.test(h)};
+ if(tCur&&tCur.h==h){tCur.n++;return toastShow(tCur,TQ.length>0)}
  const last=TQ[TQ.length-1];if(last&&last.h==h){last.n++;return}
  if(!tCur)return toastShow(o);
- TQ.push(o);while(TQ.length>T_MAXQ){const k=TQ.findIndex(q=>!q.err);TQ.splice(k<0?0:k,1)}
+ TQ.push(o);while(TQ.length>T_MAXQ){let k=TQ.findIndex(q=>!q.err&&!q.keep);if(k<0)k=TQ.findIndex(q=>!q.keep);if(k<0)break;TQ.splice(k,1)} // nunca descarta NÍVEL nem CONQUISTA
  toastArm()}
-window.addEventListener("resize",()=>{if(tCur)toastPlace()});
+// reposiciona aviso e tutorial depois do fitScene (resize, rotação, fim do onResize)
+function relayout(){try{if(tCur)toastPlace()}catch(e){}try{const box=$("tut");if(box.classList.contains("on")){const st=TUT.find(t=>!(S.tut||{})[t[2]]);if(st)tutPlace(st)}}catch(e){}}
 function renderAll(n){hud();renderPot();renderCounter();renderTable(n);renderMarket()}
 let last=performance.now(),saveT=0;
 setInterval(()=>{const t=performance.now(),dt=Math.min(1000,t-last);last=t;
@@ -1291,20 +1298,21 @@ function addDeco(){placeDeco()}
 function lantSync(){$("scene").classList.toggle("lit",(parseFloat($("lamp").style.opacity)||0)>0)}
 setTimeout(()=>{try{addDeco()}catch(e){}},0);
 // telas baixas (janela do CrazyGames, celular deitado): encolhe a cena pra mesa e o caldeirão caberem
+const Z=!!(window.CSS&&CSS.supports&&CSS.supports("zoom","0.5")); // sem suporte a zoom não usa a janela baixa
 const ZMIN=530; // abaixo disso a mesa não comporta o caldeirão inteiro com a cena em 252: só aí usa zoom 0.5
 function fitScene(){const sc=document.getElementById("scene");if(!sc)return;const h=window.innerHeight,par=v=>Math.round(v/2)*2,cp=v=>Math.max(252,Math.min(280,v));
  // só zoom 1 ou 0.5 (nunca fracionário); a altura da cena encolhe em passos pares pra caber a mesa
  const tb=document.getElementById("table");if(tb)tb.classList.toggle("low",h<ZMIN);
  if(h>=650){sc.style.zoom="";sc.style.height=""}
- else if(h>=ZMIN){sc.style.zoom="";sc.style.height=cp(par(h*.6-108))+"px"}
+ else if(h>=ZMIN||!Z){sc.style.zoom="";sc.style.height=cp(par(h*.6-108))+"px"}
  else{sc.style.zoom="0.5";sc.style.height=cp(par(2*(h*.6-122)))+"px"}
  // janela baixa (zoom 0.5): balão vai pro lado do cliente, em tamanho real (zoom:2 cancela o 0.5); --bw = largura do balão em px de tela
  const low=sc.style.zoom=="0.5";sc.classList.toggle("low",low);if(low)sc.style.setProperty("--bw",Math.max(120,Math.min(210,Math.floor(window.innerWidth/3)-58))+"px");else sc.style.removeProperty("--bw");
  // moldura do computador: posição inteira (evita meio pixel na borda e nas coisas ancoradas nela)
  const rs=document.documentElement.style;if(window.matchMedia("(min-width:1200px) and (min-height:600px)").matches){const w=window.innerWidth,hh=window.innerHeight,fw=Math.min(w-48,1100),fh=Math.min(hh-32,860);rs.setProperty("--fw",fw+"px");rs.setProperty("--fh",fh+"px");rs.setProperty("--fx",Math.floor((w-fw)/2)+"px");rs.setProperty("--fy",Math.floor((hh-fh)/2)+"px")}else["--fw","--fh","--fx","--fy"].forEach(k=>rs.removeProperty(k))}
 fitScene();
-let rzT=0;const onResize=()=>{if($("tv").classList.contains("on"))drawFam();S.fruits.forEach(clampPos);renderTable();renderProps();placePot();freeFromPot()};
-window.addEventListener("resize",()=>{fitScene();clearTimeout(rzT);rzT=setTimeout(()=>requestAnimationFrame(onResize),120)});
+let rzT=0;const onResize=()=>{if($("tv").classList.contains("on"))drawFam();S.fruits.forEach(clampPos);renderTable();renderProps();placePot();freeFromPot();relayout()};
+window.addEventListener("resize",()=>{fitScene();relayout();clearTimeout(rzT);rzT=setTimeout(()=>requestAnimationFrame(onResize),120)});
 // a mesa muda de altura sem resize (abas FEIRA/BOLSA): o caldeirão sem posição salva reancora em px inteiros
 let ptrDown=0;["pointerdown"].forEach(t=>document.addEventListener(t,()=>{ptrDown=1},true));["pointerup","pointercancel"].forEach(t=>document.addEventListener(t,()=>{ptrDown=0;setTimeout(()=>{try{onTable()}catch(e){}},80)},true));
 const onTable=()=>{if(!tbl.clientWidth||!tbl.clientHeight)return;placePot();if(ptrDown||document.querySelector(".fr.drag,#pot.mv"))return;placeDeco();let mv=0;S.fruits.forEach(f=>{const x=f.x,y=f.y;clampPos(f);if(f.x!=x||f.y!=y)mv++});if(mv)renderTable()};
