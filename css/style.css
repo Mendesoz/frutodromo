@@ -42,15 +42,18 @@ header{flex:0 0 auto;display:flex;gap:6px;align-items:center;padding:4px 6px;bac
 #cprops{position:absolute;left:0;right:0;bottom:20px;z-index:3;pointer-events:none}
 .closed{position:absolute;inset:30px 0 24px;display:flex;align-items:center;justify-content:center;z-index:1;color:#5b3a22;font-size:var(--t16);text-align:center}
 .cust{position:relative;width:33%;display:flex;flex-direction:column;align-items:center}
-.pw{margin-bottom:-18px;animation:bob 1.4s steps(1) infinite}.cust:nth-child(2) .pw{animation-delay:-.5s}.cust:nth-child(3) .pw{animation-delay:-1s}
-@keyframes bob{0%{transform:none}50%{transform:translateY(2px)}}
-.cust img.p{width:80px;height:104px}.pw{position:relative}.cust img.blk{position:absolute;left:0;top:0;opacity:0;animation:blk 4.2s steps(1) infinite}@keyframes blk{0%,95%{opacity:0}96%,99%{opacity:1}}.cust.leave img.blk,.cust.come img.blk{display:none}
-.cust.hot img.p{filter:drop-shadow(2px 0 0 #3ce06f) drop-shadow(-2px 0 0 #3ce06f) drop-shadow(0 -2px 0 #3ce06f)}
-.cust.come .pw{animation:walkin 1.5s linear both;animation-delay:var(--wd)}.cust.come img.p,.cust.leave img.p{animation:stepb .24s steps(2) infinite}@keyframes stepb{50%{transform:translateY(-3px)}}@keyframes walkin{from{transform:translateX(var(--fx))}to{transform:none}}
+.pw{margin-bottom:-18px}
+.pw{position:relative}
+/* 6A: um div por cliente com a folha 3 colunas × 5 linhas (2 px de tela por px de arte): coluna = quadro (parado, respiração, piscada), linha = expressão (data-ex) */
+.chr{width:80px;height:104px;background-repeat:no-repeat;background-size:240px 520px;background-position:0 0;image-rendering:pixelated;animation:chrIdle 4.8s steps(1) infinite}
+.chr[data-ex=happy]{background-position-y:-104px}.chr[data-ex=worry]{background-position-y:-208px}.chr[data-ex=angry]{background-position-y:-312px}.chr[data-ex=sad]{background-position-y:-416px}
+@keyframes chrIdle{0%{background-position-x:0}16.6%{background-position-x:-80px}33.3%{background-position-x:0}50%{background-position-x:-80px}66.6%{background-position-x:0}70%{background-position-x:-160px}73%{background-position-x:0}83.3%{background-position-x:-80px}}
+.cust.hot .chr{filter:drop-shadow(2px 0 0 #3ce06f) drop-shadow(-2px 0 0 #3ce06f) drop-shadow(0 -2px 0 #3ce06f)}
+.cust.come .pw{animation:walkin 1.5s linear both;animation-delay:var(--wd)}.cust.come .chr,.cust.leave .chr{animation:chrStep .3s steps(1) infinite}@keyframes chrStep{0%{transform:none;background-position-x:0}50%{transform:translateY(-2px);background-position-x:-80px}}@keyframes walkin{from{transform:translateX(var(--fx))}to{transform:none}}
 .cust.come .bub{animation:popin .3s steps(3) var(--bd) both}@keyframes popin{from{transform:scale(0)}}
 .cust.cust.leave .pw{animation:walkout 1s ease-in forwards;animation-delay:var(--ld)}.cust.cust.come .pw{animation:walkin 1.5s linear both;animation-delay:var(--wd)}@keyframes walkout{to{transform:translateX(var(--fx))}}
 .cust.leave .bub{visibility:hidden}
-.cust.sad .pw{animation:shake .15s steps(2) infinite}@keyframes shake{50%{transform:translateX(2px)}}
+.cust.sad .pw{animation:chrNo .2s steps(1) 4}@keyframes chrNo{0%{transform:translateX(-2px)}50%{transform:translateX(2px)}}
 .cust.vip .bub{border-image-source:var(--f-vip)}
 .vipb{position:absolute;top:-18px;right:-8px;background:#f7c331;border:2px solid #2a1a12;font-size:var(--t10);padding:0 3px;font-weight:700}
 .sweat{position:absolute;width:6px;height:8px;background:#7fd3ff;border:2px solid #2a1a12;top:112px;right:22%;animation:drip 1s steps(3) infinite;z-index:2}@keyframes drip{to{transform:translateY(10px);opacity:0}}
@@ -182,8 +185,8 @@ header{flex:0 0 auto;display:flex;gap:6px;align-items:center;padding:4px 6px;bac
 /* rodada 2 */
 .bn{position:absolute;top:-20px;left:0;background:#2a1a12;color:#ffe9b8;font-size:var(--t10);padding:2px 6px;white-space:nowrap;max-width:112px;overflow:hidden;text-overflow:ellipsis}
 .cust.vip .bn{background:#d4a017;color:#2a1a12}
-.pw{cursor:pointer}.cust.happy .pw{animation:jump .5s steps(4) 2}@keyframes jump{50%{transform:translateY(-10px)}}
-.cust.angry .pw{animation:shake .3s steps(2) infinite}
+.pw{cursor:pointer}.cust.happy .pw{animation:chrJump .5s steps(1) 2}@keyframes chrJump{0%{transform:none}20%{transform:translateY(-4px)}40%{transform:translateY(-8px)}60%{transform:translateY(-4px)}80%{transform:none}}
+.cust.angry .pw{animation:chrTap 1.6s steps(1) infinite}@keyframes chrTap{0%,12%,24%{transform:translateY(2px)}6%,18%,30%,100%{transform:none}}
 .puff{position:absolute;top:96px;left:20%;width:14px;height:14px;z-index:2;pointer-events:none;animation:puff 1s steps(2) infinite}
 .puff i{position:absolute;background:#e74c3c;width:4px;height:10px;left:5px;top:2px}.puff i+i{width:10px;height:4px;left:2px;top:5px}
 @keyframes puff{50%{transform:scale(1.3)}}
@@ -281,7 +284,7 @@ img.curt{z-index:2;transform-origin:50% 0;animation:sway 10s ease-in-out infinit
 /* toque rápido não dá zoom duplo (o zoom com dois dedos continua liberado) */
 button,.btn,.big,.mk,.tabk,.hint,.cust,.sp,.flt span{touch-action:manipulation}
 /* acessibilidade: movimento reduzido no sistema */
-@media (prefers-reduced-motion: reduce){.tutfocus,#custs.tutfocus .pw{animation:none}.hint.nudge{animation:none;background:#f7c331;color:#2a1a12}.toast.on{animation:none}*,*:before,*:after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}
+@media (prefers-reduced-motion: reduce){.chr,.pw{animation:none!important}.tutfocus,#custs.tutfocus .pw{animation:none}.hint.nudge{animation:none;background:#f7c331;color:#2a1a12}.toast.on{animation:none}*,*:before,*:after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}
 .mk{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
 /* variedades (DNA) */
 .sp .vc{position:absolute;right:-7px;bottom:-6px;background:#7b5cff;color:#fff;font-size:var(--t10);padding:0 3px;border:2px solid #2a1a12;line-height:1.3}
