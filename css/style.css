@@ -434,3 +434,33 @@ header{box-shadow:0 3px 0 #24130780,0 6px 10px #24130724}
 @media (prefers-reduced-motion:reduce){
  .cust.hot .pw,.cust.sad .bub,#pot.hot #potw::before{transition:none}
 }
+
+/* ===== Etapa 8A: feedback visual e legibilidade, somente CSS ===== */
+/* A fruta selecionada ganha uma base luminosa; o arraste continua livre. */
+.fr.sel:not(.drag):not(.gsrc)::before{background:linear-gradient(#ffe7a5a8,#ffe7a5a8) 4px 0/calc(100% - 8px) 4px no-repeat,linear-gradient(#ffd36b70,#ffd36b70) 0 4px/100% 4px no-repeat}
+.fr.target:not(.drag)>img{filter:drop-shadow(0 0 4px #ffe89a) drop-shadow(0 0 2px #fff)!important}
+/* Feira: foco, toque e disponibilidade mais fáceis de perceber. */
+.mk:not(.off):not(.lock):active{filter:brightness(1.15)}
+.mk.off,.mk.lock{filter:saturate(.72)}
+.mk.tabk.on{filter:drop-shadow(0 2px 0 #fff1a055)}
+/* Balões: pedidos atendidos e pendentes são distinguíveis pela borda interna. */
+.rq.y{box-shadow:inset 3px 0 0 #329953}
+.rq.n{box-shadow:inset 3px 0 0 #d95a45}
+.rq.miss{outline:2px solid #c0392b;outline-offset:-1px}
+.cust.hot .bub{filter:drop-shadow(0 2px 0 #4b9e65)}
+.cust.happy .bub{filter:drop-shadow(0 2px 0 #d9aa45)}
+/* Frutas raras: efeito visual discreto, sem alterar o DNA ou a frequência. */
+.fr.shiny:not(.drag):not(.gsrc){filter:drop-shadow(0 0 3px #ffe6a8)}
+.fr .mut{box-shadow:2px 2px 0 #27144270}
+/* Telas pequenas: contraste e leitura dos requisitos sem reduzir alvos. */
+@media(max-width:599px){
+ .rq{line-height:1.18}
+ .rq .nb{opacity:1;font-weight:700}
+ .bub{letter-spacing:.01em}
+}
+/* Acessibilidade: destaque sem exigir animação. */
+@media(prefers-reduced-motion:reduce){
+ .fr.shiny>img,.fr>img{animation:none}
+ .rq.miss{animation:none}
+ .cust.hot .bub,.cust.happy .bub{transition:none}
+}
