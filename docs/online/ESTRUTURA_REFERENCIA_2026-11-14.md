@@ -75,3 +75,17 @@ Leitura do Claude:
   - Assim cada gema em circulação tem um depósito por trás.
 - Consequência: o boost comprado com diamantes não pode aumentar a produção do que é vendável por gemas. Do contrário, o diamante vira uma máquina de comprar gemas. Proposta: o boost dá só conveniência.
 - Pendências: cotação da gema, comissão, serviço de pagamento (Pix e saque), verificação de contas e regras legais e fiscais. Isso faz parte do estudo de viabilidade e ainda não está decidido.
+
+## Decisões e ideia do Eric — achados e ferramentas (14/11, 13h03)
+- **Boosts:** temporários.
+- **Pagamento:** por uma API de pagamento, ainda não escolhida.
+- **Achados:** ao plantar e colher na fazendinha, o jogador pode encontrar itens raros ("como achar petróleo ou garimpar") que valem gemas no mercado da comunidade. No Pokeidle, o paralelo são as pedras que caem e os Pokémon capturados, cada um com classificação.
+  - Exemplos do Eric: luvas de plantio melhores e ferramentas que melhoram o pomar.
+  - Objetivo: não ser só farm; dar profundidade (é preciso entender as classificações) e um motivo para gastar dinheiro no jogo, com a percepção de retorno dentro dele.
+
+## Proposta do Claude para os achados
+- **O jogo cria itens, nunca gemas.** Um achado só vale gemas quando outro jogador compra com gemas depositadas. A regra de lastro continua valendo.
+- **Classificação:** cada ferramenta sai com qualidade e atributos sorteados, como o IV do Pokémon. Exemplos: velocidade de colheita, chance de brilhante, tamanho, poder.
+- **Desgaste:** a ferramenta se desgasta em N colheitas. É o sumidouro que mantém a demanda; sem desgaste, o mercado de ferramentas satura como na simulação.
+- **Risco principal:** se dinheiro (diamantes ou boost) aumentar a chance de achar item vendável por gemas, isso vira pagar por sorteio de algo que vale dinheiro. É o desenho que regras de jogo de azar costumam alcançar; precisa de parecer jurídico. Proposta: achados vêm de jogar; o boost acelera tempo, mas não aumenta a chance de achado negociável, ou o achado feito sob boost fica preso à conta.
+- **Comunicação:** apresentar como "o valor do que você encontra e cria", nunca como investimento ou renda garantida.
