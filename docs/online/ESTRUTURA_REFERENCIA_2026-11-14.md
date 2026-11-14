@@ -89,3 +89,27 @@ Leitura do Claude:
 - **Desgaste:** a ferramenta se desgasta em N colheitas. É o sumidouro que mantém a demanda; sem desgaste, o mercado de ferramentas satura como na simulação.
 - **Risco principal:** se dinheiro (diamantes ou boost) aumentar a chance de achar item vendável por gemas, isso vira pagar por sorteio de algo que vale dinheiro. É o desenho que regras de jogo de azar costumam alcançar; precisa de parecer jurídico. Proposta: achados vêm de jogar; o boost acelera tempo, mas não aumenta a chance de achado negociável, ou o achado feito sob boost fica preso à conta.
 - **Comunicação:** apresentar como "o valor do que você encontra e cria", nunca como investimento ou renda garantida.
+
+## Decisão do Eric — virar fazenda (14/11, 13h24)
+- O jogo online passa a ser uma **fazenda idle**, não um jogo de frutas.
+- A genética e o cruzamento de frutas saem. A decisão "entregar ou cruzar" e a simulação de reprodução de linhagens ficam só como referência de economia: oferta contra consumo continua valendo.
+- Continuam valendo, por decisão anterior do Eric:
+  - tudo sorteado (RNG);
+  - modo AFK que rende e mostra quanto rendeu;
+  - algo visual para olhar, com animação;
+  - três moedas, com gemas de valor real no mercado entre jogadores;
+  - boosts temporários;
+  - achados que valem gemas no mercado.
+
+## Proposta do Claude para a fazenda (não aprovada)
+- **Produção AFK:** plantações (colheita com qualidade sorteada) e animais (galinha → ovo, vaca → leite, ovelha → lã, abelha → mel).
+- **O "Pokémon" da fazenda são os animais:** cada um nasce com raridade e atributos sorteados (produção por hora, chance de produto raro como o ovo dourado) e pode sair brilhante.
+- **Escolha central (substitui "entregar ou cruzar"):** vender o produto raro agora, por exemplo o ovo dourado na encomenda, ou chocá-lo para ter um animal raro que produz por dias.
+- **Sumidouros:**
+  - animais se aposentam depois de um tempo;
+  - ferramentas se desgastam;
+  - produtos estragam;
+  - encomendas consomem;
+  - melhorias da fazenda custam moedas.
+- **Achados:** ferramentas com classificação, sementes raras e ovos (que vêm de jogar, nunca de pagar).
+- **Nome:** a decidir; "Frutódromo" pode não servir mais.
