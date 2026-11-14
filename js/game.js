@@ -1135,17 +1135,37 @@ $("simp").onclick=()=>{openModal(`<h2>IMPORTAR</h2><p style="font-size:var(--t12
 const TUT=[["pot","Arraste <b>duas frutas</b> até o <b>caldeirão</b> pra criar uma nova!","t1"],["cust","Agora arraste uma fruta até o <b>cliente</b> que pediu algo parecido. Toque no <b>?</b> do balão se precisar da receita.","t2"],["dexb","Toque numa fruta pra ver os atributos. Na <b>ÁRVORE</b> ficam todas as espécies que você descobriu!","t3"],["market","<b>Segure</b> uma fruta da feira (ou passe o mouse) pra ver doce, azedo e tamanho antes de comprar.","t4"]];
 // tutorial: o balão nunca fica sobre a mesa. Fica na parte de baixo da cena (ou sobre a feira no passo do cliente) e o alvo ganha um contorno amarelo piscando.
 const tutClear=()=>document.querySelectorAll(".tutfocus").forEach(e=>e.classList.remove("tutfocus"));
-function tutStep(){S.tut=S.tut||{};const st=TUT.find(t=>!(S.tut||{})[t[2]]);const box=$("tut");tutClear();if(!st||modalOpen||!running){box.classList.remove("on");return}
+function tutStep(){S.tut=S.tut||{};const st=TUT.find(t=>!(S.tut||{})[t[2]]);const box=$("tut");tutClear();if(!st||modalOpen||!running){box.classList.remove("on");tutHand(null);return}
 const tg={pot:$("pot"),cust:$("custs"),dexb:$("dexb"),market:$("market")}[st[0]];if(!tg)return;
 if(box.dataset.k!=st[2]||!box.classList.contains("on")){box.dataset.k=st[2];
- box.innerHTML=`<span>${st[1]}</span><button class="btn" onclick="S.tut['${st[2]}']=1;save();tutClear();$('tut').classList.remove('on');setTimeout(tutStep,400)">ENTENDI</button>`;box.classList.add("on")}
-tg.classList.add("tutfocus");tutPlace(st)}
+ box.innerHTML=`<span>${st[1]}</span><span class="tbtns"><button class="btn" onclick="S.tut['${st[2]}']=1;save();tutClear();$('tut').classList.remove('on');setTimeout(tutStep,400)">ENTENDI</button><button class="tskip" onclick="tutSkip()">PULAR TUTORIAL</button></span>`;box.classList.add("on")}
+tg.classList.add("tutfocus");tutPlace(st);tutHand(st)}
+// pular o tutorial inteiro de uma vez (guia do CrazyGames: onboarding pulável); "Rever tutorial" nos ajustes zera de novo
+function tutSkip(){S.tut=S.tut||{};TUT.forEach(t=>S.tut[t[2]]=1);save();tutClear();tutHand(null);$("tut").classList.remove("on")}
 // posição da cena medida por elementos sem zoom (motores antigos dividem o rect do #scene pelo zoom): x e largura da feira, y do header até a mesa
 function sceneBox(){const mk=$("market").getBoundingClientRect(),hd=document.querySelector("header").getBoundingClientRect(),tr=$("table").getBoundingClientRect();return{left:mk.left,width:mk.width,top:hd.bottom,bottom:tr.top}}
 function tutPlace(st){const box=$("tut"),ev=v=>Math.round(v/2)*2,sc=sceneBox(),mk=$("market").getBoundingClientRect();
  const onMk=st[0]=="cust"||(st[0]=="pot"&&$("scene").style.zoom=="0.5"); // janela baixa: o balão de pedido ocupa a cena toda, então o passo do caldeirão também vai sobre a feira
  box.style.maxWidth=ev(Math.min(380,innerWidth-16))+"px";const bw=box.offsetWidth,bh=box.offsetHeight;
  const x=ev(sc.left+(sc.width-bw)/2),y=onMk?ev(Math.max(mk.top,mk.bottom-bh-4)):ev(Math.max(sc.top+2,sc.bottom-bh-34));box.style.left=x+"px";box.style.top=y+"px"}
+// Mãozinha do tutorial: mostra o gesto de arrastar (fruta até o caldeirão no passo 1, até o cliente no passo 2).
+// Pixel art gerada por código, 3x, posições em px pares, sem bloquear toque; com movimento reduzido fica parada sobre a fruta.
+const HANDIMG=art(["...ww......","..wwws.....","..wwws.....","..wwws.....","..wwwswws..","..wwwwwwwws","wwwwwswswws","wwwwwwwwwws",".wwwwwwwwws",".wwwwwwwwws","..wwwwwwws.","..wwwwwwws.","...wwwwwws.","...ssssss.."],{w:"#fff6e6",s:"#e2c9a6"},"#2a1a12");
+let HT=null;
+function tutHand(st){let el=$("tuthand");if(!st||(st[0]!="pot"&&st[0]!="cust")){if(HT){clearInterval(HT.iv);HT=null}if(el)el.className="";return}
+ if(!el){el=document.createElement("div");el.id="tuthand";el.innerHTML=`<img class="hf" alt=""><img class="hh" alt="" src="${HANDIMG}">`;document.body.appendChild(el)}
+ if(HT&&HT.k==st[2])return;if(HT)clearInterval(HT.iv);HT={k:st[2],t0:performance.now()};
+ const ev=v=>Math.round(v/2)*2;
+ const path=()=>{const frs=[...tbl.querySelectorAll(".fr:not(.drag):not(.gsrc)")];if(!frs.length)return null;let src=frs[0],dst=null;
+  if(st[0]=="pot"){const p=$("potimg")||$("pot");dst=p;const pr=p.getBoundingClientRect();let best=1e9;for(const e of frs){const r=e.getBoundingClientRect(),d=Math.hypot(r.left-pr.left,r.top-pr.top);if(d<best){best=d;src=e}}}
+  else{let ci=-1;outer:for(let i=0;i<S.cust.length;i++){const c=S.cust[i];if(!c||c.leaving||c.come)continue;for(const e of frs){const f=S.fruits.find(x=>x.id==e.dataset.id);if(f&&c.reqs.every(r=>meets(f,r))){src=e;ci=i;break outer}}if(ci<0)ci=i}
+   if(ci<0)return null;dst=document.querySelector(`.cust[data-i="${ci}"] .bub`)||document.querySelector(`.cust[data-i="${ci}"]`)}
+  if(!dst)return null;const a=src.getBoundingClientRect(),b=dst.getBoundingClientRect();return{img:(src.querySelector("img")||{}).src,w:a.width,x0:a.left+a.width/2,y0:a.top+a.height/2,x1:b.left+b.width/2,y1:b.top+b.height/2}};
+ const tick=()=>{const box=$("tut");if(!box||!box.classList.contains("on")||modalOpen||document.hidden||ptrDown||document.querySelector(".fr.drag")){el.className="";return}
+  const P=path();if(!P){el.className="";return}const hf=el.querySelector(".hf");if(hf.getAttribute("src")!=P.img)hf.src=P.img;hf.style.width=ev(P.w*.8)+"px";
+  let k=RM.matches?0:((performance.now()-HT.t0)%2400)/2400,u=k<.15?0:k<.7?(k-.15)/.55:1;el.className="on"+(k>.85?" fade":"")+(k<.15||RM.matches?"":" hold");
+  const x=ev(P.x0+(P.x1-P.x0)*u),y=ev(P.y0+(P.y1-P.y0)*u);el.style.transform=`translate(${x}px,${y}px)`};
+ HT.iv=setInterval(tick,60);tick()}
 function tutDone(k){S.tut=S.tut||{};if(!S.tut[k]){S.tut[k]=1;save();tutClear();$("tut").classList.remove("on");setTimeout(tutStep,900)}}
 function hud(){updateSky();showCoins();const rem=dayLen()-S.dayT;const wide=innerWidth>=440,tm=CFG.zen?"ZEN":running?fmt(rem):"--:--";$("day").textContent=wide?`DIA ${S.day} · NÍVEL ${level()} · ${tm}`:`D${S.day} · NV${level()} · ${tm}`;$("day").classList.toggle("low",running&&!CFG.zen&&rem<20000)}
 function startDay(){setTimeout(tutStep,2500);setTimeout(()=>{try{fixFruitDeco()}catch(e){}SPREAD=new WeakSet()},1200);running=true;S.started=true;S.cust.forEach((c,i)=>{if(!c)setTimeout(()=>{if(running&&!S.cust[i]){S.cust[i]=newCust();save();renderCounter()}},300+i*1400)});renderCounter();hud()}

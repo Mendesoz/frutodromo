@@ -196,6 +196,17 @@ Script: `tools/qa/audio.py`. Ambiente: Chromium; um `AnalyserNode` colocado ante
 - **Evidência:** antes e depois em `docs/qa/2026-11-14/sombras-*.png`.
 - **Desempenho no Chromium, CPU 4×, 393×760, 2 rodadas:** igual à stage9 original (mediana 16,7 ms, nenhum quadro acima de 33 ms ao arrastar).
 
+### 5 e 6. Tutorial: "Pular tutorial" e mãozinha animada — PASS (Chromium)
+- **PULAR TUTORIAL** ("SKIP TUTORIAL" em inglês) em todos os passos: um toque marca os 4 passos como feitos e salva. Depois de recarregar, o tutorial não volta. "Rever tutorial" nos ajustes recomeça do passo 1. A área de toque é de 79×40.
+- **Mãozinha em pixel art** (gerada por código, escala 3x, posições em px pares, sem bloquear o toque):
+  - no passo 1, sai da fruta mais perto do caldeirão e vai até ele;
+  - no passo 2, sai de uma fruta que atende um cliente e vai até o balão desse cliente;
+  - a fruta vai junto, meio transparente;
+  - some enquanto o jogador arrasta, com modal aberto e com a aba escondida;
+  - com movimento reduzido, fica parada sobre a fruta.
+- **Teste** (`tools/qa/tuthand.py`, 390×844 pt, 1024×600 en, 900×430 pt e 390×844 com movimento reduzido): passou, com 0 erros. Prints em `docs/qa/2026-11-14/tutorial-maozinha-*.png`.
+- **Regressão:** smoke, primeiros minutos (o tutorial não cobre frutas), portal com SDK e direto, `regress.py` nos 6 tamanhos, `untr.py` (0 textos em português no inglês) e `m08.py` (1 pagamento), todos sem erros. Cache sobe para `v45`.
+
 ## Pendências
 - iPhone real (todo o roteiro acima).
 - Firefox não testado: o ambiente não tem o navegador.

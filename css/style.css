@@ -517,3 +517,13 @@ header{box-shadow:0 2px 0 #24130780,0 4px 0 #24130740,0 6px 0 #24130720}
  /* o .btn tem borda de 6 px (moldura): o pseudo-elemento parte da caixa interna, por isso 6 px a mais em cada lado */
  header .btn::after,#tidy::after{content:"";position:absolute;left:-9px;right:-9px;top:-12px;bottom:-12px}
 }
+
+/* ===== Tutorial: pular e mãozinha (QA Claude, guia do CrazyGames) ===== */
+#tut .tbtns{display:flex;flex-direction:column;align-items:stretch;gap:4px;flex:0 0 auto}
+#tut .tskip{pointer-events:auto;background:none;border:0;padding:6px 2px;min-height:40px;font:inherit;font-size:var(--t10);color:#6b4423;text-decoration:underline;cursor:pointer}
+#tuthand{position:fixed;left:0;top:0;z-index:149;pointer-events:none;display:none}
+#tuthand.on{display:block}
+#tuthand .hh{position:absolute;left:-14px;top:-4px;width:39px;height:48px;image-rendering:pixelated}
+#tuthand .hf{position:absolute;left:0;top:0;transform:translate(-50%,-50%);opacity:0;image-rendering:pixelated}
+#tuthand.hold .hf{opacity:.75}
+#tuthand.fade{opacity:.4}
