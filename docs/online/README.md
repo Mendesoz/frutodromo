@@ -14,6 +14,7 @@ O escopo desta entrega é organizar a frente, propor o conceito e obter análise
 3. [Economia e aquisição de jogadores](ECONOMY_AND_GROWTH.md).
 4. [Handoff e tarefa do Claude](CLAUDE_HANDOFF.md).
 5. [Revisão recebida do Claude](CLAUDE_REVIEW_2026-11-14.md) e [síntese/próximos passos](NEXT_STEPS.md).
+6. [Decisões do Eric e simulação das regras de reprodução](SIMULACAO_REPRODUCAO_2026-11-14.md) (Claude, branch `claude/online-simulacao`).
 
 Centralizador permanente: https://github.com/Mendesoz/ai-game-studio . Registro: `projects/FRUTODROMO_ONLINE_EXPLORATION.md`.
 
