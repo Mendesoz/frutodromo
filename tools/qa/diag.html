@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Frutódromo — diagnóstico (QA)</title>
+<style>
+body{font:15px/1.4 -apple-system,system-ui,sans-serif;margin:0;padding:12px;background:#fbf3df;color:#2a1a12}
+h1{font-size:18px;margin:0 0 8px}table{border-collapse:collapse;width:100%}td{border-top:1px solid #dccba6;padding:5px 4px;vertical-align:top;word-break:break-word}
+td:first-child{font-weight:600;width:42%}.ok{color:#1e7a34}.bad{color:#b02a1a}button{font-size:15px;padding:10px 12px;margin:6px 6px 0 0;border-radius:8px;border:1px solid #6b4423;background:#f7c331}
+small{color:#6b4423}
+</style></head><body>
+<h1>Frutódromo — diagnóstico de QA</h1>
+<small>Ferramenta de teste (não faz parte do jogo). Abra no Safari do iPhone, espere 3 segundos e tire um print desta tela.</small>
+<table id="t"></table>
+<button onclick="run()">Atualizar</button><button onclick="location.href='../../'">Abrir o jogo</button>
+<script>
+const rows=[];const add=(k,v,cls)=>rows.push([k,v,cls||""]);
+async function run(){rows.length=0;
+ add("Página",location.href);add("Hora",new Date().toLocaleString("pt-BR"));
+ add("Online (navigator.onLine)",String(navigator.onLine));
+ add("Aberto como app (tela de início)",String(!!(navigator.standalone||matchMedia("(display-mode: standalone)").matches)));
+ add("Navegador",navigator.userAgent);
+ // service worker
+ if(!("serviceWorker" in navigator))add("Service worker","não suportado","bad");
+ else{try{const r=await navigator.serviceWorker.getRegistration("../../");
+   if(!r)add("Service worker","NÃO registrado (abra o jogo uma vez com internet e volte aqui)","bad");
+   else{const w=r.active||r.waiting||r.installing;add("Service worker",`registrado, escopo ${r.scope}, estado ${w?w.state:"?"}`,r.active?"ok":"bad");
+     add("Controlando esta página",String(!!navigator.serviceWorker.controller),navigator.serviceWorker.controller?"ok":"")}}
+  catch(e){add("Service worker","erro: "+e,"bad")}}
+ // versão do sw.js na rede e no cache
+ let files=[],cacheName="?";
+ try{const t=await (await fetch("../../sw.js",{cache:"no-store"})).text();cacheName=(t.match(/CACHE\s*=\s*"([^"]+)"/)||[])[1]||"?";files=JSON.parse((t.match(/FILES\s*=\s*(\[[^\]]*\])/)||[])[1].replace(/'/g,'"'));add("Versão do sw.js (rede; offline vem do cache)",cacheName,cacheName=="?"?"bad":"ok")}
+ catch(e){add("Versão do sw.js","sem rede e sem cópia ( ("+e.message+")","")}
+ try{const ks=await caches.keys();add("Caches guardados",ks.join(", ")||"nenhum",ks.length?"ok":"bad");
+   const k=ks.find(x=>/^frutodromo-v/.test(x));if(k){const c=await caches.open(k);const have=(await c.keys()).map(r=>new URL(r.url).pathname);
+     add("Arquivos no cache "+k,String(have.length));
+     if(files.length){const base=new URL("../../",location.href).pathname;const miss=files.filter(f=>!have.includes(new URL(f,new URL("../../",location.href)).pathname));add("Faltando no cache",miss.join(", ")||"nenhum",miss.length?"bad":"ok")}}}
+ catch(e){add("Caches","erro: "+e,"bad")}
+ try{if(navigator.storage&&navigator.storage.estimate){const e=await navigator.storage.estimate();add("Armazenamento usado",Math.round(e.usage/1024)+" KB de "+Math.round(e.quota/1048576)+" MB")}
+   if(navigator.storage&&navigator.storage.persisted)add("Armazenamento persistente",String(await navigator.storage.persisted()))}catch(e){}
+ try{const s=localStorage.getItem("frutodromo9");add("Save do jogo neste contexto",s?Math.round(s.length/1024)+" KB":"nenhum")}catch(e){add("Save","localStorage bloqueado","bad")}
+ // tela
+ const vv=window.visualViewport;add("Janela (innerWidth×innerHeight)",innerWidth+"×"+innerHeight);
+ add("Área visível (visualViewport)",vv?Math.round(vv.width)+"×"+Math.round(vv.height)+" zoom "+vv.scale.toFixed(2):"?",vv&&vv.scale!=1?"bad":"");
+ add("Densidade (devicePixelRatio)",String(devicePixelRatio));
+ add("Orientação",(screen.orientation&&screen.orientation.type)||String(window.orientation));
+ add("text-size-adjust",getComputedStyle(document.documentElement).webkitTextSizeAdjust||"(padrão)");
+ add("Ponteiro grosso (toque)",String(matchMedia("(pointer:coarse)").matches));
+ document.getElementById("t").innerHTML=rows.map(([k,v,c])=>`<tr><td>${k}</td><td class="${c}">${String(v).replace(/</g,"&lt;")}</td></tr>`).join("")}
+run();setTimeout(run,3000);addEventListener("resize",()=>setTimeout(run,300));
+</script></body></html>

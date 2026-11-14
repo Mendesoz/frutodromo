@@ -1,0 +1,6 @@
+["online 1a vez", true, {"sw": true, "ctrl": true, "S": [25, 6, 1], "font": true, "caches": "frutodromo-v45"}]
+["offline reabertura 1", true, {"sw": true, "ctrl": true, "S": [555, 6, 1], "font": true, "caches": "frutodromo-v45"}]
+["offline reabertura 2", true, {"sw": true, "ctrl": true, "S": [555, 6, 1], "font": true, "caches": "frutodromo-v45"}]
+["offline reabertura 3", true, {"sw": true, "ctrl": true, "S": [555, 6, 1], "font": true, "caches": "frutodromo-v45"}]
+["online de novo", true, {"sw": true, "ctrl": true, "S": [555, 6, 1], "font": true, "caches": "frutodromo-v45"}]
+["offline sem nunca ter aberto", false, "Page.goto: net::ERR_INTERNET_DISCONNECTED at http://localhost:8781/\nCall log:\n  - navigating to \"htt"]

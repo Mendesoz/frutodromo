@@ -38,6 +38,18 @@ Antes de começar, marque aqui (e faça push). Ao terminar, apague a linha.
 ## Registro por etapa
 (cada etapa concluída ganha aqui: o que mudou, arquivos, testes, problemas e riscos)
 
+### Preparação da promoção final — Codex (14/11/2026)
+- Reuniu relatórios, evidências e zip da regressão final do Claude; código de jogo igual ao da candidata aprovada.
+- Cache atualizado para v46. Atualização v45→v46 e três aberturas offline com progresso e fonte preservados: PASS.
+- Sintaxe, 7/7 testes de dificuldade e fluxo de jogo nas quatro resoluções obrigatórias: PASS.
+- Evidências em `QA_PUBLICATION_CODEX_2026-11-14.md`. Para o CrazyGames, ainda faltam login, upload e QA Tool real no painel.
+
+### Fechamento CrazyGames — Codex (14/11/2026)
+- LOG-06 aprovado pelo Eric: transferência fácil/difícil limitada ao peso disponível; preserva a proporção dos médios. Demais regras mantidas.
+- Texto da página revisado em português e inglês, com dicas, VIPs, adaptação e orientação retrato no telefone.
+- Testes: 7/7 de dificuldade, sintaxe e fluxo de jogo nas quatro resoluções obrigatórias sem erros. Evidências e limitações em `QA_RELEASE_CODEX_2026-11-14.md`.
+- Branch candidata: `codex/crazygames-final-logic`. Tarefa 9, aprovação dos materiais, integração final e envio ainda pendentes. Nenhuma promoção para `main`/`stage9`.
+
 ### Etapa 1 — Fundação visual (concluída em 11/11/2026)
 **Motivo:** o CrazyGames recusou o jogo por qualidade geral, e as diretrizes deles pedem resolução consistente. Na janela deles (1024×600) a cena era encolhida por zoom de 0,85 e ficava borrada.
 

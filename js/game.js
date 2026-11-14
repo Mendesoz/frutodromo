@@ -148,9 +148,9 @@ function shade(L,flat,band){const out=blank(PW,PH),bb={};
 function build(c){
  const k=c.kind||"person",human=k=="person",furry=["cat","dog","bear","bunny"].includes(k),r=rng(hsh(ckey(c))),pick=a=>a[Math.floor(r()*a.length)];
  const SK=c.skin||[232,180,142],FU=c.fur||SK,HA=c.hair||[74,44,23],SH=c.shirt||[69,123,157],AC=c.acc2||[214,48,49],acc=c.acc||[],sp=c.sp||0;
- const role=null; // figurinos VIP: 6B
+ const role=c.vip?({"Chef Estrelado":"chef","Crítica Gourmet":"critic","Cientista Maluca":"sci","Prefeito":"mayor","Influencer Fit":"fit","Colecionador":"coll"}[c.name]||null):null; // 6B: papel visual derivado do nome já salvo
  const sw=pick([11,12,12,13]),hOff=human||furry?pick([0,0,1,1,2]):0; // largura de ombro e altura (0–2 px de arte) saem da semente: o save não ganha campo
- let gar=sp==3?"overall":sp==4?"shirt":pick(["tee","tee","hoodie","tank","sweater"]);
+ let gar=role?({chef:"chefj",critic:"blazer",sci:"coat",mayor:"suit",fit:"tank",coll:"vest"}[role]):sp==3?"overall":sp==4?"shirt":pick(["tee","tee","hoodie","tank","sweater"]);
  const SKa=human?SK:FU; // pele dos braços
  /* ---------- CORPO (camada parada) ---------- */
  const B=layer(),WHt=[245,239,224],DEN=[61,90,138];
@@ -218,7 +218,8 @@ function build(c){
   if(hs==4)H((x,y)=>ell(19.5,12,15.5,11)(x,y)&&y<=8);
   if(hs==6)H((x,y)=>cap(x,y)&&y>=10&&y<=18&&dx(x)>=10);
   if(hs==8)H((x,y)=>(cap(x,y)&&y<=8)||(y>=1&&y<=6&&dx(x)<=(role=="sci"?14:11)&&(x%5<3)&&y>=6-(x%5)*2.2)||(role=="sci"&&dx(x)>=10&&dx(x)<=14.5&&y>=5&&y<=15&&(y%4<3)));
-  const HT=c.hat2||SH;
+  if(role=="chef"){F((x,y)=>y>=1&&y<=9&&dx(x)<=9.5&&(y>=4||dx(x)<=7.5),WHt,"hat");F((x,y)=>y>=9&&y<=11&&dx(x)<=10.5,shd(WHt),"brim")}
+   const HT=c.hat2||SH;
   if(hat==1){F((x,y)=>y>=1&&y<=7&&cap(x,y),HT,"hat");F((x,y)=>y>=7&&y<=8&&x>=8&&x<=36,shd(HT),"brim")}
   if(hat==2){F((x,y)=>ell(19.5,8,13,7.2)(x,y)&&y<=8,HT,"hat");F((x,y)=>y>=7&&y<=9&&dx(x)<=12.5,lit(lit(HT)),"fold");F((x,y)=>(x-19.5)**2+(y-1.6)**2<=5,WHt,"pom")}
   if(hat==3){F((x,y)=>dx(x)<=8.5&&y>=1&&y<=7&&!(y==1&&dx(x)>7),[233,196,106],"hat");F((x,y)=>dx(x)<=16-(y==9?1:0)&&y>=8&&y<=9,[233,196,106],"brim");F((x,y)=>dx(x)<=8.5&&y>=5&&y<=6,[192,57,43],"band")}
@@ -370,14 +371,14 @@ const save=()=>{if(!saveTimer)saveTimer=setTimeout(saveNow,800)};
 function portmanteau(a,b){if(a==b)return a;const n=a.slice(0,Math.max(2,Math.ceil(a.length/2)))+b.slice(Math.floor(b.length/2)).toLowerCase();return n.replace(/([a-zà-ú])\1/gi,"$1")}
 // regra única: parecidos se intensificam
 function inh(x,y,max){if(x<=3&&y<=3)return Math.max(0,Math.min(x,y)-1);if(x>=8&&y>=8)return Math.min(max,Math.max(x,y)+1);return Math.round((x+y)/2)}
-function elOut(a,b){if(a.el&&b.el&&a.el!=b.el)return{el:R([a.el,b.el]),hero:true};return{el:a.el||b.el||null,hero:!!(a.hero||b.hero)}}
+function elOut(a,b){if(a.el&&b.el&&a.el!=b.el)return{el:a.el,hero:true};return{el:a.el||b.el||null,hero:!!(a.hero||b.hero)}}
 function cross(a,b){const fa=Math.random()<.5,P=fa?a:b,Q=fa?b:a,e=elOut(a,b);
 const c={id:"f"+(S.id++),gen:Math.max(a.gen,b.gen)+1,mut:false,root:portmanteau(P.root,Q.root),shape:"mix",mask:a.shape==b.shape&&!a.mask&&!b.mask?null:morph(a,b),pat:Math.random()<.5?Q.pat:P.pat,top:R([a.top,b.top]),
 doce:inh(a.doce,b.doce,10),az:inh(a.az,b.az,10),tam:inh(a.tam,b.tam,12),rgb:a.rgb.map((x,i)=>Math.round((x+b.rgb[i])/2)),el:e.el,hero:e.hero};
 {const da=a.rgb.reduce((s,x,i)=>s+(x-c.rgb[i])**2,0),db=b.rgb.reduce((s,x,i)=>s+(x-c.rgb[i])**2,0),far=da>db?a:b;if(Math.max(da,db)>1500){c.rgb2=far.rgb.map(Math.round);if(Math.random()<.35)c.pat="marble";else if(c.pat=="none"||c.pat=="pores"||c.pat=="fibers")c.pat=R(["spots","stripes","seeds"])}}
 c.shiny=Math.random()<((a.shiny||b.shiny)?.25:.04);
 if(!c.mask)c.shape=a.shape;if(c.hero)c.cape=(a.hero&&a.cape)||(b.hero&&b.cape)||R(["#d63031","#2d6cdf","#8e44ad","#16a085","#f39c12"]);
-if(Math.random()<.08){c.mut=true;if(Math.random()<.6)c.rgb=COLORS[R(["rosa","branca","azul","cinza"])].slice();else c.pat=R(["spots","stripes","seeds","none","blush"])}
+if(Math.random()<.08){c.mut=true;c.pat=R(["spots","stripes","seeds","none","blush","marble"])}
 return c}
 function stars(t){let s=1;if(t.d>=2)s++;if(t.d>=4)s++;if(t.st.el)s++;if(t.st.hero)s++;if(t.st.tam==0||t.st.tam>=11)s++;if(t.shiny)s++;return Math.min(5,s)}
 const RAR=[null,["COMUM","#8d99ae"],["INCOMUM","#3ca55c"],["RARA","#2d6cdf"],["ÉPICA","#9b5de5"],["LENDÁRIA","#f39c12"]];
@@ -401,7 +402,7 @@ if(!silent){S.ds.dex++;setTimeout(checkAch,0);const t=S.tree[k],n=t.n,st=stars(t
 else if(f.shiny&&!S.tree[k].shiny){S.tree[k].shiny=true}return true}
 const dexCheck=(f,silent)=>treeAdd(f,null,silent);
 function predictSt(a,b){const e=a.el&&b.el&&a.el!=b.el?{el:a.el,hero:true}:{el:a.el||b.el||null,hero:!!(a.hero||b.hero)};
-return{doce:inh(a.doce,b.doce,10),az:inh(a.az,b.az,10),tam:inh(a.tam,b.tam,12),rgb:a.rgb.map((x,q)=>(x+b.rgb[q])/2),el:e.el,hero:e.hero}}
+return{doce:inh(a.doce,b.doce,10),az:inh(a.az,b.az,10),tam:inh(a.tam,b.tam,12),rgb:a.rgb.map((x,q)=>Math.round((x+b.rgb[q])/2)),el:e.el,hero:e.hero}}
 function suggestions(max,only){const ks=Object.keys(S.tree||{}),out=[],seen=new Set();
 for(let i=0;i<ks.length;i++)for(let j=i;j<ks.length;j++){if(only&&ks[i]!=only&&ks[j]!=only)continue;const c=predictSt(S.tree[ks[i]].st,S.tree[ks[j]].st),k=spKey(c);if(S.tree[k]||seen.has(k))continue;seen.add(k);
 out.push({k,a:ks[i],b:ks[j],c,score:Math.abs(c.tam-6)*1.5+(c.hero?5:0)+(c.el?1:0)+(c.doce==10||c.az==10?3:0)+((i*7+j*13)%10)/10})}
@@ -424,11 +425,30 @@ const lvl=(v,k)=>v>=8?{k:k+"Min",v:8}:v>=6?{k:k+"Min",v:6}:v<=2?{k:k+"Max",v:2}:
 [lvl(t.doce,"doce"),lvl(t.az,"az")].forEach(r=>{if(r)normal.push(r)});
 special.sort(()=>Math.random()-.5);normal.sort(()=>Math.random()-.5);
 for(const r of [...special,...normal]){if(out.length>=n)break;out.push(r)}return out}
+/* Etapa 9: proporções-alvo 45/40/15; adaptação por entregas e erros recentes.
+   Apenas a seleção dos pedidos muda. O relógio do cliente permanece igual. */
+let DIFF={wins:0,misses:0,streak:0};
+try{Object.assign(DIFF,JSON.parse(localStorage.getItem("frutodromo_difficulty")||"{}"))}catch(e){}
+function diffRecord(ok,c){if(!ok&&c){if(c.diffMissed)return;c.diffMissed=true}
+ if(ok){DIFF.wins++;DIFF.streak=Math.max(0,DIFF.streak)+1}else{DIFF.misses++;DIFF.streak=Math.min(0,DIFF.streak)-1}
+ DIFF.wins=Math.min(DIFF.wins,30);DIFF.misses=Math.min(DIFF.misses,30);
+ try{localStorage.setItem("frutodromo_difficulty",JSON.stringify(DIFF))}catch(e){}}
+function diffTier(L){if(L<=2)return Math.random()<.85?0:1;
+ let weights=L<=4?[.65,.32,.03]:L<=6?[.55,.37,.08]:[.45,.40,.15];
+ // Ao esgotar os difíceis, para a transferência sem reduzir os pedidos médios.
+ const shift=Math.max(-Math.min(.15,weights[2]),Math.min(.15,DIFF.streak*.035));
+ weights=[weights[0]-shift,weights[1],weights[2]+shift];
+ const roll=Math.random();return roll<weights[0]?0:roll<weights[0]+weights[1]?1:2}
 function newCust(){if(running)setTimeout(()=>SFX.bell(),200);const L=level(),vip=L>=3&&Math.random()<.15;let n=Math.min(3,1+Math.floor((L-1)/2)+(Math.random()<.3?1:0));if(vip)n=Math.min(4,n+1);
 const pool=reachPool(L),maxD=Math.max(...pool.map(x=>x.d));
 // alvo: nível baixo pede coisas perto da feira; VIP pede o mais fundo
-const want=vip?maxD:Math.min(maxD,R([0,1,1,2,2,3].filter(d=>d<=maxD))),cand=pool.filter(x=>x.d==want&&(L>=5||!x.hero)&&(L>=3||!x.el));
-const t=R(cand.length?cand:pool),spReq=!vip&&Math.random()<(L<=2?.7:.5),reqs=spReq?[{k:"sp",v:spKey(t),im:stImg(t)}]:reqsFrom(t,n,L);
+const tier=diffTier(L);
+// Classes sem sobreposição: fácil = feira, médio = 1 cruzamento, difícil = 2+.
+// Níveis iniciais sem receitas avançadas rebaixam a classe indisponível.
+const depth=tier==0?0:tier==1?Math.min(1,maxD):maxD;
+const eligible=pool.filter(x=>x.d==depth&&(L>=5||!x.hero)&&(L>=3||!x.el));
+const fallback=pool.filter(x=>x.d<=depth&&(L>=5||!x.hero)&&(L>=3||!x.el));
+const t=R(eligible.length?eligible:fallback.length?fallback:pool),spReq=!vip&&Math.random()<(L<=2?.7:.5),reqs=spReq?[{k:"sp",v:spKey(t),im:stImg(t)}]:reqsFrom(t,n,L);
 let rw=4+reqs.length*5+L*2+t.d*6+(spReq?8+t.d*4:0);reqs.forEach(r=>{if(r.k=="el")rw+=12;if(r.k=="mini"||r.k=="enorme")rw+=10;if(r.k=="micro"||r.k=="giga")rw+=22;if(r.k=="hero")rw+=30});if(vip)rw*=3;
 const kd=Math.random()<.45?R(KINDS):null;
 const vipN=vip?R(VIPS):null,kdN=kd?R(kd[2]):null,gen=vip?VIPG[vipN]:kd?(/^(Dona|Rã|Miss)|a$/.test(kdN)?"f":/^(Sr|Seu)|(ão|o)$/.test(kdN)?"m":"n"):R(["f","f","m","m","m","f","n"]);
@@ -436,13 +456,16 @@ const ACC=gen=="f"?["freck","glass","ear","scarf","neck","bow","flower","leaf","
 const hsG=gen=="f"?[1,1,2,2,3,5,7,4]:gen=="m"?[0,0,0,6,8,4,0,8]:[0,2,4,8,6];
 const nc={name:vipN||(kd?kdN:R(gen=="f"?NAMESF:gen=="m"?NAMESM:NAMESN)),gen,kind:kd?kd[0]:"person",fur:kd?R(kd[1]):null,vip,skin:R(SKIN),hair:R(HAIR),hs:R(hsG),eyeC:N(0,5),hat:Math.random()<.25?N(1,3):0,hat2:R(SHIRT),sp:N(0,4),acc,acc2:R(SHIRT),mouth:N(0,1),blinkD:Math.random()*4,shirt:R(SHIRT),gl:false,reqs,rw,t0:now(),
 pat:(95000+t.d*45000+reqs.length*15000)*(vip?.85:1),come:true,ct:Date.now(),tg:rk(t),td:t.d};charSheet(nc);return nc} // a folha já nasce pronta (antes do cliente entrar), sem travar a chegada
-function stImg(x){if(x.img)return x.img;let a=x;while(a.p)a=a.p[0];return {...a.img,rgb:x.rgb,hero:x.hero,cape:x.hero?"#d63031":null}}
+function stImg(x){if(x.img)return x.img;
+const a=stImg(x.p[0]),b=stImg(x.p[1]),same=a.shape==b.shape&&!a.mask&&!b.mask;
+return x.img={shape:same?a.shape:"mix",mask:same?null:morph(a,b),pat:a.pat,top:a.top,tip:a.tip,rgb:x.rgb,hero:x.hero,cape:x.hero?"#d63031":null}}
+
 function stLabel(x){return x.d==0?x.name:(x.hero?"Super ":"")+sizeName(x.tam)+" "+colorName(x.rgb)+(x.el?" "+ELEM[x.el].n:"")}
-function showHint(i){const c=S.cust[i];if(!c)return;const L=level(),pool=reachPool(L);const ok=pool.filter(x=>c.reqs.every(r=>meets(x,r))).map(x=>[x,recipeOf(x).length]).sort((a,b)=>a[1]-b[1]);let t=ok.length?ok[0][0]:null;
+function showHint(i){const c=S.cust[i];if(!c)return;const L=level(),pool=reachPool(L);const exact=pool.find(x=>rk(x)==c.tg&&c.reqs.every(r=>meets(x,r)));const ok=pool.filter(x=>c.reqs.every(r=>meets(x,r))).map(x=>[x,recipeOf(x).length]).sort((a,b)=>a[1]-b[1]);let t=exact||(ok.length?ok[0][0]:null);
 let h=`<h2>COMO FAZER?</h2><p style="margin-top:0">Pedido de <b>${c.name}</b></p>`;
 if(!t)h+="<p>Hmm, esse pedido ficou difícil. Pode trocar por outro cliente esperando ele ir embora.</p>";
 else if(t.d==0)h+=`<p>É só comprar na feira:</p><div class="rstep"><span class="fi"><img src="${fruitImg(stImg(t))}"><span class="nn">${t.name}</span></span></div>`;
-else{const st=recipeOf(t);h+=`<p>${st.length} cruzamento${st.length>1?"s":""} no caldeirão:</p>`+st.map((x,k)=>{const[a,b]=x.p,fi=y=>`<span class="fi"><img src="${fruitImg(stImg(y))}"><span class="nn">${stLabel(y)}</span></span>`;return `<div class="rstep"><b>${k+1}.</b>${fi(a)}<b>+</b>${fi(b)}<b>=</b>${fi(x)}</div>`}).join("")+`<p style="font-size:var(--t12);opacity:.75">As frutas da feira estão lá embaixo. Use o resultado de cada passo no passo seguinte.</p>`}
+else{const st=recipeOf(t);h+=`<p>${st.length} cruzamento${st.length>1?"s":""} no caldeirão:</p>`+st.map((x,k)=>{const[a,b]=x.p,fi=y=>`<span class="fi"><img src="${fruitImg(stImg(y))}"><span class="nn">${stLabel(y)}</span></span>`;return `<div class="rstep"><b>${k+1}.</b>${fi(a)}<b>+</b>${fi(b)}<b>=</b>${fi(x)}</div>`}).join("")+`<p style="font-size:var(--t12);opacity:.75">As frutas da feira estão lá embaixo. Use o resultado de cada passo no passo seguinte. A estampa pode variar; cor, tamanho e poderes seguem a receita.</p>`}
 openModal(h+`<button class="big" id="cl">ENTENDI</button>`);$("cl").onclick=closeModal}
 function meets(f,r){switch(r.k){case"cor":return colorName(f.rgb)==r.v;case"doceMin":return f.doce>=r.v;case"doceMax":return f.doce<=r.v;case"azMin":return f.az>=r.v;case"azMax":return f.az<=r.v;
 case"tamMin":return f.tam>=r.v;case"tamMax":return f.tam<=r.v;case"media":return f.tam>=4&&f.tam<=7;case"mini":return f.tam<=1;case"micro":return f.tam==0;case"enorme":return f.tam>=11;case"giga":return f.tam==12;case"el":return f.el==r.v;case"hero":return !!f.hero;case"sp":return spKey(f)==r.v}}
@@ -469,7 +492,7 @@ let pat="";for(let s=0;s<10;s++)pat+=`<i style="${s<on?"background:"+pc:""}"></i
 const nowR=Date.now(),inT=nowR-(c.ct||0),outT=nowR-(c.lt||0),coming=!c.leaving&&inT<WALK_IN,Wsc=$("scene").clientWidth,cx=(i+.5)*Wsc/3,dir=i==0?-1:i==2?1:((c.ct||0)%2?1:-1),fx=2*Math.round((dir<0?-(cx+70):(Wsc-cx+70))/2);
 const cls=(hoverCust==i||ok?"hot ":"")+(c.leaving?"leave ":"")+(coming?"come ":"")+(c.mood=="sad"?"sad ":"")+(c.vip?"vip":"");
 return `<div class="cust ${cls} ${c.mood=="happy"?"happy":""} ${left<.12&&!c.mood?"angry":""}" data-i="${i}" data-low="${left<.2?1:0}" style="--fx:${fx}px;--wd:-${Math.min(inT,WALK_IN)}ms;--bd:${Math.max(0,WALK_IN-inT)}ms;--ld:-${Math.min(outT,WALK_OUT)}ms"><div class="bub px"><span class="bn">${c.name}</span>${c.vip?'<span class="vipb">VIP x3</span>':""}${c.reqs.map(r=>reqHTML(r,f)).join("")}
-<div class="pay"><span class="coin"></span><b>${pay(c)}</b><span class="hint" onclick="event.stopPropagation();showHint(${i})">?</span></div><div class="pat">${pat}</div></div><div class="pw" onclick="showPortrait(${i})"><div class="chr" data-ex="${ex}" style="background-image:url(${sh.url});animation-delay:-${(c.blinkD||0).toFixed(2)}s"></div></div>${left<.2&&!c.leaving?'<span class="sweat"></span>':""}${left<.12&&!c.leaving?'<span class="puff"><i></i><i></i></span>':""}</div>`}).join("");
+<div class="pay"><span class="coin"></span><b>${pay(c)}</b>${CFG.hints!==false?`<span class="hint" onclick="event.stopPropagation();showHint(${i})">?</span>`:""}</div><div class="pat">${pat}</div></div><div class="pw" onclick="showPortrait(${i})"><div class="chr" data-ex="${ex}" style="background-image:url(${sh.url});animation-delay:-${(c.blinkD||0).toFixed(2)}s"></div></div>${left<.2&&!c.leaving?'<span class="sweat"></span>':""}${left<.12&&!c.leaving?'<span class="puff"><i></i><i></i></span>':""}</div>`}).join("");
 S.cust.forEach(c=>{if(c)c.come=false});
  const wl=S.cust.map(c=>c&&!c.leaving?WALK_IN-(Date.now()-(c.ct||0)):-1).filter(t=>t>0);if(wl.length){clearTimeout(renderCounter.wt);renderCounter.wt=setTimeout(renderCounter,Math.max(...wl)+60)}}
 /* ================= mesa ================= */
@@ -512,7 +535,7 @@ const hc=custAt(cx,cy);if(hc!=hoverCust){hoverCust=hc;document.querySelectorAll(
 const up=e=>{if(!on)return;on=false;ghKill();if(mv)SPREAD.delete(f);el.classList.remove("drag");$("bin").classList.remove("hot");$("pot").classList.remove("hot");
 if(!mv&&armed){useItem(f);return}if(!mv){sel=sel==f.id?null:f.id;showInfo(sel?f:null);renderCounter();tbl.querySelectorAll(".fr").forEach(x=>x.classList.toggle("sel",x.dataset.id==sel));return}
 const[cx,cy]=center(el);const hc=custAt(cx,cy);hoverCust=-1;
-if(hc>=0&&S.cust[hc]&&!S.cust[hc].leaving){deliver(f,hc,ox,oy);return}
+if(hc>=0&&S.cust[hc]&&!S.cust[hc].leaving&&!SERVED.has(S.cust[hc])){deliver(f,hc,ox,oy);return}
 if(inside(cx,cy,$("bin"))){sell(f);return}
 if(inside(cx,cy,$("pot"))){if(brewing||S.pot.length>=2){f.x=ox;f.y=oy;renderTable();return toast("O caldeirão está ocupado!")}addToPot(f);return}
 f.x=ox+(e.clientX-sx);f.y=oy+(e.clientY-sy);clampPos(f);freeSpot(f,true);sel=null;save();renderTable();renderCounter()};
@@ -522,12 +545,14 @@ const cancel=()=>{if(!on)return;on=false;ghKill();el.classList.remove("drag","ov
 el.addEventListener("pointerup",up);el.addEventListener("pointercancel",cancel)}
 function sell(f){const v=(1+Math.floor(f.gen/2)+(f.mut?2:0)+(f.el?3:0)+(f.hero?6:0)+(f.tam==0||f.tam>=11?4:0));const br=$("bin").getBoundingClientRect();flyCoins(br.left+br.width/2,br.top+br.height/2,v,0);S.coins+=v;showCoins();undoOffer(f,v);floatText(br.left+br.width/2,br.top,"+"+v);buzz(15);S.ds.earn+=v;
 S.fruits=S.fruits.filter(x=>x!=f);sel=null;showInfo(null);save();renderTable();renderCounter();renderMarket()}
+// cliente já atendido (feliz, nos 900 ms antes de sair) não recebe nem paga de novo; só em memória, sem campo novo no save
+const SERVED=new WeakSet();
 function deliver(f,i,ox,oy){const c=S.cust[i];
-if(!c.reqs.every(r=>meets(f,r))){f.x=ox;f.y=oy;renderTable();c.mood="sad";renderCounter();SFX.bad();buzz(120);{const ce=document.querySelector(`.cust[data-i="${i}"] .bub`);if(ce){const r=ce.getBoundingClientRect();floatText(r.left+r.width/2,r.top+20,"✗","#ff5a4e")}}const miss=c.reqs.map((r,k)=>[r,k]).filter(([r])=>!meets(f,r));document.querySelectorAll(`.cust[data-i="${i}"] .rq`).forEach((e,k)=>{if(miss.some(m=>m[1]==k))e.classList.add("n","miss")});
+if(!c.reqs.every(r=>meets(f,r))){diffRecord(false,c);f.x=ox;f.y=oy;renderTable();c.mood="sad";renderCounter();SFX.bad();buzz(120);{const ce=document.querySelector(`.cust[data-i="${i}"] .bub`);if(ce){const r=ce.getBoundingClientRect();floatText(r.left+r.width/2,r.top+20,"✗","#ff5a4e")}}const miss=c.reqs.map((r,k)=>[r,k]).filter(([r])=>!meets(f,r));document.querySelectorAll(`.cust[data-i="${i}"] .rq`).forEach((e,k)=>{if(miss.some(m=>m[1]==k))e.classList.add("n","miss")});
 setTimeout(()=>{if(S.cust[i]==c){c.mood=null;renderCounter()}},1600);if(miss.some(([r])=>r.k=="sp")){const h=document.querySelector(`.cust[data-i="${i}"] .hint`);if(h)h.classList.add("nudge");return toast("Não é essa espécie! Toque no <b>?</b> pra ver a receita.")}
 return toast(`Faltou: <b>${miss.map(([r])=>{const[w,n]=reqWord(r);return w+(n?" "+n:"")}).join(", ")}</b>`)}
 const cb=comboHit(),bonus=cb>=2?Math.round(pay(c)*Math.min(.5,(cb-1)*.1)):0,v=pay(c)+bonus,L0=level();const ce=document.querySelector(`.cust[data-i="${i}"] .bub`).getBoundingClientRect();S.coins+=v;flyCoins(ce.left+ce.width/2,ce.top+ce.height/2,v,v);floatText(ce.left+ce.width/2,ce.top+10,"+"+v);if(cb>=2)setTimeout(()=>floatText(ce.left+ce.width/2,ce.top+40,`COMBO x${cb}!`,"#ff8ad8"),250);buzz([20,40,30]);
-S.delivered++;S.ds.served++;if(c.vip)rec("vips",1);checkAch();tutDone("t2");S.ds.earn+=v;S.ds.best=Math.max(S.ds.best,v);S.fruits=S.fruits.filter(x=>x!=f);sel=null;showInfo(null);c.mood="happy";renderTable();renderCounter();renderMarket();
+SERVED.add(c);diffRecord(true,c);S.delivered++;S.ds.served++;if(c.vip)rec("vips",1);checkAch();tutDone("t2");S.ds.earn+=v;S.ds.best=Math.max(S.ds.best,v);S.fruits=S.fruits.filter(x=>x!=f);sel=null;showInfo(null);c.mood="happy";renderTable();renderCounter();renderMarket();
 toast(`${c.name} adorou! <b>+${v}</b> moedas${level()>L0?`<br><b>NÍVEL ${level()}!</b>${newUnlock(level())}`:""}`);if(level()>L0){SFX.lvl();shake(5);buzz([40,60,40,60,80])}
 {const first=!(S.rec&&S.rec.gifts),n=c.vip?2:(first||Math.random()<.35)?1:0;for(let g=0;g<n;g++)setTimeout(()=>giveItem(rollItem(),ce.left+ce.width/2,ce.top+ce.height/2,"de "+c.name),600+g*700);if(n)rec("gifts",n)}
 setTimeout(()=>{c.leaving=true;c.lt=Date.now();renderCounter();setTimeout(()=>{S.cust[i]=null;renderCounter();setTimeout(()=>{if(running&&!S.cust[i]){S.cust[i]=newCust();save();renderCounter()}},700)},WALK_OUT)},900)}
@@ -1092,14 +1117,14 @@ function settings(back){const sl=(id,lab,v)=>`<div style="display:flex;align-ite
 const tg=(id,lab,on,desc)=>`<div class="cg" style="cursor:pointer" id="${id}"><span class="big-sw" style="width:26px;height:26px;background:${on?"#3ca55c":"#c9b99a"}"></span><div style="flex:1"><b>${lab}: ${on?"LIGADO":"DESLIGADO"}</b><br><span style="font-size:var(--t12)">${desc}</span></div></div>`;
 openModal(`<h2>AJUSTES</h2>${sl("smus","Música",CFG.mus)}${sl("ssfx","Efeitos",CFG.sfx)}
 ${tg("svib","Vibração",CFG.vib,"Vibra o celular ao cruzar, entregar e descobrir")}
-${tg("szen","Modo Zen",CFG.zen,"Sem relógio e sem pressa: o dia não acaba e os clientes esperam pra sempre")}${tg("swx","Clima real na janela",!!CFG.wx,"Mostra o tempo da sua cidade e avisa sobre tempo perigoso")}
+${tg("szen","Modo Zen",CFG.zen,"Sem relógio e sem pressa: o dia não acaba e os clientes esperam pra sempre")}${tg("sdica","Modo dica",CFG.hints!==false,"Mostra o botão ? com a receita dos pedidos. Desligue para descobrir sozinho.")}${tg("swx","Clima real na janela",!!CFG.wx,"Mostra o tempo da sua cidade e avisa sobre tempo perigoso")}
 ${tg("samb","Som de chuva",CFG.amb!==false,"Barulho de chuva e trovão quando estiver chovendo na janela")}
 <div style="text-align:left;margin:8px 0"><b>Estilo da música:</b><div class="flt" style="border:2px solid #2a1a12;margin-top:4px;flex-wrap:wrap">${[["auto","Automático (lo-fi na chuva e à noite)"],["chip","Chiptune"],["lofi","Lo-fi"]].map(([k,l])=>`<span class="${(CFG.musStyle||"auto")==k?"on":""}" onclick="CFG.musStyle='${k}';saveCfg();settings()">${l}</span>`).join("")}</div></div>
 <div style="text-align:left;margin:8px 0"><b>Ver clima na janela:</b><div class="flt" style="border:2px solid #2a1a12;margin-top:4px;flex-wrap:wrap">${[["auto","Automático"],["sol",EN?"Sunny":"Sol"],["nublado","Nublado"],["garoa","Garoa"],["chuva","Chuva"],["chuvaforte","Chuva forte"],["tempestade","Tempestade"],["entardecer","Entardecer"],["estrelada","Noite estrelada"],["noitechuva","Noite chuvosa"]].map(([k,l])=>`<span class="${(CFG.wxForce||"auto")==k?"on":""}" onclick="CFG.wxForce='${k}';saveCfg();updateSky();settings()">${l}</span>`).join("")}</div></div>
 <div style="text-align:left;margin:8px 0"><b>Idioma / Language:</b><div class="flt" style="border:2px solid #2a1a12;margin-top:4px">${[["pt","Português"],["en","English"]].map(([k,l])=>`<span class="${LANG==k?"on":""}" onclick="setLang('${k}')">${l}</span>`).join("")}</div></div>
 <button class="big alt" id="stut">REVER TUTORIAL</button><br><button class="big alt" id="sexp">EXPORTAR PROGRESSO</button><button class="big alt" id="simp">IMPORTAR</button><br><button class="big" id="cl">PRONTO</button>`);
 ["smus","ssfx"].forEach(id=>{$(id).oninput=e=>{const v=+e.target.value;$(id+"v").textContent=v;if(id=="smus")CFG.mus=v;else{CFG.sfx=v;SFX.coin()}saveCfg()}});
-$("svib").onclick=()=>{CFG.vib=!CFG.vib;saveCfg();buzz(40);settings(back)};$("samb").onclick=()=>{CFG.amb=CFG.amb===false;saveCfg();settings(back)};$("szen").onclick=()=>{CFG.zen=!CFG.zen;saveCfg();hud();renderCounter();settings(back)};$("swx").onclick=()=>{if(CFG.wx){CFG.wx=false;WX.ok=false;saveCfg();updateSky();settings(back)}else{delete CFG.wx;saveCfg();closeModal();askWeather(()=>settings(back))}};
+$("sdica").onclick=()=>{CFG.hints=CFG.hints===false;saveCfg();renderCounter();settings(back)};$("svib").onclick=()=>{CFG.vib=!CFG.vib;saveCfg();buzz(40);settings(back)};$("samb").onclick=()=>{CFG.amb=CFG.amb===false;saveCfg();settings(back)};$("szen").onclick=()=>{CFG.zen=!CFG.zen;saveCfg();hud();renderCounter();settings(back)};$("swx").onclick=()=>{if(CFG.wx){CFG.wx=false;WX.ok=false;saveCfg();updateSky();settings(back)}else{delete CFG.wx;saveCfg();closeModal();askWeather(()=>settings(back))}};
 $("stut").onclick=()=>{S.tut={};save();closeModal();tutStep()};
 $("sexp").onclick=()=>{save();const code="FRUTO1:"+btoa(unescape(encodeURIComponent(JSON.stringify(S))));
  openModal(`<h2>SEU CÓDIGO</h2><p style="font-size:var(--t12)">Guarde esse código (num bloco de notas ou mande pra você mesmo). Ele leva tudo: frutas, espécies, cartas e conquistas.</p><textarea id="bk" readonly style="width:100%;height:140px;font-size:var(--t10);font-family:monospace">${code}</textarea><button class="big" id="bkc">COPIAR</button><button class="big alt" id="cl">VOLTAR</button>`);
@@ -1111,17 +1136,37 @@ $("simp").onclick=()=>{openModal(`<h2>IMPORTAR</h2><p style="font-size:var(--t12
 const TUT=[["pot","Arraste <b>duas frutas</b> até o <b>caldeirão</b> pra criar uma nova!","t1"],["cust","Agora arraste uma fruta até o <b>cliente</b> que pediu algo parecido. Toque no <b>?</b> do balão se precisar da receita.","t2"],["dexb","Toque numa fruta pra ver os atributos. Na <b>ÁRVORE</b> ficam todas as espécies que você descobriu!","t3"],["market","<b>Segure</b> uma fruta da feira (ou passe o mouse) pra ver doce, azedo e tamanho antes de comprar.","t4"]];
 // tutorial: o balão nunca fica sobre a mesa. Fica na parte de baixo da cena (ou sobre a feira no passo do cliente) e o alvo ganha um contorno amarelo piscando.
 const tutClear=()=>document.querySelectorAll(".tutfocus").forEach(e=>e.classList.remove("tutfocus"));
-function tutStep(){S.tut=S.tut||{};const st=TUT.find(t=>!(S.tut||{})[t[2]]);const box=$("tut");tutClear();if(!st||modalOpen||!running){box.classList.remove("on");return}
+function tutStep(){S.tut=S.tut||{};const st=TUT.find(t=>!(S.tut||{})[t[2]]);const box=$("tut");tutClear();if(!st||modalOpen||!running){box.classList.remove("on");tutHand(null);return}
 const tg={pot:$("pot"),cust:$("custs"),dexb:$("dexb"),market:$("market")}[st[0]];if(!tg)return;
 if(box.dataset.k!=st[2]||!box.classList.contains("on")){box.dataset.k=st[2];
- box.innerHTML=`<span>${st[1]}</span><button class="btn" onclick="S.tut['${st[2]}']=1;save();tutClear();$('tut').classList.remove('on');setTimeout(tutStep,400)">ENTENDI</button>`;box.classList.add("on")}
-tg.classList.add("tutfocus");tutPlace(st)}
+ box.innerHTML=`<span>${st[1]}</span><span class="tbtns"><button class="btn" onclick="S.tut['${st[2]}']=1;save();tutClear();$('tut').classList.remove('on');setTimeout(tutStep,400)">ENTENDI</button><button class="tskip" onclick="tutSkip()">PULAR TUTORIAL</button></span>`;box.classList.add("on")}
+tg.classList.add("tutfocus");tutPlace(st);tutHand(st)}
+// pular o tutorial inteiro de uma vez (guia do CrazyGames: onboarding pulável); "Rever tutorial" nos ajustes zera de novo
+function tutSkip(){S.tut=S.tut||{};TUT.forEach(t=>S.tut[t[2]]=1);save();tutClear();tutHand(null);$("tut").classList.remove("on")}
 // posição da cena medida por elementos sem zoom (motores antigos dividem o rect do #scene pelo zoom): x e largura da feira, y do header até a mesa
 function sceneBox(){const mk=$("market").getBoundingClientRect(),hd=document.querySelector("header").getBoundingClientRect(),tr=$("table").getBoundingClientRect();return{left:mk.left,width:mk.width,top:hd.bottom,bottom:tr.top}}
 function tutPlace(st){const box=$("tut"),ev=v=>Math.round(v/2)*2,sc=sceneBox(),mk=$("market").getBoundingClientRect();
  const onMk=st[0]=="cust"||(st[0]=="pot"&&$("scene").style.zoom=="0.5"); // janela baixa: o balão de pedido ocupa a cena toda, então o passo do caldeirão também vai sobre a feira
  box.style.maxWidth=ev(Math.min(380,innerWidth-16))+"px";const bw=box.offsetWidth,bh=box.offsetHeight;
  const x=ev(sc.left+(sc.width-bw)/2),y=onMk?ev(Math.max(mk.top,mk.bottom-bh-4)):ev(Math.max(sc.top+2,sc.bottom-bh-34));box.style.left=x+"px";box.style.top=y+"px"}
+// Mãozinha do tutorial: mostra o gesto de arrastar (fruta até o caldeirão no passo 1, até o cliente no passo 2).
+// Pixel art gerada por código, 3x, posições em px pares, sem bloquear toque; com movimento reduzido fica parada sobre a fruta.
+const HANDIMG=art(["...ww......","..wwws.....","..wwws.....","..wwws.....","..wwwswws..","..wwwwwwwws","wwwwwswswws","wwwwwwwwwws",".wwwwwwwwws",".wwwwwwwwws","..wwwwwwws.","..wwwwwwws.","...wwwwwws.","...ssssss.."],{w:"#fff6e6",s:"#e2c9a6"},"#2a1a12");
+let HT=null;
+function tutHand(st){let el=$("tuthand");if(!st||(st[0]!="pot"&&st[0]!="cust")){if(HT){clearInterval(HT.iv);HT=null}if(el)el.className="";return}
+ if(!el){el=document.createElement("div");el.id="tuthand";el.innerHTML=`<img class="hf" alt=""><img class="hh" alt="" src="${HANDIMG}">`;document.body.appendChild(el)}
+ if(HT&&HT.k==st[2])return;if(HT)clearInterval(HT.iv);HT={k:st[2],t0:performance.now()};
+ const ev=v=>Math.round(v/2)*2;
+ const path=()=>{const frs=[...tbl.querySelectorAll(".fr:not(.drag):not(.gsrc)")];if(!frs.length)return null;let src=frs[0],dst=null;
+  if(st[0]=="pot"){const p=$("potimg")||$("pot");dst=p;const pr=p.getBoundingClientRect();let best=1e9;for(const e of frs){const r=e.getBoundingClientRect(),d=Math.hypot(r.left-pr.left,r.top-pr.top);if(d<best){best=d;src=e}}}
+  else{let ci=-1;outer:for(let i=0;i<S.cust.length;i++){const c=S.cust[i];if(!c||c.leaving||c.come)continue;for(const e of frs){const f=S.fruits.find(x=>x.id==e.dataset.id);if(f&&c.reqs.every(r=>meets(f,r))){src=e;ci=i;break outer}}if(ci<0)ci=i}
+   if(ci<0)return null;dst=document.querySelector(`.cust[data-i="${ci}"] .bub`)||document.querySelector(`.cust[data-i="${ci}"]`)}
+  if(!dst)return null;const a=src.getBoundingClientRect(),b=dst.getBoundingClientRect();return{img:(src.querySelector("img")||{}).src,w:a.width,x0:a.left+a.width/2,y0:a.top+a.height/2,x1:b.left+b.width/2,y1:b.top+b.height/2}};
+ const tick=()=>{const box=$("tut");if(!box||!box.classList.contains("on")||modalOpen||document.hidden||ptrDown||document.querySelector(".fr.drag")){el.className="";return}
+  const P=path();if(!P){el.className="";return}const hf=el.querySelector(".hf");if(hf.getAttribute("src")!=P.img)hf.src=P.img;hf.style.width=ev(P.w*.8)+"px";
+  let k=RM.matches?0:((performance.now()-HT.t0)%2400)/2400,u=k<.15?0:k<.7?(k-.15)/.55:1;el.className="on"+(k>.85?" fade":"")+(k<.15||RM.matches?"":" hold");
+  const x=ev(P.x0+(P.x1-P.x0)*u),y=ev(P.y0+(P.y1-P.y0)*u);el.style.transform=`translate(${x}px,${y}px)`};
+ HT.iv=setInterval(tick,60);tick()}
 function tutDone(k){S.tut=S.tut||{};if(!S.tut[k]){S.tut[k]=1;save();tutClear();$("tut").classList.remove("on");setTimeout(tutStep,900)}}
 function hud(){updateSky();showCoins();const rem=dayLen()-S.dayT;const wide=innerWidth>=440,tm=CFG.zen?"ZEN":running?fmt(rem):"--:--";$("day").textContent=wide?`DIA ${S.day} · NÍVEL ${level()} · ${tm}`:`D${S.day} · NV${level()} · ${tm}`;$("day").classList.toggle("low",running&&!CFG.zen&&rem<20000)}
 function startDay(){setTimeout(tutStep,2500);setTimeout(()=>{try{fixFruitDeco()}catch(e){}SPREAD=new WeakSet()},1200);running=true;S.started=true;S.cust.forEach((c,i)=>{if(!c)setTimeout(()=>{if(running&&!S.cust[i]){S.cust[i]=newCust();save();renderCounter()}},300+i*1400)});renderCounter();hud()}
@@ -1169,7 +1214,7 @@ openModal(`<div class="logo">FRUTÓDROMO</div><p style="margin-top:0">A quitanda
 <ol class="how"><li><b>Cruze</b> 2 frutas no caldeirão</li><li><b>Entregue</b> o que os clientes pedem</li><li><b>Descubra</b> espécies novas pra sua árvore</li></ol><p class="how2">Presentes dos clientes ficam na <b>BOLSA</b> e mudam qualquer fruta.</p>
 <button class="big" id="go">${cont?"CONTINUAR · DIA "+S.day:"ABRIR A QUITANDA"}</button><br><button class="big alt" id="sndb" onclick="toggleSnd()"></button><button class="big alt" onclick="settings(startScreen)">AJUSTES</button>${cont?'<button class="big alt" id="newg">NOVO JOGO</button>':""}`);sndLabel();
 $("go").onclick=()=>{ac();rainFruits(false);closeModal();if(!running)startDay()};
-if(cont)$("newg").onclick=e=>{if(!armed){armed=true;e.target.textContent="TOQUE DE NOVO PRA APAGAR TUDO";return}fresh();S.fruits.forEach(f=>{SPREAD.add(f);dexCheck(f,true)});const pe=$("pot");pe.style.left=pe.style.top=pe.style.bottom="";placePot();save();sel=null;showInfo(null);ac();rainFruits(false);closeModal();renderAll();fixFruitDeco();startDay()}}
+if(cont)$("newg").onclick=e=>{if(!armed){armed=true;e.target.textContent="TOQUE DE NOVO PRA APAGAR TUDO";return}fresh();DIFF={wins:0,misses:0,streak:0};try{localStorage.removeItem("frutodromo_difficulty")}catch(e){}S.fruits.forEach(f=>{SPREAD.add(f);dexCheck(f,true)});const pe=$("pot");pe.style.left=pe.style.top=pe.style.bottom="";placePot();save();sel=null;showInfo(null);ac();rainFruits(false);closeModal();renderAll();fixFruitDeco();startDay()}}
 const HELLO={person:["Olá! ","Oi, tudo bem? ","Boa tarde! ","E aí! "],cat:["Miau... ","Mrrr... "],dog:["Au au! ","Oi oi oi! "],bear:["Hmm... ","Grrr, oi! "],bunny:["Oi oi! ","Hihi! "],frog:["Croac! "],penguin:["Brrr! "],robot:["BIP-BOP. SOLICITAÇÃO: "],alien:["Saudações, terráqueo. "],ghost:["Buuu... "]};
 const HELLO_EN={person:["Hello! ","Hi, how are you? ","Good afternoon! ","Hey there! "],cat:["Meow... ","Mrrr... "],dog:["Woof woof! ","Hi hi hi! "],bear:["Hmm... ","Grrr, hi! "],bunny:["Hi hi! ","Hehe! "],frog:["Ribbit! "],penguin:["Brrr! "],robot:["BEEP-BOOP. REQUEST: "],alien:["Greetings, earthling. "],ghost:["Boooo... "]};
 function sayEN(c,left){const ps=c.reqs.map(r=>{const[w,n]=reqWord(r);return r.k=="cor"?tl(r.v):r.k=="el"?"with "+tl(ELEM[r.v].n).toLowerCase()+" power":r.k=="hero"?"a SUPER-FRUIT":tl(w).toLowerCase()+(n?` (${tl(n)})`:"")}).filter(Boolean);
@@ -1393,7 +1438,8 @@ if(window.ResizeObserver)new ResizeObserver(()=>{try{onTable()}catch(e){}}).obse
 S.pot=S.pot||[];if(S.pot.length==2){S.fruits.push(...S.pot);S.pot=[]}
 document.addEventListener("pointerdown",e=>{const t=e.target.closest("button,.btn,.big,.hint,.flt span,.sp,.cg,.tvh .btn,#pot,.pw");if(!t)return;ac();
  if(t.id=="go"||t.id=="cl"||t.id=="tvx"||t.id=="resume"||t.id=="nextd"||t.id=="rvx"||t.id=="pot")return;SFX.sel()},true);
-if("serviceWorker" in navigator&&location.hostname.endsWith("github.io"))navigator.serviceWorker.register("sw.js").catch(()=>{});
+// PWA offline: registra o service worker em qualquer https (GitHub Pages, Cloudflare Pages) e no localhost; nunca no portal (o zip do CrazyGames é um HTML único, sem sw.js)
+if("serviceWorker" in navigator&&!PORTAL.name&&(location.protocol=="https:"||/^(localhost|127\.0\.0\.1)$/.test(location.hostname)))navigator.serviceWorker.register("sw.js").catch(()=>{});
 delete S.ess;delete S.sk;S.tree=S.tree||{};
 setTimeout(()=>{try{fixFruitDeco()}catch(e){}},2600); // save carregado: tira fruta de cima de enfeite depois que a mesa assentou
 migrate();if(!S.bag)S.bag=[{t:"grow"},{t:"shrink"}];S.bag=S.bag.filter(x=>ITEMS[x.t]);S.fruits.forEach(f=>{clampPos(f);treeAdd(f,null,true)});renderProps();renderAll();placePot();fetchWX();

@@ -1,0 +1,25 @@
+{"t": 16, "nodes": 320, "heapMB": 4.2, "fr": 7, "cust": 3, "day": 1, "gh": 0, "toasts": 1, "imgs": 44}
+{"t": 31, "nodes": 322, "heapMB": 3.8, "fr": 8, "cust": 3, "day": 1, "gh": 0, "toasts": 1, "imgs": 45}
+{"t": 46, "nodes": 324, "heapMB": 3.8, "fr": 9, "cust": 3, "day": 1, "gh": 0, "toasts": 1, "imgs": 46}
+{"t": 62, "nodes": 326, "heapMB": 3.8, "fr": 10, "cust": 3, "day": 1, "gh": 0, "toasts": 1, "imgs": 47}
+{"t": 77, "nodes": 328, "heapMB": 3.9, "fr": 11, "cust": 3, "day": 1, "gh": 0, "toasts": 1, "imgs": 48}
+{"t": 92, "nodes": 331, "heapMB": 3.9, "fr": 12, "cust": 3, "day": 1, "gh": 0, "toasts": 1, "imgs": 49}
+{"t": 107, "nodes": 340, "heapMB": 3.9, "fr": 13, "cust": 3, "day": 1, "gh": 0, "toasts": 1, "imgs": 50}
+{"t": 122, "nodes": 342, "heapMB": 3.9, "fr": 14, "cust": 3, "day": 1, "gh": 0, "toasts": 1, "imgs": 51}
+{"t": 137, "nodes": 345, "heapMB": 4, "fr": 15, "cust": 3, "day": 1, "gh": 0, "toasts": 1, "imgs": 52}
+{"t": 152, "nodes": 338, "heapMB": 4, "fr": 16, "cust": 3, "day": 1, "gh": 0, "toasts": 1, "imgs": 53}
+{"t": 167, "nodes": 255, "heapMB": 4, "fr": 17, "cust": 0, "day": 2, "gh": 0, "toasts": 1, "imgs": 48}
+{"t": 182, "nodes": 258, "heapMB": 4.1, "fr": 18, "cust": 0, "day": 2, "gh": 0, "toasts": 1, "imgs": 49}
+{"t": 197, "nodes": 260, "heapMB": 4.1, "fr": 19, "cust": 0, "day": 2, "gh": 0, "toasts": 1, "imgs": 50}
+{"t": 212, "nodes": 262, "heapMB": 4.1, "fr": 20, "cust": 0, "day": 2, "gh": 0, "toasts": 1, "imgs": 51}
+{"t": 227, "nodes": 264, "heapMB": 4.1, "fr": 21, "cust": 0, "day": 2, "gh": 0, "toasts": 1, "imgs": 52}
+{"t": 242, "nodes": 266, "heapMB": 4.1, "fr": 22, "cust": 0, "day": 2, "gh": 0, "toasts": 1, "imgs": 53}
+{"t": 257, "nodes": 268, "heapMB": 4.1, "fr": 23, "cust": 0, "day": 2, "gh": 0, "toasts": 1, "imgs": 54}
+{"t": 272, "nodes": 270, "heapMB": 4, "fr": 24, "cust": 0, "day": 2, "gh": 0, "toasts": 1, "imgs": 55}
+{"t": 287, "nodes": 272, "heapMB": 4, "fr": 25, "cust": 0, "day": 2, "gh": 0, "toasts": 1, "imgs": 56}
+{"t": 302, "nodes": 274, "heapMB": 4, "fr": 26, "cust": 0, "day": 2, "gh": 0, "toasts": 1, "imgs": 57}
+{"t": 317, "nodes": 276, "heapMB": 4, "fr": 27, "cust": 0, "day": 2, "gh": 0, "toasts": 1, "imgs": 58}
+{"t": 332, "nodes": 278, "heapMB": 4, "fr": 28, "cust": 0, "day": 2, "gh": 0, "toasts": 1, "imgs": 59}
+{"t": 347, "nodes": 280, "heapMB": 4, "fr": 29, "cust": 0, "day": 2, "gh": 0, "toasts": 1, "imgs": 60}
+{"t": 362, "nodes": 282, "heapMB": 4, "fr": 30, "cust": 0, "day": 2, "gh": 0, "toasts": 1, "imgs": 61}
+errs []

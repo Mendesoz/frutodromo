@@ -51,6 +51,10 @@ const D={
 "Pedido de":"Request from","É só comprar na feira:":"Just buy it at the market:",
 "Hmm, esse pedido ficou difícil. Pode trocar por outro cliente esperando ele ir embora.":"Hmm, this one's tricky. You can let this customer leave and wait for another.",
 "As frutas da feira estão lá embaixo. Use o resultado de cada passo no passo seguinte.":"The market fruits are down below. Use each step's result in the next step.",
+"A estampa pode variar; cor, tamanho e poderes seguem a receita.":"The pattern may vary; color, size and powers follow the recipe.",
+"Modo dica":"Hint mode",
+"PULAR TUTORIAL":"SKIP TUTORIAL",
+"Mostra o botão ? com a receita dos pedidos. Desligue para descobrir sozinho.":"Shows the ? button with the recipe for each order. Turn it off to figure it out yourself.",
 "Toque numa fruta da mesa pra usar · toque de novo pra cancelar":"Tap a fruit on the table to use it · tap again to cancel",
 "Vazia. Clientes dão":"Empty. Customers give","quando você entrega!":"when you deliver!",
 // fim do dia
