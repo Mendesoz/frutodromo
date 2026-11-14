@@ -1,0 +1,3 @@
+390 844 {"vips": ["Crítica Gourmet [cor:marrom,media,azMax:2,doceMin:6]", "Chef Estrelado [el:fogo,cor:vermelha,doceMin:6,media]", "Influencer Fit [azMax:2,media,doceMin:8,cor:laranja]"], "tries": 17} {"bubOverlap": 0, "cut": 0} []
+1024 600 {"vips": ["Crítica Gourmet [el:gelo,azMin:8,media,doceMax:2]", "Cientista Maluca [doceMin:8,cor:laranja,media,azMax:2]", "Influencer Fit [tamMax:3,azMax:4,cor:vermelha,doceMin:6]"], "tries": 23} {"bubOverlap": 0, "cut": 0} []
+900 430 {"vips": ["Colecionador [el:raio,doceMin:6,media,cor:amarela]", "Chef Estrelado [azMax:4,tamMax:3,cor:roxa,doceMin:6]", "Influencer Fit [azMax:2,media,cor:amarela,doceMin:8]"], "tries": 16} {"bubOverlap": 0, "cut": 0} []

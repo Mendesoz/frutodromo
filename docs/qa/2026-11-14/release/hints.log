@@ -1,0 +1,3 @@
+sdica? True
+sdica? True
+{"inicio": {"hints": 3, "cust": 3, "cfg": "undefined", "sdica": false}, "desligado": {"hints": 0, "cust": 3, "cfg": "false", "sdica": true}, "recarga": {"hints": 0, "cust": 3, "cfg": "false", "sdica": false}, "offline": {"hints": 0, "cust": 3, "cfg": "false", "sdica": false}, "religado_offline": {"hints": 3, "cust": 3, "cfg": "true", "sdica": true}, "errs": []}

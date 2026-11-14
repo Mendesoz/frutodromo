@@ -1,0 +1,10 @@
+1ª visita: [True, True, True, ['frutodromo9'], 'local']
+salvo no SDK coins: 999
+2ª visita (outro aparelho): [999, 4, True, True]
+AC antes: running
+mudo SDK: [True, 'suspended']
+botão do jogo não religa: [True, 'suspended']
+desmuta: [False, 'running']
+data desabilitado -> localStorage: [False, True, 321]
+sem SDK: [False, True, 321]
+erros: []

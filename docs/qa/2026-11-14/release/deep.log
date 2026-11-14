@@ -1,0 +1,5 @@
+667 375 {"L": 9, "steps": 5, "box": [124, 15, 420, 345], "scroll": [529, 325], "fitsV": true, "ovf": "auto"}
+844 390 {"L": 9, "steps": 5, "box": [212, 16, 420, 359], "scroll": [529, 339], "fitsV": true, "ovf": "auto"}
+375 667 {"L": 9, "steps": 5, "box": [14, 59, 347, 549], "scroll": [529, 529], "fitsV": true, "ovf": "auto"}
+360 640 {"L": 9, "steps": 5, "box": [14, 46, 332, 549], "scroll": [529, 529], "fitsV": true, "ovf": "auto"}
+1024 600 {"L": 9, "steps": 5, "box": [302, 26, 420, 549], "scroll": [529, 529], "fitsV": true, "ovf": "auto"}

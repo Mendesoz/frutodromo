@@ -1,0 +1,3 @@
+brew: {'fruits': 5, 'pot': 0, 'tree': 6, 'ess': False, 'sk': False}
+day: [1, True] errors: []
+exit=0
