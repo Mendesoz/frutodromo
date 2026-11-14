@@ -113,3 +113,28 @@ Leitura do Claude:
   - melhorias da fazenda custam moedas.
 - **Achados:** ferramentas com classificação, sementes raras e ovos (que vêm de jogar, nunca de pagar).
 - **Nome:** a decidir; "Frutódromo" pode não servir mais.
+
+## Pedido do Eric — personalização e retenção (14/11, 13h29)
+- **Entrada:** personalizar o personagem, escolher um modelo de fazenda e dar nome à fazenda e ao personagem.
+- **Decoração:** a fazenda vai sendo modificada, com coisas visuais adicionadas pelo jogador.
+- **Ranking da melhor fazenda a cada 3 meses**, com sorteio.
+- Regras que façam o jogador voltar e cosméticos que o prendam no jogo.
+
+## Proposta do Claude (no molde e no doc de apresentação)
+- **Modelos de fazenda:** Vale (horta mais rápida), Serra (mais chance de animal raro) e Litoral (feira paga um pouco mais).
+- **Beleza:** cosméticos aumentam a Beleza da fazenda e não mudam a produção.
+- **Fazenda da Temporada (3 meses):**
+  - pontos por votos de visitantes, Beleza e coleção;
+  - prêmios só cosméticos: estátua e título para o 1º, moldura para o top 10, sorteio de chapéu raro no top 100;
+  - motivo: sorteio com prêmio em dinheiro costuma exigir autorização no Brasil, e isso precisa ser confirmado.
+- **O que faz voltar:**
+  - rendimento AFK com armazém;
+  - login diário em sequência de 7 dias;
+  - missões do passe;
+  - visitas e votos a amigos;
+  - eventos sazonais com cosméticos exclusivos;
+  - álbum de coleção;
+  - clima do dia sorteado.
+- **Links:**
+  - [Doc para apresentar a ideia](https://claude.ai/artifact/LPoKQNuLmVZeyYBj1goWS6) e [molde visual](https://claude.ai/artifact/K9bE1iks3yhaqZJdDkzS6G);
+  - os dois são privados do Eric até ele compartilhar.
