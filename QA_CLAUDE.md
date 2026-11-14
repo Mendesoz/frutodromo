@@ -2,7 +2,7 @@
 
 Branch: `qa-claude-frutodromo`, criada a partir de `stage9-dynamic-difficulty` (`9cf9575`). `main` não foi alterada e nada foi publicado.
 Plano de referência: `ai-game-studio/projects/FRUTODROMO_FINISH_PLAN.md`. Dia 1 (inventário) e parte do Dia 2 (correções de interface).
-Última atualização: 13/11/2026.
+Última atualização: 14/11/2026 (dia 2).
 
 ## Ambiente de teste (o que foi de fato executado)
 | Motor | Como | Observação |
@@ -29,6 +29,8 @@ Formato do plano: `ID | Severidade | Arquivo/linha | Passos | Esperado | Observa
 | QA-07 | P2 risco | `css/style.css` | iPhone: tocar duas vezes rápido em área sem botão (etiquetas do topo, parede da cena, texto de modal) | Nada | Pode dar zoom de duplo toque: só botões, cartões, clientes e frutas têm `touch-action` | — | **Não testado** (Chromium não emula) | `html{touch-action:manipulation}` (mantém o gesto de pinça) se o proprietário confirmar | — |
 | QA-08 | P2 | `manifest.json` `"orientation":"portrait"` | Instalar o PWA no Android e girar | Combinar com o jogo, que suporta deitado | Android trava em retrato; o iOS ignora | — | Estático | Decisão do proprietário: manter, ou trocar para `"any"` | — |
 | QA-09 | Info | `css/style.css` (etapas 7–8) | Leitura do diff `5cf0d73..9cf9575` | — | As etapas 7–8 reintroduziram sombras com desfoque no cabeçalho e na feira, `drop-shadow` em retratos e balões e bordas internas de 3 px, contra a regra de pixel inteiro da etapa 5. Aprovado pelo proprietário no iPhone (etapa 7). Desempenho medido sem piora (abaixo) | leitura | Sim | Nenhuma ação | — |
+| QA-11 | **P1** (inglês é o idioma do portal) | `css/style.css` regra `.mk{overflow-wrap:anywhere}` da etapa 8C | Jogo em inglês, olhar a feira | Nomes inteiros | `MARKE/T`, `Strawberr/y`, `Watermelo/n` partidos no meio, em todos os tamanhos (360×640 a 1280×680). Na `5cf0d73` nada quebrava e nada estourava | `tools/qa/mkfit.py`, `tools/qa/broken.py` | Sim (Chromium, en e pt) | Remover a regra: 3 palavras quebradas viram 0, e nenhum texto estoura o cartão (como antes) | `1a616bf` **corrigido** |
+| QA-12 | P3 | `css/style.css` `.rq b{overflow-wrap:anywhere}` (etapa 5C) | Em 360 px, pedido com nome comprido em inglês | Nome inteiro | Uma vez apareceu `WATERMELO/N` partido num balão (depende do pedido sorteado) | `tools/qa/broken.py` em `origin/stage9` | Sim, intermitente | Aceitar (a alternativa é o texto estourar o balão). Rever só se aparecer muito | — |
 | QA-10 | Info | — | Conferir qual branch `frutodromo.pages.dev` publica | — | Não verificado: o acesso ao site pedia aprovação e ninguém respondeu | — | **Não** | Proprietário confirma na Cloudflare antes do teste no iPhone | — |
 
 Nenhum P0 encontrado.
@@ -63,8 +65,19 @@ Nenhum P0 encontrado.
 - **Sessão longa** (`soak.py`, 6 min, 2 dias, compras a cada 15 s): heap entre 4,2 e 4,6 MB, nós do DOM estáveis (sobem só com as frutas compradas e voltam ao trocar de dia), nenhum fantasma ou aviso sobrando, 0 erros (`docs/qa/2026-11-13/soak.log`).
 - **Ciclo de vida, por leitura:** salva em `visibilitychange` e `pagehide`, suspende e retoma o áudio ao voltar, destrava o áudio no primeiro toque. É o que o iOS exige; não testado no aparelho.
 
+## Testes de execução da etapa 9 (dia 2; sem mudar código)
+Estes testes cobrem itens da matriz "PENDENTE" do `REGRESSION_2026-11-13.md` que dependem de rodar o jogo. A lógica de pedidos é do ChatGPT; aqui só medição. Script: `tools/qa/recipes.py` (log em `docs/qa/2026-11-14/recipes.log`). Feira antes e depois do QA-11: `docs/qa/2026-11-14/feira-1024-en-{antes,depois}.png`.
+- **Sintaxe e execução no navegador:** ok no Chromium e no WebKit, 0 erros.
+- **Receitas reproduzidas e aceitas:** para cada alvo, as frutas da feira foram cruzadas com o `cross()` real, seguindo `recipeOf`, 8 vezes por alvo e 25 alvos por número de cruzamentos (1 a 5), nos níveis 2, 4, 6 e 9. **100%** aceitas por `meets()` tanto como pedido de espécie quanto como pedido de atributos (`reqsFrom`). 0 falhas em 3.296 tentativas.
+- **Profundidade dos pedidos** (150 clientes por nível, sem adaptação): níveis 1–2 com 83–86% de feira e 14–17% de 1 cruzamento; níveis 3–4 com 65% / 30% / 5% (profundidade 0/1/2); níveis 5–6 com 55% / 39% / 6% (0/1/3); níveis 7–9 com 39–46% / 35–45% / 15–19% (0/1/3). Bate com os pesos 45/40/15. **Observação para o ChatGPT:** do nível 5 em diante a profundidade 2 nunca é pedida (o difícil pula direto para a 3, com receita de até 5 cruzamentos). Se for de propósito, ok; se não, é um degrau grande.
+- **Adaptação** (nível 7, 400 clientes): neutro 45/42/13%; depois de 5 erros 61/39/**0%** de difíceis; depois de 5 acertos 27/42/**31%**.
+- **Um erro por cliente:** 3 entregas erradas ao mesmo cliente contam 1 erro. A sequência de 5 erros e 5 acertos atualiza `streak` como esperado e é gravada em `frutodromo_difficulty`.
+- **NOVO JOGO:** pelo fluxo real (dois toques), `DIFF` volta a zero e a chave local é apagada, inclusive depois de recarregar (antes: `{wins:5,misses:8,streak:-2}` persistia ao recarregar).
+- **Dicas ligadas/desligadas e PWA** (`tools/qa/hints.py`, `http://localhost` com SW): desligar nos ajustes some com os 3 "?". Continua desligado ao recarregar e ao recarregar **offline**; religar offline traz os "?" de volta.
+- **VIPs e poderes elementais na tela** (`tools/qa/vip.py`): 3 VIPs com pedidos de gelo, raio, fogo e super-fruta em 390×844, 1024×600 e 900×430; nenhum balão sobreposto nem cortado; figurinos legíveis.
+
 ## Coordenação com o ChatGPT (`js/game.js`)
-Única mudança minha em `js/game.js`: a linha de registro do service worker no fim do arquivo (`fe9a9f0`). Não toquei em dificuldade, pedidos, receitas, dicas nem save. Em CSS, só acrescentei um bloco no fim do `style.css` (`c990b92`). Se o ChatGPT mexer no fim do `game.js`, o conflito é de uma linha.
+Única mudança minha em `js/game.js`: a linha de registro do service worker no fim do arquivo (`fe9a9f0`). Não toquei em dificuldade, pedidos, receitas, dicas nem save. Em CSS: um bloco novo no fim do `style.css` (`c990b92`) e a remoção de uma linha da etapa 8C (`.mk{overflow-wrap:anywhere}`, `1a616bf`). Se o ChatGPT mexer no fim do `game.js`, o conflito é de uma linha.
 
 ## Roteiro para o proprietário (iPhone, Dia 4)
 Safari primeiro, depois o PWA instalado. Marque OK/falha e mande print do que falhar.
