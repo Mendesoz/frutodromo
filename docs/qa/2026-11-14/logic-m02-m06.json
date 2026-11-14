@@ -1,0 +1,1144 @@
+{
+ "seed": 20261114,
+ "url": "file:///tmp/qa9/site/index.html",
+ "pesosObservadosDiffTier": {
+  "1": [
+   84.96,
+   15.04,
+   0
+  ],
+  "2": [
+   84.92,
+   15.08,
+   0
+  ],
+  "3": [
+   65.04,
+   31.93,
+   3.02
+  ],
+  "4": [
+   64.85,
+   32.12,
+   3.03
+  ],
+  "5": [
+   54.96,
+   37.04,
+   8
+  ],
+  "7": [
+   45.14,
+   39.91,
+   14.95
+  ],
+  "9": [
+   44.98,
+   40.06,
+   14.97
+  ],
+  "12": [
+   45.03,
+   39.97,
+   15
+  ]
+ },
+ "M02": {
+  "1": {
+   "N": 10000,
+   "td": {
+    "0": 8487,
+    "1": 1513
+   },
+   "tdVip": {},
+   "tdNon": {
+    "0": 8487,
+    "1": 1513
+   },
+   "vip": 0,
+   "sp": 7046,
+   "nreq": {
+    "1": 9148,
+    "2": 852
+   },
+   "minSteps": {
+    "0": 8798,
+    "1": 1202
+   },
+   "minStepsVip": {},
+   "el": 0,
+   "hero": 0,
+   "impossible": 0,
+   "pool": 43
+  },
+  "2": {
+   "N": 10000,
+   "td": {
+    "0": 8496,
+    "1": 1504
+   },
+   "tdVip": {},
+   "tdNon": {
+    "0": 8496,
+    "1": 1504
+   },
+   "vip": 0,
+   "sp": 6935,
+   "nreq": {
+    "1": 9120,
+    "2": 880
+   },
+   "minSteps": {
+    "0": 8829,
+    "1": 1171
+   },
+   "minStepsVip": {},
+   "el": 0,
+   "hero": 0,
+   "impossible": 0,
+   "pool": 53
+  },
+  "3": {
+   "N": 10000,
+   "td": {
+    "0": 6508,
+    "1": 3220,
+    "2": 272
+   },
+   "tdVip": {
+    "0": 960,
+    "1": 488,
+    "2": 46
+   },
+   "tdNon": {
+    "0": 5548,
+    "1": 2732,
+    "2": 226
+   },
+   "vip": 1494,
+   "sp": 4244,
+   "nreq": {
+    "1": 4244,
+    "2": 2973,
+    "3": 2358,
+    "4": 425
+   },
+   "minSteps": {
+    "0": 7333,
+    "1": 2517,
+    "2": 11,
+    "3": 139
+   },
+   "minStepsVip": {
+    "0": 1113,
+    "1": 366,
+    "2": 4,
+    "3": 11
+   },
+   "el": 1388,
+   "hero": 0,
+   "impossible": 0,
+   "pool": 962
+  },
+  "4": {
+   "N": 10000,
+   "td": {
+    "0": 6481,
+    "1": 3228,
+    "2": 291
+   },
+   "tdVip": {
+    "0": 984,
+    "1": 504,
+    "2": 39
+   },
+   "tdNon": {
+    "0": 5497,
+    "1": 2724,
+    "2": 252
+   },
+   "vip": 1527,
+   "sp": 4257,
+   "nreq": {
+    "1": 4257,
+    "2": 2964,
+    "3": 2347,
+    "4": 432
+   },
+   "minSteps": {
+    "0": 7353,
+    "1": 2479,
+    "2": 15,
+    "3": 153
+   },
+   "minStepsVip": {
+    "0": 1151,
+    "1": 360,
+    "2": 2,
+    "3": 14
+   },
+   "el": 1896,
+   "hero": 0,
+   "impossible": 0,
+   "pool": 1436
+  },
+  "5": {
+   "N": 10000,
+   "td": {
+    "0": 5530,
+    "1": 3666,
+    "3": 804
+   },
+   "tdVip": {
+    "0": 853,
+    "1": 569,
+    "3": 115
+   },
+   "tdNon": {
+    "0": 4677,
+    "1": 3097,
+    "3": 689
+   },
+   "vip": 1537,
+   "sp": 4217,
+   "nreq": {
+    "1": 4217,
+    "2": 35,
+    "3": 4293,
+    "4": 1455
+   },
+   "minSteps": {
+    "0": 6191,
+    "1": 3180,
+    "2": 4,
+    "3": 226,
+    "4": 155,
+    "5": 244
+   },
+   "minStepsVip": {
+    "0": 1010,
+    "1": 440,
+    "3": 69,
+    "4": 18
+   },
+   "el": 2313,
+   "hero": 479,
+   "impossible": 0,
+   "pool": 8325
+  },
+  "7": {
+   "N": 10000,
+   "td": {
+    "0": 4517,
+    "1": 3969,
+    "3": 1514
+   },
+   "tdVip": {
+    "0": 730,
+    "1": 545,
+    "3": 224
+   },
+   "tdNon": {
+    "0": 3787,
+    "1": 3424,
+    "3": 1290
+   },
+   "vip": 1499,
+   "sp": 4259,
+   "nreq": {
+    "1": 4259,
+    "2": 30,
+    "3": 4299,
+    "4": 1412
+   },
+   "minSteps": {
+    "0": 5246,
+    "1": 3572,
+    "2": 12,
+    "3": 407,
+    "4": 286,
+    "5": 477
+   },
+   "minStepsVip": {
+    "0": 899,
+    "1": 437,
+    "2": 2,
+    "3": 118,
+    "4": 40,
+    "5": 3
+   },
+   "el": 2500,
+   "hero": 646,
+   "impossible": 0,
+   "pool": 8325
+  },
+  "9": {
+   "N": 10000,
+   "td": {
+    "0": 4558,
+    "1": 3916,
+    "3": 1526
+   },
+   "tdVip": {
+    "0": 669,
+    "1": 597,
+    "3": 224
+   },
+   "tdNon": {
+    "0": 3889,
+    "1": 3319,
+    "3": 1302
+   },
+   "vip": 1490,
+   "sp": 4233,
+   "nreq": {
+    "1": 4233,
+    "2": 39,
+    "3": 4329,
+    "4": 1399
+   },
+   "minSteps": {
+    "0": 5266,
+    "1": 3551,
+    "2": 24,
+    "3": 387,
+    "4": 279,
+    "5": 493
+   },
+   "minStepsVip": {
+    "0": 853,
+    "1": 455,
+    "2": 6,
+    "3": 119,
+    "4": 51,
+    "5": 6
+   },
+   "el": 2560,
+   "hero": 620,
+   "impossible": 0,
+   "pool": 8325
+  },
+  "12": {
+   "N": 10000,
+   "td": {
+    "0": 4544,
+    "1": 3970,
+    "3": 1486
+   },
+   "tdVip": {
+    "0": 666,
+    "1": 585,
+    "3": 216
+   },
+   "tdNon": {
+    "0": 3878,
+    "1": 3385,
+    "3": 1270
+   },
+   "vip": 1467,
+   "sp": 4240,
+   "nreq": {
+    "1": 4240,
+    "2": 35,
+    "3": 4344,
+    "4": 1381
+   },
+   "minSteps": {
+    "0": 5315,
+    "1": 3553,
+    "2": 14,
+    "3": 380,
+    "4": 282,
+    "5": 456
+   },
+   "minStepsVip": {
+    "0": 830,
+    "1": 486,
+    "2": 4,
+    "3": 106,
+    "4": 37,
+    "5": 4
+   },
+   "el": 2528,
+   "hero": 603,
+   "impossible": 0,
+   "pool": 8325
+  }
+ },
+ "M06": {
+  "1": {
+   "0": {
+    "alvos": 8,
+    "n": 48,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "1": {
+    "alvos": 30,
+    "n": 180,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   }
+  },
+  "2": {
+   "0": {
+    "alvos": 8,
+    "n": 48,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "1": {
+    "alvos": 30,
+    "n": 180,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "0E": {
+    "alvos": 1,
+    "n": 6,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "1E": {
+    "alvos": 9,
+    "n": 54,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   }
+  },
+  "3": {
+   "0": {
+    "alvos": 8,
+    "n": 48,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "1": {
+    "alvos": 30,
+    "n": 180,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "2": {
+    "alvos": 14,
+    "n": 84,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "3": {
+    "alvos": 30,
+    "n": 180,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "0E": {
+    "alvos": 2,
+    "n": 12,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "1E": {
+    "alvos": 17,
+    "n": 102,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "1H": {
+    "alvos": 2,
+    "n": 12,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "2E": {
+    "alvos": 4,
+    "n": 24,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "3E": {
+    "alvos": 30,
+    "n": 180,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "3H": {
+    "alvos": 30,
+    "n": 180,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   }
+  },
+  "4": {
+   "0": {
+    "alvos": 8,
+    "n": 48,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "1": {
+    "alvos": 30,
+    "n": 180,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "2": {
+    "alvos": 14,
+    "n": 84,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "3": {
+    "alvos": 30,
+    "n": 180,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "0E": {
+    "alvos": 3,
+    "n": 18,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "1E": {
+    "alvos": 25,
+    "n": 150,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "1H": {
+    "alvos": 6,
+    "n": 36,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "2E": {
+    "alvos": 8,
+    "n": 48,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "3E": {
+    "alvos": 30,
+    "n": 180,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "3H": {
+    "alvos": 30,
+    "n": 180,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   }
+  },
+  "5": {
+   "0": {
+    "alvos": 8,
+    "n": 48,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "1": {
+    "alvos": 30,
+    "n": 180,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "2": {
+    "alvos": 14,
+    "n": 84,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "3": {
+    "alvos": 30,
+    "n": 180,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "4": {
+    "alvos": 30,
+    "n": 180,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "5": {
+    "alvos": 30,
+    "n": 180,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "0E": {
+    "alvos": 3,
+    "n": 18,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "1E": {
+    "alvos": 25,
+    "n": 150,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "1H": {
+    "alvos": 6,
+    "n": 36,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "2E": {
+    "alvos": 8,
+    "n": 48,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "3E": {
+    "alvos": 30,
+    "n": 180,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "3H": {
+    "alvos": 30,
+    "n": 180,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "4E": {
+    "alvos": 30,
+    "n": 180,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "4H": {
+    "alvos": 30,
+    "n": 180,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "5E": {
+    "alvos": 30,
+    "n": 180,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "5H": {
+    "alvos": 30,
+    "n": 180,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   }
+  },
+  "7": {
+   "0": {
+    "alvos": 8,
+    "n": 48,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "1": {
+    "alvos": 30,
+    "n": 180,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "2": {
+    "alvos": 14,
+    "n": 84,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "3": {
+    "alvos": 30,
+    "n": 180,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "4": {
+    "alvos": 30,
+    "n": 180,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "5": {
+    "alvos": 30,
+    "n": 180,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "0E": {
+    "alvos": 3,
+    "n": 18,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "1E": {
+    "alvos": 25,
+    "n": 150,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "1H": {
+    "alvos": 6,
+    "n": 36,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "2E": {
+    "alvos": 8,
+    "n": 48,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "3E": {
+    "alvos": 30,
+    "n": 180,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "3H": {
+    "alvos": 30,
+    "n": 180,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "4E": {
+    "alvos": 30,
+    "n": 180,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "4H": {
+    "alvos": 30,
+    "n": 180,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "5E": {
+    "alvos": 30,
+    "n": 180,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "5H": {
+    "alvos": 30,
+    "n": 180,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   }
+  },
+  "9": {
+   "0": {
+    "alvos": 8,
+    "n": 48,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "1": {
+    "alvos": 30,
+    "n": 180,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "2": {
+    "alvos": 14,
+    "n": 84,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "3": {
+    "alvos": 30,
+    "n": 180,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "4": {
+    "alvos": 30,
+    "n": 180,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "5": {
+    "alvos": 30,
+    "n": 180,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "0E": {
+    "alvos": 3,
+    "n": 18,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "1E": {
+    "alvos": 25,
+    "n": 150,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "1H": {
+    "alvos": 6,
+    "n": 36,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "2E": {
+    "alvos": 8,
+    "n": 48,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "3E": {
+    "alvos": 30,
+    "n": 180,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "3H": {
+    "alvos": 30,
+    "n": 180,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "4E": {
+    "alvos": 30,
+    "n": 180,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "4H": {
+    "alvos": 30,
+    "n": 180,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "5E": {
+    "alvos": 30,
+    "n": 180,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "5H": {
+    "alvos": 30,
+    "n": 180,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   }
+  },
+  "12": {
+   "0": {
+    "alvos": 8,
+    "n": 48,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "1": {
+    "alvos": 30,
+    "n": 180,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "2": {
+    "alvos": 14,
+    "n": 84,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "3": {
+    "alvos": 30,
+    "n": 180,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "4": {
+    "alvos": 30,
+    "n": 180,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "5": {
+    "alvos": 30,
+    "n": 180,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "0E": {
+    "alvos": 3,
+    "n": 18,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "1E": {
+    "alvos": 25,
+    "n": 150,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "1H": {
+    "alvos": 6,
+    "n": 36,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "2E": {
+    "alvos": 8,
+    "n": 48,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "3E": {
+    "alvos": 30,
+    "n": 180,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "3H": {
+    "alvos": 30,
+    "n": 180,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "4E": {
+    "alvos": 30,
+    "n": 180,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "4H": {
+    "alvos": 30,
+    "n": 180,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "5E": {
+    "alvos": 30,
+    "n": 180,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   },
+   "5H": {
+    "alvos": 30,
+    "n": 180,
+    "rk": 100,
+    "especie": 100,
+    "atributos": 100,
+    "falhas": []
+   }
+  }
+ },
+ "M06entrega": {
+  "2": {
+   "entregas": 25,
+   "pagas": 25,
+   "dicaPassosOk": 25,
+   "dicaN": 25,
+   "ex": []
+  },
+  "4": {
+   "entregas": 25,
+   "pagas": 25,
+   "dicaPassosOk": 25,
+   "dicaN": 25,
+   "ex": []
+  },
+  "5": {
+   "entregas": 25,
+   "pagas": 25,
+   "dicaPassosOk": 25,
+   "dicaN": 25,
+   "ex": []
+  },
+  "9": {
+   "entregas": 25,
+   "pagas": 25,
+   "dicaPassosOk": 25,
+   "dicaN": 25,
+   "ex": []
+  },
+  "12": {
+   "entregas": 25,
+   "pagas": 25,
+   "dicaPassosOk": 25,
+   "dicaN": 25,
+   "ex": []
+  }
+ },
+ "errs": []
+}
