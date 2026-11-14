@@ -534,7 +534,7 @@ const hc=custAt(cx,cy);if(hc!=hoverCust){hoverCust=hc;document.querySelectorAll(
 const up=e=>{if(!on)return;on=false;ghKill();if(mv)SPREAD.delete(f);el.classList.remove("drag");$("bin").classList.remove("hot");$("pot").classList.remove("hot");
 if(!mv&&armed){useItem(f);return}if(!mv){sel=sel==f.id?null:f.id;showInfo(sel?f:null);renderCounter();tbl.querySelectorAll(".fr").forEach(x=>x.classList.toggle("sel",x.dataset.id==sel));return}
 const[cx,cy]=center(el);const hc=custAt(cx,cy);hoverCust=-1;
-if(hc>=0&&S.cust[hc]&&!S.cust[hc].leaving){deliver(f,hc,ox,oy);return}
+if(hc>=0&&S.cust[hc]&&!S.cust[hc].leaving&&!SERVED.has(S.cust[hc])){deliver(f,hc,ox,oy);return}
 if(inside(cx,cy,$("bin"))){sell(f);return}
 if(inside(cx,cy,$("pot"))){if(brewing||S.pot.length>=2){f.x=ox;f.y=oy;renderTable();return toast("O caldeirão está ocupado!")}addToPot(f);return}
 f.x=ox+(e.clientX-sx);f.y=oy+(e.clientY-sy);clampPos(f);freeSpot(f,true);sel=null;save();renderTable();renderCounter()};
@@ -544,12 +544,14 @@ const cancel=()=>{if(!on)return;on=false;ghKill();el.classList.remove("drag","ov
 el.addEventListener("pointerup",up);el.addEventListener("pointercancel",cancel)}
 function sell(f){const v=(1+Math.floor(f.gen/2)+(f.mut?2:0)+(f.el?3:0)+(f.hero?6:0)+(f.tam==0||f.tam>=11?4:0));const br=$("bin").getBoundingClientRect();flyCoins(br.left+br.width/2,br.top+br.height/2,v,0);S.coins+=v;showCoins();undoOffer(f,v);floatText(br.left+br.width/2,br.top,"+"+v);buzz(15);S.ds.earn+=v;
 S.fruits=S.fruits.filter(x=>x!=f);sel=null;showInfo(null);save();renderTable();renderCounter();renderMarket()}
+// cliente já atendido (feliz, nos 900 ms antes de sair) não recebe nem paga de novo; só em memória, sem campo novo no save
+const SERVED=new WeakSet();
 function deliver(f,i,ox,oy){const c=S.cust[i];
 if(!c.reqs.every(r=>meets(f,r))){diffRecord(false,c);f.x=ox;f.y=oy;renderTable();c.mood="sad";renderCounter();SFX.bad();buzz(120);{const ce=document.querySelector(`.cust[data-i="${i}"] .bub`);if(ce){const r=ce.getBoundingClientRect();floatText(r.left+r.width/2,r.top+20,"✗","#ff5a4e")}}const miss=c.reqs.map((r,k)=>[r,k]).filter(([r])=>!meets(f,r));document.querySelectorAll(`.cust[data-i="${i}"] .rq`).forEach((e,k)=>{if(miss.some(m=>m[1]==k))e.classList.add("n","miss")});
 setTimeout(()=>{if(S.cust[i]==c){c.mood=null;renderCounter()}},1600);if(miss.some(([r])=>r.k=="sp")){const h=document.querySelector(`.cust[data-i="${i}"] .hint`);if(h)h.classList.add("nudge");return toast("Não é essa espécie! Toque no <b>?</b> pra ver a receita.")}
 return toast(`Faltou: <b>${miss.map(([r])=>{const[w,n]=reqWord(r);return w+(n?" "+n:"")}).join(", ")}</b>`)}
 const cb=comboHit(),bonus=cb>=2?Math.round(pay(c)*Math.min(.5,(cb-1)*.1)):0,v=pay(c)+bonus,L0=level();const ce=document.querySelector(`.cust[data-i="${i}"] .bub`).getBoundingClientRect();S.coins+=v;flyCoins(ce.left+ce.width/2,ce.top+ce.height/2,v,v);floatText(ce.left+ce.width/2,ce.top+10,"+"+v);if(cb>=2)setTimeout(()=>floatText(ce.left+ce.width/2,ce.top+40,`COMBO x${cb}!`,"#ff8ad8"),250);buzz([20,40,30]);
-diffRecord(true,c);S.delivered++;S.ds.served++;if(c.vip)rec("vips",1);checkAch();tutDone("t2");S.ds.earn+=v;S.ds.best=Math.max(S.ds.best,v);S.fruits=S.fruits.filter(x=>x!=f);sel=null;showInfo(null);c.mood="happy";renderTable();renderCounter();renderMarket();
+SERVED.add(c);diffRecord(true,c);S.delivered++;S.ds.served++;if(c.vip)rec("vips",1);checkAch();tutDone("t2");S.ds.earn+=v;S.ds.best=Math.max(S.ds.best,v);S.fruits=S.fruits.filter(x=>x!=f);sel=null;showInfo(null);c.mood="happy";renderTable();renderCounter();renderMarket();
 toast(`${c.name} adorou! <b>+${v}</b> moedas${level()>L0?`<br><b>NÍVEL ${level()}!</b>${newUnlock(level())}`:""}`);if(level()>L0){SFX.lvl();shake(5);buzz([40,60,40,60,80])}
 {const first=!(S.rec&&S.rec.gifts),n=c.vip?2:(first||Math.random()<.35)?1:0;for(let g=0;g<n;g++)setTimeout(()=>giveItem(rollItem(),ce.left+ce.width/2,ce.top+ce.height/2,"de "+c.name),600+g*700);if(n)rec("gifts",n)}
 setTimeout(()=>{c.leaving=true;c.lt=Date.now();renderCounter();setTimeout(()=>{S.cust[i]=null;renderCounter();setTimeout(()=>{if(running&&!S.cust[i]){S.cust[i]=newCust();save();renderCounter()}},700)},WALK_OUT)},900)}
