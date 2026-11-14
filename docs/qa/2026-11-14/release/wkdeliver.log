@@ -1,0 +1,3 @@
+500 800 alvo 1 meio {'hotI': ['1'], 'hot': 1, 'gh': True} moedas 500 -> {'toast': 'Alex loved it! +18 coins', 'delivered': 1, 'gh': 0, 'coins': 518, 'fr': 5, 'errs': []}
+500 800 alvo 2 meio {'hotI': ['2'], 'hot': 1, 'gh': True} moedas 452 -> {'toast': ' ACHIEVEMENT! Curious +15 coins', 'delivered': 2, 'gh': 0, 'coins': 470, 'fr': 15, 'errs': []}
+1024 600 alvo None meio None moedas 0 -> {'toast': 'Not enough coins ×6', 'delivered': 2, 'gh': 0, 'coins': 0, 'fr': 106, 'errs': []}

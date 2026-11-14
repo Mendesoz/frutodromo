@@ -1,0 +1,7 @@
+393x760@1: n0=6 drag ok,ok,ok,ok cruzar(fruits,pot,tree)=[5, 0, 6] entrega(deliv,coins,fr)=[0, 25]->[0, 25, 5] venda coins 25->[26, 4] tree=14 album=6 card=True saveIgual=True erros=[]
+1024x600@1: n0=6 drag ok,ok,ok,ok cruzar(fruits,pot,tree)=[5, 0, 6] entrega(deliv,coins,fr)=[0, 25]->[1, 43, 4] venda coins 43->[44, 3] tree=14 album=6 card=True saveIgual=True erros=[]
+1024x530@1: n0=6 drag ok,ok,ok,ok cruzar(fruits,pot,tree)=[5, 0, 6] entrega(deliv,coins,fr)=[0, 25]->[1, 43, 4] venda coins 43->[44, 3] tree=14 album=6 card=True saveIgual=True erros=[]
+900x430@1: n0=6 drag ok,ok,ok,ok cruzar(fruits,pot,tree)=[5, 0, 6] entrega(deliv,coins,fr)=[0, 25]->[0, 25, 5] venda coins 25->[26, 4] tree=14 album=6 card=True saveIgual=True erros=[]
+1280x680@1: n0=6 drag ok,ok,ok,ok cruzar(fruits,pot,tree)=[5, 0, 6] entrega(deliv,coins,fr)=[0, 25]->[1, 43, 4] venda coins 43->[44, 3] tree=14 album=6 card=True saveIgual=True erros=[]
+375x553@1: n0=6 drag ok,ok,ok,ok cruzar(fruits,pot,tree)=[5, 0, 7] entrega(deliv,coins,fr)=[0, 25]->[0, 25, 5] venda coins 25->[26, 4] tree=15 album=7 card=True saveIgual=True erros=[]
+exit=0

@@ -1,0 +1,16 @@
+
+== celular (390, 760): arrastes ok,ok,ok (fruta certa? True) estado [36, 1, 6, False, ''] erros []
+   início {'tut': 'Drag two fruits into the cauldron to make a n', 'tutCobreCaldeirao': False, 'frutasCobertas': 0, 'frutasFora': 0}
+   depois de cruzar {'tut': 'Now drag a fruit to the customer who asked fo', 'tutCobreCaldeirao': False, 'frutasCobertas': 0, 'frutasFora': 0}
+   depois de entregar {'tut': 'Tap a fruit to see its stats. The TREE keeps ', 'tutCobreCaldeirao': False, 'frutasCobertas': 0, 'frutasFora': 0}
+
+== desktop CG (1024, 600): arrastes ok,ok,ok (fruta certa? False) estado [50, 0, 6, True, '✦ SHINY VERSION!\nDOWNLOADSHARE\nCONTINUE'] erros []
+   início {'tut': 'Drag two fruits into the cauldron to make a n', 'tutCobreCaldeirao': False, 'frutasCobertas': 0, 'frutasFora': 0}
+   depois de cruzar {'tut': '', 'tutCobreCaldeirao': None, 'frutasCobertas': 0, 'frutasFora': 0}
+   depois de entregar {'tut': '', 'tutCobreCaldeirao': None, 'frutasCobertas': 0, 'frutasFora': 0}
+
+== janela baixa (900, 430): arrastes ok,ok,ok (fruta certa? True) estado [43, 1, 6, False, ''] erros []
+   início {'tut': 'Drag two fruits into the cauldron to make a n', 'tutCobreCaldeirao': False, 'frutasCobertas': 0, 'frutasFora': 0}
+   depois de cruzar {'tut': 'Now drag a fruit to the customer who asked fo', 'tutCobreCaldeirao': False, 'frutasCobertas': 0, 'frutasFora': 0}
+   depois de entregar {'tut': 'Tap a fruit to see its stats. The TREE keeps ', 'tutCobreCaldeirao': False, 'frutasCobertas': 0, 'frutasFora': 0}
+exit=0
