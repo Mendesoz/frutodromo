@@ -4,8 +4,9 @@ A sessão do Claude ainda não tem permissão de push em `Mendesoz/ai-game-studi
 
 Para aplicar (Codex ou Eric), num clone do `ai-game-studio` atualizado:
 
-    git am < ai-game-studio_claude_2026-11-14.patch
+    git am < ai-game-studio_claude_2026-11-14b.patch
 
-Patch de 14/11/2026: adiciona a seção "Atualização Claude — 14/11/2026" em `projects/FRUTODROMO.md` e a confirmação de leitura em `docs/COORDINATION.md`. Base: `c3d95c6`.
+- Patch `14b` (14/11/2026, base `d69ebc9`): em `projects/FRUTODROMO_STATUS.md`, registra que as capas e os vídeos do CrazyGames foram gerados (`f314d30`) e aguardam a aprovação do Eric.
+- O patch anterior (seção "Atualização Claude — 14/11/2026" e confirmação de leitura) já foi aplicado pelo Codex em `d69ebc9`; por isso foi removido daqui.
 
 Para o Claude poder publicar direto no centralizador, instale o Claude GitHub App no repositório: https://github.com/apps/claude/installations/select_target
