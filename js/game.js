@@ -435,7 +435,8 @@ function diffRecord(ok,c){if(!ok&&c){if(c.diffMissed)return;c.diffMissed=true}
  try{localStorage.setItem("frutodromo_difficulty",JSON.stringify(DIFF))}catch(e){}}
 function diffTier(L){if(L<=2)return Math.random()<.85?0:1;
  let weights=L<=4?[.65,.32,.03]:L<=6?[.55,.37,.08]:[.45,.40,.15];
- const shift=Math.max(-.15,Math.min(.15,DIFF.streak*.035));
+ // Ao esgotar os difíceis, para a transferência sem reduzir os pedidos médios.
+ const shift=Math.max(-Math.min(.15,weights[2]),Math.min(.15,DIFF.streak*.035));
  weights=[weights[0]-shift,weights[1],weights[2]+shift];
  const roll=Math.random();return roll<weights[0]?0:roll<weights[0]+weights[1]?1:2}
 function newCust(){if(running)setTimeout(()=>SFX.bell(),200);const L=level(),vip=L>=3&&Math.random()<.15;let n=Math.min(3,1+Math.floor((L-1)/2)+(Math.random()<.3?1:0));if(vip)n=Math.min(4,n+1);
