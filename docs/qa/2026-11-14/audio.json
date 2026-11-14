@@ -1,0 +1,109 @@
+{
+ "cfg": {
+  "state": "running",
+  "mus": 60,
+  "sfx": 80,
+  "muted": false,
+  "names": [
+   "plop",
+   "brew",
+   "pop",
+   "coin",
+   "bad",
+   "lvl",
+   "mut",
+   "dex",
+   "day",
+   "buy",
+   "sel",
+   "bag",
+   "bell",
+   "bagc",
+   "open",
+   "close",
+   "fire"
+  ]
+ },
+ "res": {
+  "efeito plop": {
+   "pico": -25.2,
+   "rms": -36.5
+  },
+  "efeito brew": {
+   "pico": -25.3,
+   "rms": -40.5
+  },
+  "efeito pop": {
+   "pico": -26.8,
+   "rms": -38.3
+  },
+  "efeito coin": {
+   "pico": -29.9,
+   "rms": -40.9
+  },
+  "efeito bad": {
+   "pico": -27.2,
+   "rms": -40.9
+  },
+  "efeito lvl": {
+   "pico": -26.7,
+   "rms": -37.5
+  },
+  "efeito mut": {
+   "pico": -27.4,
+   "rms": -38.8
+  },
+  "efeito dex": {
+   "pico": -22.5,
+   "rms": -37
+  },
+  "efeito day": {
+   "pico": -26.7,
+   "rms": -37.5
+  },
+  "efeito buy": {
+   "pico": -28.7,
+   "rms": -41.1
+  },
+  "efeito sel": {
+   "pico": -29.9,
+   "rms": -43
+  },
+  "efeito bag": {
+   "pico": -28.7,
+   "rms": -41.4
+  },
+  "efeito bell": {
+   "pico": -27.7,
+   "rms": -42
+  },
+  "efeito bagc": {
+   "pico": -29.9,
+   "rms": -41.9
+  },
+  "efeito open": {
+   "pico": -29.6,
+   "rms": -39.9
+  },
+  "efeito close": {
+   "pico": -31.1,
+   "rms": -42.9
+  },
+  "efeito fire": {
+   "pico": -31.6,
+   "rms": -45
+  },
+  "música chip": {
+   "pico": -27.3,
+   "rms": -43.9
+  },
+  "música lofi": {
+   "pico": -23.8,
+   "rms": -39.7
+  },
+  "chuva forte": {
+   "pico": -78.6,
+   "rms": -99
+  }
+ }
+}

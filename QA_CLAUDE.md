@@ -164,6 +164,38 @@ Limitação: no iOS, o app da tela de início tem armazenamento separado do Safa
 | 6 | **Segundo plano e abertura pelo ícone** (rotação fora do escopo) | BLOCKED | Pelo ícone: jogar, ir para a tela de início por 1 minuto e voltar; receber ou simular uma notificação; trancar a tela por 1 minuto e voltar. | Volta pausado, o som volta ao continuar, a fruta não some nem fica presa, e o layout se ajusta à nova orientação. |
 | 7 | **Desempenho real** | BLOCKED | Jogar 10 minutos seguidos pelo ícone, com 3 clientes e o caldeirão em uso. Anotar engasgos no arraste, demora quando chega cliente, aquecimento e a bateria antes e depois. Opcional, se houver um Mac: Safari → Desenvolvedor → iPhone → Timeline. | Sem engasgo perceptível no arraste, sem travar na chegada de cliente, aquecimento normal. Qualquer engasgo: anotar o momento e o que estava na tela. |
 
+## Tarefas do CrazyGames (`TAREFAS_CRAZYGAMES.md`)
+### 1. Volume de música e efeitos — PASS, com observação
+Script: `tools/qa/audio.py`. Ambiente: Chromium; um `AnalyserNode` colocado antes da saída de áudio; volumes padrão (música 60, efeitos 80). Saída em `docs/qa/2026-11-14/audio.json`. Valores em dBFS.
+
+| Som | Pico | Média (RMS) |
+|---|---|---|
+| plop (fruta no caldeirão) | −25,2 | −36,5 |
+| dex (espécie nova) | −22,5 | −37,0 |
+| lvl, day | −26,7 | −37,5 |
+| pop, mut | −26,8 / −27,4 | −38,3 / −38,8 |
+| open | −29,6 | −39,9 |
+| brew, coin, bad | −25,3 / −29,9 / −27,2 | −40,5 / −40,9 / −40,9 |
+| buy, bag, bagc, bell | −28,7 / −28,7 / −29,9 / −27,7 | −41,1 / −41,4 / −41,9 / −42,0 |
+| close, sel | −31,1 / −29,9 | −42,9 / −43,0 |
+| fire | −31,6 | −45,0 |
+| música chiptune | −27,3 | −43,9 |
+| música lo-fi | −23,8 | −39,7 |
+
+- **Consistência: PASS.** Todos os efeitos ficam a no máximo 4,5 dB da mediana (−40,9). As duas músicas ficam abaixo dos efeitos principais, como deve ser, e a lo-fi é 4 dB mais alta que a chiptune.
+- **Observação:** o jogo inteiro é baixo. O pico máximo é −22,5 dBFS, enquanto jogos de navegador costumam ficar entre −6 e −12. Se o Eric achar baixo no computador, dá para subir o volume geral uns 6 dB sem desequilibrar nada. Isso é decisão de gosto, por isso não mudei.
+- A chuva não foi medida: só toca com o clima real ligado, e o clima fica desligado no portal.
+
+### 4. Sombras borradas → degraus de pixel — PASS
+- **O que mudou:** as sombras das etapas 7 e 8 com desfoque viraram faixas duras de 2 px:
+  - cabeçalho e feira;
+  - brilho da fruta-alvo ao arrastar, da fruta brilhante e da fruta nova;
+  - faíscas do caldeirão.
+- **Grade de pixel:** os deslocamentos de 1 e 3 px foram para 2 e 4 px (`.rq.y`, `.rq.n`, `.mk.rare`, `.cust.come`).
+- **Teste:** nenhum `box-shadow`, `drop-shadow` ou `text-shadow` com desfoque sobra no CSS (varredura por expressão regular).
+- **Evidência:** antes e depois em `docs/qa/2026-11-14/sombras-*.png`.
+- **Desempenho no Chromium, CPU 4×, 393×760, 2 rodadas:** igual à stage9 original (mediana 16,7 ms, nenhum quadro acima de 33 ms ao arrastar).
+
 ## Pendências
 - iPhone real (todo o roteiro acima).
 - Firefox não testado: o ambiente não tem o navegador.

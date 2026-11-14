@@ -415,8 +415,8 @@ header{position:relative;z-index:6;box-shadow:0 4px 0 #0003}
 /* Camadas decorativas não interceptam toques nem arrastes. */
 #scene::before,#scene::after,#table::after{pointer-events:none}
 /* Profundidade suave nos painéis existentes, preservando a pixel art. */
-header{box-shadow:0 3px 0 #24130780,0 6px 10px #24130724}
-#market{box-shadow:0 -3px 0 #24130770,0 -7px 12px #24130724}
+header{box-shadow:0 2px 0 #24130780,0 4px 0 #24130740,0 6px 0 #24130720}
+#market{box-shadow:0 -2px 0 #24130770,0 -4px 0 #24130740,0 -6px 0 #24130720}
 #scene{box-shadow:inset 0 5px 0 #fff2c21c,inset 0 -5px 0 #2a12042b}
 #table{box-shadow:inset 0 5px 0 #fff3cc12,inset 0 -7px 0 #32180828}
 /* Estados de foco legíveis ao usar teclado, sem mudar a área de toque. */
@@ -430,7 +430,7 @@ header{box-shadow:0 3px 0 #24130780,0 6px 10px #24130724}
 .cust.sad .bub{filter:drop-shadow(0 2px 0 #a42e2e77)}
 /* O brilho do caldeirão responde aos estados já existentes. */
 #pot.hot #potw::before{filter:brightness(1.25)}
-#pot.brew .psp{filter:drop-shadow(0 0 3px #fff1a0)}
+#pot.brew .psp{filter:drop-shadow(2px 0 0 #fff1a0aa) drop-shadow(-2px 0 0 #fff1a0aa) drop-shadow(0 2px 0 #fff1a0aa) drop-shadow(0 -2px 0 #fff1a0aa)}
 @media (prefers-reduced-motion:reduce){
  .cust.hot .pw,.cust.sad .bub,#pot.hot #potw::before{transition:none}
 }
@@ -438,19 +438,19 @@ header{box-shadow:0 3px 0 #24130780,0 6px 10px #24130724}
 /* ===== Etapa 8A: feedback visual e legibilidade, somente CSS ===== */
 /* A fruta selecionada ganha uma base luminosa; o arraste continua livre. */
 .fr.sel:not(.drag):not(.gsrc)::before{background:linear-gradient(#ffe7a5a8,#ffe7a5a8) 4px 0/calc(100% - 8px) 4px no-repeat,linear-gradient(#ffd36b70,#ffd36b70) 0 4px/100% 4px no-repeat}
-.fr.target:not(.drag)>img{filter:drop-shadow(0 0 4px #ffe89a) drop-shadow(0 0 2px #fff)!important}
+.fr.target:not(.drag)>img{filter:drop-shadow(2px 0 0 #ffe89a) drop-shadow(-2px 0 0 #ffe89a) drop-shadow(0 2px 0 #ffe89a) drop-shadow(0 -2px 0 #ffe89a)!important}
 /* Feira: foco, toque e disponibilidade mais fáceis de perceber. */
 .mk:not(.off):not(.lock):active{filter:brightness(1.15)}
 .mk.off,.mk.lock{filter:saturate(.72)}
 .mk.tabk.on{filter:drop-shadow(0 2px 0 #fff1a055)}
 /* Balões: pedidos atendidos e pendentes são distinguíveis pela borda interna. */
-.rq.y{box-shadow:inset 3px 0 0 #329953}
-.rq.n{box-shadow:inset 3px 0 0 #d95a45}
+.rq.y{box-shadow:inset 4px 0 0 #329953}
+.rq.n{box-shadow:inset 4px 0 0 #d95a45}
 .rq.miss{outline:2px solid #c0392b;outline-offset:-1px}
 .cust.hot .bub{filter:drop-shadow(0 2px 0 #4b9e65)}
 .cust.happy .bub{filter:drop-shadow(0 2px 0 #d9aa45)}
 /* Frutas raras: efeito visual discreto, sem alterar o DNA ou a frequência. */
-.fr.shiny:not(.drag):not(.gsrc){filter:drop-shadow(0 0 3px #ffe6a8)}
+.fr.shiny:not(.drag):not(.gsrc){filter:drop-shadow(2px 0 0 #ffe6a8aa) drop-shadow(-2px 0 0 #ffe6a8aa) drop-shadow(0 2px 0 #ffe6a8aa) drop-shadow(0 -2px 0 #ffe6a8aa)}
 .fr .mut{box-shadow:2px 2px 0 #27144270}
 /* Telas pequenas: contraste e leitura dos requisitos sem reduzir alvos. */
 @media(max-width:599px){
@@ -472,14 +472,14 @@ header{box-shadow:0 3px 0 #24130780,0 6px 10px #24130724}
 .cust.angry .bn{box-shadow:inset 0 -2px 0 #e87951}
 .cust.vip.happy .bn{background:#d4a017;color:#2a1a12;box-shadow:0 2px 0 #fff2a8}
 /* A entrada dos clientes destaca discretamente o retrato. */
-.cust.come .pw{filter:drop-shadow(0 3px 0 #2a1a1233)}
+.cust.come .pw{filter:drop-shadow(0 2px 0 #2a1a1233)}
 /* Descobertas e recompensas: destaque pontual nos estados já existentes. */
-.fr.new:not(.drag):not(.gsrc)>img{filter:drop-shadow(0 0 3px #fff3b0)}
-.mk.rare:not(.off){filter:drop-shadow(0 1px 0 #e7b54a70)}
+.fr.new:not(.drag):not(.gsrc)>img{filter:drop-shadow(2px 0 0 #fff3b0aa) drop-shadow(-2px 0 0 #fff3b0aa) drop-shadow(0 2px 0 #fff3b0aa) drop-shadow(0 -2px 0 #fff3b0aa)}
+.mk.rare:not(.off){filter:drop-shadow(0 2px 0 #e7b54a70)}
 .mk.rare:not(.off):active{filter:brightness(1.15)}
 /* Partículas do caldeirão: apenas efeito luminoso, sem alterar a mistura. */
-#pot.pop .psp{filter:drop-shadow(0 0 4px #ffe8a1)}
-#pot.has1 .psp.p2{filter:drop-shadow(0 0 2px #b8a4ff)}
+#pot.pop .psp{filter:drop-shadow(2px 0 0 #ffe8a1) drop-shadow(-2px 0 0 #ffe8a1) drop-shadow(0 2px 0 #ffe8a1) drop-shadow(0 -2px 0 #ffe8a1)}
+#pot.has1 .psp.p2{filter:drop-shadow(2px 0 0 #b8a4ff99) drop-shadow(-2px 0 0 #b8a4ff99) drop-shadow(0 2px 0 #b8a4ff99) drop-shadow(0 -2px 0 #b8a4ff99)}
 /* Evita animações extras em aparelhos com movimento reduzido. */
 @media(prefers-reduced-motion:reduce){
  .cust.happy .pw,.cust.sad .pw,.cust.angry .pw{animation:none}
