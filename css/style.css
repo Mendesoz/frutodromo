@@ -415,8 +415,8 @@ header{position:relative;z-index:6;box-shadow:0 4px 0 #0003}
 /* Camadas decorativas não interceptam toques nem arrastes. */
 #scene::before,#scene::after,#table::after{pointer-events:none}
 /* Profundidade suave nos painéis existentes, preservando a pixel art. */
-header{box-shadow:0 3px 0 #24130780,0 6px 10px #24130724}
-#market{box-shadow:0 -3px 0 #24130770,0 -7px 12px #24130724}
+header{box-shadow:0 2px 0 #24130780,0 4px 0 #24130740,0 6px 0 #24130720}
+#market{box-shadow:0 -2px 0 #24130770,0 -4px 0 #24130740,0 -6px 0 #24130720}
 #scene{box-shadow:inset 0 5px 0 #fff2c21c,inset 0 -5px 0 #2a12042b}
 #table{box-shadow:inset 0 5px 0 #fff3cc12,inset 0 -7px 0 #32180828}
 /* Estados de foco legíveis ao usar teclado, sem mudar a área de toque. */
@@ -430,7 +430,7 @@ header{box-shadow:0 3px 0 #24130780,0 6px 10px #24130724}
 .cust.sad .bub{filter:drop-shadow(0 2px 0 #a42e2e77)}
 /* O brilho do caldeirão responde aos estados já existentes. */
 #pot.hot #potw::before{filter:brightness(1.25)}
-#pot.brew .psp{filter:drop-shadow(0 0 3px #fff1a0)}
+#pot.brew .psp{filter:drop-shadow(2px 0 0 #fff1a0aa) drop-shadow(-2px 0 0 #fff1a0aa) drop-shadow(0 2px 0 #fff1a0aa) drop-shadow(0 -2px 0 #fff1a0aa)}
 @media (prefers-reduced-motion:reduce){
  .cust.hot .pw,.cust.sad .bub,#pot.hot #potw::before{transition:none}
 }
@@ -438,19 +438,19 @@ header{box-shadow:0 3px 0 #24130780,0 6px 10px #24130724}
 /* ===== Etapa 8A: feedback visual e legibilidade, somente CSS ===== */
 /* A fruta selecionada ganha uma base luminosa; o arraste continua livre. */
 .fr.sel:not(.drag):not(.gsrc)::before{background:linear-gradient(#ffe7a5a8,#ffe7a5a8) 4px 0/calc(100% - 8px) 4px no-repeat,linear-gradient(#ffd36b70,#ffd36b70) 0 4px/100% 4px no-repeat}
-.fr.target:not(.drag)>img{filter:drop-shadow(0 0 4px #ffe89a) drop-shadow(0 0 2px #fff)!important}
+.fr.target:not(.drag)>img{filter:drop-shadow(2px 0 0 #ffe89a) drop-shadow(-2px 0 0 #ffe89a) drop-shadow(0 2px 0 #ffe89a) drop-shadow(0 -2px 0 #ffe89a)!important}
 /* Feira: foco, toque e disponibilidade mais fáceis de perceber. */
 .mk:not(.off):not(.lock):active{filter:brightness(1.15)}
 .mk.off,.mk.lock{filter:saturate(.72)}
 .mk.tabk.on{filter:drop-shadow(0 2px 0 #fff1a055)}
 /* Balões: pedidos atendidos e pendentes são distinguíveis pela borda interna. */
-.rq.y{box-shadow:inset 3px 0 0 #329953}
-.rq.n{box-shadow:inset 3px 0 0 #d95a45}
+.rq.y{box-shadow:inset 4px 0 0 #329953}
+.rq.n{box-shadow:inset 4px 0 0 #d95a45}
 .rq.miss{outline:2px solid #c0392b;outline-offset:-1px}
 .cust.hot .bub{filter:drop-shadow(0 2px 0 #4b9e65)}
 .cust.happy .bub{filter:drop-shadow(0 2px 0 #d9aa45)}
 /* Frutas raras: efeito visual discreto, sem alterar o DNA ou a frequência. */
-.fr.shiny:not(.drag):not(.gsrc){filter:drop-shadow(0 0 3px #ffe6a8)}
+.fr.shiny:not(.drag):not(.gsrc){filter:drop-shadow(2px 0 0 #ffe6a8aa) drop-shadow(-2px 0 0 #ffe6a8aa) drop-shadow(0 2px 0 #ffe6a8aa) drop-shadow(0 -2px 0 #ffe6a8aa)}
 .fr .mut{box-shadow:2px 2px 0 #27144270}
 /* Telas pequenas: contraste e leitura dos requisitos sem reduzir alvos. */
 @media(max-width:599px){
@@ -472,14 +472,14 @@ header{box-shadow:0 3px 0 #24130780,0 6px 10px #24130724}
 .cust.angry .bn{box-shadow:inset 0 -2px 0 #e87951}
 .cust.vip.happy .bn{background:#d4a017;color:#2a1a12;box-shadow:0 2px 0 #fff2a8}
 /* A entrada dos clientes destaca discretamente o retrato. */
-.cust.come .pw{filter:drop-shadow(0 3px 0 #2a1a1233)}
+.cust.come .pw{filter:drop-shadow(0 2px 0 #2a1a1233)}
 /* Descobertas e recompensas: destaque pontual nos estados já existentes. */
-.fr.new:not(.drag):not(.gsrc)>img{filter:drop-shadow(0 0 3px #fff3b0)}
-.mk.rare:not(.off){filter:drop-shadow(0 1px 0 #e7b54a70)}
+.fr.new:not(.drag):not(.gsrc)>img{filter:drop-shadow(2px 0 0 #fff3b0aa) drop-shadow(-2px 0 0 #fff3b0aa) drop-shadow(0 2px 0 #fff3b0aa) drop-shadow(0 -2px 0 #fff3b0aa)}
+.mk.rare:not(.off){filter:drop-shadow(0 2px 0 #e7b54a70)}
 .mk.rare:not(.off):active{filter:brightness(1.15)}
 /* Partículas do caldeirão: apenas efeito luminoso, sem alterar a mistura. */
-#pot.pop .psp{filter:drop-shadow(0 0 4px #ffe8a1)}
-#pot.has1 .psp.p2{filter:drop-shadow(0 0 2px #b8a4ff)}
+#pot.pop .psp{filter:drop-shadow(2px 0 0 #ffe8a1) drop-shadow(-2px 0 0 #ffe8a1) drop-shadow(0 2px 0 #ffe8a1) drop-shadow(0 -2px 0 #ffe8a1)}
+#pot.has1 .psp.p2{filter:drop-shadow(2px 0 0 #b8a4ff99) drop-shadow(-2px 0 0 #b8a4ff99) drop-shadow(0 2px 0 #b8a4ff99) drop-shadow(0 -2px 0 #b8a4ff99)}
 /* Evita animações extras em aparelhos com movimento reduzido. */
 @media(prefers-reduced-motion:reduce){
  .cust.happy .pw,.cust.sad .pw,.cust.angry .pw{animation:none}
@@ -493,8 +493,7 @@ header{box-shadow:0 3px 0 #24130780,0 6px 10px #24130724}
 .rq.cor:focus-visible{outline:2px solid #7654bb;outline-offset:1px}
 /* Área rolável da feira: rolagem suave apenas quando permitida. */
 @media(prefers-reduced-motion:no-preference){.mkscroll{scroll-behavior:smooth}}
-/* Evita que textos longos invadam as bordas dos cartões. */
-.mk{overflow-wrap:anywhere}
+/* Evita que textos longos invadam as bordas dos balões. */
 .rq .spt,.rq b{min-width:0}
 .rq .nb{font-variant-numeric:tabular-nums}
 /* Estados de toque sem mudar os eventos do jogo. */
@@ -509,3 +508,22 @@ header{box-shadow:0 3px 0 #24130780,0 6px 10px #24130724}
 }
 /* O modo de movimento reduzido prevalece sobre a rolagem decorativa. */
 @media(prefers-reduced-motion:reduce){.mkscroll{scroll-behavior:auto}}
+
+/* ===== QA Claude: toque em telas largas (iPhone/iPad deitado, tablet) ===== */
+/* A regra de 40 px só valia abaixo de 600 px de largura; no celular deitado os botões do topo e o ARRUMAR ficavam com 28 px.
+   Aumenta só a área de toque (pseudo-elemento invisível), sem mudar o desenho nem a altura do cabeçalho. */
+@media (pointer:coarse) and (min-width:600px){
+ header .btn{position:relative}
+ /* o .btn tem borda de 6 px (moldura): o pseudo-elemento parte da caixa interna, por isso 6 px a mais em cada lado */
+ header .btn::after,#tidy::after{content:"";position:absolute;left:-9px;right:-9px;top:-12px;bottom:-12px}
+}
+
+/* ===== Tutorial: pular e mãozinha (QA Claude, guia do CrazyGames) ===== */
+#tut .tbtns{display:flex;flex-direction:column;align-items:stretch;gap:4px;flex:0 0 auto}
+#tut .tskip{pointer-events:auto;background:none;border:0;padding:6px 2px;min-height:40px;font:inherit;font-size:var(--t10);color:#6b4423;text-decoration:underline;cursor:pointer}
+#tuthand{position:fixed;left:0;top:0;z-index:149;pointer-events:none;display:none}
+#tuthand.on{display:block}
+#tuthand .hh{position:absolute;left:-14px;top:-4px;width:39px;height:48px;image-rendering:pixelated}
+#tuthand .hf{position:absolute;left:0;top:0;transform:translate(-50%,-50%);opacity:0;image-rendering:pixelated}
+#tuthand.hold .hf{opacity:.75}
+#tuthand.fade{opacity:.4}
