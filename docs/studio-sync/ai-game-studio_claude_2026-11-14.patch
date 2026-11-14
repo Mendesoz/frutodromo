@@ -1,0 +1,76 @@
+From 0aa0acbadb572ad699718afb2f1ced480fe2d33e Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sat, 14 Nov 2026 09:07:33 -0300
+Subject: [PATCH] =?UTF-8?q?docs(frutodromo):=20estado=20do=20Claude=20em?=
+ =?UTF-8?q?=2014/11=20e=20confirma=C3=A7=C3=A3o=20da=20rotina=20de=20centr?=
+ =?UTF-8?q?aliza=C3=A7=C3=A3o?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01J5CqvyeRhN5feFo8ANcpcb
+---
+ docs/COORDINATION.md   |  3 +++
+ projects/FRUTODROMO.md | 34 ++++++++++++++++++++++++++++++++++
+ 2 files changed, 37 insertions(+)
+
+diff --git a/docs/COORDINATION.md b/docs/COORDINATION.md
+index 3d7aba5..9df9b90 100644
+--- a/docs/COORDINATION.md
++++ b/docs/COORDINATION.md
+@@ -38,3 +38,6 @@ Referências: [ficha do projeto](../projects/FRUTODROMO.md), [plano de conclusã
+ 
+ ## Comunicação entre agentes
+ O registro no GitHub é persistente, mas não injeta mensagens automaticamente em conversas já abertas. Ao transmitir uma atualização, indicar o documento e o commit. Diferenciar mensagem preparada, mensagem enviada e confirmação recebida. Não afirmar que a ponte entre chats está ativa sem testar.
++
++## Confirmações de leitura
++- Claude, 14/11/2026: leu `AGENTS.md`, `CLAUDE.md`, `docs/COORDINATION.md` e a ficha do Frutódromo em `c3d95c6`, e adotou a rotina. Limitação: a sessão do Claude não tem permissão de push neste repositório (o GitHub App não está instalado para ele). Enquanto não houver acesso, o Claude publica a atualização como patch na branch `qa-claude-frutodromo` do jogo (`docs/studio-sync/`) e avisa para alguém aplicar.
+diff --git a/projects/FRUTODROMO.md b/projects/FRUTODROMO.md
+index 03405eb..caa8e2d 100644
+--- a/projects/FRUTODROMO.md
++++ b/projects/FRUTODROMO.md
+@@ -39,6 +39,40 @@ Atualizado: 2026-11-13. Repositório do jogo: https://github.com/Mendesoz/frutod
+ 5. Preparar auditoria histórica de todas as etapas do projeto. As etapas anteriores à 6B ainda exigem levantamento de commits, não inventar histórico.
+ 6. Não alterar a branch principal do jogo sem aprovação. O usuário quer um link único de testes, sem configuração manual repetida.
+ 
++## Atualização Claude — 14/11/2026 (interface, tutorial, visual e QA)
++Branch: `qa-claude-frutodromo` (base `stage9-dynamic-difficulty`), PR https://github.com/Mendesoz/frutodromo/pull/24. Não houve merge na `main` nem publicação feita pelo Claude.
++
++**Decisões do Eric (14/11):** jogo de navegador; celular em pé. A paisagem só no contexto do CrazyGames. iPhone e PWA offline depois do lançamento. A divisão de tarefas para reenviar ao CrazyGames está aprovada em `TAREFAS_CRAZYGAMES.md` (na branch). Balanceamento, integração e publicação continuam com o Eric.
++
++**Feito pelo Claude, com testes reais no Chromium e no WebKitGTK** (o iPhone só conta pelo relato do Eric):
++| Commit | Item |
++|---|---|
++| `fe9a9f0` | SW registra em qualquer https (antes só em github.io); cache v44, depois v45 |
++| `c990b92` | Área de toque de 40 px em telas largas de toque |
++| `1a616bf` | Inglês: feira sem palavras partidas |
++| `667a801` | Bug M-08: segunda entrega ao mesmo cliente pagava de novo (corrigido em memória, sem mudar o save) |
++| `ca778fd` | Inglês: textos do modo dica |
++| `10f43b7` | Sombras borradas das etapas 7/8 trocadas por degraus de pixel; volume medido (consistente, mas o jogo todo é baixo: pico −22,5 dBFS) |
++| `9e67175` | Tutorial: PULAR TUTORIAL e mãozinha animada mostrando o gesto de arrastar (passos 1 e 2) |
++| `d89f8e5` | M-02 a M-08 executados no navegador: receitas 100% reproduzidas, entrega real 125/125, 0 impossíveis em 80 mil, saves antigos ok |
++
++Evidências: `QA_CLAUDE.md`, `docs/qa/2026-11-13/`, `docs/qa/2026-11-14/` e os scripts em `tools/qa/` (na branch).
++
++**iPhone real (Eric, 14/11):** abertura, arraste e entrega, entrega errada e dica, fechar e reabrir, e visual sem o véu lilás: PASS. Zoom de toque duplo, segundo plano, desempenho de 10 min e PWA offline na v44 ficam para depois do lançamento.
++
++**Para o Eric decidir (Codex implementa se aprovado):**
++- LOG-01: do nível 5 em diante não há pedido de profundidade 2.
++- LOG-02: o VIP não pede receita mais funda.
++- LOG-03: um acerto depois de um erro zera o `streak`.
++- LOG-06: nos níveis 3–6 com `streak` negativo o peso difícil fica negativo e o médio cai.
++- LOG-04: o `DIFF` é por aparelho.
++- Áudio: decidir se sobe o volume geral.
++
++**Produção (verificado em 14/11, 08h40):** `frutodromo.pages.dev` serve SW v44 com a etapa 9, mas sem as correções de 14/11. Ela **não** está mais na etapa 7. Conferir no Cloudflare qual branch está publicada.
++
++**Próximos passos do Claude:** tarefa 7, capas e vídeo novos para o CrazyGames. Depois da integração feita pelo Codex, tarefa 9: regressão final e zip do portal.
++**Próximos passos do Codex:** tarefas 2 (texto da página), 3 (LOGs com o Eric) e 8 (rebase, integração).
++
+ ## Ponto de recuperação
+ `checkpoint-stage8-visual` preserva a versão visual anterior à correção funcional de receitas.
+ 
+-- 
+2.43.0
+
