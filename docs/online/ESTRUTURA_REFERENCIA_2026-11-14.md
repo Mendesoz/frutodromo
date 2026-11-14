@@ -51,3 +51,16 @@ Observação: o Pokeidle é um jogo de fã sobre uma marca de terceiros. As frut
 - O boost pode aumentar a produção de fruta negociável, ou só dar conveniência?
 - As gemas terão saque no começo, ou só depois do estudo?
 - A ordem de construção acima serve?
+
+## Mercado da comunidade do Pokeidle (segunda tela do Eric)
+Tela: `referencia/pokeidle-mercado-2026-11-14.png`. O Eric destacou a quantidade de opções do mercado.
+
+O que a tela mostra:
+- Vende **Pokémon** e **itens**, em coins ou em gemas, com depósito e saque.
+- Filtros por raridade (brilhante, potência, lendário, golpes especiais), espécie, nível e potência, e ordenação por preço.
+
+Leitura do Claude:
+- Os filtros existem porque cada Pokémon é único (atributos sorteados) e **permanente**: o jogador o treina e caça com ele. O valor está no atributo raro.
+- No Frutódromo, o item permanente equivalente é a **árvore/muda** de uma linhagem, com atributos sorteados (produção, chance de brilhante, poder, tamanho, estampa). A **fruta colhida** é o equivalente dos itens: consumível, estraga e serve para encomendas e concursos.
+- Filtros possíveis: espécie, cor, tamanho, poder, estampa, brilhante, linhagem/geração e dias até estragar.
+- Um mercado com muitos filtros só faz sentido com muitos anúncios. No começo, poucos filtros bastam.
