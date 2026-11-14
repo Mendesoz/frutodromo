@@ -13,11 +13,12 @@ O escopo desta entrega é organizar a frente, propor o conceito e obter análise
 2. [Conceito e primeira prova](BRIEF.md).
 3. [Economia e aquisição de jogadores](ECONOMY_AND_GROWTH.md).
 4. [Handoff e tarefa do Claude](CLAUDE_HANDOFF.md).
+5. [Revisão recebida do Claude](CLAUDE_REVIEW_2026-11-14.md) e [síntese/próximos passos](NEXT_STEPS.md).
 
 Centralizador permanente: https://github.com/Mendesoz/ai-game-studio . Registro: `projects/FRUTODROMO_ONLINE_EXPLORATION.md`.
 
 ## Estado
-- Branch criada e documentação em elaboração; nenhuma nova mecânica implementada nesta preparação.
+- Branch criada, documentação publicada e revisão do Claude recebida; nenhuma nova mecânica implementada nesta preparação.
 - Versão atual/CrazyGames: envio manual assumido pelo Eric. Esta frente não confirma submissão ou lançamento no portal.
-- Próximo marco: revisão do conceito pelo Claude e definição, com Eric, de uma experiência pequena que demonstre produção e demanda entre jogadores.
+- Próximo marco: definir com Eric a primeira experiência pequena proposta em `NEXT_STEPS.md`, antes de iniciar implementação.
 - Uma nova identidade ou repositório pode ser decidido quando houver conceito próprio aprovado. Por enquanto aproveitamos o repositório e os ativos existentes.
