@@ -9,7 +9,6 @@ Antes de começar, marque aqui (e faça push). Ao terminar, apague a linha.
 
 | Agente | Área | Arquivos / funções | Desde |
 |---|---|---|---|
-| Codex | Promoção final do site: cache e evidências de entrega | `sw.js`, relatório final de publicação | 14/11/2026 10:48 BRT |
 | Claude | Etapa 6A — Personagens | `js/game.js` (`charImg`, `personImg`, `renderCounter` só o `.pw`, loop de 250 ms, `showPortrait`), `css/style.css` (`.pw`, `.chr`, `bob`, `blk`, `.sweat`) | 13/11 14:15 |
 
 ## Pendências abertas (qualquer agente pode pegar, marcando acima)
@@ -38,6 +37,12 @@ Antes de começar, marque aqui (e faça push). Ao terminar, apague a linha.
 
 ## Registro por etapa
 (cada etapa concluída ganha aqui: o que mudou, arquivos, testes, problemas e riscos)
+
+### Preparação da promoção final — Codex (14/11/2026)
+- Reuniu relatórios, evidências e zip da regressão final do Claude; código de jogo igual ao da candidata aprovada.
+- Cache atualizado para v46. Atualização v45→v46 e três aberturas offline com progresso e fonte preservados: PASS.
+- Sintaxe, 7/7 testes de dificuldade e fluxo de jogo nas quatro resoluções obrigatórias: PASS.
+- Evidências em `QA_PUBLICATION_CODEX_2026-11-14.md`. Para o CrazyGames, ainda faltam login, upload e QA Tool real no painel.
 
 ### Fechamento CrazyGames — Codex (14/11/2026)
 - LOG-06 aprovado pelo Eric: transferência fácil/difícil limitada ao peso disponível; preserva a proporção dos médios. Demais regras mantidas.

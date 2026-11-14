@@ -1,0 +1,26 @@
+{
+  "upgrade": true,
+  "oldCacheRemoved": true,
+  "offline": [
+    {
+      "cycle": 1,
+      "save": true,
+      "font": true,
+      "cache": "frutodromo-v46"
+    },
+    {
+      "cycle": 2,
+      "save": true,
+      "font": true,
+      "cache": "frutodromo-v46"
+    },
+    {
+      "cycle": 3,
+      "save": true,
+      "font": true,
+      "cache": "frutodromo-v46"
+    }
+  ],
+  "errors": [],
+  "cachedFiles": 14
+}
