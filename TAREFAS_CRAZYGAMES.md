@@ -12,7 +12,7 @@ O Eric aprovou estas tarefas em 14/11. Elas vêm da comparação com o guia de q
 | 4 | Trocar as sombras borradas das etapas 7 e 8 por sombras em degraus de pixel (cabeçalho, feira, retratos, balões) | **Claude** | `css/style.css` | nenhum `box-shadow` ou `drop-shadow` com desfoque na interface do jogo; prints antes e depois |
 | 5 | Botão "Pular tutorial" (um toque encerra os 4 passos) | **Claude** | `js/game.js`: `TUT`, `tutStep`, `tutPlace`; `css/style.css` `#tut`; `js/i18n.js` | pula tudo de uma vez, fica salvo e "Rever tutorial" nos ajustes continua funcionando |
 | 6 | Mãozinha animada em pixel art mostrando o gesto: fruta até o caldeirão (passo 1) e até o cliente (passo 2) | **Claude** | mesmas áreas do item 5 | aparece só no tutorial, some ao arrastar, fica parada com movimento reduzido, não bloqueia o toque |
-| 7 | Capas novas (1920×1080, 800×1200, 800×800) e vídeo de prévia com o visual atual | **Claude** (gera) e **Eric** (aprova) | `docs/crazygames/` | capas e vídeo mostrando o jogo como ele está hoje |
+| 7 | Capas novas (1920×1080, 800×1200, 800×800) e vídeo de prévia com o visual atual | **Claude** (gera) e **Eric** (aprova) | `docs/crazygames/` | capas e vídeo mostrando o jogo como ele está hoje — **gerado em 14/11, aguardando aprovação do Eric** |
 | 8 | Integração: rebase, merge do PR #24 na `stage9` e PRs de lógica por cima | **ChatGPT** (Claude revisa) | branches | candidata única |
 | 9 | Regressão final na candidata e zip do portal (`tools/build_portal.py`) | **Claude** | `tools/qa/`, `dist/` | tudo PASS; zip pronto para o QA Tool do CrazyGames |
 | 10 | Merge na `main`, publicação e reenvio ao CrazyGames | **Eric** | — | depois dos itens 1 a 9 |

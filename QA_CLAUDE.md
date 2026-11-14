@@ -207,6 +207,11 @@ Script: `tools/qa/audio.py`. Ambiente: Chromium; um `AnalyserNode` colocado ante
 - **Teste** (`tools/qa/tuthand.py`, 390×844 pt, 1024×600 en, 900×430 pt e 390×844 com movimento reduzido): passou, com 0 erros. Prints em `docs/qa/2026-11-14/tutorial-maozinha-*.png`.
 - **Regressão:** smoke, primeiros minutos (o tutorial não cobre frutas), portal com SDK e direto, `regress.py` nos 6 tamanhos, `untr.py` (0 textos em português no inglês) e `m08.py` (1 pagamento), todos sem erros. Cache sobe para `v45`.
 
+### 7. Capas e vídeos de prévia — gerados, aguardando aprovação do Eric
+- **Capas** em `docs/crazygames/`: `cover-landscape-1920x1080.png`, `cover-portrait-800x1200.png`, `cover-square-800x800.png` e `cover-portrait-video.png` (1080×1620, abre o vídeo em retrato). Usam os sprites atuais exportados do próprio jogo: personagens da etapa 6, caldeirão novo com a poção, morango herói e frutas da feira. Fundo roxo e título em Pixelify Sans, ampliação inteira, sem desfoque.
+- **Vídeos** sem som, H.264: `preview-landscape-1920x1080.mp4` (20 s) e `preview-portrait-1080x1620.mp4` (18 s), cerca de 4 MB cada. Mostram a capa, a mistura no caldeirão, as entregas de fogo e gelo, um presente, a poção gigante na melancia e a carta de espécie lendária. Gravados com 0 erros de página.
+- **Como refazer:** `tools/marketing/README.md`. A cena usa só funções do jogo para montar a situação; não muda regras nem saves.
+
 ## Pendências
 - iPhone real (todo o roteiro acima).
 - Firefox não testado: o ambiente não tem o navegador.
