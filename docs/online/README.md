@@ -15,6 +15,7 @@ O escopo desta entrega é organizar a frente, propor o conceito e obter análise
 4. [Handoff e tarefa do Claude](CLAUDE_HANDOFF.md).
 5. [Revisão recebida do Claude](CLAUDE_REVIEW_2026-11-14.md) e [síntese/próximos passos](NEXT_STEPS.md).
 6. [Decisões do Eric e simulação das regras de reprodução](SIMULACAO_REPRODUCAO_2026-11-14.md) (Claude, branch `claude/online-simulacao`).
+7. [Estrutura desejada pelo Eric a partir do Pokeidle](ESTRUTURA_REFERENCIA_2026-11-14.md): três moedas, feira NPC, rankings, passe, concurso, fazendinha, mercado entre jogadores e loja de diamantes.
 
 Centralizador permanente: https://github.com/Mendesoz/ai-game-studio . Registro: `projects/FRUTODROMO_ONLINE_EXPLORATION.md`.
 
