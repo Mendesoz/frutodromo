@@ -2,7 +2,7 @@
 
 Branch: `qa-claude-frutodromo`, criada a partir de `stage9-dynamic-difficulty` (`9cf9575`). `main` não foi alterada e nada foi publicado.
 Plano de referência: `ai-game-studio/projects/FRUTODROMO_FINISH_PLAN.md`. Dia 1 (inventário) e parte do Dia 2 (correções de interface).
-Última atualização: 14/11/2026 (dia 2, tarde: handoff do ChatGPT).
+Última atualização: 14/11/2026 (dia 2: handoff do ChatGPT e primeiros resultados do iPhone real).
 
 ## Ambiente de teste (o que foi de fato executado)
 | Motor | Como | Observação |
@@ -23,7 +23,7 @@ Formato do plano: `ID | Severidade | Arquivo/linha | Passos | Esperado | Observa
 | QA-01 | **P1** | `js/game.js` (registro do SW, fim do arquivo) | Abrir o jogo em qualquer host que não seja `*.github.io` (ex.: `frutodromo.pages.dev`, `localhost`), jogar, ficar offline, recarregar | Jogo abre offline com o save | Sem service worker: `sw=null`, nenhum cache, recarga offline falha (`ERR_INTERNET_DISCONNECTED`) | `tools/qa/pwa.py`; `docs/qa/2026-11-13/pwa-offline-recarga-ok.png` (depois) | Sim (Chromium, localhost) | Registrar em qualquer `https:` e no localhost; nunca no build de portal (`window.PORTAL_NAME`) | `fe9a9f0` **corrigido** |
 | QA-02 | P2 | `sw.js` | Comparar `CACHE` entre `5cf0d73` e `9cf9575` | Versão do cache sobe quando arquivos mudam | Continuava `frutodromo-v43` com CSS e JS das etapas 6B–9 diferentes; PWA instalado mantinha entradas antigas | leitura do diff | Sim (estático) | Subir para `v44` | `fe9a9f0` **corrigido** |
 | QA-03 | P2 | `css/style.css` (regra de 40 px só em `max-width:599px`) | Tela de toque com 600 px ou mais de largura (iPhone deitado 844×390 e 667×375, iPad 820×1180) | Alvos de toque de ~40 px | ÁRVORE 63×28, pausa 30×28, menu 28×28, ARRUMAR 72×28 | `tools/qa/resp.py`, `tools/qa/hit.py` | Sim (Chromium com toque emulado) | Ampliar só a área de toque com pseudo-elemento invisível em `(pointer:coarse) and (min-width:600px)`; desenho e altura do cabeçalho iguais | `c990b92` **corrigido** |
-| QA-04 | P1 a confirmar | `css/style.css` `#sky` (`mix-blend-mode:multiply`), `#lamp` (`screen`) | WebKit com compositing acelerado: abrir o jogo | Cena com parede, janelas, clientes | Cena inteira coberta por um lilás opaco (clientes, balões e fantasma do arraste somem). Com `WEBKIT_DISABLE_COMPOSITING_MODE=1` a cena aparece certa. Página mínima com o mesmo blend funciona | `webkit-composited-ceu-opaco.png` × `webkit-sem-compositing-ok.png` | Sim no WebKitGTK; **não testado no iPhone** | Provável defeito do WebKitGTK sob Xvfb (GL por software). O proprietário aprovou a etapa 7 no iPhone, o que sugere que o Safari real está certo. Confirmar no iPhone (roteiro, item 2). Se falhar lá: trocar o blend por `opacity` no `#sky`/`#lamp` | — |
+| QA-04 | **Fechado** (iPhone real: PASS) | `css/style.css` `#sky` (`mix-blend-mode:multiply`), `#lamp` (`screen`) | WebKit com compositing acelerado: abrir o jogo | Cena com parede, janelas, clientes | Cena inteira coberta por um lilás opaco (clientes, balões e fantasma do arraste somem). Com `WEBKIT_DISABLE_COMPOSITING_MODE=1` a cena aparece certa. Página mínima com o mesmo blend funciona | `webkit-composited-ceu-opaco.png` × `webkit-sem-compositing-ok.png` | Sim no WebKitGTK; **não testado no iPhone** | Defeito do WebKitGTK sob Xvfb (GL por software). Em 14/11 o Eric confirmou no iPhone real: cenário e personagens normais, sem véu lilás, inclusive deitado. Nenhuma ação | — |
 | QA-05 | P3 (rebaixado) | `js/game.js` `fitScene`, `ZMIN` | iPhone SE deitado (667×375) | Caldeirão inteiro na mesa | Mesa de 114 px e caixa do caldeirão de 126 px. Medição de 14/11: o **corpo** do caldeirão fica inteiro (0 px cortado); só a faixa de baixo da caixa, com o rótulo e o brilho, passa 12 px. Com 6 frutas grandes a mesa fica apertada. Em 844×390 cabe (mesa 129 px) | `iphone-se-deitado-667x375.png` | Sim (Chromium) | Não corrigido: mexe na regra de altura da cena, que também afeta a janela do CrazyGames. Proposta para o Dia 2/3, se o proprietário jogar deitado: cena mínima menor só abaixo de 400 px de altura | — |
 | QA-06 | P2 risco | `css/style.css` (`html`) | iPhone: girar para deitado | Texto do mesmo tamanho | Sem `-webkit-text-size-adjust`; o Safari pode aumentar texto ao girar | — | **Não testado** (só acontece no iOS) | `html{-webkit-text-size-adjust:100%}` se o proprietário vir texto crescer | — |
 | QA-07 | P2 risco | `css/style.css` | iPhone: tocar duas vezes rápido em área sem botão (etiquetas do topo, parede da cena, texto de modal) | Nada | Pode dar zoom de duplo toque: só botões, cartões, clientes e frutas têm `touch-action` | — | **Não testado** (Chromium não emula) | `html{touch-action:manipulation}` (mantém o gesto de pinça) se o proprietário confirmar | — |
@@ -120,6 +120,40 @@ Safari primeiro, depois o PWA instalado. Marque OK/falha e mande print do que fa
 7. Instalar o PWA (Compartilhar → Adicionar à Tela de Início), **abrir uma vez com internet** (para instalar o modo offline da versão nova), jogar um pouco, fechar pelo seletor de apps, abrir de novo: progresso igual? Ativar o modo avião e abrir o PWA: o jogo abre? Repetir 3 vezes.
 8. Som: tocar, ir para outro app, voltar: o som volta?
 9. Jogar 5 minutos seguidos: algum engasgo ao arrastar ou ao chegar cliente?
+
+## iPhone real (Eric) — 14/11/2026
+**Ambiente de teste do iPhone:** a prévia da branch, `https://qa-claude-frutodromo.frutodromo.pages.dev`, e não a produção.
+
+Conferido por WebFetch às 8h40:
+- a prévia serve o `sw.js` com `frutodromo-v44` e o `game.js` com a guarda de entrega dupla (`SERVED`, `667a801`) e o registro novo do SW;
+- `frutodromo.pages.dev` **não está mais na etapa 7**: serve `sw.js` `frutodromo-v44`, e o `game.js` tem `diffTier` mas não tem `SERVED` nem `fixFruitDeco` (197.013 caracteres, igual a `b3ea727`/`e0c4251`). A produção foi trocada para uma versão da etapa 9 anterior às correções de hoje, e não fui eu que publiquei. Quem cuida do Cloudflare precisa confirmar qual branch está em produção.
+
+**Já testado pelo Eric no iPhone real (PASS, relato do proprietário):**
+| Item | Resultado |
+|---|---|
+| Abertura do jogo: cenário e personagens corretos | PASS (iPhone) |
+| Arrastar frutas e entregar pedidos | PASS (iPhone) |
+| Entrega errada e dica de receita | PASS (iPhone) |
+| Fechar e reabrir: progresso preservado | PASS (iPhone) |
+| Deitado: visual certo, sem o véu lilás do WebKitGTK (QA-04) | PASS (iPhone, prints com o Eric) |
+
+**Pendentes no iPhone (BLOCKED: dependem do Eric).** Os testes no Chromium e no WebKitGTK não contam como aprovação.
+
+Para os itens que pedem verificação técnica, use a página de diagnóstico **`https://qa-claude-frutodromo.frutodromo.pages.dev/tools/qa/diag.html`**, aberta no Safari, com um print da tela. Ela mostra:
+- se o service worker está registrado e controlando a página, a versão (`frutodromo-v44`), os arquivos em cache e os que faltam;
+- se a página está aberta como app ou no Safari, o tamanho da janela, o zoom e o `text-size-adjust`.
+
+Limitação: no iOS, o app da tela de início tem armazenamento separado do Safari, e de dentro dele não dá para abrir essa página. No app instalado, o teste é só de comportamento.
+
+| # | Item | Status | Procedimento (iPhone) | Passa se |
+|---|---|---|---|---|
+| 1 | **PWA offline (P1, investigação)** | BLOCKED | (a) Apagar o ícone antigo do Frutódromo da tela de início, porque o antigo pode ter sido instalado de uma versão sem SW. (b) No Safari, abrir a prévia, esperar o jogo carregar, abrir o `diag.html` e tirar print: "Service worker registrado", "Faltando no cache: nenhum". (c) Compartilhar → Adicionar à Tela de Início. (d) Abrir **pelo ícone** com internet, entrar no jogo, jogar 30 s. (e) Fechar o app de verdade: deslizar para cima no seletor de apps. (f) Ativar o modo avião e abrir **pelo ícone**. (g) Repetir (e) e (f) 3 vezes. (h) Repetir abrindo pelo **Safari** em modo avião, anotando a origem de cada tentativa. | Abre nas 3 tentativas pelo ícone, com progresso. Se falhar: print da tela de erro, anotar se foi pelo ícone ou pelo Safari, quanto tempo depois do passo (d) e se o ícone foi instalado antes ou depois de abrir a prévia online. |
+| 2 | **Service worker: versão, atualização e offline após fechar** | BLOCKED | Print do `diag.html` no Safari em 3 momentos: online, depois do jogo aberto e em modo avião. Atualização: quando houver um commit novo na branch, abrir o app **online** uma vez, fechar e reabrir. | `diag.html` mostra `frutodromo-v44` (ou a versão nova), "Controlando esta página: true" e "Faltando no cache: nenhum". Offline, a página e o jogo abrem. |
+| 3 | **Deitado 667×375 (iPhone SE ou tela equivalente)** | BLOCKED (sem SE físico?) | Deitar o aparelho com o jogo aberto, print. Arrastar 2 frutas ao caldeirão, tocar no caldeirão para devolver uma, cruzar. | O corpo do caldeirão aparece inteiro (no Chromium só o rótulo e o brilho passam 12 px: QA-05) e responde ao toque. Num iPhone maior que o SE, a tela deitada não chega a 667×375: anotar o modelo. |
+| 4 | **Áreas de toque deitado** | BLOCKED | Deitado, tocar **na borda** (não no centro) de ÁRVORE, pausa, menu e ARRUMAR, 5 vezes cada. | Cada toque abre o botão certo, sem acionar o vizinho. |
+| 5 | **Zoom de toque duplo e texto ao girar (QA-06, QA-07)** | BLOCKED | No Safari e no app: tocar duas vezes rápido na parede, no balcão, nas etiquetas do topo e no texto de um modal; girar de retrato para deitado e voltar. | A página não dá zoom (o `diag.html` mostraria "zoom" diferente de 1.00) e o texto não fica maior depois de girar. Se acontecer, a correção é uma linha de CSS cada (proposta em QA-06 e QA-07). |
+| 6 | **Rotação, segundo plano e abertura pelo ícone** | BLOCKED | Pelo ícone: jogar, girar no meio de um arraste, ir para a tela de início por 1 minuto e voltar; receber ou simular uma notificação; trancar a tela por 1 minuto e voltar. | Volta pausado, o som volta ao continuar, a fruta não some nem fica presa, e o layout se ajusta à nova orientação. |
+| 7 | **Desempenho real** | BLOCKED | Jogar 10 minutos seguidos pelo ícone, com 3 clientes e o caldeirão em uso. Anotar engasgos no arraste, demora quando chega cliente, aquecimento e a bateria antes e depois. Opcional, se houver um Mac: Safari → Desenvolvedor → iPhone → Timeline. | Sem engasgo perceptível no arraste, sem travar na chegada de cliente, aquecimento normal. Qualquer engasgo: anotar o momento e o que estava na tela. |
 
 ## Pendências
 - iPhone real (todo o roteiro acima).
