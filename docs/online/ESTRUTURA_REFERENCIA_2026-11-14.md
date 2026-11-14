@@ -64,3 +64,14 @@ Leitura do Claude:
 - No Frutódromo, o item permanente equivalente é a **árvore/muda** de uma linhagem, com atributos sorteados (produção, chance de brilhante, poder, tamanho, estampa). A **fruta colhida** é o equivalente dos itens: consumível, estraga e serve para encomendas e concursos.
 - Filtros possíveis: espécie, cor, tamanho, poder, estampa, brilhante, linhagem/geração e dias até estragar.
 - Um mercado com muitos filtros só faz sentido com muitos anúncios. No começo, poucos filtros bastam.
+
+## Decisão do Eric — gemas (14/11, 12h56)
+- O mercado entre jogadores usa **gemas**, e a gema tem valor em real/dólar.
+- Regra proposta pelo Claude para a gema não virar dívida do estúdio:
+  - a gema só entra no jogo por depósito de dinheiro e só sai por saque;
+  - o jogo nunca cria gema em colheita, encomenda, passe ou concurso;
+  - o jogador ganha gema apenas vendendo para outro jogador;
+  - o estúdio cobra comissão na venda e/ou no saque.
+  - Assim cada gema em circulação tem um depósito por trás.
+- Consequência: o boost comprado com diamantes não pode aumentar a produção do que é vendável por gemas. Do contrário, o diamante vira uma máquina de comprar gemas. Proposta: o boost dá só conveniência.
+- Pendências: cotação da gema, comissão, serviço de pagamento (Pix e saque), verificação de contas e regras legais e fiscais. Isso faz parte do estudo de viabilidade e ainda não está decidido.
