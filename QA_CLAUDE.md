@@ -121,6 +121,15 @@ Safari primeiro, depois o PWA instalado. Marque OK/falha e mande print do que fa
 8. Som: tocar, ir para outro app, voltar: o som volta?
 9. Jogar 5 minutos seguidos: algum engasgo ao arrastar ou ao chegar cliente?
 
+## Decisão de escopo do proprietário (14/11/2026)
+O Frutódromo é um **jogo de navegador**. Rodar bem no iPhone é um diferencial, mas o celular é jogado **em pé**. O modo deitado só importa para a janela do CrazyGames, ou seja, computador em paisagem (1024×600, 900×430, 1280×680), já coberta pelos testes de Chromium e WebKit.
+
+Consequências:
+- **QA-05** (caldeirão em 667×375), o modo deitado no celular e a rotação no meio do jogo saem da lista de pendências: **fora do escopo**.
+- **QA-08**: manter `"orientation":"portrait"` no `manifest.json`.
+- A correção de toque `c990b92` fica: não atrapalha em pé e ajuda em tablet e notebook com tela de toque.
+- O PWA continua útil como extra, mas não é requisito de lançamento.
+
 ## iPhone real (Eric) — 14/11/2026
 **Ambiente de teste do iPhone:** a prévia da branch, `https://qa-claude-frutodromo.frutodromo.pages.dev`, e não a produção.
 
@@ -147,12 +156,12 @@ Limitação: no iOS, o app da tela de início tem armazenamento separado do Safa
 
 | # | Item | Status | Procedimento (iPhone) | Passa se |
 |---|---|---|---|---|
-| 1 | **PWA offline (P1, investigação)** | BLOCKED | (a) Apagar o ícone antigo do Frutódromo da tela de início, porque o antigo pode ter sido instalado de uma versão sem SW. (b) No Safari, abrir a prévia, esperar o jogo carregar, abrir o `diag.html` e tirar print: "Service worker registrado", "Faltando no cache: nenhum". (c) Compartilhar → Adicionar à Tela de Início. (d) Abrir **pelo ícone** com internet, entrar no jogo, jogar 30 s. (e) Fechar o app de verdade: deslizar para cima no seletor de apps. (f) Ativar o modo avião e abrir **pelo ícone**. (g) Repetir (e) e (f) 3 vezes. (h) Repetir abrindo pelo **Safari** em modo avião, anotando a origem de cada tentativa. | Abre nas 3 tentativas pelo ícone, com progresso. Se falhar: print da tela de erro, anotar se foi pelo ícone ou pelo Safari, quanto tempo depois do passo (d) e se o ícone foi instalado antes ou depois de abrir a prévia online. |
+| 1 | **PWA offline (extra, não bloqueia o lançamento)** | Testado pelo Eric antes da v44: 1 falha e 1 sucesso. Causa provável: versão sem SW. Reteste na prévia v44: BLOCKED | (a) Apagar o ícone antigo do Frutódromo da tela de início, porque o antigo pode ter sido instalado de uma versão sem SW. (b) No Safari, abrir a prévia, esperar o jogo carregar, abrir o `diag.html` e tirar print: "Service worker registrado", "Faltando no cache: nenhum". (c) Compartilhar → Adicionar à Tela de Início. (d) Abrir **pelo ícone** com internet, entrar no jogo, jogar 30 s. (e) Fechar o app de verdade: deslizar para cima no seletor de apps. (f) Ativar o modo avião e abrir **pelo ícone**. (g) Repetir (e) e (f) 3 vezes. (h) Repetir abrindo pelo **Safari** em modo avião, anotando a origem de cada tentativa. | Abre nas 3 tentativas pelo ícone, com progresso. Se falhar: print da tela de erro, anotar se foi pelo ícone ou pelo Safari, quanto tempo depois do passo (d) e se o ícone foi instalado antes ou depois de abrir a prévia online. |
 | 2 | **Service worker: versão, atualização e offline após fechar** | BLOCKED | Print do `diag.html` no Safari em 3 momentos: online, depois do jogo aberto e em modo avião. Atualização: quando houver um commit novo na branch, abrir o app **online** uma vez, fechar e reabrir. | `diag.html` mostra `frutodromo-v44` (ou a versão nova), "Controlando esta página: true" e "Faltando no cache: nenhum". Offline, a página e o jogo abrem. |
-| 3 | **Deitado 667×375 (iPhone SE ou tela equivalente)** | BLOCKED (sem SE físico?) | Deitar o aparelho com o jogo aberto, print. Arrastar 2 frutas ao caldeirão, tocar no caldeirão para devolver uma, cruzar. | O corpo do caldeirão aparece inteiro (no Chromium só o rótulo e o brilho passam 12 px: QA-05) e responde ao toque. Num iPhone maior que o SE, a tela deitada não chega a 667×375: anotar o modelo. |
-| 4 | **Áreas de toque deitado** | BLOCKED | Deitado, tocar **na borda** (não no centro) de ÁRVORE, pausa, menu e ARRUMAR, 5 vezes cada. | Cada toque abre o botão certo, sem acionar o vizinho. |
+| 3 | **Deitado 667×375 (iPhone SE ou tela equivalente)** | **Fora do escopo** (celular só em pé) | Deitar o aparelho com o jogo aberto, print. Arrastar 2 frutas ao caldeirão, tocar no caldeirão para devolver uma, cruzar. | O corpo do caldeirão aparece inteiro (no Chromium só o rótulo e o brilho passam 12 px: QA-05) e responde ao toque. Num iPhone maior que o SE, a tela deitada não chega a 667×375: anotar o modelo. |
+| 4 | **Áreas de toque deitado** | **Fora do escopo** no celular; em pé já passa (40 px desde a etapa 5) | Deitado, tocar **na borda** (não no centro) de ÁRVORE, pausa, menu e ARRUMAR, 5 vezes cada. | Cada toque abre o botão certo, sem acionar o vizinho. |
 | 5 | **Zoom de toque duplo e texto ao girar (QA-06, QA-07)** | BLOCKED | No Safari e no app: tocar duas vezes rápido na parede, no balcão, nas etiquetas do topo e no texto de um modal; girar de retrato para deitado e voltar. | A página não dá zoom (o `diag.html` mostraria "zoom" diferente de 1.00) e o texto não fica maior depois de girar. Se acontecer, a correção é uma linha de CSS cada (proposta em QA-06 e QA-07). |
-| 6 | **Rotação, segundo plano e abertura pelo ícone** | BLOCKED | Pelo ícone: jogar, girar no meio de um arraste, ir para a tela de início por 1 minuto e voltar; receber ou simular uma notificação; trancar a tela por 1 minuto e voltar. | Volta pausado, o som volta ao continuar, a fruta não some nem fica presa, e o layout se ajusta à nova orientação. |
+| 6 | **Segundo plano e abertura pelo ícone** (rotação fora do escopo) | BLOCKED | Pelo ícone: jogar, ir para a tela de início por 1 minuto e voltar; receber ou simular uma notificação; trancar a tela por 1 minuto e voltar. | Volta pausado, o som volta ao continuar, a fruta não some nem fica presa, e o layout se ajusta à nova orientação. |
 | 7 | **Desempenho real** | BLOCKED | Jogar 10 minutos seguidos pelo ícone, com 3 clientes e o caldeirão em uso. Anotar engasgos no arraste, demora quando chega cliente, aquecimento e a bateria antes e depois. Opcional, se houver um Mac: Safari → Desenvolvedor → iPhone → Timeline. | Sem engasgo perceptível no arraste, sem travar na chegada de cliente, aquecimento normal. Qualquer engasgo: anotar o momento e o que estava na tela. |
 
 ## Pendências
