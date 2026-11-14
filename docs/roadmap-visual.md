@@ -9,7 +9,6 @@ Antes de começar, marque aqui (e faça push). Ao terminar, apague a linha.
 
 | Agente | Área | Arquivos / funções | Desde |
 |---|---|---|---|
-| Codex | Planejamento exclusivo da expansão online, branch `codex/frutodromo-online` | `docs/online/`, registro de coordenação neste arquivo; sem código de execução | 14/11/2026 |
 | Claude | Etapa 6A — Personagens | `js/game.js` (`charImg`, `personImg`, `renderCounter` só o `.pw`, loop de 250 ms, `showPortrait`), `css/style.css` (`.pw`, `.chr`, `bob`, `blk`, `.sweat`) | 13/11 14:15 |
 
 ## Pendências abertas (qualquer agente pode pegar, marcando acima)
@@ -38,6 +37,12 @@ Antes de começar, marque aqui (e faça push). Ao terminar, apague a linha.
 
 ## Registro por etapa
 (cada etapa concluída ganha aqui: o que mudou, arquivos, testes, problemas e riscos)
+
+### Frente online separada — Codex (14/11/2026)
+- Eric autorizou branch exclusiva, planejamento e transmissão ao Claude de um jogo idle com mercado, divulgação e estudo de ganho para jogadores.
+- Branch `codex/frutodromo-online`, base publicada `b475703`; documentos em `docs/online/` com conceito proposto, economia, aquisição e tarefa de análise do Claude.
+- Preparação documental; nenhuma alteração de código, saves, cache ou integração financeira. Sintaxe de `js/game.js` e `js/i18n.js` e `git diff --check`: PASS. Não houve novo teste de jogabilidade nesta tarefa.
+- Conceito detalhado e primeira etapa de implementação continuam para definição com Eric após a revisão. O envio do jogo atual ao portal ficou com Eric.
 
 ### Preparação da promoção final — Codex (14/11/2026)
 - Reuniu relatórios, evidências e zip da regressão final do Claude; código de jogo igual ao da candidata aprovada.
