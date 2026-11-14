@@ -1,0 +1,42 @@
+[
+  {
+    "viewport": "393x760",
+    "purchase": true,
+    "brewByDrag": true,
+    "deliveryByDrag": true,
+    "sale": true,
+    "nextDay": true,
+    "reload": true,
+    "errors": []
+  },
+  {
+    "viewport": "1024x600",
+    "purchase": true,
+    "brewByDrag": true,
+    "deliveryByDrag": true,
+    "sale": true,
+    "nextDay": true,
+    "reload": true,
+    "errors": []
+  },
+  {
+    "viewport": "900x430",
+    "purchase": true,
+    "brewByDrag": true,
+    "deliveryByDrag": true,
+    "sale": true,
+    "nextDay": true,
+    "reload": true,
+    "errors": []
+  },
+  {
+    "viewport": "1280x680",
+    "purchase": true,
+    "brewByDrag": true,
+    "deliveryByDrag": true,
+    "sale": true,
+    "nextDay": true,
+    "reload": true,
+    "errors": []
+  }
+]

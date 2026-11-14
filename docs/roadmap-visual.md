@@ -9,7 +9,6 @@ Antes de começar, marque aqui (e faça push). Ao terminar, apague a linha.
 
 | Agente | Área | Arquivos / funções | Desde |
 |---|---|---|---|
-| Codex | Fechamento CrazyGames: LOG-06 aprovado e texto da página | `js/game.js` (`diffTier`), `tests/difficulty.test.cjs`, `docs/crazygames/pagina.md` | 14/11/2026 09:26 BRT |
 | Claude | Etapa 6A — Personagens | `js/game.js` (`charImg`, `personImg`, `renderCounter` só o `.pw`, loop de 250 ms, `showPortrait`), `css/style.css` (`.pw`, `.chr`, `bob`, `blk`, `.sweat`) | 13/11 14:15 |
 
 ## Pendências abertas (qualquer agente pode pegar, marcando acima)
@@ -38,6 +37,12 @@ Antes de começar, marque aqui (e faça push). Ao terminar, apague a linha.
 
 ## Registro por etapa
 (cada etapa concluída ganha aqui: o que mudou, arquivos, testes, problemas e riscos)
+
+### Fechamento CrazyGames — Codex (14/11/2026)
+- LOG-06 aprovado pelo Eric: transferência fácil/difícil limitada ao peso disponível; preserva a proporção dos médios. Demais regras mantidas.
+- Texto da página revisado em português e inglês, com dicas, VIPs, adaptação e orientação retrato no telefone.
+- Testes: 7/7 de dificuldade, sintaxe e fluxo de jogo nas quatro resoluções obrigatórias sem erros. Evidências e limitações em `QA_RELEASE_CODEX_2026-11-14.md`.
+- Branch candidata: `codex/crazygames-final-logic`. Tarefa 9, aprovação dos materiais, integração final e envio ainda pendentes. Nenhuma promoção para `main`/`stage9`.
 
 ### Etapa 1 — Fundação visual (concluída em 11/11/2026)
 **Motivo:** o CrazyGames recusou o jogo por qualidade geral, e as diretrizes deles pedem resolução consistente. Na janela deles (1024×600) a cena era encolhida por zoom de 0,85 e ficava borrada.
