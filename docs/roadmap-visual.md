@@ -9,6 +9,8 @@ Antes de começar, marque aqui (e faça push). Ao terminar, apague a linha.
 
 | Agente | Área | Arquivos / funções | Desde |
 |---|---|---|---|
+| Codex | Cliente online e mapa contínuo | `server/web/`, `server/src/client.ts`, integração/QA — branch `codex/fazenda-online-base` | 15/11/2026 |
+| Claude via CLI delegado pelo Codex | Layout persistente e revisão de regras do mapa | `server/src/{layout,game,app}.ts`, migração003, `server/test/layout.test.ts`; sem editar cliente/arte | 15/11/2026 |
 | Claude | Etapa 6A — Personagens | `js/game.js` (`charImg`, `personImg`, `renderCounter` só o `.pw`, loop de 250 ms, `showPortrait`), `css/style.css` (`.pw`, `.chr`, `bob`, `blk`, `.sweat`) | 13/11 14:15 |
 
 ## Pendências abertas (qualquer agente pode pegar, marcando acima)
