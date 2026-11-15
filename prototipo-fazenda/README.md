@@ -1,6 +1,14 @@
 # Protótipo descartável da fazenda idle
 
-Página única (`index.html`), sem servidor. Serve para testar com 5 a 10 pessoas se o ciclo da fazenda diverte. Não é a base do jogo final. Não usa o save do Frutódromo: a fazenda fica salva só no navegador, em `localStorage["fazenda_proto_v1"]`.
+Página única (`index.html`), sem servidor. Serve para testar com 5 a 10 pessoas se o ciclo da fazenda diverte. Não é a base do jogo final. Não usa o save do Frutódromo: a fazenda fica salva só no navegador, em `localStorage["fazenda_proto_v2"]`.
+
+## Reaproveitado do Frutódromo
+- **Personagens:** as folhas de sprites dos clientes, com 3 quadros e 5 expressões, viram o fazendeiro escolhido na entrada e os clientes das encomendas. Os clientes ficam preocupados quando o tempo acaba e felizes na entrega; os VIPs pedem ovo dourado.
+- **Frutas:** morango, melancia e abacaxi são os cultivos da horta. Os híbridos viram a "fruta rara".
+- **Caldeirão:** é onde se choca o ovo dourado.
+- **Interface:** molduras de papel, botão, VIP e modal; madeira do cabeçalho; fundo xadrez; fonte Pixelify Sans; animação parada e de passo dos personagens.
+- **Bichos e ícones novos:** galinha, vaca, ovo e leite, feitos com a mesma técnica `art()` (grade + paleta + contorno #2a1a12).
+- **Como regenerar:** `sprites.js` é gerado por `tools/export_sprites.py`, que roda o jogo publicado e salva o que ele desenha. `fonts/` é cópia de `fonts/` do jogo (licença OFL).
 
 ## O que tem
 - Criação do fazendeiro e da fazenda, com modelo à escolha: Vale, Serra ou Litoral.
