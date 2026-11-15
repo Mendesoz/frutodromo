@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fazenda idle — protótipo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#2a1a12;--wood:#6b4423;--wood2:#4e2e16;--panel:#3a2416;--bg:#24170f;--cream:#ffe9b8;--muted:#e9dcc3;--gold:#f7c331;--green:#3ce06f;--blue:#6fb6ff;--purple:#b48cff;--pink:#ff9ad5;--night:#2e2a5c}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--cream);font-family:'Pixelify Sans',system-ui,sans-serif}
+button,input,select{font-family:inherit}
+button{cursor:pointer}
+button:disabled{cursor:not-allowed;opacity:.5}
+.wrap{max-width:1180px;margin:0 auto;padding:10px;display:flex;flex-direction:column;gap:10px}
+.top{display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:var(--wood);border:4px solid var(--ink);padding:8px 10px}
+.top h1{margin:0;font-size:20px;line-height:1.1}
+.top .who{display:flex;flex-direction:column;flex:1 1 160px;min-width:0}
+.top .who span{font-size:13px;color:var(--cream)}
+.money{display:flex;gap:6px;flex-wrap:wrap}
+.chip{background:var(--ink);padding:4px 8px;font-size:15px;font-weight:700;white-space:nowrap}
+.btn{min-height:44px;padding:0 14px;background:var(--wood);color:var(--cream);border:3px solid var(--ink);font-size:15px;font-weight:600}
+.btn.gold{background:var(--gold);color:var(--ink);font-weight:700}
+.btn.violet{background:#7b5cff;color:#fff;font-weight:700}
+.btn.small{min-height:36px;padding:0 10px;font-size:14px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
+@media (min-width:900px){.grid{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)}}
+.panel{background:var(--panel);border:4px solid var(--ink);box-shadow:inset 0 0 0 2px var(--wood);padding:10px}
+.label{font-size:12px;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+.bar{height:10px;background:var(--ink);position:relative}
+.bar>i{display:block;height:100%;background:var(--gold)}
+.storebar{min-width:150px;flex:0 1 220px;display:flex;flex-direction:column;gap:2px}
+/* cena */
+.scene{position:relative;height:280px;overflow:hidden;border:4px solid var(--ink);background:#9fd3ff}
+.scene .hill{position:absolute;left:0;right:0;top:92px;height:60px;background:#5e9e3a;border-top:4px solid var(--ink)}
+.scene .grass{position:absolute;left:0;right:0;top:150px;bottom:0;background:#7cbf4a;border-top:4px solid var(--ink)}
+.cloud{position:absolute;height:16px;background:#fff;animation:cloud 45s linear infinite}
+@keyframes cloud{from{transform:translateX(-160px)}to{transform:translateX(1300px)}}
+.zone{position:absolute;border:4px solid #8a5a2b;border-top-width:6px}
+.zlabel{position:absolute;font-size:12px;font-weight:700;color:var(--cream);text-shadow:2px 2px 0 var(--ink)}
+.critter{position:absolute;transition:left 2.5s steps(10),top 2.5s steps(10)}
+.critter .bob{animation:bob .6s steps(2) infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+.critter.blocked{filter:grayscale(.7)}
+#plots{position:absolute;left:68%;top:160px;width:30%;height:108px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:32px;gap:4px}
+.plot{background:#6b4423;border:3px solid var(--ink);display:flex;align-items:flex-end;justify-content:center;overflow:hidden}
+.float{position:absolute;font-size:14px;font-weight:700;color:var(--gold);text-shadow:2px 2px 0 var(--ink);pointer-events:none;animation:rise 1.4s steps(7) forwards;white-space:nowrap}
+.float.rare{color:#fff;font-size:16px}
+@keyframes rise{from{transform:translateY(0);opacity:1}to{transform:translateY(-36px);opacity:0}}
+.farmer{position:absolute;top:120px;animation:walk 18s linear infinite alternate}
+@keyframes walk{from{left:2%}to{left:88%}}
+.full{position:absolute;left:50%;top:8px;transform:translateX(-50%);background:#c0392b;color:#fff;font-weight:700;padding:4px 10px;border:3px solid var(--ink);font-size:14px}
+@media (prefers-reduced-motion:reduce){.cloud,.critter .bob,.farmer,.float{animation:none}.critter{transition:none}}
+/* abas */
+.tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
+.tab{min-height:44px;background:var(--wood2);color:var(--cream);border:3px solid var(--ink);font-size:14px;font-weight:600}
+.tab[aria-selected=true]{background:var(--gold);color:var(--ink);font-weight:700}
+.list{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.row{display:flex;gap:8px;align-items:center;background:var(--ink);padding:8px}
+.row .grow{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:2px}
+.row .t{font-size:15px;font-weight:600}
+.row .s{font-size:12px;color:var(--muted)}
+.tag{padding:1px 6px;color:var(--ink);font-size:11px;font-weight:700;white-space:nowrap}
+.shiny{color:var(--gold);font-weight:700}
+.note{font-size:12px;color:var(--muted);margin:6px 0 0}
+/* modais */
+.modal{position:fixed;inset:0;background:rgba(10,6,4,.78);display:flex;align-items:center;justify-content:center;padding:14px;z-index:20}
+.box{background:var(--panel);border:4px solid var(--ink);box-shadow:inset 0 0 0 2px var(--wood);padding:16px;max-width:440px;width:100%;max-height:92vh;overflow:auto;display:flex;flex-direction:column;gap:10px}
+.box h2{margin:0;font-size:24px}
+.box input{min-height:44px;background:var(--ink);color:var(--cream);border:3px solid var(--wood);font-size:17px;padding:0 10px;width:100%}
+.choices{display:grid;grid-template-columns:minmax(0,1fr);gap:6px}
+.choice{text-align:left;background:var(--wood2);color:var(--cream);border:3px solid var(--ink);padding:8px 10px}
+.choice[aria-pressed=true]{box-shadow:0 0 0 3px var(--gold)}
+.choice b{display:block;font-size:16px}
+.choice span{font-size:12px;color:var(--muted)}
+.afk{background:#1e1a40;box-shadow:inset 0 0 0 2px #7b5cff;text-align:center;align-items:center}
+.afk .big{font-size:54px;font-weight:700;color:var(--gold);text-shadow:4px 4px 0 var(--ink);line-height:1}
+.stats3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;width:100%}
+.stats3 div{background:var(--night);padding:8px;display:flex;flex-direction:column}
+.stats3 b{font-size:20px}
+.stats3 span{font-size:12px;color:#d6ceff}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div id="avatar" aria-hidden="true"></div>
+    <div class="who"><h1 id="farmName">Fazenda</h1><span id="farmerName"></span></div>
+    <div class="money">
+      <span class="chip" style="color:var(--gold)" id="coins">0 moedas</span>
+      <span class="chip" style="color:var(--blue)" id="dia">0 diamantes</span>
+      <span class="chip" style="color:var(--pink)" title="O mercado entre jogadores ainda não existe neste protótipo">0 gemas</span>
+    </div>
+    <div class="storebar"><div style="display:flex;justify-content:space-between;font-size:12px"><span>Armazém</span><span id="storeTxt"></span></div><div class="bar"><i id="storeBar"></i></div></div>
+    <button class="btn violet" id="afkBtn" type="button">Modo AFK</button>
+  </header>
+
+  <div class="grid">
+    <section class="panel" aria-label="Fazenda">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+        <span class="label">Rendendo agora: <b id="rate" style="color:var(--gold)">0</b> moedas/h</span>
+        <span class="label" id="boostTxt"></span>
+      </div>
+      <div class="scene" id="scene">
+        <div class="cloud" style="top:16px;width:70px"></div>
+        <div class="cloud" style="top:44px;width:50px;animation-delay:-20s"></div>
+        <div class="hill"></div><div class="grass"></div>
+        <div class="zone" id="coopZone" style="left:2%;top:160px;width:38%;height:104px"></div><span class="zlabel" style="left:3%;top:140px">GALINHEIRO</span>
+        <div class="zone" id="pastZone" style="left:42%;top:160px;width:24%;height:104px"></div><span class="zlabel" style="left:43%;top:140px">CURRAL</span>
+        <span class="zlabel" style="left:69%;top:140px">HORTA</span>
+        <div id="plots"></div>
+        <div id="critters"></div>
+        <div class="farmer" id="farmer"></div>
+        <div class="full hidden" id="fullTag">Armazém cheio — venda para continuar rendendo</div>
+      </div>
+      <p class="note">Tudo é sorteado: a raridade e os atributos de cada animal, o produto raro e os achados. Os números são de teste.</p>
+    </section>
+
+    <section class="panel" aria-label="Ações">
+      <div class="tabs" role="tablist">
+        <button class="tab" role="tab" data-tab="animais" aria-selected="true">Animais</button>
+        <button class="tab" role="tab" data-tab="feira" aria-selected="false">Feira</button>
+        <button class="tab" role="tab" data-tab="encomendas" aria-selected="false">Encomendas</button>
+        <button class="tab" role="tab" data-tab="loja" aria-selected="false">Loja</button>
+        <button class="tab" role="tab" data-tab="ferramentas" aria-selected="false">Ferramentas</button>
+        <button class="tab" role="tab" data-tab="diario" aria-selected="false">Diário</button>
+      </div>
+      <div id="tabBody"></div>
+    </section>
+  </div>
+</div>
+
+<div class="modal hidden" id="modal"><div class="box" id="modalBox" role="dialog" aria-modal="true"></div></div>
+
+<script>
+(function(){
+'use strict';
+var KEY='fazenda_proto_v1';
+var O='#2a1a12';
+function svg(rects,vw,vh,w,label){var h=Math.round(w*vh/vw);var a=label?'role="img" aria-label="'+label+'"':'aria-hidden="true"';
+  return '<svg '+a+' width="'+w+'" height="'+h+'" viewBox="0 0 '+vw+' '+vh+'" shape-rendering="crispEdges">'+rects.map(function(r){return '<rect x="'+r[0]+'" y="'+r[1]+'" width="'+r[2]+'" height="'+r[3]+'" fill="'+r[4]+'"/>';}).join('')+'</svg>';}
+function chickenSvg(w,body,wing,label){body=body||'#fff';wing=wing||'#e9dcc3';
+  return svg([[1,3,3,4,O],[2,4,2,3,body],[2,5,8,5,O],[3,5,6,4,body],[7,1,4,5,O],[8,2,2,4,body],[8,0,2,1,'#e74c3c'],[10,3,2,1,'#f39c12'],[9,2,1,1,O],[4,6,3,2,wing],[4,10,1,2,'#f39c12'],[7,10,1,2,'#f39c12']],12,12,w,label);}
+function cowSvg(w,spot,label){spot=spot||O;var W='#fff';
+  return svg([[1,3,12,7,O],[2,4,10,5,W],[3,4,3,2,spot],[8,5,2,3,spot],[12,1,4,6,O],[13,2,2,4,W],[13,0,1,1,'#e9dcc3'],[15,0,1,1,'#e9dcc3'],[14,4,2,2,'#ffb3c7'],[13,2,1,1,O],[2,9,1,3,O],[4,9,1,3,O],[9,9,1,3,O],[11,9,1,3,O],[0,4,1,3,O]],16,12,w,label);}
+function personSvg(w){var hc=(S&&S.hatGold)?'#ffd84a':'#c9a24a';return svg([[3,0,6,2,O],[4,0,4,1,hc],[2,2,8,1,hc],[3,3,6,5,O],[4,3,4,4,'#e0a878'],[4,3,4,1,'#4e2e16'],[5,5,1,1,O],[7,5,1,1,O],[2,8,8,5,O],[3,8,6,4,'#c0392b'],[1,9,1,3,'#e0a878'],[10,9,1,3,'#e0a878'],[3,13,6,4,O],[4,13,4,3,'#2a4a8a'],[3,17,2,1,O],[7,17,2,1,O]],12,18,w);}
+function cropSvg(kind,stage,w){var g='#3d8b2a';
+  if(stage<1){return svg([[7,10,2,6,g],[5,12,2,2,g],[9,11,2,2,g]],16,16,w);}
+  var c={milho:'#f7c331',morango:'#e74c3c',abobora:'#f08a24'}[kind];
+  if(kind==='milho')return svg([[7,2,2,14,g],[4,8,3,2,g],[9,6,3,2,g],[6,3,4,7,O],[7,4,2,5,c]],16,16,w);
+  if(kind==='morango')return svg([[7,9,2,7,g],[3,6,10,3,g],[4,8,3,4,O],[5,9,1,2,c],[9,7,4,4,O],[10,8,2,2,c]],16,16,w);
+  return svg([[7,5,2,3,g],[2,8,12,8,O],[3,9,10,6,c],[7,9,1,6,'#c46a10']],16,16,w);}
+
+var RAR=[{id:'comum',n:'Comum',w:60,m:1,c:'#e9dcc3'},{id:'boa',n:'Boa',w:25,m:1.2,c:'#3ce06f'},{id:'rara',n:'Rara',w:10,m:1.45,c:'#6fb6ff'},{id:'epica',n:'Épica',w:4,m:1.8,c:'#b48cff'},{id:'perfeita',n:'Perfeita',w:1,m:2.3,c:'#f7c331'}];
+var HATCH_W=[30,35,22,10,3];
+var KIND={galinha:{n:'Galinha',cycle:30,item:'ovo',rare:'ovo_dourado',rareBase:0.03,life:[30,55]},vaca:{n:'Vaca',cycle:60,item:'leite',rare:'leite_premium',rareBase:0.02,life:[25,45]}};
+var CROPS={milho:{n:'Milho',cycle:30,price:3,qty:2},morango:{n:'Morango',cycle:50,price:6,qty:2,cost:150},abobora:{n:'Abóbora',cycle:80,price:11,qty:2,cost:400}};
+var ITEMS={ovo:{n:'Ovo',p:5},ovo_dourado:{n:'Ovo dourado',p:120,rare:1},leite:{n:'Leite',p:12},leite_premium:{n:'Leite premium',p:200,rare:1},milho:{n:'Milho',p:3},morango:{n:'Morango',p:6},abobora:{n:'Abóbora',p:11},abobora_gigante:{n:'Abóbora gigante',p:90,rare:1}};
+var TOOLS=[{k:'luva',n:'Luva de Plantio',st:'speed'},{k:'regador',n:'Regador',st:'speed'},{k:'tesoura',n:'Tesoura de Poda',st:'find'},{k:'chapeu',n:'Chapéu da Sorte',st:'rare'}];
+var NAMES=['Pintada','Dona Clotilde','Mimosa','Estrela','Bolinha','Pipoca','Margarida','Zuzu','Tetê','Branquinha','Jurema','Fofa','Canela','Nina','Bela','Malhada','Princesa','Cacau','Lua','Mel'];
+var DSHOP=[{id:'turbo10',t:'Adubo turbo 2×',dur:'10 min',s:'tudo produz 2× mais rápido',c:5,k:'boostUntil',ms:600000},{id:'turbo60',t:'Adubo turbo 2×',dur:'1 h',s:'tudo produz 2× mais rápido',c:20,k:'boostUntil',ms:3600000},{id:'auto60',t:'Vendedor automático',dur:'1 h',s:'quando o armazém enche, vende os comuns sozinho (bom para AFK)',c:10,k:'autoSellUntil',ms:3600000},{id:'auto24',t:'Vendedor automático',dur:'24 h',s:'quando o armazém enche, vende os comuns sozinho',c:60,k:'autoSellUntil',ms:86400000},{id:'cap24',t:'Armazém extra +100',dur:'24 h',s:'a fazenda rende mais tempo enquanto você está fora',c:15,k:'extraCapUntil',ms:86400000},{id:'hat',t:'Chapéu de palha dourado',dur:'para sempre',s:'cosmético: só muda o visual do fazendeiro',c:30,once:'hatGold'}];
+var MODELS={vale:{n:'Vale verde',d:'Horta 10% mais rápida'},serra:{n:'Serra fria',d:'Mais chance de animal raro ao chocar e comprar'},litoral:{n:'Litoral',d:'A feira paga 5% a mais'}};
+
+function rnd(a,b){return a+Math.random()*(b-a);}
+function ri(a,b){return Math.floor(rnd(a,b+1));}
+function pickW(ws){var t=ws.reduce(function(a,b){return a+b;},0),r=Math.random()*t;for(var i=0;i<ws.length;i++){r-=ws[i];if(r<0)return i;}return ws.length-1;}
+function fmt(n){return Math.floor(n).toLocaleString('pt-BR');}
+function uid(){return Math.random().toString(36).slice(2,9);}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+
+var S=null;
+function rarWeights(base){var w=(base||RAR.map(function(r){return r.w;})).slice();if(S&&S.model==='serra'){w[0]*=0.8;w[2]*=1.2;w[3]*=1.3;w[4]*=1.3;}return w;}
+function rollAnimal(kind,weights){var k=KIND[kind],ri_=pickW(rarWeights(weights)),r=RAR[ri_];
+  return {id:uid(),kind:kind,name:NAMES[ri(0,NAMES.length-1)],rar:ri_,prod:+(r.m*rnd(0.9,1.1)).toFixed(2),rareCh:+(k.rareBase*r.m*rnd(0.8,1.25)).toFixed(4),life:ri(k.life[0],k.life[1]),prog:Math.random()*0.5,shiny:Math.random()<1/48,x:rnd(5,85),y:rnd(5,55)};}
+function rollTool(){var t=TOOLS[ri(0,TOOLS.length-1)],r=pickW(RAR.map(function(x){return x.w;})),m=RAR[r].m;
+  var tool={id:uid(),k:t.k,name:t.n,rar:r,speed:0,find:0,rare:0,dur:0,max:0};
+  if(t.st==='speed')tool.speed=Math.round(rnd(4,9)*m);
+  if(t.st==='find')tool.find=Math.round(rnd(20,40)*m);
+  if(t.st==='rare')tool.rare=Math.round(rnd(10,20)*m);
+  tool.max=tool.dur=ri(60,120)+r*40;return tool;}
+
+function fresh(farmer,farm,model){
+  var s={v:1,farmer:farmer,farm:farm,model:model,coins:80,dia:40,cap:200,coopCap:4,pastCap:0,animals:[],plots:[{crop:'milho',prog:0},{crop:'milho',prog:0.3}],store:{},tools:[],eq:null,orders:[],hatch:[],log:[],boostUntil:0,t:Date.now(),
+    stats:{start:Date.now(),played:0,produced:0,soldNpc:0,earnedNpc:0,earnedOrders:0,orders:0,goldenFound:0,goldenSold:0,goldenOrder:0,goldenHatched:0,finds:0,retired:0,bought:0,boosts:0,afkOn:0,offlineSecs:0}};
+  S=s;s.animals.push(rollAnimal('galinha'),rollAnimal('galinha'));
+  for(var i=0;i<3;i++)s.orders.push(newOrder());
+  return s;}
+
+function save(){try{S.t=Date.now();localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+function load(){try{var j=localStorage.getItem(KEY);return j?JSON.parse(j):null;}catch(e){return null;}}
+
+function storeTotal(){var t=0;for(var k in S.store)t+=S.store[k];return t;}
+function addItem(k,n){S.store[k]=(S.store[k]||0)+n;}
+function tool(){if(!S.eq)return null;for(var i=0;i<S.tools.length;i++)if(S.tools[i].id===S.eq)return S.tools[i];return null;}
+var SIMNOW=0;function nowT(){return SIMNOW||Date.now();}
+function capNow(){return S.cap+((S.extraCapUntil||0)>nowT()?100:0);}
+function speedMult(){var t=tool();var m=1+(t?t.speed/100:0);if(S.boostUntil>nowT())m*=2;return m;}
+function autoSell(){if(!((S.autoSellUntil||0)>nowT()))return false;var n=0,v=0;Object.keys(S.store).forEach(function(k){if(!ITEMS[k].rare&&S.store[k]>0){n+=S.store[k];v+=priceOf(k)*S.store[k];S.store[k]=0;}});if(n){S.coins+=v;S.stats.soldNpc+=n;S.stats.earnedNpc+=v;S.stats.autoSold=(S.stats.autoSold||0)+v;}return n>0;}
+function log(msg,kind){S.log.unshift({t:Date.now(),m:msg,k:kind||''});if(S.log.length>60)S.log.length=60;}
+function priceOf(k){return ITEMS[k].p*(S.model==='litoral'?1.05:1);}
+
+var floats=[];
+// produção: um passo de dt segundos; live=true mostra animações
+function step(dt,live,acc){
+  if(storeTotal()>=capNow())autoSell();var full=storeTotal()>=capNow();var sm=speedMult();var t=tool();
+  S.animals.forEach(function(a){var k=KIND[a.kind];
+    if(full){a.prog=Math.min(1,a.prog);a.blocked=a.prog>=1;return;}
+    a.blocked=false;a.prog+=dt*a.prod*sm/k.cycle;
+    while(a.prog>=1&&a.life>0){
+      if(storeTotal()>=capNow()&&!autoSell()){a.prog=1;a.blocked=true;full=true;break;}
+      a.prog-=1;var rareP=a.rareCh*(1+(t?t.rare/100:0));var item=Math.random()<rareP?k.rare:k.item;
+      addItem(item,1);a.life--;S.stats.produced++;if(acc){acc[item]=(acc[item]||0)+1;}
+      if(item==='ovo_dourado'){S.stats.goldenFound++;log('Saiu um OVO DOURADO de '+a.name+'! Venda, entregue numa encomenda ou choque.','rare');}
+      if(item==='leite_premium')log('Leite premium de '+a.name+'!','rare');
+      if(live)floats.push({x:a.x,y:a.y,zone:a.kind,txt:'+1 '+ITEMS[item].n.toLowerCase(),rare:!!ITEMS[item].rare});
+      useTool();maybeFind(live,acc);
+      if(a.life<=0){S.stats.retired++;log(KIND[a.kind].n+' '+a.name+' se aposentou depois de uma vida produtiva.','');}
+    }
+  });
+  S.animals=S.animals.filter(function(a){return a.life>0;});
+  S.plots.forEach(function(p,i){var c=CROPS[p.crop];if(full){p.prog=Math.min(1,p.prog);return;}
+    p.prog+=dt*sm*(S.model==='vale'?1.1:1)/c.cycle;
+    if(p.prog>=1){if(storeTotal()+c.qty>capNow()&&!autoSell()){p.prog=1;full=true;return;}
+      p.prog=0;var giant=p.crop==='abobora'&&Math.random()<0.04;
+      if(giant){addItem('abobora_gigante',1);log('Abóbora gigante na horta!','rare');}else addItem(p.crop,c.qty);
+      S.stats.produced+=giant?1:c.qty;if(acc){var key=giant?'abobora_gigante':p.crop;acc[key]=(acc[key]||0)+(giant?1:c.qty);}
+      if(live)floats.push({plot:i,txt:giant?'+1 abóbora gigante':'+'+c.qty+' '+c.n.toLowerCase(),rare:giant});
+      useTool();maybeFind(live,acc);}
+  });
+  for(var i=S.hatch.length-1;i>=0;i--){var h=S.hatch[i];h.left-=dt;
+    if(h.left<=0){if(coopUsed()<S.coopCap){var a=rollAnimal('galinha',HATCH_W);S.animals.push(a);S.hatch.splice(i,1);
+      log('O ovo dourado chocou: '+a.name+', galinha '+RAR[a.rar].n.toUpperCase()+(a.shiny?' BRILHANTE':'')+'!','rare');if(acc)acc._hatched=(acc._hatched||0)+1;}
+      else h.left=0;}}
+  S.orders.forEach(function(o){o.left-=dt;});
+  var before=S.orders.length;S.orders=S.orders.filter(function(o){return o.left>0;});
+  while(S.orders.length<3)S.orders.push(newOrder());
+}
+function coopUsed(){return S.animals.filter(function(a){return a.kind==='galinha';}).length;}
+function pastUsed(){return S.animals.filter(function(a){return a.kind==='vaca';}).length;}
+function useTool(){var t=tool();if(!t)return;t.dur--;if(t.dur<=0){log(t.name+' quebrou de tanto uso.','');S.tools=S.tools.filter(function(x){return x.id!==t.id;});S.eq=null;}}
+function maybeFind(live,acc){var t=tool();var p=0.003*(1+(t?t.find/100:0));
+  if(Math.random()<p){var nt=rollTool();S.tools.push(nt);S.stats.finds++;
+    log('Achado! '+nt.name+' '+RAR[nt.rar].n.toUpperCase()+' ('+toolDesc(nt)+').','find');
+    if(acc)acc._finds=(acc._finds||0)+1;
+    if(live&&!afk)showFind(nt);}}
+function toolDesc(t){var a=[];if(t.speed)a.push('+'+t.speed+'% velocidade');if(t.find)a.push('+'+t.find+'% achados');if(t.rare)a.push('+'+t.rare+'% produto raro');a.push(t.dur+'/'+t.max+' usos');return a.join(' · ');}
+
+function newOrder(){
+  var kinds=['ovo','ovo','milho','milho'];
+  if(S&&S.plots.some(function(p){return p.crop==='morango';}))kinds.push('morango');
+  if(S&&S.plots.some(function(p){return p.crop==='abobora';}))kinds.push('abobora');
+  if(S&&S.animals.some(function(a){return a.kind==='vaca';}))kinds.push('leite','leite');
+  if(Math.random()<0.18){return {id:uid(),item:'ovo_dourado',qty:1,pay:ri(260,340),left:300};}
+  var k=kinds[ri(0,kinds.length-1)];var q=ri(3,9);
+  return {id:uid(),item:k,qty:q,pay:Math.round(ITEMS[k].p*q*rnd(1.5,2.1)),left:ri(180,300)};}
+
+function ratePerHour(){var sm=speedMult(),v=0;
+  S.animals.forEach(function(a){var k=KIND[a.kind];var per=3600*a.prod*sm/k.cycle;var rp=a.rareCh;v+=per*((1-rp)*ITEMS[k.item].p+rp*ITEMS[k.rare].p);});
+  S.plots.forEach(function(p){var c=CROPS[p.crop];v+=3600*sm*(S.model==='vale'?1.1:1)/c.cycle*c.qty*c.price;});
+  return v*(S.model==='litoral'?1.05:1);}
+
+// ---------- render ----------
+var $=function(id){return document.getElementById(id);};
+var tab='animais';
+function renderTop(){
+  $('farmName').textContent='Fazenda '+S.farm;$('farmerName').textContent=S.farmer+' · '+MODELS[S.model].n;
+  $('coins').textContent=fmt(S.coins)+' moedas';$('dia').textContent=fmt(S.dia)+' diamantes';
+  var st=storeTotal(),cp=capNow();$('storeTxt').textContent=st+' / '+cp;$('storeBar').style.width=Math.min(100,st/cp*100)+'%';
+  $('storeBar').style.background=st>=cp?'#e74c3c':'var(--gold)';
+  $('fullTag').classList.toggle('hidden',st<cp);
+  $('rate').textContent=fmt(ratePerHour());
+  var now=Date.now(),act=[];if(S.boostUntil>now)act.push('Adubo turbo 2× '+mmss((S.boostUntil-now)/1000));if((S.autoSellUntil||0)>now)act.push('Vendedor automático '+mmss((S.autoSellUntil-now)/1000));if((S.extraCapUntil||0)>now)act.push('Armazém +100 '+mmss((S.extraCapUntil-now)/1000));$('boostTxt').textContent=act.join(' · ');
+}
+function mmss(s){s=Math.max(0,Math.floor(s));var m=Math.floor(s/60);return (m>=60?Math.floor(m/60)+'h'+String(m%60).padStart(2,'0'):m)+':'+String(s%60).padStart(2,'0');}
+var critterEls={};
+function renderScene(){
+  var box=$('critters');var seen={};
+  S.animals.forEach(function(a){seen[a.id]=1;var el=critterEls[a.id];
+    if(!el){el=document.createElement('div');el.className='critter';
+      var body=a.kind==='galinha'?(a.shiny?chickenSvg(36,'#f7c331','#d4a017',a.name):chickenSvg(32,null,null,a.name)):(a.shiny?cowSvg(64,'#b5502a',a.name):cowSvg(60,null,a.name));
+      el.innerHTML='<div class="bob">'+body+'</div>';box.appendChild(el);critterEls[a.id]=el;}
+    var z=a.kind==='galinha'?{l:2,w:38}:{l:42,w:24};
+    el.style.left='calc('+(z.l+a.x/100*(z.w-6))+'% )';el.style.top=(166+a.y)+'px';
+    el.classList.toggle('blocked',!!a.blocked);});
+  Object.keys(critterEls).forEach(function(id){if(!seen[id]){critterEls[id].remove();delete critterEls[id];}});
+  var ph='';S.plots.forEach(function(p,i){ph+='<div class="plot" id="plot'+i+'">'+cropSvg(p.crop,p.prog>0.5?1:0,26)+'</div>';});
+  if($('plots').dataset.sig!==ph){$('plots').innerHTML=ph;$('plots').dataset.sig=ph;}
+}
+function wander(){S.animals.forEach(function(a){a.x=Math.max(2,Math.min(92,a.x+rnd(-18,18)));a.y=Math.max(2,Math.min(62,a.y+rnd(-14,14)));});}
+function flushFloats(){var sc=$('scene');floats.splice(0).slice(0,6).forEach(function(f){var el=document.createElement('div');el.className='float'+(f.rare?' rare':'');el.textContent=f.txt;
+  if(f.plot!=null){var pe=$('plot'+f.plot);if(!pe)return;var r=pe.getBoundingClientRect(),sr=sc.getBoundingClientRect();el.style.left=Math.min(r.left-sr.left,sr.width-110)+'px';el.style.top=(r.top-sr.top-14)+'px';}
+  else{var z=f.zone==='galinha'?{l:2,w:38}:{l:42,w:24};el.style.left=(z.l+f.x/100*(z.w-6))+'%';el.style.top=(150+f.y)+'px';}
+  sc.appendChild(el);setTimeout(function(){el.remove();},1500);});}
+
+function tag(r){return '<span class="tag" style="background:'+RAR[r].c+'">'+RAR[r].n.toUpperCase()+'</span>';}
+function renderTab(){
+  document.querySelectorAll('.tab').forEach(function(b){b.setAttribute('aria-selected',b.dataset.tab===tab?'true':'false');});
+  var h='';
+  if(tab==='animais'){
+    h+='<div class="list">';
+    S.animals.slice().sort(function(a,b){return b.rar-a.rar;}).forEach(function(a){var k=KIND[a.kind];
+      h+='<div class="row">'+(a.kind==='galinha'?chickenSvg(28,a.shiny?'#f7c331':null,a.shiny?'#d4a017':null):cowSvg(40,a.shiny?'#b5502a':null))+
+      '<div class="grow"><span class="t">'+esc(a.name)+' '+(a.shiny?'<span class="shiny">BRILHANTE</span>':'')+'</span><span class="s">'+k.n+' · '+(60*a.prod/k.cycle*speedMult()).toFixed(1)+' '+ITEMS[k.item].n.toLowerCase()+'/min · '+(a.rareCh*100).toFixed(1)+'% '+ITEMS[k.rare].n.toLowerCase()+' · '+a.life+' produções de vida</span>'+
+      '<div class="bar" style="height:6px"><i style="width:'+Math.min(100,a.prog*100)+'%"></i></div></div>'+tag(a.rar)+'</div>';});
+    S.hatch.forEach(function(x){h+='<div class="row"><div class="grow"><span class="t">Ovo dourado chocando</span><span class="s">'+(x.left>0?'nasce em '+mmss(x.left):'pronto, falta vaga no galinheiro')+' · raridade sorteada ao nascer</span></div></div>';});
+    h+='</div><p class="note">Galinheiro '+coopUsed()+'/'+S.coopCap+' · Curral '+pastUsed()+'/'+S.pastCap+'. Animais se aposentam depois de um número de produções.</p>';
+    h+='<div class="label" style="margin-top:10px">Horta</div><div class="list">';
+    S.plots.forEach(function(p,i){h+='<div class="row"><div class="grow"><span class="t">Canteiro '+(i+1)+': '+CROPS[p.crop].n+'</span><div class="bar" style="height:6px"><i style="width:'+Math.min(100,p.prog*100)+'%"></i></div></div>'+
+      '<select aria-label="Plantar no canteiro '+(i+1)+'" data-plot="'+i+'" style="min-height:36px;background:var(--wood2);color:var(--cream);border:3px solid var(--ink)">'+Object.keys(CROPS).map(function(c){var cc=CROPS[c];var locked=cc.cost&&!(S.unlocked||{})[c];return '<option value="'+c+'"'+(c===p.crop?' selected':'')+(locked?' disabled':'')+'>'+cc.n+(locked?' (loja)':'')+'</option>';}).join('')+'</select></div>';});
+    h+='</div>';
+  }
+  if(tab==='feira'){
+    var keys=Object.keys(S.store).filter(function(k){return S.store[k]>0;});
+    h+='<div class="list">';
+    if(!keys.length)h+='<div class="row"><span class="s">O armazém está vazio. A fazenda vai enchendo sozinha.</span></div>';
+    keys.forEach(function(k){var it=ITEMS[k];
+      h+='<div class="row"><div class="grow"><span class="t">'+S.store[k]+'× '+it.n+(it.rare?' <span class="tag" style="background:#6fb6ff">RARO</span>':'')+'</span><span class="s">a feira paga '+fmt(priceOf(k))+' cada</span></div>'+
+      '<button class="btn small" data-sell="'+k+'" data-n="1" type="button">Vender 1</button>'+(it.rare?'':'<button class="btn small gold" data-sell="'+k+'" data-n="all" type="button">Tudo</button>')+'</div>';
+      if(k==='ovo_dourado')h+='<div class="row" style="background:var(--night)"><div class="grow"><span class="t">Chocar um ovo dourado</span><span class="s">Em 45 s nasce uma galinha com mais chance de ser rara. Precisa de vaga no galinheiro.</span></div><button class="btn small violet" data-hatch="1" type="button">Chocar</button></div>';});
+    h+='</div>';
+    if(keys.some(function(k){return !ITEMS[k].rare;}))h+='<button class="btn gold" style="margin-top:8px;width:100%" data-sellall="1" type="button">Vender todos os comuns</button>';
+    h+='<p class="note">A feira compra sempre, mas paga menos que as encomendas.</p>';
+  }
+  if(tab==='encomendas'){
+    h+='<div class="list">';S.orders.forEach(function(o){var have=S.store[o.item]||0;var it=ITEMS[o.item];
+      h+='<div class="row"'+(it.rare?' style="background:var(--night)"':'')+'><div class="grow"><span class="t">'+o.qty+'× '+it.n+'</span><span class="s">paga '+fmt(o.pay)+' moedas (feira: '+fmt(priceOf(o.item)*o.qty)+') · você tem '+have+' · vence em '+mmss(o.left)+'</span></div>'+
+      '<button class="btn small gold" data-order="'+o.id+'" type="button"'+(have>=o.qty?'':' disabled')+'>Entregar</button></div>';});
+    h+='</div><p class="note">Encomenda de ovo dourado paga bem, mas o ovo também pode ser chocado. O que vale mais?</p>';
+  }
+  if(tab==='loja'){
+    var items=[
+      {id:'galinha',t:'Galinha',s:'raridade e atributos sorteados',c:120,ok:coopUsed()<S.coopCap},
+      {id:'vaca',t:'Vaca',s:'raridade sorteada · precisa de vaga no curral',c:400,ok:pastUsed()<S.pastCap},
+      {id:'coop',t:'+1 vaga no galinheiro',s:'agora '+S.coopCap,c:costCoop(),ok:true},
+      {id:'past',t:'+1 vaga no curral',s:'agora '+S.pastCap,c:costPast(),ok:true},
+      {id:'cap',t:'Armazém maior (+100)',s:'agora '+S.cap,c:costCap(),ok:true},
+      {id:'plot',t:'+1 canteiro na horta',s:'agora '+S.plots.length+' de 6',c:costPlot(),ok:S.plots.length<6}];
+    Object.keys(CROPS).forEach(function(c){if(CROPS[c].cost&&!(S.unlocked||{})[c])items.push({id:'seed_'+c,t:'Sementes de '+CROPS[c].n.toLowerCase(),s:'libera esse cultivo nos canteiros',c:CROPS[c].cost,ok:true});});
+    h+='<div class="list">';items.forEach(function(i){h+='<div class="row"><div class="grow"><span class="t">'+i.t+'</span><span class="s">'+i.s+'</span></div><button class="btn small gold" data-buy="'+i.id+'" type="button"'+(S.coins>=i.c&&i.ok?'':' disabled')+'>'+fmt(i.c)+' moedas</button></div>';});
+    h+='</div><div class="label" style="margin-top:12px">Loja de diamantes</div><div class="list">';
+    DSHOP.forEach(function(d){h+='<div class="row" style="background:var(--night)"><div class="grow"><span class="t">'+d.t+' <span class="tag" style="background:#7b5cff;color:#fff">'+d.dur+'</span></span><span class="s">'+d.s+'</span></div><button class="btn small violet" data-dshop="'+d.id+'" type="button"'+(S.dia>=d.c&&!(d.once&&S[d.once])?'':' disabled')+'>'+d.c+' diamantes</button></div>';});
+    h+='</div><p class="note">Boosts são temporários e aceleram o tempo, sem mudar a chance de raro por produção. No jogo final os diamantes são comprados com dinheiro; aqui você começa com 40 para testar.</p>';
+  }
+  if(tab==='ferramentas'){
+    h+='<div class="list">';if(!S.tools.length)h+='<div class="row"><span class="s">Nenhuma ferramenta ainda. Elas aparecem como achados enquanto a fazenda produz.</span></div>';
+    S.tools.slice().sort(function(a,b){return b.rar-a.rar;}).forEach(function(t){var on=S.eq===t.id;
+      h+='<div class="row"'+(on?' style="box-shadow:inset 0 0 0 2px var(--gold)"':'')+'><div class="grow"><span class="t">'+t.name+'</span><span class="s">'+toolDesc(t)+'</span><div class="bar" style="height:6px"><i style="width:'+(t.dur/t.max*100)+'%"></i></div></div>'+tag(t.rar)+
+      '<button class="btn small'+(on?'':' gold')+'" data-eq="'+t.id+'" type="button">'+(on?'Tirar':'Equipar')+'</button></div>';});
+    h+='</div><p class="note">Uma ferramenta equipada por vez. Ela gasta a cada produção e quebra no fim. No jogo final, dá para vender no mercado por gemas.</p>';
+  }
+  if(tab==='diario'){
+    var st=S.stats;var mins=Math.round(st.played/60);
+    h+='<div class="list"><div class="row"><div class="grow"><span class="t">Seu teste até agora</span><span class="s">'+mins+' min jogando · '+fmt(st.produced)+' produções · '+st.finds+' achados · '+st.retired+' aposentadorias · '+Math.round(st.offlineSecs/60)+' min rendendo fora</span>'+
+      '<span class="s">Ovos dourados: '+st.goldenFound+' achados · '+st.goldenSold+' vendidos na feira · '+st.goldenOrder+' entregues em encomenda · '+st.goldenHatched+' chocados</span></div></div></div>'+
+      '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px"><button class="btn small gold" id="copyBtn" type="button">Copiar resumo do teste</button><button class="btn small" id="resetBtn" type="button">Recomeçar do zero</button></div><span class="note" id="copyMsg"></span>'+
+      '<div class="label" style="margin-top:10px">Diário da fazenda</div><div class="list">';
+    S.log.slice(0,30).forEach(function(l){var c=l.k==='rare'?'var(--gold)':l.k==='find'?'var(--blue)':'var(--cream)';h+='<div class="row"><span class="s" style="width:44px">'+new Date(l.t).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})+'</span><span style="font-size:14px;color:'+c+'">'+esc(l.m)+'</span></div>';});
+    h+='</div>';
+  }
+  $('tabBody').innerHTML=h;
+}
+function costCoop(){return 250*Math.pow(1.6,S.coopCap-4);}
+function costPast(){return 500*Math.pow(1.7,S.pastCap);}
+function costCap(){return 200*Math.pow(1.5,(S.cap-200)/100);}
+function costPlot(){return 200*Math.pow(1.8,S.plots.length-2);}
+
+// ---------- ações ----------
+document.addEventListener('click',function(e){var b=e.target.closest('button');if(!b||!S)return;
+  if(b.classList.contains('tab')){tab=b.dataset.tab;renderTab();return;}
+  if(b.dataset.sell){var k=b.dataset.sell,n=b.dataset.n==='all'?S.store[k]:1;n=Math.min(n,S.store[k]||0);if(n<=0)return;
+    S.store[k]-=n;var v=priceOf(k)*n;S.coins+=v;S.stats.soldNpc+=n;S.stats.earnedNpc+=v;if(k==='ovo_dourado')S.stats.goldenSold+=n;
+    log('Vendeu '+n+'× '+ITEMS[k].n.toLowerCase()+' na feira por '+fmt(v)+' moedas.');}
+  if(b.dataset.sellall){Object.keys(S.store).forEach(function(k){if(!ITEMS[k].rare&&S.store[k]>0){var n=S.store[k];var v=priceOf(k)*n;S.coins+=v;S.stats.soldNpc+=n;S.stats.earnedNpc+=v;S.store[k]=0;}});log('Vendeu todos os comuns na feira.');}
+  if(b.dataset.hatch){if((S.store.ovo_dourado||0)<1)return;S.store.ovo_dourado--;S.hatch.push({left:45});S.stats.goldenHatched++;log('Colocou um ovo dourado para chocar.');}
+  if(b.dataset.order){var o=S.orders.find(function(x){return x.id===b.dataset.order;});if(!o||(S.store[o.item]||0)<o.qty)return;
+    S.store[o.item]-=o.qty;S.coins+=o.pay;S.stats.orders++;S.stats.earnedOrders+=o.pay;if(o.item==='ovo_dourado')S.stats.goldenOrder++;
+    log('Entregou '+o.qty+'× '+ITEMS[o.item].n.toLowerCase()+' e ganhou '+fmt(o.pay)+' moedas.');S.orders=S.orders.filter(function(x){return x!==o;});S.orders.push(newOrder());}
+  if(b.dataset.buy){buy(b.dataset.buy);}
+  if(b.dataset.dshop){var d=DSHOP.find(function(x){return x.id===b.dataset.dshop;});if(!d||S.dia<d.c||(d.once&&S[d.once]))return;S.dia-=d.c;S.stats.boosts++;S.stats.diaSpent=(S.stats.diaSpent||0)+d.c;
+    if(d.once){S[d.once]=1;boot();log('Comprou o '+d.t.toLowerCase()+'.');}else{S[d.k]=Math.max(Date.now(),S[d.k]||0)+d.ms;log('Ativou '+d.t.toLowerCase()+' por '+d.dur+'.');}}
+  if(b.dataset.eq){S.eq=S.eq===b.dataset.eq?null:b.dataset.eq;}
+  if(b.id==='copyBtn'){copySummary();return;}
+  if(b.id==='resetBtn'){confirmReset();return;}
+  if(b.id==='afkBtn'){openAfk();return;}
+  save();renderTop();renderTab();renderScene();
+});
+document.addEventListener('change',function(e){var s=e.target;if(s.dataset&&s.dataset.plot!=null){S.plots[+s.dataset.plot]={crop:s.value,prog:0};save();renderScene();renderTab();}});
+function buy(id){var price=0;
+  if(id==='galinha'){price=120;if(S.coins<price||coopUsed()>=S.coopCap)return;var a=rollAnimal('galinha');S.animals.push(a);log('Comprou '+a.name+', galinha '+RAR[a.rar].n.toUpperCase()+(a.shiny?' BRILHANTE':'')+'.',a.rar>=2||a.shiny?'rare':'');}
+  else if(id==='vaca'){price=400;if(S.coins<price||pastUsed()>=S.pastCap)return;var v=rollAnimal('vaca');S.animals.push(v);log('Comprou '+v.name+', vaca '+RAR[v.rar].n.toUpperCase()+(v.shiny?' BRILHANTE':'')+'.',v.rar>=2||v.shiny?'rare':'');}
+  else if(id==='coop'){price=costCoop();if(S.coins<price)return;S.coopCap++;}
+  else if(id==='past'){price=costPast();if(S.coins<price)return;S.pastCap++;}
+  else if(id==='cap'){price=costCap();if(S.coins<price)return;S.cap+=100;}
+  else if(id==='plot'){price=costPlot();if(S.coins<price||S.plots.length>=6)return;S.plots.push({crop:'milho',prog:0});}
+  else if(id.indexOf('seed_')===0){var c=id.slice(5);price=CROPS[c].cost;if(S.coins<price)return;S.unlocked=S.unlocked||{};S.unlocked[c]=1;log('Liberou o cultivo de '+CROPS[c].n.toLowerCase()+'.');}
+  S.coins-=price;S.stats.bought++;}
+
+// ---------- modais ----------
+function modal(html){$('modalBox').innerHTML=html;$('modal').classList.remove('hidden');var f=$('modalBox').querySelector('input,button');if(f)f.focus();}
+function closeModal(){$('modal').classList.add('hidden');afk=null;}
+function showFind(t){modal('<span class="label">Cavando a terra…</span><h2 style="color:'+RAR[t.rar].c+'">Você achou!</h2><div class="row"><div class="grow"><span class="t">'+t.name+'</span><span class="s">'+toolDesc(t)+'</span></div>'+tag(t.rar)+'</div><p class="note">Os atributos foram sorteados. No jogo final, achados assim podem ser vendidos no mercado.</p><div style="display:flex;gap:6px"><button class="btn gold" id="mEquip" type="button">Equipar</button><button class="btn" id="mClose" type="button">Guardar</button></div>');
+  $('mEquip').onclick=function(){S.eq=t.id;save();closeModal();renderTab();};$('mClose').onclick=closeModal;}
+function confirmReset(){modal('<h2>Recomeçar do zero?</h2><p class="note">A fazenda deste navegador será apagada.</p><div style="display:flex;gap:6px"><button class="btn" id="mNo" type="button">Cancelar</button><button class="btn gold" id="mYes" type="button">Apagar e recomeçar</button></div>');
+  $('mNo').onclick=closeModal;$('mYes').onclick=function(){try{localStorage.removeItem(KEY);}catch(e){}S=null;closeModal();onboarding();};}
+function copySummary(){var st=S.stats;var txt='Fazenda idle — resumo do teste\nFazenda '+S.farm+' ('+MODELS[S.model].n+')\nTempo jogando: '+Math.round(st.played/60)+' min · rendendo fora: '+Math.round(st.offlineSecs/60)+' min\nProduções: '+st.produced+' · achados: '+st.finds+' · aposentadorias: '+st.retired+'\nMoedas na feira: '+fmt(st.earnedNpc)+' · em encomendas: '+fmt(st.earnedOrders)+' ('+st.orders+' entregas)\nOvos dourados: '+st.goldenFound+' achados, '+st.goldenSold+' vendidos, '+st.goldenOrder+' em encomenda, '+st.goldenHatched+' chocados\nCompras: '+st.bought+' · boosts: '+st.boosts+' · AFK ligado: '+st.afkOn+'×\nAnimais agora: '+S.animals.map(function(a){return KIND[a.kind].n+' '+RAR[a.rar].n+(a.shiny?' brilhante':'');}).join(', ');
+  var msg=$('copyMsg');try{navigator.clipboard.writeText(txt).then(function(){msg.textContent='Copiado. Cole na conversa com o Eric.';},function(){msg.textContent=txt;});}catch(e){msg.textContent=txt;}}
+
+var afk=null;
+function openAfk(){S.stats.afkOn++;afk={start:Date.now(),value:0,est:0,items:0,finds:0,full:0};
+  modal('<div class="afk" style="display:flex;flex-direction:column;gap:10px;align-items:center;padding:6px"><span class="label" style="color:#d6ceff">Modo AFK · a fazenda está rendendo</span><div>'+chickenSvg(44)+' '+personSvg(40)+' '+cowSvg(60)+'</div><span class="big" id="afkVal">+0</span><span style="color:#d6ceff;font-size:14px" id="afkSub"></span><div class="stats3"><div><b id="afkItems">0</b><span>produtos</span></div><div><b id="afkFinds">0</b><span>achados</span></div><div><b id="afkStore">0%</b><span>armazém</span></div></div><span class="note" id="afkNote"></span><button class="btn gold" id="afkBack" type="button">Voltar</button></div>');
+  $('modalBox').classList.add('afk');$('afkBack').onclick=function(){$('modalBox').classList.remove('afk');closeModal();renderTab();};}
+function renderAfk(){if(!afk)return;var el=$('afkVal');if(!el)return;el.textContent='+'+fmt(Math.max(afk.est,afk.value));
+  $('afkSub').textContent='moedas rendidas desde que você ligou · '+fmt(ratePerHour())+'/h · há '+mmss((Date.now()-afk.start)/1000);
+  $('afkItems').textContent=fmt(afk.items);$('afkFinds').textContent=afk.finds;var p=Math.round(storeTotal()/capNow()*100);$('afkStore').textContent=p+'%';
+  $('afkNote').textContent=p>=100?'Armazém cheio: a fazenda parou. Volte e venda para continuar.':'Quando o armazém enche, a fazenda para até você voltar.';}
+
+function onboarding(){var sel='vale';
+  modal('<span class="label">Bem-vindo</span><h2>Sua fazenda</h2><label class="label" for="oFarmer">Nome do fazendeiro</label><input id="oFarmer" maxlength="20" value="">'+
+    '<label class="label" for="oFarm">Nome da fazenda</label><div style="display:flex;align-items:center;gap:8px"><span>Fazenda</span><input id="oFarm" maxlength="24" value="Boa Vista"></div>'+
+    '<span class="label">Modelo</span><div class="choices">'+Object.keys(MODELS).map(function(k){return '<button class="choice" type="button" data-model="'+k+'" aria-pressed="'+(k===sel)+'"><b>'+MODELS[k].n+'</b><span>'+MODELS[k].d+'</span></button>';}).join('')+'</div>'+
+    '<button class="btn gold" id="oGo" type="button">Começar</button><p class="note">Protótipo de teste. A fazenda fica salva só neste navegador.</p>');
+  $('modalBox').querySelectorAll('.choice').forEach(function(c){c.onclick=function(){sel=c.dataset.model;$('modalBox').querySelectorAll('.choice').forEach(function(x){x.setAttribute('aria-pressed',x===c?'true':'false');});};});
+  $('oGo').onclick=function(){var fn=$('oFarmer').value.trim()||'Fazendeiro',fa=$('oFarm').value.trim()||'Boa Vista';fresh(fn,fa,sel);log('Fazenda '+fa+' fundada por '+fn+'. Duas galinhas chegaram.');save();closeModal();boot();};}
+
+function offline(){var el=Math.min((Date.now()-S.t)/1000,8*3600);if(el<20)return;S.stats.offlineSecs+=el;
+  var acc={};var full0=null;var s=el;var tt=0;var t0=Date.now()-el*1000;while(s>0){var d=Math.min(2,s);SIMNOW=t0+tt*1000;step(d,false,acc);s-=d;tt+=d;if(full0==null&&storeTotal()>=capNow()&&!((S.autoSellUntil||0)>SIMNOW))full0=tt;}SIMNOW=0;
+  var val=0,items=0;Object.keys(acc).forEach(function(k){if(ITEMS[k]){val+=acc[k]*priceOf(k);items+=acc[k];}});
+  var lines=Object.keys(acc).filter(function(k){return ITEMS[k];}).map(function(k){return acc[k]+'× '+ITEMS[k].n.toLowerCase();}).join(', ');
+  modal('<span class="label">Enquanto você esteve fora · '+mmss(el)+'</span><h2>A fazenda rendeu!</h2><div class="stats3"><div><b>'+fmt(items)+'</b><span>produtos</span></div><div><b style="color:var(--gold)">+'+fmt(val)+'</b><span>moedas em produtos</span></div><div><b>'+(acc._finds||0)+'</b><span>achados</span></div></div>'+
+    '<p class="note">'+(lines||'Nada novo.')+(full0!=null?' O armazém encheu depois de '+mmss(full0)+' e a fazenda parou.':'')+'</p><button class="btn gold" id="oOk" type="button">Recolher</button>');
+  $('oOk').onclick=function(){closeModal();tab='feira';renderTab();};}
+
+var last=Date.now(),wanderT=0;
+function loop(){var now=Date.now();var dt=Math.min(5,(now-last)/1000);last=now;if(!S)return;
+  var before=storeTotal();var snap=JSON.stringify(S.store);
+  var acc=afk?{}:null;step(dt,!afk||true,acc);S.stats.played+=dt;
+  if(afk&&(storeTotal()<capNow()||(S.autoSellUntil||0)>now))afk.est+=ratePerHour()*dt/3600;
+  if(afk&&acc){Object.keys(acc).forEach(function(k){if(ITEMS[k]){afk.value+=acc[k]*priceOf(k);afk.items+=acc[k];}});afk.finds+=acc._finds||0;}
+  wanderT+=dt;if(wanderT>3){wanderT=0;wander();}
+  renderTop();renderScene();flushFloats();renderAfk();
+  if(Math.floor(now/1000)%2===0&&$('modal').classList.contains('hidden')){var ae=document.activeElement;if(!(ae&&ae.tagName==='SELECT'))renderTab();}
+  if(Math.floor(now/1000)%5===0)save();}
+function boot(){$('avatar').innerHTML=personSvg(30);$('farmer').innerHTML=personSvg(28);renderTop();renderScene();renderTab();}
+document.addEventListener('visibilitychange',function(){if(document.hidden&&S)save();else if(S){offline();last=Date.now();}});
+
+S=load();
+if(!S){onboarding();}else{boot();offline();}
+setInterval(loop,500);
+})();
+</script>
+</body>
+</html>
