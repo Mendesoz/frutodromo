@@ -1,6 +1,17 @@
 # Protótipo descartável da fazenda idle
 
-Página única (`index.html`), sem servidor. Serve para testar com 5 a 10 pessoas se o ciclo da fazenda diverte. Não é a base do jogo final. Não usa o save do Frutódromo: a fazenda fica salva só no navegador, em `localStorage["fazenda_proto_v1"]`.
+Página `index.html` com recursos visuais locais, sem servidor de jogo. Serve para testar com 5 a 10 pessoas se o ciclo da fazenda diverte. Não é a base do jogo final. Não usa o save do Frutódromo: a fazenda fica salva só no navegador, em `localStorage["fazenda_proto_v1"]`.
+
+## Reaproveitamento visual — 15/11/2026
+Após o pedido do Eric para reaproveitar o design existente, o Codex criou `codex/fazenda-visual` sobre `claude/fazenda-prototipo` (`c7a5903`).
+- `reused-art.js`: cópia delimitada das molduras 9-slice, motor de personagens CH, objetos DECO, toldo, nuvens e texturas de `js/game.js`, base publicada `b475703`. Nenhum código de produção, caldeirão, genética ou salvamento é executado por esse módulo.
+- Personagem e retrato originais, com pernas/botas adicionadas na versão de corpo inteiro usada no campo. Caixotes, barril, sacos, balança, lousa e planta são os sprites reais do Frutódromo.
+- `visual.js`: cenário exterior, novas cercas e construções, animais com contorno e sombreamento coerentes; adapta a posição dos elementos ao telefone em pé e ao computador.
+- `visual.css`: fonte embutida do jogo, molduras originais, botões e painéis claros. Sem Google Fonts e sem dependências novas.
+- Regras, preços, RNG, produção, ações, offline e save do protótipo foram preservados. A adaptação é visual; não adiciona mercado real ou pagamentos.
+- Para regenerar a cópia dos ativos: `node prototipo-fazenda/tools/extract-art.cjs`, a partir da raiz. A arte é uma fotografia da base de origem; revisar o diff ao regenerar com uma nova versão do jogo.
+
+[Relatório da verificação](../docs/online/QA_FAZENDA_VISUAL_2026-11-15.md) · [Tela desktop](docs/visual-desktop.jpg) · [Tela no celular](docs/visual-celular.jpg).
 
 ## O que tem
 - Criação do fazendeiro e da fazenda, com modelo à escolha: Vale, Serra ou Litoral.

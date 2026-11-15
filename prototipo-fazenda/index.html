@@ -4,8 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Fazenda idle — protótipo</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 :root{--ink:#2a1a12;--wood:#6b4423;--wood2:#4e2e16;--panel:#3a2416;--bg:#24170f;--cream:#ffe9b8;--muted:#e9dcc3;--gold:#f7c331;--green:#3ce06f;--blue:#6fb6ff;--purple:#b48cff;--pink:#ff9ad5;--night:#2e2a5c}
 *{box-sizing:border-box}
@@ -82,6 +80,7 @@ button:disabled{cursor:not-allowed;opacity:.5}
 .stats3 span{font-size:12px;color:#d6ceff}
 .hidden{display:none!important}
 </style>
+<link rel="stylesheet" href="visual.css">
 </head>
 <body>
 <div class="wrap">
@@ -98,8 +97,8 @@ button:disabled{cursor:not-allowed;opacity:.5}
   </header>
 
   <div class="grid">
-    <section class="panel" aria-label="Fazenda">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+    <section class="panel farm-panel" aria-label="Fazenda">
+      <div class="scene-heading" style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px">
         <span class="label">Rendendo agora: <b id="rate" style="color:var(--gold)">0</b> moedas/h</span>
         <span class="label" id="boostTxt"></span>
       </div>
@@ -115,10 +114,10 @@ button:disabled{cursor:not-allowed;opacity:.5}
         <div class="farmer" id="farmer"></div>
         <div class="full hidden" id="fullTag">Armazém cheio — venda para continuar rendendo</div>
       </div>
-      <p class="note">Tudo é sorteado: a raridade e os atributos de cada animal, o produto raro e os achados. Os números são de teste.</p>
+      <p class="note">Cuide da horta, conheça seus animais e descubra o que a terra guardou para você.</p>
     </section>
 
-    <section class="panel" aria-label="Ações">
+    <section class="panel actions-panel" aria-label="Ações">
       <div class="tabs" role="tablist">
         <button class="tab" role="tab" data-tab="animais" aria-selected="true">Animais</button>
         <button class="tab" role="tab" data-tab="feira" aria-selected="false">Feira</button>
@@ -134,6 +133,8 @@ button:disabled{cursor:not-allowed;opacity:.5}
 
 <div class="modal hidden" id="modal"><div class="box" id="modalBox" role="dialog" aria-modal="true"></div></div>
 
+<script src="reused-art.js"></script>
+<script src="visual.js"></script>
 <script>
 (function(){
 'use strict';
@@ -141,11 +142,9 @@ var KEY='fazenda_proto_v1';
 var O='#2a1a12';
 function svg(rects,vw,vh,w,label){var h=Math.round(w*vh/vw);var a=label?'role="img" aria-label="'+label+'"':'aria-hidden="true"';
   return '<svg '+a+' width="'+w+'" height="'+h+'" viewBox="0 0 '+vw+' '+vh+'" shape-rendering="crispEdges">'+rects.map(function(r){return '<rect x="'+r[0]+'" y="'+r[1]+'" width="'+r[2]+'" height="'+r[3]+'" fill="'+r[4]+'"/>';}).join('')+'</svg>';}
-function chickenSvg(w,body,wing,label){body=body||'#fff';wing=wing||'#e9dcc3';
-  return svg([[1,3,3,4,O],[2,4,2,3,body],[2,5,8,5,O],[3,5,6,4,body],[7,1,4,5,O],[8,2,2,4,body],[8,0,2,1,'#e74c3c'],[10,3,2,1,'#f39c12'],[9,2,1,1,O],[4,6,3,2,wing],[4,10,1,2,'#f39c12'],[7,10,1,2,'#f39c12']],12,12,w,label);}
-function cowSvg(w,spot,label){spot=spot||O;var W='#fff';
-  return svg([[1,3,12,7,O],[2,4,10,5,W],[3,4,3,2,spot],[8,5,2,3,spot],[12,1,4,6,O],[13,2,2,4,W],[13,0,1,1,'#e9dcc3'],[15,0,1,1,'#e9dcc3'],[14,4,2,2,'#ffb3c7'],[13,2,1,1,O],[2,9,1,3,O],[4,9,1,3,O],[9,9,1,3,O],[11,9,1,3,O],[0,4,1,3,O]],16,12,w,label);}
-function personSvg(w){var hc=(S&&S.hatGold)?'#ffd84a':'#c9a24a';return svg([[3,0,6,2,O],[4,0,4,1,hc],[2,2,8,1,hc],[3,3,6,5,O],[4,3,4,4,'#e0a878'],[4,3,4,1,'#4e2e16'],[5,5,1,1,O],[7,5,1,1,O],[2,8,8,5,O],[3,8,6,4,'#c0392b'],[1,9,1,3,'#e0a878'],[10,9,1,3,'#e0a878'],[3,13,6,4,O],[4,13,4,3,'#2a4a8a'],[3,17,2,1,O],[7,17,2,1,O]],12,18,w);}
+function chickenSvg(w,body,wing,label){return window.FazendaVisual.animal('galinha',w,body,label);}
+function cowSvg(w,spot,label){return window.FazendaVisual.animal('vaca',w,spot,label);}
+function personSvg(w){return window.FazendaVisual.person(S,w);}
 function cropSvg(kind,stage,w){var g='#3d8b2a';
   if(stage<1){return svg([[7,10,2,6,g],[5,12,2,2,g],[9,11,2,2,g]],16,16,w);}
   var c={milho:'#f7c331',morango:'#e74c3c',abobora:'#f08a24'}[kind];
@@ -276,22 +275,23 @@ function renderTop(){
 function mmss(s){s=Math.max(0,Math.floor(s));var m=Math.floor(s/60);return (m>=60?Math.floor(m/60)+'h'+String(m%60).padStart(2,'0'):m)+':'+String(s%60).padStart(2,'0');}
 var critterEls={};
 function renderScene(){
+  var visual=window.FazendaVisual.layout(S);
   var box=$('critters');var seen={};
   S.animals.forEach(function(a){seen[a.id]=1;var el=critterEls[a.id];
     if(!el){el=document.createElement('div');el.className='critter';
       var body=a.kind==='galinha'?(a.shiny?chickenSvg(36,'#f7c331','#d4a017',a.name):chickenSvg(32,null,null,a.name)):(a.shiny?cowSvg(64,'#b5502a',a.name):cowSvg(60,null,a.name));
       el.innerHTML='<div class="bob">'+body+'</div>';box.appendChild(el);critterEls[a.id]=el;}
     var z=a.kind==='galinha'?{l:2,w:38}:{l:42,w:24};
-    el.style.left='calc('+(z.l+a.x/100*(z.w-6))+'% )';el.style.top=(166+a.y)+'px';
+    window.FazendaVisual.placeAnimal(el,a,visual);
     el.classList.toggle('blocked',!!a.blocked);});
   Object.keys(critterEls).forEach(function(id){if(!seen[id]){critterEls[id].remove();delete critterEls[id];}});
-  var ph='';S.plots.forEach(function(p,i){ph+='<div class="plot" id="plot'+i+'">'+cropSvg(p.crop,p.prog>0.5?1:0,26)+'</div>';});
+  var ph='';S.plots.forEach(function(p,i){ph+='<div class="plot" id="plot'+i+'">'+cropSvg(p.crop,p.prog>0.5?1:0,32)+'</div>';});
   if($('plots').dataset.sig!==ph){$('plots').innerHTML=ph;$('plots').dataset.sig=ph;}
 }
 function wander(){S.animals.forEach(function(a){a.x=Math.max(2,Math.min(92,a.x+rnd(-18,18)));a.y=Math.max(2,Math.min(62,a.y+rnd(-14,14)));});}
 function flushFloats(){var sc=$('scene');floats.splice(0).slice(0,6).forEach(function(f){var el=document.createElement('div');el.className='float'+(f.rare?' rare':'');el.textContent=f.txt;
   if(f.plot!=null){var pe=$('plot'+f.plot);if(!pe)return;var r=pe.getBoundingClientRect(),sr=sc.getBoundingClientRect();el.style.left=Math.min(r.left-sr.left,sr.width-110)+'px';el.style.top=(r.top-sr.top-14)+'px';}
-  else{var z=f.zone==='galinha'?{l:2,w:38}:{l:42,w:24};el.style.left=(z.l+f.x/100*(z.w-6))+'%';el.style.top=(150+f.y)+'px';}
+  else{var z=f.zone==='galinha'?{l:2,w:38}:{l:42,w:24};var point=window.FazendaVisual.floatPoint(f);el.style.left=point.x+'px';el.style.top=point.y+'px';}
   sc.appendChild(el);setTimeout(function(){el.remove();},1500);});}
 
 function tag(r){return '<span class="tag" style="background:'+RAR[r].c+'">'+RAR[r].n.toUpperCase()+'</span>';}
@@ -417,7 +417,7 @@ function renderAfk(){if(!afk)return;var el=$('afkVal');if(!el)return;el.textCont
   $('afkNote').textContent=p>=100?'Armazém cheio: a fazenda parou. Volte e venda para continuar.':'Quando o armazém enche, a fazenda para até você voltar.';}
 
 function onboarding(){var sel='vale';
-  modal('<span class="label">Bem-vindo</span><h2>Sua fazenda</h2><label class="label" for="oFarmer">Nome do fazendeiro</label><input id="oFarmer" maxlength="20" value="">'+
+  modal('<div class="welcome-art">'+chickenSvg(32)+personSvg(40)+cowSvg(60)+'</div><span class="label">Bem-vindo à vida no campo</span><h2>Sua fazenda</h2><label class="label" for="oFarmer">Nome do fazendeiro</label><input id="oFarmer" maxlength="20" value="">'+
     '<label class="label" for="oFarm">Nome da fazenda</label><div style="display:flex;align-items:center;gap:8px"><span>Fazenda</span><input id="oFarm" maxlength="24" value="Boa Vista"></div>'+
     '<span class="label">Modelo</span><div class="choices">'+Object.keys(MODELS).map(function(k){return '<button class="choice" type="button" data-model="'+k+'" aria-pressed="'+(k===sel)+'"><b>'+MODELS[k].n+'</b><span>'+MODELS[k].d+'</span></button>';}).join('')+'</div>'+
     '<button class="btn gold" id="oGo" type="button">Começar</button><p class="note">Protótipo de teste. A fazenda fica salva só neste navegador.</p>');
@@ -442,7 +442,7 @@ function loop(){var now=Date.now();var dt=Math.min(5,(now-last)/1000);last=now;i
   renderTop();renderScene();flushFloats();renderAfk();
   if(Math.floor(now/1000)%2===0&&$('modal').classList.contains('hidden')){var ae=document.activeElement;if(!(ae&&ae.tagName==='SELECT'))renderTab();}
   if(Math.floor(now/1000)%5===0)save();}
-function boot(){$('avatar').innerHTML=personSvg(30);$('farmer').innerHTML=personSvg(28);renderTop();renderScene();renderTab();}
+function boot(){$('avatar').innerHTML=personSvg(30);$('farmer').innerHTML=personSvg(80);renderTop();renderScene();renderTab();}
 document.addEventListener('visibilitychange',function(){if(document.hidden&&S)save();else if(S){offline();last=Date.now();}});
 
 S=load();
