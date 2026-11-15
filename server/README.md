@@ -32,19 +32,22 @@ Comandos:
 - `{"type":"recover_seed"}`: 1 milho quando milho=0, sem colheita de milho pendente, saldo<3; intervalo mínimo de 1h.
 - `{"type":"expand","x":1,"y":0}`: apenas vizinho lateral, grade -2…2, custo 60×terrenos já comprados. Dá área, não máquinas/capacidade.
 
-Os números são candidatos de teste. Cadastro dá 80 moedas, 4 milhos, 2 canteiros, moinho e galinheiro. Milho consome1/produz2 em30s; ração consome2 milhos/produz1 em45s; ovo consome1 ração/produz1 em60s. Canteiro comporta1 trabalho, moinho/galinheiro2 em sequência. Animais não se aposentam neste piloto. Não há raridades nem sorteio de produção.
+Os números são candidatos de teste. Cadastro dá 80 moedas, 4 milhos, 2 canteiros, moinho e galinheiro. Milho consome 1/produz 2 em 30s; ração consome 2 milhos/produz 1 em 45s; ovo consome 1 ração/produz 1 em 60s. Canteiro comporta 1 trabalho, moinho/galinheiro 2 em sequência. Animais não se aposentam neste piloto. Não há raridades nem sorteio de produção.
+
+O resgate também exige ausência de ração, jobs pendentes e pedido completável (2 ovos). Um ovo isolado não impede resgate, pois não permite pagar/produzir outra semente e bloquear esse caso causaria travamento. Antes de comércio P2P, revisar a regra e a transferibilidade da semente recuperada.
 
 ## Invariantes
 
 - Cada comando bloqueia a própria fazenda em transação; consulta também bloqueia para acertar produção vencida uma única vez. Sem `setInterval` econômico. Todos os caminhos de mutação seguem a mesma trava.
-- Horário vem do servidor, não retrocede por fazenda. A conclusão usa timestamps fixos, e jobs concluídos têm `claimed_at`. Sem produção infinita offline: só os trabalhos explicitamente enfileirados (máximo 1/2 por instalação).
+- Horário vem do banco compartilhado (`clock_timestamp`), não do relógio do navegador ou de cada processo API; não retrocede por fazenda. A conclusão usa timestamps fixos, e jobs concluídos têm `claimed_at`. Sem produção infinita offline: só os trabalhos explicitamente enfileirados (máximo 1/2 por instalação). Injeção de clock existe apenas na construção do app para testes, inclusive cadastro; sessão sempre usa tempo real do banco.
 - Ingredientes saem ao enfileirar. Saídas reservam espaço imediatamente: inventário + reservas <= capacidade. Isso evita perder itens ou bloquear uma entrega com armazém cheio; é uma política piloto a testar na UI.
 - Repetir chave/payload devolve exatamente o recibo persistido; chave com outro payload dá409. Falha desfaz consumo, moedas, eventos e trabalho.
 - Razão de moedas e eventos de inventário permitem reconciliar saldos. Eventos de comandos e de jobs usam namespaces distintos. Nenhum cliente define preço, quantidade produzida, saldo, dono ou horário.
 - PGlite é conveniência para desenvolvimento em uma instância. Não demonstra escalabilidade ou concorrência de PostgreSQL real.
+- Consultas de API também rejeitam `Sec-Fetch-Site: cross-site`. Sessões expiradas são limpas no login/cadastro; cada conta mantém no máximo 10 sessões ativas. Retenção dos registros econômicos não é apagada automaticamente, para não permitir repetir pagamentos antigos.
 
 ## Antes de teste público
 
-Ainda faltam: frontend conectado; mercado com reserva/transação entre fazendas; recuperação de conta e troca de senha; limites distribuídos por conta/IP (o limitador atual é por processo/IP); política de retenção de sessões/jobs/operações; backup/restauração verificados; telemetria, TLS e configuração de hospedagem; teste de carga, abuso de contas múltiplas e revisão do resgate antes de itens transferíveis. Não afirmar prontidão comercial ou antifraude completa.
+Ainda faltam: frontend conectado; mercado com reserva/transação entre fazendas; recuperação de conta e troca de senha; limites distribuídos por conta/IP (o limitador atual é por processo/IP); política de arquivo de jobs/operações; backup/restauração verificados; monitoramento do relógio do banco e intervenção em desvio abrupto; telemetria, TLS e configuração de hospedagem; teste de carga, abuso de contas múltiplas e revisão do resgate antes de itens transferíveis. Não afirmar prontidão comercial ou antifraude completa.
 
 Referências técnicas: [PGlite](https://pglite.dev/docs/), [transações node-postgres](https://node-postgres.com/features/transactions), [validação Fastify](https://fastify.dev/docs/latest/Reference/Validation-and-Serialization/).

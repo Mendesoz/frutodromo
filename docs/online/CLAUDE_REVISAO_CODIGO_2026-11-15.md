@@ -1,0 +1,33 @@
+# Revisão independente — base online da fazenda (Brotalume)
+
+## Veredito
+
+**Aprovado para teste local fechado**, não para produção. A espinha dorsal está correta: toda mutação começa por `SELECT ... FROM farms ... FOR UPDATE` (`game.ts:55`, usado em `snapshot` e `execute`), o que serializa por fazenda inclusive entre instâncias; saldo e estoque têm guarda dupla (predicado no `UPDATE` + `CHECK`), então negativo exige corromper o banco; a capacidade reserva as saídas no enfileiramento e o invariante `inventário + reservas ≤ capacity` fecha nos quatro caminhos; o namespace `command:` / `job:` / `initial_grant` não colide porque a chave do cliente não aceita `:` (`game.ts:96`); não há RNG, `setInterval` econômico nem horário vindo do cliente. Não encontrei caminho de duplicação de item ou moeda nem de saldo negativo. Os achados abaixo são endurecimento e cobertura, não furos explorados.
+
+## Achados, por gravidade
+
+**1. `GET /api/farm` muta estado e está fora da verificação de CSRF — `app.ts:33-37` e `app.ts:66`.** O guard de `Origin`/`sec-fetch-site` só roda para métodos não-GET, mas o handler escreve: `UPDATE farms SET last_processed_at` (`game.ts:61`) e `settle` marcando `claimed_at` e inserindo inventário (`game.ts:47-52`). Com `SameSite=Lax`, uma navegação de topo cross-site (link, `window.open`, meta refresh) envia o cookie e força essas escritas. O ganho para o atacante é baixo (o acerto é determinístico pelo tempo e ele não lê a resposta), mas é escrita disparada de fora e qualquer GET futuro herda o buraco. Correção mínima: no mesmo hook, rejeitar `/api/*` quando `sec-fetch-site` for `cross-site`, inclusive em GET.
+
+**2. Idempotência sob concorrência real entre instâncias não é testada.** O teste de chave repetida (`test/online.test.ts:70-78`) roda numa única instância e, em PGlite, as transações serializam de graça — não prova nada sobre PostgreSQL. O teste de duas instâncias (`:173-186`) usa `key()` diferente em cada requisição, logo mede duplo gasto, não duplo efeito. O caminho `operations` + `FOR UPDATE` (`game.ts:99-105`, `155`) parece correto, mas é exatamente a afirmação que falta evidência. Correção mínima: no teste das duas instâncias, repetir uma mesma `Idempotency-Key` em metade das requisições e afirmar 1 linha em `ledger` para aquela chave e payloads idênticos.
+
+**3. Rollback mascara o erro original e devolve cliente sujo ao pool — `db.ts:26`.** Se o `ROLLBACK` falhar (conexão perdida, ou `COMMIT` que já abortou), a exceção do `ROLLBACK` substitui a causa real — um 409 limpo virará 500 — e `client.release()` sem argumento pode reciclar um cliente em estado indefinido. Correção mínima: `try { await client.query('ROLLBACK') } catch (e) { failed = e }`, relançar sempre o erro original e `client.release(failed)` no `finally`.
+
+**4. O relógio injetado não chega ao cadastro — `auth.ts:30` e `001_base.sql:19`.** `seedFarm` recebe `new Date()` e `farms.last_processed_at` usa `DEFAULT now()` do banco, enquanto todo comando usa o clock injetado. A suíte só escapa porque escolheu 2030 (`test:15`): com um clock no passado, `farmTime` (`game.ts:60`) grudaria em `now()` do banco e os testes de tempo passariam a medir outra coisa. Efeito colateral hoje: o `created_at` de `initial_grant` fica em outra linha de tempo que o resto do `ledger`, quebrando reconciliação por janela temporal. Correção mínima: `auth(db, clock)`, passar `clock()` a `seedFarm` e gravar `last_processed_at` explicitamente; manter a validade da sessão no relógio do banco e documentar isso.
+
+**5. Parâmetro reutilizado para `recipe` e `output_item` — `game.ts:124` (`VALUES($1,$2,$3,$4,$4,...)`).** Funciona só porque hoje nome de receita = item de saída, e `RECIPES` (`game.ts:13-17`) nem declara item de saída. A primeira receita cujo produto tenha outro nome grava o item errado, silenciosamente. Correção mínima: adicionar `item` a cada receita e usar um parâmetro próprio.
+
+**6. `recover_seed` tem pobreza incompleta — `game.ts:132-137`.** Exige milho 0, sem job de milho pendente e moedas < 3, mas ignora `feed`/`egg` em estoque e jobs de ração/ovo em voo. Quem tem 1 ração e 0 moedas não está sem saída e ainda ganha 1 milho por hora. Ganho pequeno (regra candidata, como você já marcou), mas a correção é barata: exigir inventário total 0 e nenhum job pendente.
+
+**7. Salto do relógio para frente não é limitado — `game.ts:60`.** O `max()` protege o recuo (teste `:204` cobre), mas um pulo para frente (VM com NTP errado) carimba `last_processed_at` no futuro, liquida toda a fila na hora e deixa a fazenda congelada até o tempo real alcançar — irreversível e sem registro. Correção mínima: ignorar/registrar avanços acima de um limite e expor o desvio no `/health`.
+
+**8. Sem retenção de `sessions`, `operations` e `production_jobs` — `001_base.sql:7,47,69`.** Sessões expiradas nunca são apagadas e o login não tem teto por conta; `operations` cresce com uma linha por comando. Crescimento sem limite, não falha de segurança. Correção mínima: `DELETE FROM sessions WHERE expires_at <= now()` oportunista em `newSession` e índice em `expires_at`.
+
+**9. `.gitignore:6` cobre só `server/.data/`, mas `db.ts:32` resolve o caminho pelo CWD.** Iniciar o servidor da raiz do repositório cria `./.data/postgres` versionável. Correção mínima: acrescentar `.data/`.
+
+## Cobertura de teste ausente (além do item 2)
+
+Receita incompatível com construção própria (`INVALID_BUILDING` só é testado com prédio de outra conta, `:153`); `STORAGE_FULL` em `buy_seed`/`recover_seed` (`game.ts:142`); `Idempotency-Key` ausente ou fora do padrão (400); `415 JSON_REQUIRED`; capacidade sob concorrência nas duas instâncias; `reservedCapacity` e `nextExpansionCost` nunca são afirmados; expiração de sessão pela camada HTTP.
+
+## Limitações desta verificação
+
+Não executei nada: não rodei `npm run verify`, não abri navegador, não consultei o banco. Os resultados de teste citados são leitura do código, não execução. Localmente a suíte roda em PGlite `memory://`, onde o teste "duas instâncias" (`:176`) compartilha o mesmo banco — só a CI (`fazenda-online.yml:29`) exercita PostgreSQL 17 com duas pools, e mesmo lá as travas de linha nunca são colocadas sob disputa com chave repetida. Não li `sprites.js`, `package-lock.json`, `.env.example` nem `server/tools/claude-review.mjs` (existe, fora do escopo pedido). Não avaliei economia, mercado, pagamentos ou importação de saves — ausentes por decisão do piloto. Nenhum arquivo foi alterado; arte e `main` intactas.

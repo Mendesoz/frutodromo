@@ -15,11 +15,14 @@ async function matchPassword(password: string, stored: string) {
   return timingSafeEqual(key, Buffer.from(hex, 'hex'));
 }
 async function newSession(tx: Queryable, id: string) {
+  await tx.query('SELECT id FROM players WHERE id=$1 FOR UPDATE', [id]);
+  await tx.query('DELETE FROM sessions WHERE expires_at <= now()');
   const token = randomBytes(32).toString('base64url');
   await tx.query("INSERT INTO sessions(token_hash,player_id,expires_at) VALUES($1,$2,now()+interval '7 days')", [digest(token), id]);
+  await tx.query('DELETE FROM sessions WHERE player_id=$1 AND token_hash NOT IN (SELECT token_hash FROM sessions WHERE player_id=$1 ORDER BY expires_at DESC LIMIT 10)', [id]);
   return token;
 }
-export function auth(db: Database) {
+export function auth(db: Database, clock?: () => Date) {
   return {
     async register(username: string, password: string, farmName: string) {
       const hash = await hashPassword(password);
@@ -27,7 +30,8 @@ export function auth(db: Database) {
         return await db.transaction(async tx => {
           const id = randomUUID();
           await tx.query('INSERT INTO players(id,username,password_hash) VALUES($1,$2,$3)', [id, username, hash]);
-          await seedFarm(tx, id, farmName, new Date());
+          const now = clock ? clock() : new Date((await tx.query('SELECT clock_timestamp() AS t')).rows[0].t);
+          await seedFarm(tx, id, farmName, now);
           return { id, token: await newSession(tx, id) };
         });
       } catch (error: any) {

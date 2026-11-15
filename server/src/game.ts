@@ -11,9 +11,9 @@ export type Command =
   | { type: 'buy_seed' }
   | { type: 'expand'; x: number; y: number };
 export const RECIPES = {
-  corn: { kind: 'plot', input: 'corn', amount: 1, output: 2, seconds: 30 },
-  feed: { kind: 'feed_mill', input: 'corn', amount: 2, output: 1, seconds: 45 },
-  egg: { kind: 'coop', input: 'feed', amount: 1, output: 1, seconds: 60 }
+  corn: { kind: 'plot', input: 'corn', item: 'corn', amount: 1, output: 2, seconds: 30 },
+  feed: { kind: 'feed_mill', input: 'corn', item: 'feed', amount: 2, output: 1, seconds: 45 },
+  egg: { kind: 'coop', input: 'feed', item: 'egg', amount: 1, output: 1, seconds: 60 }
 } as const;
 
 function stable(value: any): string {
@@ -56,15 +56,16 @@ async function lockFarm(tx: Queryable, playerId: string) {
   if (!farm) throw new GameError(404, 'FARM_NOT_FOUND');
   return farm;
 }
-async function farmTime(tx: Queryable, farm: any, clock: () => Date) {
-  const now = new Date(Math.max(clock().getTime(), new Date(farm.last_processed_at).getTime()));
+async function farmTime(tx: Queryable, farm: any, clock?: () => Date) {
+  const observed = clock ? clock() : new Date((await tx.query('SELECT clock_timestamp() AS t')).rows[0].t);
+  const now = new Date(Math.max(observed.getTime(), new Date(farm.last_processed_at).getTime()));
   await tx.query('UPDATE farms SET last_processed_at=$2 WHERE id=$1', [farm.id, now]);
   return now;
 }
 
 export async function seedFarm(tx: Queryable, playerId: string, name: string, now: Date) {
   const farmId = randomUUID();
-  await tx.query('INSERT INTO farms(id,player_id,name) VALUES($1,$2,$3)', [farmId, playerId, name]);
+  await tx.query('INSERT INTO farms(id,player_id,name,created_at,last_processed_at) VALUES($1,$2,$3,$4,$4)', [farmId, playerId, name, now]);
   await tx.query('INSERT INTO wallets(farm_id,coins) VALUES($1,0)', [farmId]);
   await money(tx, farmId, 80, 'initial_grant', 'initial_grant', now);
   await add(tx, farmId, 'corn', 4, 'initial_grant', 'initial_grant', now);
@@ -74,7 +75,7 @@ export async function seedFarm(tx: Queryable, playerId: string, name: string, no
   return farmId;
 }
 
-export function game(db: Database, clock = () => new Date()) {
+export function game(db: Database, clock?: () => Date) {
   return {
     async snapshot(playerId: string) {
       return db.transaction(async tx => {
@@ -121,8 +122,8 @@ export function game(db: Database, clock = () => new Date()) {
           const start = pending.length ? new Date(Math.max(now.getTime(), new Date(pending.at(-1).finishes_at).getTime())) : now;
           const finish = new Date(start.getTime() + recipe.seconds * 1000);
           const id = randomUUID();
-          await tx.query('INSERT INTO production_jobs(id,farm_id,building_id,recipe,output_item,output_quantity,started_at,finishes_at) VALUES($1,$2,$3,$4,$4,$5,$6,$7)',
-            [id, farm.id, building.id, command.recipe, recipe.output, start, finish]);
+          await tx.query('INSERT INTO production_jobs(id,farm_id,building_id,recipe,output_item,output_quantity,started_at,finishes_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8)',
+            [id, farm.id, building.id, command.recipe, recipe.item, recipe.output, start, finish]);
           detail = { jobId: id, finishesAt: finish.toISOString() };
         } else if (command.type === 'deliver') {
           await consume(tx, farm.id, 'egg', 2, auditKey, now);
@@ -132,7 +133,9 @@ export function game(db: Database, clock = () => new Date()) {
           const pendingCorn = (await tx.query("SELECT id FROM production_jobs WHERE farm_id=$1 AND claimed_at IS NULL AND output_item='corn' LIMIT 1", [farm.id])).rows.length;
           if (command.type === 'recover_seed') {
             const coins = (await tx.query('SELECT coins FROM wallets WHERE farm_id=$1', [farm.id])).rows[0].coins;
-            if (await stock(tx, farm.id, 'corn') > 0 || pendingCorn || coins >= 3 ||
+            const pendingAny = (await tx.query('SELECT id FROM production_jobs WHERE farm_id=$1 AND claimed_at IS NULL LIMIT 1', [farm.id])).rows.length;
+            if (await stock(tx, farm.id, 'corn') > 0 || pendingCorn || pendingAny || coins >= 3 ||
+                await stock(tx, farm.id, 'feed') > 0 || await stock(tx, farm.id, 'egg') >= 2 ||
                 (farm.seed_recovered_at && now.getTime() - new Date(farm.seed_recovered_at).getTime() < 3600000))
               throw new GameError(409, 'SEED_RECOVERY_UNAVAILABLE');
             await tx.query('UPDATE farms SET seed_recovered_at=$2 WHERE id=$1', [farm.id, now]);

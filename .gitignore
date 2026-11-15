@@ -4,6 +4,7 @@ node_modules/
 .env.*
 !.env.example
 server/.data/
+.data/
 server/build/
 server/coverage/
 server/.claude-results/

@@ -5,7 +5,7 @@
 ## Atualização mais recente — base online autorizada
 Eric autorizou construir a base proposta pelo Codex, incluindo banco/servidor e colaboração com Claude, com meta de alpha até 30/11/2026. Plano vigente: [PLANO_NOVEMBRO.md](PLANO_NOVEMBRO.md). Branch `codex/fazenda-online-base`, derivada da integração visual bce3379. `server/` contém piloto independente; a fazenda visual ainda não está conectada à API. Não confundir API implementada com multiplayer já jogável na prévia.
 
-A autenticação do Claude Code voltou a funcionar após Eric entrar pela extensão do VS Code. Uma chamada dedicada concluiu o parecer [CLAUDE_BASE_ONLINE_2026-11-15.md](CLAUDE_BASE_ONLINE_2026-11-15.md); outra revisão recebe o código real. Isso atualiza as falhas de autenticação históricas abaixo, sem criar ponte automática para o chat antigo.
+A autenticação do Claude Code voltou a funcionar após Eric entrar pela extensão do VS Code. Duas chamadas dedicadas concluíram o parecer [da proposta](CLAUDE_BASE_ONLINE_2026-11-15.md) e [do código real](CLAUDE_REVISAO_CODIGO_2026-11-15.md). Codex aplicou os achados pertinentes e ampliou os testes. Isso atualiza as falhas de autenticação históricas abaixo, sem criar ponte automática para o chat antigo.
 
 ## Direção explicitada pelo Eric neste chat
 - Fazer uma fazenda personalizável, usando Hay Day como referência de gameplay.

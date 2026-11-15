@@ -25,11 +25,12 @@ export async function buildApp(db: Database, options: { origin?: string; product
   const app = Fastify({ logger: options.logger ?? false, bodyLimit: 4096, ajv: { customOptions: { removeAdditional: false, coerceTypes: false } } });
   await app.register(cookie);
   await app.register(rateLimit, { max: 120, timeWindow: '1 minute' });
-  const accounts = auth(db);
+  const accounts = auth(db, options.clock);
   const farms = game(db, options.clock);
   const cookieOptions = { httpOnly: true, sameSite: 'lax' as const, secure: options.production ?? false, path: '/', maxAge: 7 * 86400 };
   app.addHook('onRequest', async (req, reply) => {
     reply.header('Cache-Control', 'no-store').header('X-Content-Type-Options', 'nosniff');
+    if (req.url.startsWith('/api/') && req.headers['sec-fetch-site'] === 'cross-site') throw new GameError(403, 'ORIGIN_REJECTED');
     if (req.method !== 'GET' && req.method !== 'HEAD') {
       if (req.headers.origin !== origin || req.headers['sec-fetch-site'] === 'cross-site') throw new GameError(403, 'ORIGIN_REJECTED');
       if (req.headers['content-type']?.split(';')[0].trim() !== 'application/json') throw new GameError(415, 'JSON_REQUIRED');

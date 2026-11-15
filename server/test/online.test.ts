@@ -146,13 +146,19 @@ test('API exige sessao, bloqueia CSRF e campos forjados e isola edificios de out
     assert.match(registered.headers['set-cookie'] as string, /HttpOnly/);
     assert.match(registered.headers['set-cookie'] as string, /SameSite=Lax/);
     const session = (registered.headers['set-cookie'] as string).split(';')[0];
+    assert.equal((await app.inject({ method: 'GET', url: '/api/farm', headers: { cookie: session, 'sec-fetch-site': 'cross-site' } })).statusCode, 403);
     const headers = { origin, cookie: session, 'idempotency-key': key() };
     const forged = await app.inject({ method: 'POST', url: '/api/commands', headers, payload: { type: 'buy_seed', coins: 999999, now: '2099-01-01' } });
     assert.equal(forged.statusCode, 400);
+    assert.equal((await app.inject({ method: 'POST', url: '/api/commands', headers: { origin, cookie: session }, payload: { type: 'buy_seed' } })).statusCode, 400);
+    assert.equal((await app.inject({ method: 'POST', url: '/api/commands', headers: { origin, cookie: session, 'idempotency-key': 'bad' }, payload: { type: 'buy_seed' } })).statusCode, 400);
+    assert.equal((await app.inject({ method: 'POST', url: '/api/auth/logout', headers: { origin, cookie: session, 'content-type': 'text/plain' }, payload: '{}' })).statusCode, 415);
     const other = await create('outra_conta'); const foreign = await game(db, clock).snapshot(other.id);
     const attempt = await app.inject({ method: 'POST', url: '/api/commands', headers, payload: { type: 'queue', recipe: 'corn', buildingId: foreign.buildings.find(b => b.kind === 'plot').id } });
     assert.equal(attempt.statusCode, 409); assert.equal(attempt.json().error, 'INVALID_BUILDING');
     assert.equal((await app.inject({ method: 'GET', url: '/api/farm', headers: { cookie: session } })).json().coins, 80);
+    await db.query("UPDATE sessions SET expires_at=now()-interval '1 second' WHERE player_id=$1", [registered.json().playerId]);
+    assert.equal((await app.inject({ method: 'GET', url: '/api/farm', headers: { cookie: session } })).statusCode, 401);
     await app.inject({ method: 'POST', url: '/api/auth/logout', headers: { origin, cookie: session }, payload: {} });
     assert.equal((await app.inject({ method: 'GET', url: '/api/farm', headers: { cookie: session } })).statusCode, 401);
   } finally { await app.close(); }
@@ -183,6 +189,64 @@ test('50 comandos por duas instancias nao gastam saldo duas vezes', async () => 
     assert.equal(s.coins, 2); assert.equal(qty(s, 'corn'), 30);
     assert.equal((await db.query('SELECT count(*)::int AS n FROM ledger WHERE farm_id=$1', [s.farm.id])).rows[0].n, 27);
   } finally { await a.close(); await b.close(); if (second !== db) await second.close(); }
+});
+
+test('mesma chave em duas instancias recebe um recibo e um debito; capacidade concorrente tambem e respeitada', async () => {
+  const user = await create(); const second = url ? await database(url) : db;
+  const [a, b] = await Promise.all([buildApp(db), buildApp(second)]);
+  try {
+    const op = key();
+    const responses = await Promise.all(Array.from({ length: 30 }, (_, i) => (i % 2 ? a : b).inject({ method: 'POST', url: '/api/commands',
+      headers: { origin, cookie: `brotalume_session=${user.token}`, 'idempotency-key': op }, payload: { type: 'buy_seed' } })));
+    for (const response of responses) { assert.equal(response.statusCode, 200); assert.deepEqual(response.json(), responses[0].json()); }
+    const s = await game(db).snapshot(user.id);
+    assert.equal(s.coins, 77); assert.equal(qty(s, 'corn'), 5);
+    assert.equal((await db.query('SELECT count(*)::int AS n FROM ledger WHERE farm_id=$1 AND operation_key=$2', [s.farm.id, 'command:' + op])).rows[0].n, 1);
+    await db.query('UPDATE farms SET capacity=10 WHERE id=$1', [s.farm.id]);
+    const buys = await Promise.all(Array.from({ length: 20 }, (_, i) => (i % 2 ? a : b).inject({ method: 'POST', url: '/api/commands',
+      headers: { origin, cookie: `brotalume_session=${user.token}`, 'idempotency-key': key() }, payload: { type: 'buy_seed' } })));
+    assert.equal(buys.filter(r => r.statusCode === 200).length, 5);
+    assert.equal(buys.filter(r => r.json().error === 'STORAGE_FULL').length, 15);
+    const after = await game(db).snapshot(user.id); assert.equal(qty(after, 'corn'), 10); assert.equal(after.coins, 62);
+    assert.equal(after.nextExpansionCost, 60); assert.equal(after.reservedCapacity, 0);
+  } finally { await a.close(); await b.close(); if (second !== db) await second.close(); }
+});
+
+test('construcao propria incompativel e recusada e reservas ficam visiveis', async () => {
+  const user = await create(); const g = game(db, clock); const s = await g.snapshot(user.id);
+  const plot = s.buildings.find(b => b.kind === 'plot').id;
+  await assert.rejects(g.execute(user.id, key(), { type: 'queue', buildingId: plot, recipe: 'egg' }), err('INVALID_BUILDING'));
+  await g.execute(user.id, key(), { type: 'queue', buildingId: plot, recipe: 'corn' });
+  assert.equal((await g.snapshot(user.id)).reservedCapacity, 2);
+});
+
+test('cadastro usa clock de teste mesmo no passado; sessoes mantem tempo real do banco', async () => {
+  const past = () => new Date('2001-01-01T00:00:00Z');
+  const user = await auth(db, past).register('relogio_passado', 'teste-seguro-123', 'Passado');
+  const s = await game(db, past).snapshot(user.id);
+  assert.equal(s.serverTime, past().toISOString()); assert.equal(await auth(db).player(user.token), user.id);
+  assert.equal(new Date((await db.query('SELECT created_at FROM ledger WHERE farm_id=$1', [s.farm.id])).rows[0].created_at).toISOString(), past().toISOString());
+});
+
+test('resgate espera producao ou entrega possivel, mas um ovo isolado nao trava recuperacao', async () => {
+  const user = await create(); const g = game(db, clock); const s = await g.snapshot(user.id);
+  await db.query('UPDATE wallets SET coins=0 WHERE farm_id=$1', [s.farm.id]);
+  await db.query("UPDATE inventory SET quantity=0 WHERE farm_id=$1 AND item='corn'", [s.farm.id]);
+  await db.query("INSERT INTO inventory(farm_id,item,quantity) VALUES($1,'egg',2)", [s.farm.id]);
+  await assert.rejects(g.execute(user.id, key(), { type: 'recover_seed' }), err('SEED_RECOVERY_UNAVAILABLE'));
+  await db.query("UPDATE inventory SET quantity=1 WHERE farm_id=$1 AND item='egg'", [s.farm.id]);
+  await db.query("INSERT INTO inventory(farm_id,item,quantity) VALUES($1,'feed',1)", [s.farm.id]);
+  await assert.rejects(g.execute(user.id, key(), { type: 'recover_seed' }), err('SEED_RECOVERY_UNAVAILABLE'));
+  await db.query("UPDATE inventory SET quantity=0 WHERE farm_id=$1 AND item='feed'", [s.farm.id]);
+  await g.execute(user.id, key(), { type: 'recover_seed' });
+  assert.equal(qty(await g.snapshot(user.id), 'corn'), 1);
+});
+
+test('login limpa sessoes expiradas e limita sessoes ativas por conta', async () => {
+  const user = await create();
+  await db.query("UPDATE sessions SET expires_at=now()-interval '1 second'");
+  for (let i = 0; i < 12; i++) await auth(db).login('fazendeiro', 'teste-seguro-123');
+  assert.equal((await db.query('SELECT count(*)::int AS n FROM sessions WHERE player_id=$1', [user.id])).rows[0].n, 10);
 });
 
 test('PGlite de desenvolvimento preserva fazenda apos fechar e abrir o banco', async () => {

@@ -8,7 +8,7 @@ Este plano e DIRECAO_ATUAL prevalecem sobre escopos históricos de genética/pom
 
 | Ordem/data alvo | Entrega | Responsáveis | Critério verificável / estado |
 |---|---|---|---|
-| 1 — 15–18/11 | Conta, banco, API autoritativa e ciclo mínimo | Codex implementa; Claude revisa arquitetura e código | Cadastro/login, isolamento, milho→ração→ovo→pedido, expansão, persistência e testes no PostgreSQL. Implementação e testes locais concluídos nesta rodada; conferir QA e CI antes de considerar validado no PostgreSQL convencional. |
+| 1 — 15–18/11 | Conta, banco, API autoritativa e ciclo mínimo | Codex implementa; Claude revisa arquitetura e código | Cadastro/login, isolamento, milho→ração→ovo→pedido, expansão e persistência:13testes PASS local e em PostgreSQL17 no CI43709182693. Revisão final do código pelo Claude em andamento; [QA](QA_BASE_ONLINE_2026-11-15.md). |
 | 2 — 19–22/11 | Mapa contínuo pequeno e cliente conectado | Codex integra servidor/mapa; Claude recebe revisão de fluxo/UI em arquivos combinados | Entrar em conta, plantar e produzir no cenário; fechar/reabrir preserva estado; comprar terreno adjacente; layout salvo; 393×760, 1024×600, 900×430 e 1280×680. Pendente. |
 | 3 — 23–26/11 | Comércio mínimo entre duas contas | Codex transações/integração; Claude revisa concorrência e economia | Anunciar lote reservado, comprar, cancelar; uma venda por lote mesmo com compradores simultâneos; moeda/itens reconciliam; sem dinheiro real. Pendente. |
 | 4 — 27–28/11 | Automação limitada e observação de economia | Codex simulação/tempo; Claude revisão de gargalos | Uma regra de reposição com reserva mínima, teto de autonomia e limite de trabalho; mesmo resultado online/offline; registrar produção, consumo, retorno e negócios. Pendente. |

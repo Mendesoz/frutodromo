@@ -2,6 +2,7 @@ import { PGlite } from '@electric-sql/pglite';
 import pg from 'pg';
 import { readFile, readdir, mkdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 export interface Queryable {
   query(sql: string, params?: any[]): Promise<{ rows: any[]; rowCount?: number | null }>;
@@ -11,20 +12,23 @@ export interface Database extends Queryable {
   transaction<T>(fn: (tx: Queryable) => Promise<T>): Promise<T>;
   close(): Promise<void>;
 }
-export async function database(url?: string, path = '.data/postgres'): Promise<Database> {
+export async function database(url?: string, path = fileURLToPath(new URL('../.data/postgres', import.meta.url))): Promise<Database> {
   if (url) {
     const pool = new pg.Pool({ connectionString: url, max: 10 });
     return {
       kind: 'postgres', query: (s, p) => pool.query(s, p),
       async transaction(fn) {
         const client = await pool.connect();
+        let broken: Error | undefined;
         try {
           await client.query('BEGIN');
           const result = await fn(client);
           await client.query('COMMIT');
           return result;
-        } catch (error) { await client.query('ROLLBACK'); throw error; }
-        finally { client.release(); }
+        } catch (error) {
+          try { await client.query('ROLLBACK'); } catch (rollbackError) { broken = rollbackError as Error; }
+          throw error;
+        } finally { client.release(broken); }
       },
       close: () => pool.end()
     };
