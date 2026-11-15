@@ -1,1 +1,9 @@
 dist/
+node_modules/
+.env
+.env.*
+!.env.example
+server/.data/
+server/build/
+server/coverage/
+server/.claude-results/
