@@ -9,7 +9,7 @@ if(kind==='galinha'){const hi=gold?'#ffe39a':'#fff7dd',mid=gold?'#e9b447':'#eadf
 r(6,10,14,9,mid);r(8,8,9,4,hi);r(5,12,3,6,sh);r(8,10,10,7,hi);r(9,15,9,4,mid);r(8,18,11,2,sh);r(17,4,6,10,hi);r(18,3,4,2,'#ce5a48');r(20,1,2,3,'#e06b50');r(21,6,1,2,'#372c25');r(23,8,2,2,'#e3a74a');r(20,11,2,3,'#c75a4b');r(9,11,6,4,mid);r(9,15,4,2,sh);r(8,20,2,3,'#b07a35');r(16,20,2,3,'#b07a35');r(6,22,4,1,'#d3a34b');r(15,22,4,1,'#d3a34b');r(3,8,3,6,hi);r(1,7,3,5,mid);}
 else{const hi=gold?'#f0cf85':'#fff3d8',mid=gold?'#cca15d':'#e4d5b5',sh=gold?'#9c733e':'#b9a58b';r(5,9,23,13,mid);r(6,8,19,9,hi);r(7,20,20,3,sh);r(26,6,8,13,hi);r(27,16,8,5,'#dba898');r(28,17,5,2,'#e8bca6');r(29,10,2,2,'#392c25');r(27,4,2,3,'#c7b48b');r(33,4,2,3,'#c7b48b');r(8,9,6,5,gold?'#946844':'#685c4d');r(18,13,6,6,gold?'#a87346':'#746655');r(7,22,3,5,sh);r(24,22,3,5,sh);r(7,26,4,1,'#57493a');r(24,26,4,1,'#57493a');r(2,11,2,11,sh);r(1,20,3,3,'#65503d');}
 const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');for(let y=0;y<H;y++)for(let x0=0;x0<W;x0++){let col=g[y][x0];if(!col){let n=g[y][x0-1]||g[y][x0+1]||(g[y-1]||[])[x0]||(g[y+1]||[])[x0];if(n)col='#50402f';}if(col){x.fillStyle=col;x.fillRect(x0,y,1,1);}}u=c.toDataURL();cache.set(key,u);}
-const k=kind==='galinha'?(w>=32?2:1):(w>=60?2:1),W=kind==='galinha'?26:36,H=kind==='galinha'?24:28;return '<img class="farm-animal" src="'+u+'" width="'+W*k+'" height="'+H*k+'" alt="'+esc(label||kind)+'" draggable="false">';}
+if(w===0)return u;const k=kind==='galinha'?(w>=32?2:1):(w>=60?2:1),W=kind==='galinha'?26:36,H=kind==='galinha'?24:28;return '<img class="farm-animal" src="'+u+'" width="'+W*k+'" height="'+H*k+'" alt="'+esc(label||kind)+'" draggable="false">';}
 function image(u){let i=imgs.get(u);if(!i){i=new Image();imgs.set(u,i);i.onload=()=>{signature='';if(latest)paint(latest)};i.src=u;}return i;}
 function paint(s){latest=s;const scene=document.getElementById('scene');if(!scene)return layout;const W=Math.ceil(scene.clientWidth/2),H=Math.ceil(scene.clientHeight/2),sig=[W,H,s.model,s.coopCap,s.pastCap].join('|');if(sig===signature)return layout;signature=sig;
 let c=document.getElementById('farmLandscape');if(!c){c=document.createElement('canvas');c.id='farmLandscape';c.setAttribute('aria-label','Cenário da fazenda com celeiro, quitanda, árvores, canteiros e decoração original do Frutódromo');c.setAttribute('role','img');scene.prepend(c);}c.width=W;c.height=H;c.style.width=W*2+'px';c.style.height=H*2+'px';const x=c.getContext('2d');x.imageSmoothingEnabled=false;
@@ -44,10 +44,12 @@ function position(el,z){el.style.left=z.x*2+'px';el.style.top=z.y*2+'px';el.styl
 position(document.getElementById('coopZone'),coop);position(document.getElementById('pastZone'),past);position(document.getElementById('plots'),plots);
 document.getElementById('plots').style.gridTemplateColumns='repeat(2,minmax(0,1fr))';
 const labels=scene.querySelectorAll('.zlabel');[coop,past,plots].forEach((z,i)=>{labels[i].style.left=(z.x+2)*2+'px';labels[i].style.top=(z.y-12)*2+'px';});
-const farmer=document.getElementById('farmer');farmer.style.left=worker.x*2+'px';farmer.style.top=worker.y*2+'px';
+const farmer=document.getElementById('walker')||document.getElementById('farmer');farmer.style.left=worker.x*2+'px';farmer.style.top=worker.y*2+'px';
+if(document.getElementById('walker')){const hero=window.FZ_SPR&&window.FZ_SPR.chars[s.hero];farmer.dataset.kind=hero&&hero.kind||'person';document.getElementById('farmer').style.setProperty('--s',2);}
+scene.dataset.compact=String(compact);const visitors=document.getElementById('custs');if(visitors){visitors.style.left=(marketX+(compact?17:-10))*2+'px';visitors.style.top=(marketY+4)*2+'px';visitors.style.right='auto';}
 return layout;}
 function placeAnimal(el,a,l){const z=a.kind==='galinha'?l.coop:l.past,w=a.kind==='galinha'?26:36,h=a.kind==='galinha'?24:28;el.style.left=2*Math.round(z.x+4+a.x/100*Math.max(0,z.w-w-7))+'px';el.style.top=2*Math.round(z.y+4+a.y/65*Math.max(0,z.h-h-10))+'px';}
 function floatPoint(f){if(!layout)return {x:0,y:0};const z=f.zone==='galinha'?layout.coop:layout.past;return{x:2*Math.round(z.x+4+f.x/100*Math.max(0,z.w-32)),y:2*Math.round(z.y+f.y/65*Math.max(0,z.h-20))};}
-window.FazendaVisual={person,animal,layout:paint,placeAnimal,floatPoint};
+window.FazendaVisual={person,animal,animalUrl:(kind,gold)=>animal(kind,0,gold?'#f7c331':null),layout:paint,placeAnimal,floatPoint};
 new ResizeObserver(()=>{signature='';if(latest)paint(latest)}).observe(document.getElementById('scene'));
 })();

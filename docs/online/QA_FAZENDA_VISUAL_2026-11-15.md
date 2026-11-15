@@ -2,6 +2,16 @@
 
 15/11/2026, Codex. Branch `codex/fazenda-visual`, base `c7a5903c45fac804742b8edb68efc2f9f3ba65ed` do Claude.
 
+## Integração seguinte: `d4e4e45`
+O Claude publicou uma revisão concorrente durante esta rodada. Ela foi integrada nesta branch preservando o seletor de personagens, clientes/expressões, frutas originais e save `fazenda_proto_v2`. O histórico abaixo registra a primeira passagem em v1; os fatos desta seção prevalecem para o resultado integrado.
+
+- Comparação de economia/RNG/estado/produção e offline/loop com `d4e4e45`: idênticos. Ações/compras idênticas após normalizar a mudança de texto “caldeirão” → “chocadeira”.
+- A interface deixou de referenciar o caldeirão; ovo dourado aparece como ovo na chocadeira. Genética não foi adicionada.
+- Teste real após integração: entrada com o personagem original Unidade K7, Eric/Boa Vista; recarga preservou personagem/fazenda e produção no save v2.
+- Ovo dourado obtido pela produção normal e colocado na chocadeira; ativação de adubo por 5 diamantes, 40 → 35; encomenda de Júlia entregue e agradecimento visível; venda de comuns e saldo de 170 moedas observados. A eclosão completa não foi auditada nesta passagem.
+- Console capturado após carregamento e entrada integrada: nenhum erro ou aviso. A sintaxe inline, a fonte de save v2 e a ausência de referências de interface ao caldeirão foram conferidas.
+- Direção de gameplay Hay Day e proposta do nome Brotalume estão em `DIRECAO_ATUAL.md`. Edição livre da fazenda/cadeias produtivas ainda não foram implementadas.
+
 ## Pedido e resultado
 Eric rejeitou os blocos genéricos da primeira tela e pediu reaproveitar o design do Frutódromo. Caldeirão e cruzamentos não pertencem à fazenda atual.
 

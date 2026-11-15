@@ -1,6 +1,6 @@
 # Protótipo descartável da fazenda idle
 
-Página `index.html` com recursos visuais locais, sem servidor de jogo. Serve para testar com 5 a 10 pessoas se o ciclo da fazenda diverte. Não é a base do jogo final. Não usa o save do Frutódromo: a fazenda fica salva só no navegador, em `localStorage["fazenda_proto_v1"]`.
+Página `index.html` com recursos visuais locais, sem servidor de jogo. Serve para testar com 5 a 10 pessoas se o ciclo da fazenda diverte. Não é a base do jogo final. Não usa o save do Frutódromo: a fazenda fica salva só no navegador, em `localStorage["fazenda_proto_v2"]`.
 
 ## Reaproveitamento visual — 15/11/2026
 Após o pedido do Eric para reaproveitar o design existente, o Codex criou `codex/fazenda-visual` sobre `claude/fazenda-prototipo` (`c7a5903`).
@@ -39,3 +39,6 @@ Playwright/Chromium em 390×844 e 1280×800, sem erros de página. O teste cobre
 - volta depois de 2 h fora;
 - chocar ovo dourado e entregar encomenda;
 - modo AFK e diário.
+
+## Integração com o trabalho seguinte do Claude
+A revisão incorpora `d4e4e45`: seletor de personagens originais na entrada, frutas originais da horta, clientes e expressões nas encomendas, fontes/ativos locais e save v2. O cenário exterior e a apresentação do Codex foram preservados. O caldeirão foi retirado da eclosão; a interface usa chocadeira/ninho. O Frutódromo publicado continua separado.

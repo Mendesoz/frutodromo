@@ -9,6 +9,7 @@ Eric autorizou criar uma branch separada para pensar e trabalhar nesta direção
 O escopo desta entrega é organizar a frente, propor o conceito e obter análise do Claude. O conceito detalhado, o protótipo, a arte e a operação financeira ainda precisam ser definidos. Não há receita, demanda, rentabilidade ou saques validados.
 
 ## Comece aqui
+0. [Direção atual: Brotalume, gameplay de fazenda e coordenação](DIRECAO_ATUAL.md). Prevalece sobre o brief histórico de cruzamentos.
 1. [Regras desta frente](AGENTS.md).
 2. [Conceito e primeira prova](BRIEF.md).
 3. [Economia e aquisição de jogadores](ECONOMY_AND_GROWTH.md).
