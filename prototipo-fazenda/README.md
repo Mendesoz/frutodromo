@@ -1,14 +1,17 @@
 # Protótipo descartável da fazenda idle
 
-Página única (`index.html`), sem servidor. Serve para testar com 5 a 10 pessoas se o ciclo da fazenda diverte. Não é a base do jogo final. Não usa o save do Frutódromo: a fazenda fica salva só no navegador, em `localStorage["fazenda_proto_v2"]`.
+Página `index.html` com recursos visuais locais, sem servidor de jogo. Serve para testar com 5 a 10 pessoas se o ciclo da fazenda diverte. Não é a base do jogo final. Não usa o save do Frutódromo: a fazenda fica salva só no navegador, em `localStorage["fazenda_proto_v2"]`.
 
-## Reaproveitado do Frutódromo
-- **Personagens:** as folhas de sprites dos clientes, com 3 quadros e 5 expressões, viram o fazendeiro escolhido na entrada e os clientes das encomendas. Os clientes ficam preocupados quando o tempo acaba e felizes na entrega; os VIPs pedem ovo dourado.
-- **Frutas:** morango, melancia e abacaxi são os cultivos da horta. Os híbridos viram a "fruta rara".
-- **Caldeirão:** é onde se choca o ovo dourado.
-- **Interface:** molduras de papel, botão, VIP e modal; madeira do cabeçalho; fundo xadrez; fonte Pixelify Sans; animação parada e de passo dos personagens.
-- **Bichos e ícones novos:** galinha, vaca, ovo e leite, feitos com a mesma técnica `art()` (grade + paleta + contorno #2a1a12).
-- **Como regenerar:** `sprites.js` é gerado por `tools/export_sprites.py`, que roda o jogo publicado e salva o que ele desenha. `fonts/` é cópia de `fonts/` do jogo (licença OFL).
+## Reaproveitamento visual — 15/11/2026
+Após o pedido do Eric para reaproveitar o design existente, o Codex criou `codex/fazenda-visual` sobre `claude/fazenda-prototipo` (`c7a5903`).
+- `reused-art.js`: cópia delimitada das molduras 9-slice, motor de personagens CH, objetos DECO, toldo, nuvens e texturas de `js/game.js`, base publicada `b475703`. Nenhum código de produção, caldeirão, genética ou salvamento é executado por esse módulo.
+- Personagem e retrato originais, com pernas/botas adicionadas na versão de corpo inteiro usada no campo. Caixotes, barril, sacos, balança, lousa e planta são os sprites reais do Frutódromo.
+- `visual.js`: cenário exterior, novas cercas e construções, animais com contorno e sombreamento coerentes; adapta a posição dos elementos ao telefone em pé e ao computador.
+- `visual.css`: fonte embutida do jogo, molduras originais, botões e painéis claros. Sem Google Fonts e sem dependências novas.
+- Regras, preços, RNG, produção, ações, offline e save do protótipo foram preservados. A adaptação é visual; não adiciona mercado real ou pagamentos.
+- Para regenerar a cópia dos ativos: `node prototipo-fazenda/tools/extract-art.cjs`, a partir da raiz. A arte é uma fotografia da base de origem; revisar o diff ao regenerar com uma nova versão do jogo.
+
+[Relatório da verificação](../docs/online/QA_FAZENDA_VISUAL_2026-11-15.md) · [Tela desktop](docs/visual-desktop.jpg) · [Tela no celular](docs/visual-celular.jpg).
 
 ## O que tem
 - Criação do fazendeiro e da fazenda, com modelo à escolha: Vale, Serra ou Litoral.
@@ -36,3 +39,6 @@ Playwright/Chromium em 390×844 e 1280×800, sem erros de página. O teste cobre
 - volta depois de 2 h fora;
 - chocar ovo dourado e entregar encomenda;
 - modo AFK e diário.
+
+## Integração com o trabalho seguinte do Claude
+A revisão incorpora `d4e4e45`: seletor de personagens originais na entrada, frutas originais da horta, clientes e expressões nas encomendas, fontes/ativos locais e save v2. O cenário exterior e a apresentação do Codex foram preservados. O caldeirão foi retirado da eclosão; a interface usa chocadeira/ninho. O Frutódromo publicado continua separado.

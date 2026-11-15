@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Fazenda idle — protótipo</title>
+<title>Brotalume — fazenda idle</title>
 <style>
 @font-face{font-family:"Pixelify Sans";font-weight:400;font-display:swap;src:url(fonts/pixelify-sans-latin-400-normal.woff2) format("woff2")}
 @font-face{font-family:"Pixelify Sans";font-weight:600;font-display:swap;src:url(fonts/pixelify-sans-latin-600-normal.woff2) format("woff2")}
@@ -111,12 +111,13 @@ header h1{margin:0;font-size:19px;line-height:1.1}
 .stats3 span{font-size:12px}
 .hidden{display:none!important}
 </style>
+<link rel="stylesheet" href="visual.css">
 </head>
 <body>
 <div class="wrap">
   <header class="top">
     <div class="chr" id="avatar" aria-hidden="true"></div>
-    <div class="who"><h1 id="farmName">Fazenda</h1><span id="farmerName"></span></div>
+    <div class="who"><span class="game-brand">BROTALUME</span><h1 id="farmName">Fazenda</h1><span id="farmerName"></span></div>
     <div class="money">
       <span class="chip"><i class="coin"></i><span id="coins">0</span></span>
       <span class="chip"><i class="dia"></i><span id="dia">0</span></span>
@@ -127,8 +128,8 @@ header h1{margin:0;font-size:19px;line-height:1.1}
   </header>
 
   <div class="grid">
-    <section class="panel fr-dark" aria-label="Fazenda">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px">
+    <section class="panel fr-dark farm-panel" aria-label="Fazenda">
+      <div class="scene-heading" style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px">
         <span class="label">Rendendo agora: <b id="rate" style="color:var(--gold)">0</b> moedas/h</span>
         <span class="label" id="boostTxt" style="color:var(--gold)"></span>
       </div>
@@ -136,8 +137,8 @@ header h1{margin:0;font-size:19px;line-height:1.1}
         <div class="cloud" style="top:20px;width:60px"></div>
         <div class="cloud" style="top:44px;width:44px;animation-delay:-24s"></div>
         <div class="hill"></div><div class="grass"></div>
-        <div class="zone" style="left:2%;width:38%"></div><span class="zlabel" style="left:3%">GALINHEIRO</span>
-        <div class="zone" style="left:42%;width:26%"></div><span class="zlabel" style="left:43%">CURRAL</span>
+        <div class="zone" id="coopZone" style="left:2%;width:38%"></div><span class="zlabel" style="left:3%">GALINHEIRO</span>
+        <div class="zone" id="pastZone" style="left:42%;width:26%"></div><span class="zlabel" style="left:43%">CURRAL</span>
         <span class="zlabel" style="left:71%">HORTA</span>
         <div id="plots" style="left:70%;width:28%"></div>
         <div id="critters"></div>
@@ -145,10 +146,10 @@ header h1{margin:0;font-size:19px;line-height:1.1}
         <div id="custs"></div>
         <div class="full hidden" id="fullTag">Armazém cheio: venda para continuar rendendo</div>
       </div>
-      <p class="note">Tudo é sorteado: a raridade e os atributos de cada animal, o produto raro e os achados. Os números são de teste.</p>
+      <p class="note">Cuide da horta, conheça seus animais e descubra o que a terra guardou para você.</p>
     </section>
 
-    <section class="panel fr-dark" aria-label="Ações">
+    <section class="panel fr-dark actions-panel" aria-label="Ações">
       <div class="tabs" role="tablist">
         <button class="btn tab" role="tab" data-tab="animais" aria-selected="true">Animais</button>
         <button class="btn tab" role="tab" data-tab="feira" aria-selected="false">Feira</button>
@@ -164,6 +165,8 @@ header h1{margin:0;font-size:19px;line-height:1.1}
 
 <div class="modal hidden" id="modal"><div class="box" id="modalBox" role="dialog" aria-modal="true"></div></div>
 
+<script src="reused-art.js"></script>
+<script src="visual.js"></script>
 <script src="sprites.js"></script>
 <script>
 (function(){
@@ -187,8 +190,8 @@ var COW=['..............hh..','.............wwww.','wwwwwwwwwwwwwwkww.','wwwbbbw
 var EGG=['.www.','wwwww','wwwww','wwwww','.www.'];
 var BOTTLE=['.cc.','.ww.','wwww','wmmw','wmmw','wwww'];
 var SPROUT=['..g..','.g.g.','..g..','..g..'];
-function chickenImg(gold){return art(CHICK,{w:gold?'#f7c331':'#ffffff',d:gold?'#d4a017':'#e9dcc3',r:'#e74c3c',o:'#f39c12',k:'#2a1a12'});}
-function cowImg(brown){return art(COW,{w:'#ffffff',b:brown?'#b5502a':'#2a1a12',h:'#e9dcc3',k:'#2a1a12',p:'#ffb3c7'});}
+function chickenImg(gold){return window.FazendaVisual.animalUrl('galinha',gold);}
+function cowImg(brown){return window.FazendaVisual.animalUrl('vaca',brown);}
 var ICON={ovo:art(EGG,{w:'#fff6e6'}),ovo_dourado:art(EGG,{w:'#f7c331'}),leite:art(BOTTLE,{c:'#c0392b',w:'#ffffff',m:'#eaf4ff'}),leite_premium:art(BOTTLE,{c:'#f7c331',w:'#fff3a0',m:'#f7c331'}),
   morango:SPR.fruits['Morango'],melancia:SPR.fruits['Melancia'],abacaxi:SPR.fruits['Abacaxi'],fruta_rara:SPR.hy[0]||SPR.fruits['Carambola Elétrica']};
 var SPROUT_IMG=art(SPROUT,{g:'#3d8b2a'});
@@ -324,12 +327,13 @@ var critterEls={};
 function zoneOf(kind){return kind==='galinha'?{l:2,w:38}:{l:42,w:26};}
 function orderEx(o){return o.done?'happy':o.left<60?'worry':'ok';}
 function renderScene(){
+  var visual=window.FazendaVisual.layout(S);
   var box=$('critters');var seen={};
   S.animals.forEach(function(a){seen[a.id]=1;var el=critterEls[a.id];
     if(!el){el=document.createElement('div');el.className='critter';
-      var src=a.kind==='galinha'?chickenImg(a.shiny):cowImg(a.shiny);var sc=a.kind==='galinha'?2:2.4;
-      el.innerHTML='<img alt="'+esc(a.name)+'" src="'+src+'" style="width:'+(a.kind==='galinha'?14*sc:20*sc)+'px">';box.appendChild(el);critterEls[a.id]=el;}
-    var z=zoneOf(a.kind);el.style.left=(z.l+a.x/100*(z.w-8))+'%';el.style.top=(196+a.y*0.9)+'px';
+      var src=a.kind==='galinha'?chickenImg(a.shiny):cowImg(a.shiny);
+      el.innerHTML='<img alt="'+esc(a.name)+'" src="'+src+'" style="width:'+(a.kind==='galinha'?52:72)+'px">';box.appendChild(el);critterEls[a.id]=el;}
+    window.FazendaVisual.placeAnimal(el,a,visual);
     el.classList.toggle('blocked',!!a.blocked);});
   Object.keys(critterEls).forEach(function(id){if(!seen[id]){critterEls[id].remove();delete critterEls[id];}});
   var ph='';S.plots.forEach(function(p,i){ph+='<div class="plot" id="plot'+i+'"><img alt="" src="'+(p.prog>0.5?ICON[p.crop]:SPROUT_IMG)+'"></div>';});
@@ -340,7 +344,7 @@ function renderScene(){
 function wander(){S.animals.forEach(function(a){a.x=Math.max(2,Math.min(92,a.x+rnd(-18,18)));a.y=Math.max(2,Math.min(62,a.y+rnd(-14,14)));});}
 function flushFloats(){var sc=$('scene'),sr=sc.getBoundingClientRect();floats.splice(0).slice(0,6).forEach(function(f){var el=document.createElement('div');el.className='float'+(f.rare?' rare':'');el.textContent=f.txt;
   if(f.plot!=null){var pe=$('plot'+f.plot);if(!pe)return;var r=pe.getBoundingClientRect();el.style.left=Math.min(r.left-sr.left,sr.width-120)+'px';el.style.top=(r.top-sr.top-14)+'px';}
-  else{var z=zoneOf(f.zone);el.style.left=Math.min((z.l+f.x/100*(z.w-8))*sr.width/100,sr.width-120)+'px';el.style.top=(180+f.y*0.9)+'px';}
+  else{var point=window.FazendaVisual.floatPoint(f);el.style.left=Math.min(point.x,sr.width-120)+'px';el.style.top=point.y+'px';}
   sc.appendChild(el);setTimeout(function(){el.remove();},1500);});}
 
 function tag(r){return '<span class="tag" style="background:'+RAR[r].c+'">'+RAR[r].n.toUpperCase()+'</span>';}
@@ -354,7 +358,7 @@ function renderTab(){
       h+='<div class="row '+(a.rar>=3||a.shiny?'fr-vip':a.rar>=2?'fr-rare':'fr-paper')+'"><img class="ico" alt="" src="'+(a.kind==='galinha'?chickenImg(a.shiny):cowImg(a.shiny))+'">'+
       '<div class="grow"><span class="t">'+esc(a.name)+' '+(a.shiny?'<span class="shiny">BRILHANTE</span>':'')+'</span><span class="s">'+k.n+' · '+(60*a.prod/k.cycle*speedMult()).toFixed(1)+' '+ITEMS[k.item].n.toLowerCase()+'/min · '+(a.rareCh*100).toFixed(1)+'% '+ITEMS[k.rare].n.toLowerCase()+' · '+a.life+' produções de vida</span>'+
       '<div class="bar"><i style="width:'+Math.min(100,a.prog*100)+'%"></i></div></div>'+tag(a.rar)+'</div>';});
-    S.hatch.forEach(function(x){h+='<div class="row fr-vip">'+(SPR.pot?'<img class="ico" alt="" src="'+SPR.pot+'">':'')+'<div class="grow"><span class="t">Ovo dourado no caldeirão</span><span class="s">'+(x.left>0?'nasce em '+mmss(x.left):'pronto, falta vaga no galinheiro')+' · raridade sorteada ao nascer</span></div></div>';});
+    S.hatch.forEach(function(x){h+='<div class="row fr-vip">'+ico('ovo_dourado')+'<div class="grow"><span class="t">Ovo dourado na chocadeira</span><span class="s">'+(x.left>0?'nasce em '+mmss(x.left):'pronto, falta vaga no galinheiro')+' · raridade sorteada ao nascer</span></div></div>';});
     h+='</div><p class="note">Galinheiro '+coopUsed()+'/'+S.coopCap+' · Curral '+pastUsed()+'/'+S.pastCap+'. Animais se aposentam depois de um número de produções.</p>';
     h+='<div class="label" style="margin-top:8px">Horta</div><div class="list">';
     S.plots.forEach(function(p,i){h+='<div class="row fr-paper">'+ico(p.crop)+'<div class="grow"><span class="t">Canteiro '+(i+1)+': '+CROPS[p.crop].n+'</span><div class="bar"><i style="width:'+Math.min(100,p.prog*100)+'%"></i></div></div>'+
@@ -367,7 +371,7 @@ function renderTab(){
     keys.forEach(function(k){var it=ITEMS[k];
       h+='<div class="row '+(it.rare?'fr-vip':'fr-paper')+'">'+ico(k)+'<div class="grow"><span class="t">'+S.store[k]+'× '+it.n+'</span><span class="s">a feira paga '+fmt(priceOf(k))+' cada</span></div>'+
       '<button class="btn small" data-sell="'+k+'" data-n="1" type="button">Vender 1</button>'+(it.rare?'':'<button class="btn small go" data-sell="'+k+'" data-n="all" type="button">Tudo</button>')+'</div>';
-      if(k==='ovo_dourado')h+='<div class="row fr-rare">'+(SPR.pot?'<img class="ico" alt="" src="'+SPR.pot+'">':'')+'<div class="grow"><span class="t">Chocar no caldeirão</span><span class="s">Em 45 s nasce uma galinha com mais chance de ser rara. Precisa de vaga no galinheiro.</span></div><button class="btn small vip" data-hatch="1" type="button">Chocar</button></div>';});
+      if(k==='ovo_dourado')h+='<div class="row fr-rare">'+ico('ovo_dourado')+'<div class="grow"><span class="t">Chocar na chocadeira</span><span class="s">Em 45 s nasce uma galinha com mais chance de ser rara. Precisa de vaga no galinheiro.</span></div><button class="btn small vip" data-hatch="1" type="button">Chocar</button></div>';});
     h+='</div>';
     if(keys.some(function(k){return !ITEMS[k].rare;}))h+='<button class="btn go" style="margin-top:6px;width:100%" data-sellall="1" type="button">Vender todos os comuns</button>';
     h+='<p class="note">A feira compra sempre, mas paga menos que as encomendas.</p>';}
@@ -416,7 +420,7 @@ document.addEventListener('click',function(e){var b=e.target.closest('button');i
     S.store[k]-=n;var v=priceOf(k)*n;S.coins+=v;S.stats.soldNpc+=n;S.stats.earnedNpc+=v;if(k==='ovo_dourado')S.stats.goldenSold+=n;
     log('Vendeu '+n+'× '+ITEMS[k].n.toLowerCase()+' na feira por '+fmt(v)+' moedas.');}
   if(b.dataset.sellall){Object.keys(S.store).forEach(function(k){if(!ITEMS[k].rare&&S.store[k]>0){var n=S.store[k];var v=priceOf(k)*n;S.coins+=v;S.stats.soldNpc+=n;S.stats.earnedNpc+=v;S.store[k]=0;}});log('Vendeu todos os comuns na feira.');}
-  if(b.dataset.hatch){if((S.store.ovo_dourado||0)<1)return;S.store.ovo_dourado--;S.hatch.push({left:45});S.stats.goldenHatched++;log('Colocou um ovo dourado para chocar no caldeirão.');}
+  if(b.dataset.hatch){if((S.store.ovo_dourado||0)<1)return;S.store.ovo_dourado--;S.hatch.push({left:45});S.stats.goldenHatched++;log('Colocou um ovo dourado para chocar na chocadeira.');}
   if(b.dataset.order){var o=S.orders.find(function(x){return x.id===b.dataset.order;});if(!o||o.done||(S.store[o.item]||0)<o.qty)return;
     S.store[o.item]-=o.qty;S.coins+=o.pay;S.stats.orders++;S.stats.earnedOrders+=o.pay;if(o.item==='ovo_dourado')S.stats.goldenOrder++;
     log(nameOf(o.cu)+' recebeu '+o.qty+'× '+ITEMS[o.item].n.toLowerCase()+' e pagou '+fmt(o.pay)+' moedas.');o.done=Date.now();}

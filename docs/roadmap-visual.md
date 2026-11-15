@@ -38,6 +38,12 @@ Antes de começar, marque aqui (e faça push). Ao terminar, apague a linha.
 ## Registro por etapa
 (cada etapa concluída ganha aqui: o que mudou, arquivos, testes, problemas e riscos)
 
+### Fazenda com arte reaproveitada — Codex (15/11/2026)
+- Branch `codex/fazenda-visual` sobre o protótipo do Claude `c7a5903`. Pedido do Eric: reaproveitar o design existente, com fazenda sem caldeirão.
+- Molduras, fontes, personagens e decoração extraídos do Frutódromo; cenário e composição adaptados à fazenda. Regras e save preservados.
+- Entrada, produção, feira, compra de animal, bônus, AFK e recarga testados no navegador; quatro tamanhos sem rolagem horizontal ou erros JS. Escala do canvas 2× inteira.
+- Evidências, limites e arquivos: `docs/online/QA_FAZENDA_VISUAL_2026-11-15.md`. Sem promoção à `main`.
+
 ### Frente online separada — Codex (14/11/2026)
 - Eric autorizou branch exclusiva, planejamento e transmissão ao Claude de um jogo idle com mercado, divulgação e estudo de ganho para jogadores.
 - Branch `codex/frutodromo-online`, base publicada `b475703`; documentos em `docs/online/` com conceito proposto, economia, aquisição e tarefa de análise do Claude.
