@@ -1,6 +1,6 @@
 # QA da base online — 15/11/2026
 
-Código validado: `886d289cc4b6c0e7714c713064de399a3acd6e87`, branch `codex/fazenda-online-base`, [PR #30](https://github.com/Mendesoz/frutodromo/pull/30). Piloto isolado da apresentação e do Frutódromo publicado.
+Código final validado: `4234e4d968db5ec723973e9ceea9baa1aae5d466`, branch `codex/fazenda-online-base`, [PR #30](https://github.com/Mendesoz/frutodromo/pull/30). Piloto isolado da apresentação e do Frutódromo publicado. A primeira passagem abaixo registra também a base anterior886d289.
 
 ## Resultado observado
 
@@ -39,6 +39,8 @@ Revisão adicional do código real concluída com `npm run review:claude`: [CLAU
 - Item de saída explícito por receita; sessão com limpeza/limite de10; caminho de banco ancorado em server/ e proteção .data no Git.
 - Resgate aguarda jobs/ração/entrega possível. Não exigir inventário estritamente vazio: 1 ovo isolado não completa o pedido de2 e essa exigência criaria travamento. Caso coberto por teste.
 
-Após ajustes, `npm run verify` passou com **18 testes locais** e build PASS. Relógio abruptamente incorreto no próprio banco, arquivo de operações e demais limites operacionais permanecem pendências documentadas; não foi aplicado um teto arbitrário que bloquearia retornos legítimos após ausência longa. A CI da revisão precisa ser conferida antes de concluir o marco.
+Após ajustes, `npm run verify` passou com **18 testes locais** e build PASS. A [CI final43709893238](https://github.com/Mendesoz/frutodromo/actions/runs/43709893238), job132798958579, concluiu **SUCCESS** com PostgreSQL17 real:18testes, tipos, build, auditoria e sintaxe. Inclui repetição da mesma chave e capacidade concorrente entre duas instâncias. Servidor compilado reiniciado com as correções, migração002 aplicada e health HTTP200.
+
+Relógio abruptamente incorreto no próprio banco, arquivo de operações e demais limites operacionais permanecem pendências documentadas; não foi aplicado um teto arbitrário que bloquearia retornos legítimos após ausência longa.
 
 Nenhuma nova UI foi entregue nesta rodada; não houve novo teste de navegador/resoluções. A prévia visual continua local/offline, sem esta API. Não há mercado P2P, hospedagem do backend, restauração de backup testada, dinheiro real ou medição de balanceamento/retorno de jogadores. O limitador de login atual é por processo/IP; operação pública exigirá limite distribuído e demais itens de server/README.md. Esta validação autoriza avançar no piloto, não comprova prontidão comercial.

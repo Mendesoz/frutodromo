@@ -9,7 +9,6 @@ Antes de começar, marque aqui (e faça push). Ao terminar, apague a linha.
 
 | Agente | Área | Arquivos / funções | Desde |
 |---|---|---|---|
-| Codex | Base online autorizada por Eric; banco, API, testes e coordenação | `server/`, `.github/workflows/fazenda-online.yml`, `docs/online/PLANO_NOVEMBRO.md` — branch `codex/fazenda-online-base`; preserva visual e main | 15/11/2026 |
 | Claude | Etapa 6A — Personagens | `js/game.js` (`charImg`, `personImg`, `renderCounter` só o `.pw`, loop de 250 ms, `showPortrait`), `css/style.css` (`.pw`, `.chr`, `bob`, `blk`, `.sweat`) | 13/11 14:15 |
 
 ## Pendências abertas (qualquer agente pode pegar, marcando acima)
@@ -38,6 +37,12 @@ Antes de começar, marque aqui (e faça push). Ao terminar, apague a linha.
 
 ## Registro por etapa
 (cada etapa concluída ganha aqui: o que mudou, arquivos, testes, problemas e riscos)
+
+### Base online isolada da fazenda — Codex + revisão Claude (15/11/2026)
+- Eric autorizou banco/backend, colaboração e plano até30/11. Branch `codex/fazenda-online-base`, [PR#30](https://github.com/Mendesoz/frutodromo/pull/30), [fila#31](https://github.com/Mendesoz/frutodromo/issues/31).
+- `server/`: conta/sessão, PostgreSQL, produção por tempo do banco, comandos transacionais idempotentes, inventário/razões, pedido NPC e expansão. Piloto virtual separado; frontend ainda não conectado.
+- Claude respondeu a duas chamadas dedicadas somente leitura (proposta/código); Codex aplicou achados pertinentes.18testes passaram local e em PostgreSQL17 real, build/auditoria/sintaxe PASS no CI43709893238, código4234e4d. [QA](online/QA_BASE_ONLINE_2026-11-15.md).
+- Próximo: mapa contínuo/cliente online, depois comércio entre duas contas. Automação de checks em cada envio e runner de revisão Claude; sem serviço permanente de desenvolvimento. Main, saves e arte publicados preservados.
 
 ### Fazenda com arte reaproveitada — Codex (15/11/2026)
 - Branch `codex/fazenda-visual` sobre o protótipo do Claude `c7a5903`. Pedido do Eric: reaproveitar o design existente, com fazenda sem caldeirão.
