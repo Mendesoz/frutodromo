@@ -7,7 +7,7 @@ function node(tag,className,text){const el=document.createElement(tag);if(classN
 
 export class MarketUI {
   constructor(context){
-    this.context=context;this.farm=null;this.data=null;this.loading=null;this.selected=null;this.signature='';this.epoch=0;
+    this.context=context;this.farm=null;this.data=null;this.loading=null;this.selected=null;this.tradeError='';this.signature='';this.epoch=0;
     $('marketShortcut').onclick=()=>this.open();
     $('marketToggle').onclick=()=>this.toggle();
     $('marketRefresh').onclick=()=>this.refresh(true);
@@ -27,17 +27,17 @@ export class MarketUI {
       if(b.dataset.marketAction==='cancel')void this.context.command({type:'market_cancel',listingId:b.dataset.id},'Anúncio cancelado. O lote voltou para o armazém.');
     });
     $('tradeConfirm').onclick=()=>{const listing=this.selected;if(listing)void this.context.command({type:'market_buy',listingId:listing.id},'Compra concluída. O lote chegou ao seu armazém.');};
-    $('tradeDialog').addEventListener('close',()=>this.selected=null);
+    $('tradeDialog').addEventListener('close',()=>{this.selected=null;this.tradeError='';});
     this.selectTab('offers');
   }
   setFarm(snapshot){
     const changed=this.farm?.farm.id!==snapshot.farm.id;
-    if(changed){this.selectTab('offers');this.epoch++;this.data=null;this.signature='';this.selected=null;$('tradeDialog').close();$('sellForm').reset();this.clearCards();}
-    this.farm=snapshot;this.updateForm(changed);this.setLocked();
+    if(changed){this.selectTab('offers');this.epoch++;this.data=null;this.signature='';this.selected=null;this.tradeError='';$('tradeDialog').close();$('sellForm').reset();this.clearCards();}
+    this.farm=snapshot;this.updateForm(changed);this.setLocked();this.renderPurchase();
     if(!$('marketContent').hidden)void this.refresh();
   }
   reset(){
-    this.selectTab('offers');this.epoch++;this.farm=null;this.data=null;this.selected=null;this.signature='';
+    this.selectTab('offers');this.epoch++;this.farm=null;this.data=null;this.selected=null;this.tradeError='';this.signature='';
     $('tradeDialog').close();$('marketContent').hidden=true;$('marketToggle').setAttribute('aria-expanded','false');$('marketToggle').textContent='Visitar feira';this.clearCards();$('sellForm').reset();
   }
   clearCards(){for(const id of ['marketOffers','marketMine','marketTrades'])$(id).replaceChildren();}
@@ -118,23 +118,28 @@ export class MarketUI {
       b.disabled=locked||!listing||listing.status!=='active';
     }
     const current=this.data?.listings.find(l=>l.id===this.selected?.id);
-    $('tradeConfirm').disabled=locked||!this.canBuy(current);
+    $('tradeConfirm').disabled=locked||!!this.tradeError||!this.canBuy(current);
     this.message();
   }
   message(){if(this.context.locked())$('marketMessage').textContent='Há uma ação aguardando confirmação. Acompanhe o aviso no topo da fazenda.';else if(this.data)$('marketMessage').textContent='Moedas do jogo · produtos reservados até a venda ou cancelamento.';}
   canBuy(listing){if(!listing||!this.farm||listing.mine||listing.status!=='active')return false;const used=this.farm.inventory.reduce((sum,i)=>sum+i.quantity,0)+this.farm.reservedCapacity;return this.farm.coins>=listing.totalPrice&&used+listing.quantity<=this.farm.farm.capacity;}
-  purchaseDialog(id){if(this.context.locked()){this.message();return;}const listing=this.data?.listings.find(l=>l.id===id&&!l.mine);if(!listing)return;this.selected={...listing};this.renderPurchase();$('tradeDialog').showModal();}
+  purchaseDialog(id){if(this.context.locked()){this.message();return;}const listing=this.data?.listings.find(l=>l.id===id&&!l.mine);if(!listing)return;this.selected={...listing};this.tradeError='';this.renderPurchase();$('tradeDialog').showModal();}
   renderPurchase(){
     if(!this.selected)return;const latest=this.data?.listings.find(l=>l.id===this.selected.id);if(latest)this.selected={...latest};
     const l=this.selected;$('tradeTitle').textContent=`${l.quantity} × ${names[l.item]}`;$('tradeDescription').textContent=`Banca: ${l.sellerName}. O lote inteiro será entregue ao seu armazém.`;$('tradePrice').textContent=`${fmt(l.totalPrice)} moedas`;
     const used=(this.farm?.inventory.reduce((sum,i)=>sum+i.quantity,0)??0)+(this.farm?.reservedCapacity??0);
     const unavailable=!latest||latest.status!=='active';
-    $('tradeMessage').textContent=unavailable?'Este lote já saiu da feira. Escolha outra oferta.':this.farm.coins<l.totalPrice?'Ainda faltam moedas para este lote.':used+l.quantity>this.farm.farm.capacity?'Seu armazém precisa de mais espaço para receber este lote.':'O pagamento e a entrega são concluídos juntos.';
-    $('tradeConfirm').disabled=this.context.locked()||unavailable||!this.canBuy(l);
+    $('tradeMessage').textContent=this.tradeError||(unavailable?'Este lote já saiu da feira. Escolha outra oferta.':this.farm.coins<l.totalPrice?'Ainda faltam moedas para este lote.':used+l.quantity>this.farm.farm.capacity?'Seu armazém precisa de mais espaço para receber este lote.':'O pagamento e a entrega são concluídos juntos.');
+    $('tradeConfirm').disabled=this.context.locked()||!!this.tradeError||unavailable||!this.canBuy(l);
   }
   async sell(){
     if(!$('sellForm').reportValidity()||this.context.locked())return;
     await this.context.command({type:'market_list',item:$('sellItem').value,quantity:Number($('sellQuantity').value),unitPrice:Number($('sellPrice').value)},'Lote anunciado. Os produtos ficaram reservados na sua banca.');
   }
   confirmed(command){if(command.type==='market_buy')$('tradeDialog').close();if(command.type==='market_list'){this.selectTab('mine');$('sellQuantity').value='1';}if(command.type.startsWith('market_'))void this.refresh(true);}
+  failed(command,message,farmId){
+    if(this.farm?.farm.id!==farmId)return;
+    if(command.type==='market_buy'&&this.selected?.id===command.listingId){this.tradeError=message;this.renderPurchase();}
+    void this.refresh(true);
+  }
 }

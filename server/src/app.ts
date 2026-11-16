@@ -22,7 +22,7 @@ const commandSchema = { oneOf: [
   object({ type: { const: 'move' }, buildingId: { type: 'string', format: 'uuid' },
     x: { type: 'integer', minimum: WORLD_TILE_MIN, maximum: WORLD_TILE_MAX }, y: { type: 'integer', minimum: WORLD_TILE_MIN, maximum: WORLD_TILE_MAX } }),
   object({ type: { const: 'customize' }, hero: { type: 'integer', minimum: HERO_MIN, maximum: HERO_MAX } }),
-  object({ type: { const: 'market_list' }, item: { enum: ['corn','feed','egg'] }, quantity: { type: 'integer', minimum: 1, maximum: MARKET_RULES.maxQuantity }, unitPrice: { type: 'integer', minimum: 1, maximum: 30 } }),
+  object({ type: { const: 'market_list' }, item: { enum: ['corn','feed','egg'] }, quantity: { type: 'integer', minimum: 1, maximum: MARKET_RULES.maxQuantity }, unitPrice: { type: 'integer', minimum: 1, maximum: Math.max(...Object.values(MARKET_RULES.prices).map(price => price.max)) } }),
   object({ type: { const: 'market_buy' }, listingId: { type: 'string', format: 'uuid' } }),
   object({ type: { const: 'market_cancel' }, listingId: { type: 'string', format: 'uuid' } })
 ] };
