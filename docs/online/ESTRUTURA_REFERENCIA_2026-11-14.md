@@ -138,3 +138,17 @@ Leitura do Claude:
 - **Links:**
   - [Doc para apresentar a ideia](https://claude.ai/artifact/LPoKQNuLmVZeyYBj1goWS6) e [molde visual](https://claude.ai/artifact/K9bE1iks3yhaqZJdDkzS6G);
   - os dois são privados do Eric até ele compartilhar.
+
+## Objetivo do Eric — VIP e passe por farm (16/11)
+- Preço baixo, que dê vontade de comprar.
+- O VIP ou o passe também pode ser conseguido farmando, por exemplo com cerca de 15 dias seguidos de jogo.
+- O VIP libera mais farm e melhora a chance de conseguir itens melhores para vender, movimentando o mercado interno.
+
+## Proposta do Claude (não aprovada)
+- **Ficha VIP negociável** (modelo do "token" de MMOs):
+  - quem paga compra a ficha com diamantes e vende no mercado para quem farma;
+  - quem farma junta moedas e compra a ficha de outro jogador, ou de um NPC por um preço equivalente a cerca de 15 dias de jogo;
+  - o jogo não cria ficha de graça, então cada ficha veio de alguém que pagou.
+- **Vantagens do VIP sem risco jurídico:** mais farm (estufa e armazém extras, automação, vendedor automático, fila maior no caldeirão, recompensa diária maior).
+- **Ponto de atenção:** "VIP aumenta a chance de item melhor para vender" é pagar por mais sorte em algo que vale dinheiro. É a parte mais exposta ao ECA Digital (art. 20, loot boxes; em vigor desde 17/03/2026) e às regras de jogo de azar; precisa de parecer jurídico antes. Alternativa: o VIP dá mais tempo e mais espaço de produção, não mais sorte por produção.
+- **Preços de partida para testar** (sugestão, não pesquisa de mercado): VIP 30 dias por volta de R$ 9,90; passe da temporada por volta de R$ 14,90; pacotes pequenos de diamantes a partir de R$ 4,90.
