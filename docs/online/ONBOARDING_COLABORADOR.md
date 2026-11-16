@@ -1,6 +1,6 @@
 # Bem-vindo ao Brotalume, Gabriuus
 
-Você vai ajudar a construir um jogo de fazenda para navegador, usando seu agente de código para implementar e testar tarefas pequenas. Não precisa ler todo o histórico do Eric: este guia, a issue escolhida e os documentos indicados são o ponto de partida.
+Você vai ajudar a construir um jogo de fazenda para navegador, conduzindo **seu Claude Code para implementar e testar** tarefas pequenas. Você escolhe a issue, passa o contexto ao Claude, acompanha a prévia, confere a entrega e abre o PR; Codex/Eric revisam a integração. Não precisa escrever tudo manualmente nem ler todo o histórico do Eric: este guia, a issue escolhida e os documentos indicados são o ponto de partida.
 
 ## O que estamos construindo
 
@@ -24,11 +24,11 @@ Memória compartilhada do estúdio: [ai-game-studio](https://github.com/Mendesoz
 | Ordem | Issue | Entrega | Risco |
 |---|---|---|---|
 | 1 | [#32 — primeira sessão](https://github.com/Mendesoz/frutodromo/issues/32) | Rodar, jogar e registrar resultados | Documental |
-| 2 | [#33 — textos claros](https://github.com/Mendesoz/frutodromo/issues/33) | Até5 propostas de texto com antes/depois | Documental |
+| 2 | [#33 — ajuda de controles](https://github.com/Mendesoz/frutodromo/issues/33) | Claude implementa “Como jogar” recolhível no cliente | HTML/CSS delimitado |
 | 3 | [#34 — controles e telas pequenas](https://github.com/Mendesoz/frutodromo/issues/34) | QA reproduzível, sobretudo arraste e toque sustentado | Leitura/teste local |
-| 4 | [#35 — enfeites originais](https://github.com/Mendesoz/frutodromo/issues/35) | Três objetos num estudo em canvas isolado | Código visual isolado |
+| 4 | [#35 — enfeites originais](https://github.com/Mendesoz/frutodromo/issues/35) | Claude programa três objetos num estudo em canvas isolado | Código visual isolado |
 
-Comece pela32. As demais são fila, não quatro tarefas simultâneas. Depois dos primeiros PRs, podemos liberar uma correção pequena da interface com arquivos definidos. Economia, autenticação, banco, migrações, produção, CI, pagamentos e publicação continuam com a frente principal.
+Comece pela32. As demais são fila, não quatro tarefas simultâneas. As issues33 e35 já são tarefas de implementação, não apenas relatórios. A34 usa Claude para organizar/executar QA quando houver ferramentas, e Gabriel confere o comportamento real; aparelho físico só conta se efetivamente testado. Economia, autenticação, banco, migrações, produção, CI, pagamentos e publicação continuam com a frente principal.
 
 ## Preparar seu ambiente
 
@@ -61,12 +61,13 @@ Abra `http://127.0.0.1:8860/play/` e crie uma conta descartável. O banco local 
 6. Abra PR em **codex/fazenda-online-base**, com link da issue, resultado, arquivos, testes e imagem quando visual. Use “Relacionado a #32”; fechamento automático pode não ocorrer em branch diferente da default.
 7. Eric/Codex revisam; mudanças podem voltar para ajuste. Não fazer merge/publicação sozinho. Só depois da integração, liberar a reserva e concluir a issue; o responsável pela integração atualiza o centralizador.
 
-## Prompt pronto para usar com seu agente
+## Prompt pronto para usar com seu Claude
 
 Substitua o número da issue quando trocar de tarefa:
 
 ```text
 Vou contribuir como Gabriuus no Brotalume, repositório Mendesoz/frutodromo.
+Você é meu Claude de implementação; eu, Gabriel, acompanho e valido a entrega.
 Trabalhe somente na issue https://github.com/Mendesoz/frutodromo/issues/32.
 Leia docs/online/ONBOARDING_COLABORADOR.md, DIRECAO_ATUAL.md,
 os AGENTS.md aplicáveis, a issue e a tabela de reservas no roadmap.
@@ -81,6 +82,8 @@ Execute verificações adequadas e abra um PR pequeno para
 codex/fazenda-online-base, com resultados reais, limitações e evidência.
 Não faça merge. Explique cada passo em português simples.
 ```
+
+Para a33, troque o link e peça o componente funcionando. Para a35, peça a página de enfeites executável. Não deixe o Claude parar em “posso fazer”: a entrega é o escopo pronto, testado e em PR. Se autenticação ou ferramenta impedir o teste, registrar essa limitação; não inventar a execução.
 
 ## Modelo de entrega
 
