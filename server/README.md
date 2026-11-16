@@ -1,6 +1,6 @@
 # Base online da fazenda — piloto
 
-Entrada online separada do Frutódromo e do protótipo local. Cliente jogável em `/play/`, com cadastro/login, mapa, produção e expansão conectados à API. Nenhum save `frutodromo9`/`fazenda_proto_v2` é importado. Economia `pilot-resettable-v1`, virtual, pode ser zerada; não há mercado P2P, pagamento, saque ou saldo negociável.
+Entrada online separada do Frutódromo e do protótipo local. Cliente jogável em `/play/`, com cadastro/login, mapa, produção, expansão e feira entre jogadores conectados à API. Nenhum save `frutodromo9`/`fazenda_proto_v2` é importado. Economia `pilot-resettable-v1`, virtual, pode ser zerada; não há pagamento ou saque.
 
 ## Rodar
 
@@ -26,6 +26,7 @@ O cliente envia também `X-Farm-Id` nos comandos com a fazenda retornada pelo sn
 | POST `/api/auth/login` | `username`, `password` |
 | POST `/api/auth/logout` | `{}` |
 | GET `/api/farm` | relógio servidor, fazenda, moedas, inventário, construções, filas, terrenos, receitas e encomenda |
+| GET `/api/market` | exige sessão; ofertas, própria banca, últimos negócios e regras do piloto |
 | POST `/api/commands` | comando abaixo + header `Idempotency-Key` (8–100 letras/números/`_`/`-`) |
 
 Comandos:
@@ -36,6 +37,17 @@ Comandos:
 - `{"type":"expand","x":1,"y":0}`: apenas vizinho lateral, grade -2…2, custo 60×terrenos já comprados. Dá área, não máquinas/capacidade.
 - `{"type":"move","buildingId":"UUID","x":12,"y":4}`: move em tiles inteiros, só em terrenos próprios, sem sobrepor prédios/casa/banca; não altera a produção.
 - `{"type":"customize","hero":1}`: salva um dos 22 personagens originais, índice 0–21.
+- `{"type":"market_list","item":"corn","quantity":2,"unitPrice":2}`: reserva um lote inteiro; itens `corn`, `feed`, `egg`.
+- `{"type":"market_buy","listingId":"UUID"}`: compra o lote pelo preço imutável do anúncio no servidor.
+- `{"type":"market_cancel","listingId":"UUID"}`: devolve um lote próprio ainda ativo ao armazém.
+
+## Feira virtual
+
+“Feira” abre Ofertas, Minha banca e Negócios. O comprador confirma produto, quantidade e total antes de comprar. Sem taxa e sem fracionar lotes nesta etapa. Regras candidatas: até12 anúncios ativos por fazenda, até100 unidades por lote; milho1–6, ração2–18, ovo3–30 moedas por unidade. Não são preços validados por jogadores.
+
+Anunciar tira o produto do inventário disponível, mantendo uma reserva equivalente na capacidade. Cancelar converte reserva em estoque; comprar transfere todo o lote e as moedas na mesma transação, liberando o espaço do vendedor. Inventário + saídas de produção pendentes + lotes ativos nunca excedem a capacidade. Snapshot expõe `marketReservedCapacity`, `productionReservedCapacity` e a soma `reservedCapacity`.
+
+Compra trava as duas fazendas em ordem de UUID e só depois o anúncio; revalida estado e idempotência sob trava. `market_trades.listing_id` é único. Razões de moedas e eventos de inventário usam `trade:<id>`; custódia usa `listing:<id>` e devolução `listing:<id>:cancel`. Compras simultâneas, cancelamento contra compra e compras recíprocas foram testados no PostgreSQL17; ver [QA](../docs/online/QA_MERCADO_2026-11-16.md).
 
 ## Mapa e cliente
 
@@ -47,11 +59,11 @@ Arte: molduras, fontes, personagens, toldo e decoração originais reaproveitado
 
 Os números são candidatos de teste. Cadastro dá 80 moedas, 4 milhos, 2 canteiros, moinho e galinheiro. Milho consome 1/produz 2 em 30s; ração consome 2 milhos/produz 1 em 45s; ovo consome 1 ração/produz 1 em 60s. Canteiro comporta 1 trabalho, moinho/galinheiro 2 em sequência. Animais não se aposentam neste piloto. Não há raridades nem sorteio de produção.
 
-O resgate também exige ausência de ração, jobs pendentes e pedido completável (2 ovos). Um ovo isolado não impede resgate, pois não permite pagar/produzir outra semente e bloquear esse caso causaria travamento. Antes de comércio P2P, revisar a regra e a transferibilidade da semente recuperada.
+O resgate também exige ausência de ração, jobs pendentes, lotes ativos na feira e pedido completável (2 ovos). Um ovo isolado não impede resgate, pois não permite pagar/produzir outra semente e bloquear esse caso causaria travamento. Semente recuperada continua transferível neste piloto resetável; multicontas e concessões iniciais não têm proteção suficiente para economia pública.
 
 ## Invariantes
 
-- Cada comando bloqueia a própria fazenda em transação; consulta também bloqueia para acertar produção vencida uma única vez. Sem `setInterval` econômico. Todos os caminhos de mutação seguem a mesma trava.
+- Cada comando bloqueia a própria fazenda em transação; compra bloqueia as duas em ordem estável. Consulta da fazenda bloqueia para acertar produção vencida uma única vez; vitrine é leitura sem mutação. Sem `setInterval` econômico.
 - Horário vem do banco compartilhado (`clock_timestamp`), não do relógio do navegador ou de cada processo API; não retrocede por fazenda. A conclusão usa timestamps fixos, e jobs concluídos têm `claimed_at`. Sem produção infinita offline: só os trabalhos explicitamente enfileirados (máximo 1/2 por instalação). Injeção de clock existe apenas na construção do app para testes, inclusive cadastro; sessão sempre usa tempo real do banco.
 - Ingredientes saem ao enfileirar. Saídas reservam espaço imediatamente: inventário + reservas <= capacidade. Isso evita perder itens ou bloquear uma entrega com armazém cheio; é uma política piloto a testar na UI.
 - Repetir chave/payload devolve exatamente o recibo persistido; chave com outro payload dá409. Falha desfaz consumo, moedas, eventos e trabalho.
@@ -61,6 +73,6 @@ O resgate também exige ausência de ração, jobs pendentes e pedido completáv
 
 ## Antes de teste público
 
-Ainda faltam: mercado com reserva/transação entre fazendas; recuperação de conta e troca de senha; limites distribuídos por conta/IP (o limitador atual é por processo/IP); política de arquivo de jobs/operações; backup/restauração verificados; monitoramento do relógio do banco e intervenção em desvio abrupto; telemetria, TLS e configuração de hospedagem; teste de carga, abuso de contas múltiplas e revisão do resgate antes de itens transferíveis. Safari/iPhone real e conexão externa ainda precisam de QA específico. Não afirmar prontidão comercial ou antifraude completa.
+Ainda faltam: recuperação de conta e troca de senha; limites distribuídos por conta/IP (o limitador atual é por processo/IP); política de arquivo de jobs/operações; backup/restauração verificados; monitoramento do relógio do banco e intervenção em desvio abrupto; telemetria, TLS e configuração de hospedagem; teste de carga e controles contra abuso de contas múltiplas/concessões/resgate. Safari/iPhone real e conexão externa ainda precisam de QA específico. Não afirmar prontidão comercial ou antifraude completa.
 
 Referências técnicas: [PGlite](https://pglite.dev/docs/), [transações node-postgres](https://node-postgres.com/features/transactions), [validação Fastify](https://fastify.dev/docs/latest/Reference/Validation-and-Serialization/).

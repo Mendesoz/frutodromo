@@ -9,8 +9,6 @@ Antes de começar, marque aqui (e faça push). Ao terminar, apague a linha.
 
 | Agente | Área | Arquivos / funções | Desde |
 |---|---|---|---|
-| Codex | Mercado: integração API/cliente e QA | `server/src/{game,app,economy,domain,client}.ts`, `server/web/`, documentação | 16/11/2026 |
-| Claude delegado | Mercado: transações e testes | `server/src/market.ts`, `server/migrations/004_market.sql`, `server/test/market.test.ts`; sem editar integração/cliente | 16/11/2026 |
 | Claude | Etapa 6A — Personagens | `js/game.js` (`charImg`, `personImg`, `renderCounter` só o `.pw`, loop de 250 ms, `showPortrait`), `css/style.css` (`.pw`, `.chr`, `bob`, `blk`, `.sweat`) | 13/11 14:15 |
 
 ## Pendências abertas (qualquer agente pode pegar, marcando acima)
@@ -39,6 +37,12 @@ Antes de começar, marque aqui (e faça push). Ao terminar, apague a linha.
 
 ## Registro por etapa
 (cada etapa concluída ganha aqui: o que mudou, arquivos, testes, problemas e riscos)
+
+### Feira virtual entre contas — Codex + Claude (16/11/2026)
+- Mercado em `/play/`: ofertas, banca e histórico; lote reservado com compra/cancelamento atômicos. Claude entregou módulo/migração004/13testes em arquivos combinados; Codex integrou helpers/API/cliente, acrescentou testeHTTP/resgate e executou QA.
+- Código4f4b6cf, cobertura8aedd7c e correção de aviso a0622d8.44testes PostgreSQL17 verdes no CI43856745064;43locais e caso adicional dirigido passaram. Quatro telas sem overflow; duas contas compraram/venderam na UI com conservação e recarga. [QA e imagens](online/QA_MERCADO_2026-11-16.md).
+- Revisão independente Claude sem bloqueadores; Codex corrigiu erro escondido no diálogo e teto duplicado no schema. Recusa real por saldo gasto em outra aba mostrou o aviso dentro da janela, desabilitou a compra e atualizou o saldo. Riscos de multicontas/vitrine restrita explícitos no QA; piloto resetável, sem operação financeira.
+- Claude cloud recebeu atualização e confirmou separação do experimento VIP no handoff41ef83e. Áreas desta etapa liberadas; próximo marco é automação limitada. Main/saves/jogo publicado preservados.
 
 ### Mapa e cliente online — Codex + Claude (16/11/2026)
 - Cliente `/play/` conectado ao servidor; mapa contínuo, terreno vizinho, layouts/personagem persistentes, produção e pedido na UI. Claude implementou o layout em arquivos reservados; Codex integrou cenário/cliente e executou QA. Revisões Claude aplicadas, sem operação da interface do desktop para coordenar agentes.
