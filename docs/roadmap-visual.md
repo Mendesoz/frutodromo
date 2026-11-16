@@ -9,8 +9,6 @@ Antes de começar, marque aqui (e faça push). Ao terminar, apague a linha.
 
 | Agente | Área | Arquivos / funções | Desde |
 |---|---|---|---|
-| Codex | Cliente online e mapa contínuo | `server/web/`, `server/src/client.ts`, integração/QA — branch `codex/fazenda-online-base` | 15/11/2026 |
-| Claude via CLI delegado pelo Codex | Layout persistente e revisão de regras do mapa | `server/src/{layout,game,app}.ts`, migração003, `server/test/layout.test.ts`; sem editar cliente/arte | 15/11/2026 |
 | Claude | Etapa 6A — Personagens | `js/game.js` (`charImg`, `personImg`, `renderCounter` só o `.pw`, loop de 250 ms, `showPortrait`), `css/style.css` (`.pw`, `.chr`, `bob`, `blk`, `.sweat`) | 13/11 14:15 |
 
 ## Pendências abertas (qualquer agente pode pegar, marcando acima)
@@ -39,6 +37,11 @@ Antes de começar, marque aqui (e faça push). Ao terminar, apague a linha.
 
 ## Registro por etapa
 (cada etapa concluída ganha aqui: o que mudou, arquivos, testes, problemas e riscos)
+
+### Mapa e cliente online — Codex + Claude (16/11/2026)
+- Cliente `/play/` conectado ao servidor; mapa contínuo, terreno vizinho, layouts/personagem persistentes, produção e pedido na UI. Claude implementou o layout em arquivos reservados; Codex integrou cenário/cliente e executou QA. Revisões Claude aplicadas, sem operação da interface do desktop para coordenar agentes.
+-28testes passaram local/PostgreSQL17 real no CI43849272070, código23610f5; quatro telas sem overflow e escala inteira; ciclo completo e falhas de conexão/troca de conta testados na UI. [QA e imagens](online/QA_MAPA_ONLINE_2026-11-16.md).
+- Prévia local `http://127.0.0.1:8860/play/`; sem backend público, mercado P2P ou finanças. Main, saves e código do lançamento preservados. Próximo: comércio virtual entre duas contas.
 
 ### Base online isolada da fazenda — Codex + revisão Claude (15/11/2026)
 - Eric autorizou banco/backend, colaboração e plano até30/11. Branch `codex/fazenda-online-base`, [PR#30](https://github.com/Mendesoz/frutodromo/pull/30), [fila#31](https://github.com/Mendesoz/frutodromo/issues/31).

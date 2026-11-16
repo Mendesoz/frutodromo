@@ -2,7 +2,7 @@
 
 Leia docs/online/DIRECAO_ATUAL.md e PLANO_NOVEMBRO.md. server/ é o piloto online isolado; não alterar o Frutódromo publicado nem importar seus saves. Não editar .env, .data ou ler credenciais em revisões.
 
-Codex conduz esta base. Claude é revisor somente leitura nesta rodada; uma tarefa de escrita futura precisa identificar arquivos e objetivo antes do início, sem pedir nova autorização do Eric para desenvolvimento já autorizado. O runner de revisão não permite alterações.
+Codex conduz esta base. Na rodada de mapa, Claude implementou layout/migração/move/customize/testes nos arquivos explicitamente delegados; Codex fez cliente/estático/integração e executou testes. Revisões do Claude continuam somente leitura. Toda nova tarefa de escrita precisa identificar arquivos e objetivo antes do início, sem pedir nova autorização do Eric para desenvolvimento já autorizado. O runner de revisão não permite alterações.
 
 Checagens: `npm run verify`, `npm run build`; CI PostgreSQL precisa passar. PGlite não comprova concorrência real. Testes usam banco com sufixo _test e apagam somente esse banco; nunca usar DATABASE_URL real como TEST_DATABASE_URL.
 
