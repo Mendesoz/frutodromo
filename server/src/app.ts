@@ -6,6 +6,7 @@ import { auth } from './auth.js';
 import { registerClient } from './client.js';
 import { game, GameError, type Command } from './game.js';
 import { HERO_MAX, HERO_MIN, WORLD_TILE_MAX, WORLD_TILE_MIN } from './layout.js';
+import { market, MARKET_RULES } from './market.js';
 
 const text = (minLength: number, maxLength: number) => ({ type: 'string', minLength, maxLength });
 const credentials = {
@@ -20,7 +21,10 @@ const commandSchema = { oneOf: [
   object({ type: { const: 'expand' }, x: { type: 'integer', minimum: -2, maximum: 2 }, y: { type: 'integer', minimum: -2, maximum: 2 } }),
   object({ type: { const: 'move' }, buildingId: { type: 'string', format: 'uuid' },
     x: { type: 'integer', minimum: WORLD_TILE_MIN, maximum: WORLD_TILE_MAX }, y: { type: 'integer', minimum: WORLD_TILE_MIN, maximum: WORLD_TILE_MAX } }),
-  object({ type: { const: 'customize' }, hero: { type: 'integer', minimum: HERO_MIN, maximum: HERO_MAX } })
+  object({ type: { const: 'customize' }, hero: { type: 'integer', minimum: HERO_MIN, maximum: HERO_MAX } }),
+  object({ type: { const: 'market_list' }, item: { enum: ['corn','feed','egg'] }, quantity: { type: 'integer', minimum: 1, maximum: MARKET_RULES.maxQuantity }, unitPrice: { type: 'integer', minimum: 1, maximum: 30 } }),
+  object({ type: { const: 'market_buy' }, listingId: { type: 'string', format: 'uuid' } }),
+  object({ type: { const: 'market_cancel' }, listingId: { type: 'string', format: 'uuid' } })
 ] };
 
 export async function buildApp(db: Database, options: { origin?: string; production?: boolean; clock?: () => Date; logger?: boolean } = {}) {
@@ -32,6 +36,7 @@ export async function buildApp(db: Database, options: { origin?: string; product
   await app.register(rateLimit, { max: 120, timeWindow: '1 minute' });
   const accounts = auth(db, options.clock);
   const farms = game(db, options.clock);
+  const commerce = market(db, options.clock);
   const cookieOptions = { httpOnly: true, sameSite: 'lax' as const, secure: options.production ?? false, path: '/', maxAge: 7 * 86400 };
   app.addHook('onRequest', async (req, reply) => {
     reply.header('Cache-Control', 'no-store').header('X-Content-Type-Options', 'nosniff');
@@ -74,6 +79,7 @@ export async function buildApp(db: Database, options: { origin?: string; product
     return { ok: true };
   });
   app.get('/api/farm', async req => farms.snapshot(await accounts.player(req.cookies.brotalume_session)));
+  app.get('/api/market', async req => commerce.snapshot(await accounts.player(req.cookies.brotalume_session)));
   app.post<{ Body: Command }>('/api/commands', {
     schema: { body: commandSchema, headers: { type: 'object', required: ['idempotency-key'], properties: { 'idempotency-key': { type: 'string', pattern: '^[a-zA-Z0-9_-]{8,100}$' }, 'x-farm-id': { type: 'string', format: 'uuid' } } } }
   }, async req => farms.execute(await accounts.player(req.cookies.brotalume_session), String(req.headers['idempotency-key']), req.body,

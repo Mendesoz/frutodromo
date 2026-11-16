@@ -34,7 +34,7 @@
       <div id="heroPortrait" class="portrait" aria-hidden="true"></div><div class="farm-heading"><span class="brand">BROTALUME</span><h1 id="farmTitle">Minha fazenda</h1></div>
       <div class="wallet"><i class="coin" aria-hidden="true"></i><b id="coins">0</b><span>moedas</span></div>
       <div class="storage"><span>Armazém <b id="capacity">0 / 200</b></span><div class="meter"><i id="capacityBar"></i></div></div>
-      <button id="profileButton" type="button" class="button compact" aria-expanded="false">Personagem</button><button id="logout" type="button" class="button compact">Sair</button>
+      <button id="marketShortcut" type="button" class="button compact" aria-controls="marketContent">Feira</button><button id="profileButton" type="button" class="button compact" aria-expanded="false">Personagem</button><button id="logout" type="button" class="button compact">Sair</button>
     </header>
     <div id="profilePanel" class="profile-panel frame-paper" hidden><h2>Quem cuida da sua fazenda?</h2><div id="heroChoices" class="hero-choices"></div></div>
     <div id="notice" class="notice" role="status" aria-live="polite"><span id="noticeText">Sua fazenda está pronta.</span><button id="retry" type="button" class="button compact" hidden>Tentar novamente</button><button id="refresh" type="button" class="button compact" hidden>Reconectar</button></div>
@@ -53,8 +53,24 @@
         <section class="order-card frame-paper"><div class="order-heading"><div class="portrait customer" id="customer" aria-hidden="true"></div><div><span class="eyebrow">ENCOMENDA DA VIZINHA</span><h2>Uma cesta para Iara</h2></div></div><p>“Consegue separar dois ovos fresquinhos?”</p><div class="order-detail"><span id="orderStock">0 / 2 ovos</span><strong>+18 moedas</strong></div><button id="deliver" type="button" class="button primary">Entregar encomenda</button></section>
       </aside>
     </div>
+    <section id="marketSection" class="market-section frame-wood" aria-labelledby="marketTitle">
+      <header class="market-heading"><div><span class="eyebrow">DA SUA FAZENDA PARA A VIZINHANÇA</span><h2 id="marketTitle">Feira da vizinhança</h2><p>Troque a colheita por novas possibilidades.</p></div><button id="marketToggle" type="button" class="button" aria-expanded="false" aria-controls="marketContent">Visitar feira</button></header>
+      <div id="marketContent" hidden>
+        <div class="market-status"><span id="marketMessage" role="status" aria-live="polite">Carregando as bancas…</span><button id="marketRefresh" type="button" class="button compact">Atualizar feira</button></div>
+        <div class="market-layout">
+          <section class="market-board frame-paper" aria-label="Bancas e negócios">
+            <div class="market-tabs" role="tablist" aria-label="Seções da feira"><button id="marketTabOffers" type="button" class="button" role="tab" aria-selected="true" aria-controls="marketOffersPanel" data-market-tab="offers">Ofertas</button><button id="marketTabMine" type="button" class="button" role="tab" aria-selected="false" aria-controls="marketMinePanel" data-market-tab="mine">Minha banca</button><button id="marketTabTrades" type="button" class="button" role="tab" aria-selected="false" aria-controls="marketTradesPanel" data-market-tab="trades">Negócios</button></div>
+            <div id="marketOffersPanel" role="tabpanel" aria-labelledby="marketTabOffers"><div id="marketOffers" class="market-cards"></div></div>
+            <div id="marketMinePanel" role="tabpanel" aria-labelledby="marketTabMine" hidden><p class="market-helper">Produtos anunciados ficam reservados até a venda ou o cancelamento.</p><div id="marketMine" class="market-cards"></div></div>
+            <div id="marketTradesPanel" role="tabpanel" aria-labelledby="marketTabTrades" hidden><div id="marketTrades" class="market-history"></div></div>
+          </section>
+          <section class="sell-card frame-paper" aria-labelledby="sellTitle"><span class="eyebrow">ABRA SUA BANCA</span><h3 id="sellTitle">Um bom negócio começa aqui</h3><form id="sellForm"><label for="sellItem">Produto</label><select id="sellItem"><option value="corn">Milho</option><option value="feed">Ração</option><option value="egg">Ovos</option></select><div class="sell-fields"><label>Quantidade<input id="sellQuantity" type="number" min="1" max="100" step="1" required value="1"></label><label>Moedas por unidade<input id="sellPrice" type="number" min="1" max="6" step="1" required value="2"></label></div><p id="sellAvailable" class="small-note"></p><div class="sell-total"><span>Preço do lote</span><strong id="sellTotal">2 moedas</strong></div><button id="sellSubmit" class="button primary" type="submit">Anunciar lote</button></form><p class="small-note">O comprador leva o lote inteiro. Você pode cancelar enquanto ele estiver à venda.</p></section>
+        </div>
+      </div>
+    </section>
   </section>
 </main>
 <dialog id="landDialog" class="land-dialog frame-paper" aria-labelledby="landTitle"><form method="dialog"><button class="dialog-close button square" aria-label="Fechar expansão">×</button></form><span class="eyebrow">MAIS ESPAÇO PARA SUAS IDEIAS</span><h2 id="landTitle">Um novo pedaço de terra</h2><label for="landSelect">Próximo terreno</label><select id="landSelect"></select><p id="landDescription"></p><div id="landPrice" class="price"></div><p id="landMessage" class="small-note"></p><button id="buyLand" type="button" class="button primary">Comprar terreno</button></dialog>
+<dialog id="tradeDialog" class="land-dialog frame-paper" aria-labelledby="tradeTitle"><form method="dialog"><button class="dialog-close button square" aria-label="Fechar compra">×</button></form><span class="eyebrow">DIRETO DA FAZENDA VIZINHA</span><h2 id="tradeTitle">Levar este lote?</h2><p id="tradeDescription"></p><div id="tradePrice" class="price"></div><p id="tradeMessage" class="small-note"></p><button id="tradeConfirm" class="button primary" type="button">Comprar lote</button></dialog>
 <noscript>Ative o JavaScript para jogar.</noscript>
 </body></html>
