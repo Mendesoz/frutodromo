@@ -10,7 +10,7 @@ Antes de começar, marque aqui (e faça push). Ao terminar, apague a linha.
 | Agente | Área | Arquivos / funções | Desde |
 |---|---|---|---|
 | Codex | Prévia visual para celular fora da rede local | `docs/online/preview-mobile/`, servidor estático de lista fechada, QA e coordenação | 16/11/2026 |
-| Claude | Etapa 6A — Personagens | `js/game.js` (`charImg`, `personImg`, `renderCounter` só o `.pw`, loop de 250 ms, `showPortrait`), `css/style.css` (`.pw`, `.chr`, `bob`, `blk`, `.sweat`) | 13/11 14:15 |
+| Claude | Arte da fazenda online (cobrindo o Codex sem uso, pedido do Eric) | `server/web/world-art.js`, `server/web/map.js` (só direção do avatar), `docs/online/ARTE_CLAUDE_2026-11-16.md`, `docs/online/qa-arte-2026-11-16/` — branch `claude/arte-fazenda-emerald` | 16/11/2026 |
 
 ## Pendências abertas (qualquer agente pode pegar, marcando acima)
 - Balões de pedido vizinhos se sobrepõem em 393×760 — Etapa 5.
@@ -60,6 +60,12 @@ Antes de começar, marque aqui (e faça push). Ao terminar, apague a linha.
 - Cliente `/play/` conectado ao servidor; mapa contínuo, terreno vizinho, layouts/personagem persistentes, produção e pedido na UI. Claude implementou o layout em arquivos reservados; Codex integrou cenário/cliente e executou QA. Revisões Claude aplicadas, sem operação da interface do desktop para coordenar agentes.
 -29testes passaram local/PostgreSQL17 real no CI43850499270, código3d113ec; quatro telas sem overflow e escala inteira; ciclo completo e falhas de conexão/troca de conta testados na UI. Guarda final vincula comando à fazenda esperada mesmo se o cookie mudar após o clique. [QA e imagens](online/QA_MAPA_ONLINE_2026-11-16.md).
 - Prévia local `http://127.0.0.1:8860/play/`; sem backend público, mercado P2P ou finanças. Main, saves e código do lançamento preservados. Próximo: comércio virtual entre duas contas.
+
+### Arte da fazenda online — Claude (16/11/2026)
+- Eric reprovou o visual de `/play/` e pediu acabamento no nível de um RPG de bolso clássico, sem copiar sprites; Codex sem uso, Claude assumiu a frente visual. Branch `claude/arte-fazenda-emerald` sobre `codex/fazenda-online-base` (`dcf6c5a`).
+- Só `world-art.js` (arte) e uma linha de `map.js` (direção do avatar). Mapa, colisão, API, banco, economia e painéis intactos; `index.html`/`style.css` livres para a issue #33.
+- Grama em tiles com tufos, flores e mato alto; caminho por autotile; mata densa nos terrenos não comprados; casa, moinho, galinheiro e banca refeitos com porta na escala do avatar; avatar de campo em 4 direções derivado dos 22 retratos. Relatório e capturas: [ARTE_CLAUDE_2026-11-16.md](online/ARTE_CLAUDE_2026-11-16.md).
+- `npm run verify` (55/55) e `npm run build` passaram. Aguardando o olhar do Eric e a revisão do Codex; sem merge, main ou publicação.
 
 ### Base online isolada da fazenda — Codex + revisão Claude (15/11/2026)
 - Eric autorizou banco/backend, colaboração e plano até30/11. Branch `codex/fazenda-online-base`, [PR#30](https://github.com/Mendesoz/frutodromo/pull/30), [fila#31](https://github.com/Mendesoz/frutodromo/issues/31).

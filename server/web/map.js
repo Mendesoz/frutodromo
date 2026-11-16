@@ -32,7 +32,7 @@ export class FarmMap {
     this.renderHero(this.walker.position);this.select(this.selected);
   }
   renderHero(state=this.walker.position,phase=0){
-    if(!this.heroCanvas||!this.snapshot)return;const c=this.heroCanvas,art=avatarCanvas(this.snapshot.farm.hero??0,phase),ctx=c.getContext('2d');ctx.clearRect(0,0,40,66);ctx.drawImage(art,0,0);
+    if(!this.heroCanvas||!this.snapshot)return;const c=this.heroCanvas,art=avatarCanvas(this.snapshot.farm.hero??0,phase,state.facing??this.walker.facing),ctx=c.getContext('2d');ctx.clearRect(0,0,40,66);ctx.drawImage(art,0,0);
     Object.assign(c.style,{width:40*this.zoom+'px',height:66*this.zoom+'px',left:Math.round(this.coord(state.x)-20*this.zoom)+'px',top:Math.round(this.coord(state.y)-60*this.zoom)+'px',zIndex:String(10+Math.round((state.y+OFFSET)*10))});
     c.dataset.walkX=state.x.toFixed(3);c.dataset.walkY=state.y.toFixed(3);c.dataset.facing=state.facing??this.walker.facing;
   }
