@@ -3,7 +3,9 @@ import cookie from '@fastify/cookie';
 import rateLimit from '@fastify/rate-limit';
 import type { Database } from './db.js';
 import { auth } from './auth.js';
+import { registerClient } from './client.js';
 import { game, GameError, type Command } from './game.js';
+import { HERO_MAX, HERO_MIN, WORLD_TILE_MAX, WORLD_TILE_MIN } from './layout.js';
 
 const text = (minLength: number, maxLength: number) => ({ type: 'string', minLength, maxLength });
 const credentials = {
@@ -15,7 +17,10 @@ const commandSchema = { oneOf: [
   object({ type: { const: 'deliver' } }),
   object({ type: { const: 'recover_seed' } }),
   object({ type: { const: 'buy_seed' } }),
-  object({ type: { const: 'expand' }, x: { type: 'integer', minimum: -2, maximum: 2 }, y: { type: 'integer', minimum: -2, maximum: 2 } })
+  object({ type: { const: 'expand' }, x: { type: 'integer', minimum: -2, maximum: 2 }, y: { type: 'integer', minimum: -2, maximum: 2 } }),
+  object({ type: { const: 'move' }, buildingId: { type: 'string', format: 'uuid' },
+    x: { type: 'integer', minimum: WORLD_TILE_MIN, maximum: WORLD_TILE_MAX }, y: { type: 'integer', minimum: WORLD_TILE_MIN, maximum: WORLD_TILE_MAX } }),
+  object({ type: { const: 'customize' }, hero: { type: 'integer', minimum: HERO_MIN, maximum: HERO_MAX } })
 ] };
 
 export async function buildApp(db: Database, options: { origin?: string; production?: boolean; clock?: () => Date; logger?: boolean } = {}) {
@@ -44,6 +49,10 @@ export async function buildApp(db: Database, options: { origin?: string; product
     return reply.code(500).send({ error: 'INTERNAL_ERROR' });
   });
   app.get('/health', async () => { await db.query('SELECT 1'); return { ok: true, database: db.kind, version: '0.1.0' }; });
+  app.get('/api/auth/status', async req => {
+    try { await accounts.player(req.cookies.brotalume_session); return { authenticated: true }; }
+    catch (error) { if (error instanceof GameError && error.code === 'AUTH_REQUIRED') return { authenticated: false }; throw error; }
+  });
   app.post<{ Body: { username: string; password: string; farmName: string } }>('/api/auth/register', {
     schema: { body: object({ ...credentials, farmName: { ...text(1, 40), pattern: '\\S' } }) },
     config: { rateLimit: { max: 5, timeWindow: '1 minute' } }
@@ -68,5 +77,8 @@ export async function buildApp(db: Database, options: { origin?: string; product
   app.post<{ Body: Command }>('/api/commands', {
     schema: { body: commandSchema, headers: { type: 'object', required: ['idempotency-key'], properties: { 'idempotency-key': { type: 'string', pattern: '^[a-zA-Z0-9_-]{8,100}$' } } } }
   }, async req => farms.execute(await accounts.player(req.cookies.brotalume_session), String(req.headers['idempotency-key']), req.body));
+  // Cliente estatico do piloto (Codex). Registrado depois da API, sem mudar
+  // os cabecalhos nem as regras de origem definidas acima.
+  await registerClient(app);
   return app;
 }

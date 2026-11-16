@@ -1,5 +1,6 @@
 import { createHash, randomUUID } from 'node:crypto';
 import type { Database, Queryable } from './db.js';
+import { HERO_MAX, HERO_MIN, defaultPosition, layoutInfo, rectOf, validatePlacement, isBuildingKind } from './layout.js';
 
 export class GameError extends Error {
   constructor(public status: number, public code: string) { super(code); }
@@ -9,7 +10,9 @@ export type Command =
   | { type: 'deliver' }
   | { type: 'recover_seed' }
   | { type: 'buy_seed' }
-  | { type: 'expand'; x: number; y: number };
+  | { type: 'expand'; x: number; y: number }
+  | { type: 'move'; buildingId: string; x: number; y: number }
+  | { type: 'customize'; hero: number };
 export const RECIPES = {
   corn: { kind: 'plot', input: 'corn', item: 'corn', amount: 1, output: 2, seconds: 30 },
   feed: { kind: 'feed_mill', input: 'corn', item: 'feed', amount: 2, output: 1, seconds: 45 },
@@ -70,8 +73,11 @@ export async function seedFarm(tx: Queryable, playerId: string, name: string, no
   await money(tx, farmId, 80, 'initial_grant', 'initial_grant', now);
   await add(tx, farmId, 'corn', 4, 'initial_grant', 'initial_grant', now);
   await tx.query('INSERT INTO land(farm_id,x,y) VALUES($1,0,0)', [farmId]);
-  for (const [kind, slot, limit] of [['plot', 0, 1], ['plot', 1, 1], ['feed_mill', 0, 2], ['coop', 0, 2]] as const)
-    await tx.query('INSERT INTO buildings(id,farm_id,kind,slot,queue_limit) VALUES($1,$2,$3,$4,$5)', [randomUUID(), farmId, kind, slot, limit]);
+  for (const [kind, slot, limit] of [['plot', 0, 1], ['plot', 1, 1], ['feed_mill', 0, 2], ['coop', 0, 2]] as const) {
+    const at = defaultPosition(kind, slot);
+    await tx.query('INSERT INTO buildings(id,farm_id,kind,slot,queue_limit,tile_x,tile_y) VALUES($1,$2,$3,$4,$5,$6,$7)',
+      [randomUUID(), farmId, kind, slot, limit, at.x, at.y]);
+  }
   return farmId;
 }
 
@@ -83,12 +89,12 @@ export function game(db: Database, clock?: () => Date) {
         const now = await farmTime(tx, farm, clock);
         await settle(tx, farm.id, now);
         const inventory = (await tx.query('SELECT item,quantity FROM inventory WHERE farm_id=$1 ORDER BY item', [farm.id])).rows;
-        const buildings = (await tx.query('SELECT id,kind,slot,queue_limit FROM buildings WHERE farm_id=$1 ORDER BY kind,slot', [farm.id])).rows;
+        const buildings = (await tx.query('SELECT id,kind,slot,queue_limit,tile_x,tile_y FROM buildings WHERE farm_id=$1 ORDER BY kind,slot', [farm.id])).rows;
         const jobs = (await tx.query('SELECT id,building_id,recipe,output_item,output_quantity,started_at,finishes_at FROM production_jobs WHERE farm_id=$1 AND claimed_at IS NULL ORDER BY finishes_at,id', [farm.id])).rows;
         const land = (await tx.query('SELECT x,y FROM land WHERE farm_id=$1 ORDER BY x,y', [farm.id])).rows;
         const coins = (await tx.query('SELECT coins FROM wallets WHERE farm_id=$1', [farm.id])).rows[0].coins;
-        return { serverTime: now.toISOString(), farm: { id: farm.id, name: farm.name, capacity: farm.capacity }, coins, inventory, buildings, jobs, land,
-          recipes: RECIPES, order: { item: 'egg', quantity: 2, coins: 18 },
+        return { serverTime: now.toISOString(), farm: { id: farm.id, name: farm.name, capacity: farm.capacity, hero: farm.hero }, coins, inventory, buildings, jobs, land,
+          recipes: RECIPES, order: { item: 'egg', quantity: 2, coins: 18 }, ...layoutInfo(),
           economy: 'pilot-resettable-v1', seedPrice: 3,
           nextExpansionCost: land.length * 60, reservedCapacity: jobs.reduce((n, j) => n + j.output_quantity, 0) };
       });
@@ -153,6 +159,23 @@ export function game(db: Database, clock?: () => Date) {
           await money(tx, farm.id, -plots.length * 60, 'land_expansion', auditKey, now);
           await tx.query('INSERT INTO land(farm_id,x,y) VALUES($1,$2,$3)', [farm.id, command.x, command.y]);
           detail = { x: command.x, y: command.y };
+        } else if (command.type === 'move') {
+          // So muda o lugar: nada de preco, receita, producao, capacidade ou fila.
+          const building = (await tx.query('SELECT id,kind FROM buildings WHERE id=$1 AND farm_id=$2', [command.buildingId, farm.id])).rows[0];
+          if (!building || !isBuildingKind(building.kind)) throw new GameError(409, 'INVALID_BUILDING');
+          const others = (await tx.query('SELECT kind,tile_x,tile_y FROM buildings WHERE farm_id=$1 AND id<>$2', [farm.id, building.id])).rows;
+          const land = (await tx.query('SELECT x,y FROM land WHERE farm_id=$1', [farm.id])).rows;
+          const problem = validatePlacement({
+            kind: building.kind, x: command.x, y: command.y, land,
+            occupied: others.filter(other => isBuildingKind(other.kind)).map(other => rectOf(other.kind, other.tile_x, other.tile_y))
+          });
+          if (problem) throw new GameError(problem === 'INVALID_POSITION' ? 400 : 409, problem);
+          await tx.query('UPDATE buildings SET tile_x=$2,tile_y=$3 WHERE id=$1', [building.id, command.x, command.y]);
+          detail = { buildingId: building.id, x: command.x, y: command.y };
+        } else if (command.type === 'customize') {
+          if (!Number.isInteger(command.hero) || command.hero < HERO_MIN || command.hero > HERO_MAX) throw new GameError(400, 'INVALID_HERO');
+          await tx.query('UPDATE farms SET hero=$2 WHERE id=$1', [farm.id, command.hero]);
+          detail = { hero: command.hero };
         } else throw new GameError(400, 'INVALID_COMMAND');
         const result = { key, type: command.type, ...detail };
         await tx.query('INSERT INTO operations(farm_id,key,request_hash,result,created_at) VALUES($1,$2,$3,$4,$5)', [farm.id, key, hash, JSON.stringify(result), now]);

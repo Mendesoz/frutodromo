@@ -1,10 +1,10 @@
 # Base online da fazenda — piloto
 
-Entrada de servidor separada do Frutódromo e do protótipo local. Nenhum save `frutodromo9`/`fazenda_proto_v2` é importado. Economia `pilot-resettable-v1`, virtual, pode ser zerada; não há pagamento, saque ou saldo negociável. O frontend da fazenda ainda não usa esta API.
+Entrada online separada do Frutódromo e do protótipo local. Cliente jogável em `/play/`, com cadastro/login, mapa, produção e expansão conectados à API. Nenhum save `frutodromo9`/`fazenda_proto_v2` é importado. Economia `pilot-resettable-v1`, virtual, pode ser zerada; não há mercado P2P, pagamento, saque ou saldo negociável.
 
 ## Rodar
 
-Requer Node >=22. Na pasta `server`: `npm ci`, `npm run dev`. API em `http://127.0.0.1:8860`. Sem configuração, usa PostgreSQL embarcado PGlite com dados persistentes em `.data/postgres`, no processo servidor, fora do navegador. Não inicia Docker ou ocupa janelas do computador.
+Requer Node >=22. Na pasta `server`: `npm ci`, `npm run dev`. Jogo em `http://127.0.0.1:8860/play/`; API na mesma origem. Sem configuração, usa PostgreSQL embarcado PGlite com dados persistentes em `.data/postgres`, no processo servidor, fora do navegador. Não inicia Docker ou ocupa janelas do computador. `PGLITE_DATA_DIR` permite separar o banco de QA; não abrir o mesmo diretório PGlite em dois processos simultâneos.
 
 Para PostgreSQL convencional, configure `DATABASE_URL` em `.env` (veja `.env.example`). Migrações são aplicadas ao iniciar. Produção exige PostgreSQL e origem HTTPS explícita; não existe hospedagem de backend configurada nesta rodada. Mantenha a API local até a revisão de operação para teste hospedado. `HOST` é loopback por padrão.
 
@@ -19,6 +19,7 @@ Todos os POSTs exigem `Origin` igual a `PUBLIC_ORIGIN` e `Content-Type: applicat
 | Rota | Corpo/resultado |
 |---|---|
 | GET `/health` | prontidão do banco |
+| GET `/api/auth/status` | booleano de sessão, sem expor token ou dados da conta |
 | POST `/api/auth/register` | `username`, `password` (10–128 caracteres), `farmName` |
 | POST `/api/auth/login` | `username`, `password` |
 | POST `/api/auth/logout` | `{}` |
@@ -31,6 +32,16 @@ Comandos:
 - `{"type":"buy_seed"}`: 1 milho por 3 moedas.
 - `{"type":"recover_seed"}`: 1 milho quando milho=0, sem colheita de milho pendente, saldo<3; intervalo mínimo de 1h.
 - `{"type":"expand","x":1,"y":0}`: apenas vizinho lateral, grade -2…2, custo 60×terrenos já comprados. Dá área, não máquinas/capacidade.
+- `{"type":"move","buildingId":"UUID","x":12,"y":4}`: move em tiles inteiros, só em terrenos próprios, sem sobrepor prédios/casa/banca; não altera a produção.
+- `{"type":"customize","hero":1}`: salva um dos 22 personagens originais, índice 0–21.
+
+## Mapa e cliente
+
+Cada terreno tem 12×12 tiles; tile de24px nativos, zoom1/2/3 inteiro. Arraste o fundo para explorar, use o zoom ou as setas com foco no mapa. “Organizar” permite arrastar uma construção, escolher uma posição no cenário ou usar coluna/linha. “Expandir” lista os terrenos vizinhos e mostra custo/saldo antes de comprar.
+
+Layout, personagem e compras ficam no servidor. O cliente usa cookie HttpOnly e GET de sincronização; nunca localStorage como autoridade. Se um comando tem resposta incerta, mantém a mesma chave para reenvio, bloqueia novas mutações e continua atualizando estoque/filas. Pedidos pendentes são vinculados à fazenda e descartados ao sair/trocar de conta. Respostas antigas não substituem estado de outra conta ou de uma ação mais recente. Arte/fontes usam ETag com revalidação; HTML/API continuam no-store.
+
+Arte: molduras, fontes, personagens, toldo e decoração originais reaproveitados de prototipo-fazenda/. Terreno e instalações em pixel art procedural. Entrada online em português nesta etapa; não é o build de portal nem uma alteração do jogo publicado.
 
 Os números são candidatos de teste. Cadastro dá 80 moedas, 4 milhos, 2 canteiros, moinho e galinheiro. Milho consome 1/produz 2 em 30s; ração consome 2 milhos/produz 1 em 45s; ovo consome 1 ração/produz 1 em 60s. Canteiro comporta 1 trabalho, moinho/galinheiro 2 em sequência. Animais não se aposentam neste piloto. Não há raridades nem sorteio de produção.
 
@@ -48,6 +59,6 @@ O resgate também exige ausência de ração, jobs pendentes e pedido completáv
 
 ## Antes de teste público
 
-Ainda faltam: frontend conectado; mercado com reserva/transação entre fazendas; recuperação de conta e troca de senha; limites distribuídos por conta/IP (o limitador atual é por processo/IP); política de arquivo de jobs/operações; backup/restauração verificados; monitoramento do relógio do banco e intervenção em desvio abrupto; telemetria, TLS e configuração de hospedagem; teste de carga, abuso de contas múltiplas e revisão do resgate antes de itens transferíveis. Não afirmar prontidão comercial ou antifraude completa.
+Ainda faltam: mercado com reserva/transação entre fazendas; recuperação de conta e troca de senha; limites distribuídos por conta/IP (o limitador atual é por processo/IP); política de arquivo de jobs/operações; backup/restauração verificados; monitoramento do relógio do banco e intervenção em desvio abrupto; telemetria, TLS e configuração de hospedagem; teste de carga, abuso de contas múltiplas e revisão do resgate antes de itens transferíveis. Safari/iPhone real e conexão externa ainda precisam de QA específico. Não afirmar prontidão comercial ou antifraude completa.
 
 Referências técnicas: [PGlite](https://pglite.dev/docs/), [transações node-postgres](https://node-postgres.com/features/transactions), [validação Fastify](https://fastify.dev/docs/latest/Reference/Validation-and-Serialization/).

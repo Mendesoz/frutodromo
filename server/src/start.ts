@@ -5,7 +5,7 @@ try { loadEnvFile('.env'); } catch (error: any) { if (error.code !== 'ENOENT') t
 const production = process.env.NODE_ENV === 'production';
 if (production && !process.env.DATABASE_URL) throw new Error('Producao exige PostgreSQL via DATABASE_URL. PGlite e apenas desenvolvimento.');
 if (production && !process.env.PUBLIC_ORIGIN) throw new Error('Producao exige PUBLIC_ORIGIN explicita.');
-const db = await database(process.env.DATABASE_URL);
+const db = await database(process.env.DATABASE_URL, process.env.PGLITE_DATA_DIR);
 await migrate(db);
 const port = Number(process.env.PORT ?? 8860);
 const app = await buildApp(db, { production, origin: process.env.PUBLIC_ORIGIN ?? `http://127.0.0.1:${port}`, logger: true });
