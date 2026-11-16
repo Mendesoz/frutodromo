@@ -26,8 +26,17 @@ Página única (`index.html`), sem servidor. Serve para testar com 5 a 10 pessoa
 - Animais se aposentam e ferramentas quebram (sumidouros).
 - Aba Diário com o botão "Copiar resumo do teste", para o testador mandar ao Eric.
 
+## Ficha VIP e mercado (16/11)
+- **Ficha VIP (30 dias):** compra com 50 diamantes, ou do NPC por 20.000 moedas (cerca de 15 dias de farm). Pode ser usada ou vendida no mercado.
+- **O que o VIP dá:** +150 no armazém, vendedor automático, +1 vaga no galinheiro e no curral, caldeirão 2× mais rápido. Não muda a chance de raro por produção.
+- **Mercado da comunidade em gemas, com os outros jogadores simulados:**
+  - dá para comprar fichas, ovos dourados e ferramentas anunciados;
+  - dá para anunciar os seus pelo preço que quiser, e quanto mais barato, mais rápido vende;
+  - o jogo fica com 10% de cada venda, e a aba mostra a comissão acumulada no teste.
+- **Botões só de teste:** "+50 diamantes" e "+500 gemas", sem cobrança.
+
 ## O que não tem (de propósito)
-Servidor, contas, gemas, mercado entre jogadores, pagamento, ranking e decoração. Os números são de teste, não balanceamento.
+Servidor, contas, mercado com pessoas de verdade, pagamento, saque, ranking e decoração. Os números são de teste, não balanceamento.
 
 ## Teste automatizado feito
 Playwright/Chromium em 390×844 e 1280×800, sem erros de página. O teste cobre:
