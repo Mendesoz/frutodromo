@@ -9,6 +9,8 @@ Antes de começar, marque aqui (e faça push). Ao terminar, apague a linha.
 
 | Agente | Área | Arquivos / funções | Desde |
 |---|---|---|---|
+| Codex | Cenário coerente e integração WASD | `server/web/{map,world-art,app}.js`, `index.html`, `style.css`, `server/src/client.ts`, QA/docs | 16/11/2026 |
+| Claude delegado | Movimento puro e colisão local | `server/web/locomotion.js`, `server/test/locomotion.test.ts`; sem editar renderer, input DOM ou API | 16/11/2026 |
 | Claude | Etapa 6A — Personagens | `js/game.js` (`charImg`, `personImg`, `renderCounter` só o `.pw`, loop de 250 ms, `showPortrait`), `css/style.css` (`.pw`, `.chr`, `bob`, `blk`, `.sweat`) | 13/11 14:15 |
 
 ## Pendências abertas (qualquer agente pode pegar, marcando acima)
