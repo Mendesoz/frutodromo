@@ -10,7 +10,7 @@
     "dev": "tsx src/start.ts",
     "build": "tsc",
     "start": "node build/start.js",
-    "check": "tsc --noEmit && node --check web/app.js && node --check web/map.js && node --check web/market.js",
+    "check": "tsc --noEmit && node --check web/app.js && node --check web/map.js && node --check web/market.js && node --check web/world-art.js && node --check web/locomotion.js",
     "test": "tsx --test --test-concurrency=1 test/*.test.ts",
     "verify": "npm run check && npm test",
     "review:claude": "node tools/claude-review.mjs"

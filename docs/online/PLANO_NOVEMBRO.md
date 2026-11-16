@@ -1,5 +1,7 @@
 # Plano executável até 30/11/2026
 
+**Atualização16/11:** cenário candidato e caminhada WASD/botões móveis integrados ao piloto; Claude fez colisão/testes, Codex arte/integração/QA. [Resultado e limites](QA_CAMINHADA_2026-11-16.md). Referências visuais adicionais autorizadas: Stardew Valley, Don't Starve e captura do Sunflower Land; manter identidade original. Arte ainda em revisão, automação funcional etapa4 pendente. Esta atualização prevalece sobre o estado anterior de estudo somente isolado.
+
 Autorização do Eric em 15/11: seguir o recorte proposto pelo Codex, construir banco/backend, incluir Claude para acelerar e automatizar o trabalho. Meta: alpha fechado jogável com duas contas, fazendas persistentes, produção, expansão e primeira negociação com moeda virtual. Meta de desenvolvimento, não promessa de lançamento comercial.
 
 Este plano e DIRECAO_ATUAL prevalecem sobre escopos históricos de genética/pomar. Referência de gameplay Hay Day; identidade e sprites originais; navegador no computador e telefone em pé. Nome Brotalume ainda proposto. Main/Frutódromo e saves existentes preservados.

@@ -1,5 +1,7 @@
 # Brotalume — direção atual e coordenação
 
+**Atualização16/11:** cenário candidato e caminhada WASD/botões móveis integrados ao piloto; Claude fez colisão/testes, Codex arte/integração/QA. [Resultado e limites](QA_CAMINHADA_2026-11-16.md). Referências visuais adicionais autorizadas: Stardew Valley, Don't Starve e captura do Sunflower Land; manter identidade original. Arte ainda em revisão, automação funcional etapa4 pendente. Esta atualização prevalece sobre o estado anterior de estudo somente isolado.
+
 15/11/2026. Este registro prevalece sobre os primeiros briefs de frutas e sobre instruções conflitantes de apresentação.
 
 ## Atualização mais recente — base online autorizada

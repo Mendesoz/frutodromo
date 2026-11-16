@@ -51,6 +51,10 @@ Compra trava as duas fazendas em ordem de UUID e só depois o anúncio; revalida
 
 ## Mapa e cliente
 
+WASD move o personagem; no telefone, use os quatro botões de direção. Câmera acompanha, com colisão contra chão de construções e limite da terra própria. Campos, diálogos e organização suspendem a caminhada. A posição é local e reinicia ao recarregar; não é presença multiplayer. Personagem escolhido e layout continuam persistidos no servidor.
+
+Arte candidata em world-art.js; locomoção pura em locomotion.js, input/câmera em map.js. Pose frontal com passos simples; arte direcional completa ainda pendente. [Direção de arte](../docs/online/DIRECAO_ARTE.md) e [QA](../docs/online/QA_CAMINHADA_2026-11-16.md).
+
 Cada terreno tem 12×12 tiles; tile de24px nativos, zoom1/2/3 inteiro. Arraste o fundo para explorar, use o zoom ou as setas com foco no mapa. “Organizar” permite arrastar uma construção, escolher uma posição no cenário ou usar coluna/linha. “Expandir” lista os terrenos vizinhos e mostra custo/saldo antes de comprar.
 
 Layout, personagem e compras ficam no servidor. O cliente usa cookie HttpOnly e GET de sincronização; nunca localStorage como autoridade. Se um comando tem resposta incerta, mantém a mesma chave para reenvio, bloqueia novas mutações e continua atualizando estoque/filas. Pedidos pendentes são vinculados à fazenda e descartados ao sair/trocar de conta. Respostas antigas não substituem estado de outra conta ou de uma ação mais recente. Arte/fontes usam ETag com revalidação; HTML/API continuam no-store.

@@ -21,7 +21,7 @@ test('cliente e arte sao servidos com lista fechada, MIME correto e sem acesso a
     const art = await app.inject('/art/reused-art.js');
     assert.match(art.headers['cache-control']!, /must-revalidate/);
     assert.equal((await app.inject({ url: '/art/reused-art.js', headers: { 'if-none-match': art.headers.etag } })).statusCode, 304);
-    for (const asset of ['/play/app.js', '/play/map.js', '/play/market.js', '/play/style.css', '/art/sprites.js', '/art/reused-art.js', '/art/fonts/pixelify-sans-latin-400-normal.woff2'])
+    for (const asset of ['/play/app.js', '/play/map.js', '/play/market.js', '/play/world-art.js', '/play/locomotion.js', '/play/style.css', '/art/sprites.js', '/art/reused-art.js', '/art/fonts/pixelify-sans-latin-400-normal.woff2'])
       assert.equal((await app.inject(asset)).statusCode, 200, asset);
     for (const path of ['/server/.env', '/.env', '/play/.env', '/art/../server/.env', '/play/../../server/.data/postgres', '/server/src/auth.ts'])
       assert.equal((await app.inject(path)).statusCode, 404, path);

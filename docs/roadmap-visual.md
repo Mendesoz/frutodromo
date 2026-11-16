@@ -9,8 +9,7 @@ Antes de começar, marque aqui (e faça push). Ao terminar, apague a linha.
 
 | Agente | Área | Arquivos / funções | Desde |
 |---|---|---|---|
-| Codex | Cenário coerente e integração WASD | `server/web/{map,world-art,app}.js`, `index.html`, `style.css`, `server/src/client.ts`, QA/docs | 16/11/2026 |
-| Claude delegado | Movimento puro e colisão local | `server/web/locomotion.js`, `server/test/locomotion.test.ts`; sem editar renderer, input DOM ou API | 16/11/2026 |
+| Codex | Onboarding do colaborador e fila de issues iniciais | `docs/online/ONBOARDING_COLABORADOR.md`, quadro GitHub, centralizador e registros de coordenação | 16/11/2026 |
 | Claude | Etapa 6A — Personagens | `js/game.js` (`charImg`, `personImg`, `renderCounter` só o `.pw`, loop de 250 ms, `showPortrait`), `css/style.css` (`.pw`, `.chr`, `bob`, `blk`, `.sweat`) | 13/11 14:15 |
 
 ## Pendências abertas (qualquer agente pode pegar, marcando acima)
@@ -39,6 +38,10 @@ Antes de começar, marque aqui (e faça push). Ao terminar, apague a linha.
 
 ## Registro por etapa
 (cada etapa concluída ganha aqui: o que mudou, arquivos, testes, problemas e riscos)
+
+### Cenário candidato e caminhada — 16/11/2026
+- Codex integrou arte procedural coerente com o elenco, âncoras e câmera; Claude entregou locomoção pura/11testes em arquivos reservados. WASD e botões móveis, colisão e organização separados.55testes locais/build/sintaxe PASS; [QA](online/QA_CAMINHADA_2026-11-16.md). Áreas desta rodada liberadas.
+- Referências visuais autorizadas: Stardew Valley, Don't Starve e imagem do Sunflower Land. Arte é candidata, sem aprovação final; próximos: composição/terreno/corpos direcionais. Main/economia/saves preservados.
 
 ### Duas frentes e estudo de arte da fazenda — 16/11/2026
 - Eric pediu separar funcionalidade/organização do visual; cenário atual considerado simples e incongruente com os personagens. [Direção de arte](online/DIRECAO_ARTE.md) passa a manter fila visual própria; testes funcionais não equivalem a aprovação de arte.

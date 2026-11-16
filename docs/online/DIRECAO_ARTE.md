@@ -2,6 +2,15 @@
 
 16/11/2026. Decisão do Eric: separar funcionalidade/organização da apresentação da fazenda. O piloto atual funciona, mas o cenário está simplório e não combina com os sprites de personagens. **Funcionalidade aprovada em testes não significa arte aprovada.** A meta de novembro não pode apagar esse problema.
 
+## Atualização — cenário jogável, caminhada e referências
+
+Pedido posterior do Eric em16/11: usar Stardew Valley e Don't Starve como referências visuais, permitir andar pela fazenda com WASD. Depois enviou captura do Sunflower Land e autorizou também como referência. **São referências de arte/composição, não autorização para copiar sprites, mapas, interface ou economia.**
+
+Interpretação de direção: acolhimento e organização de espaços de Stardew; silhuetas orgânicas/expressivas de Don't Starve; na imagem enviada do Sunflower Land, objetos legíveis, terreno com borda/volume e fazenda protagonista. Fontes oficiais consultadas: [Stardew Valley — mídia](https://www.stardewvalley.net/media/) e [Klei — Don't Starve](https://www.klei.com/games/dont-starve/). Sunflower: apenas a captura fornecida, sem avaliação do jogo/economia.
+
+O cliente /play/ já contém uma **iteração candidata**, com arte separada em world-art.js, construções com altura visual independente da colisão, vegetação variada, corpo humano em canvas e WASD/botões móveis. Claude entregou locomotion.js/testes; Codex integrou e validou. [QA com imagens e limites](QA_CAMINHADA_2026-11-16.md). Isto atualiza as descrições de estudo isolado abaixo; não representa aprovação estética nem conclusão das etapas V1–V5.
+
+Próxima rodada visual: (1) reduzir presença dos painéis e valorizar a área jogável; (2) bordas/transições de terreno com profundidade e caminhos menos retos, preservando a grade lógica; (3) corpos/direções completos para humano e robô antes dos22; (4) árvores e instalações com menos repetição. A imagem do Sunflower Land ainda não virou uma ilha ou mecânica de compra nova nesta versão.
 ## Frentes e responsáveis nesta rodada
 
 | Frente | Condução / entrega real | Próxima entrega |
@@ -58,4 +67,4 @@ O estudo testa contraste, contorno, hierarquia, escala e composição. **Não é
 
 API fornece estado lógico; renderer decide imagem, dimensão, âncora e animação. `tile_x/tile_y`, `footprints`, `land`, `hero` e jobs existentes continuam sendo a fonte. Dimensão do sprite não entra no banco. `visualBounds` pode ultrapassar o footprint, sem ampliar colisão. Ordenação usa base no chão; seleção do prédio continua acessível quando telhado/árvore o encobrem.
 
-Os44testes PostgreSQL da feira continuam evidência funcional anterior. Esta rodada documental/visual isolada não os reexecuta nem declara que eles validam a arte. Não altera API, economia, saves, `server/web/` ou o Frutódromo publicado.
+A rodada inicial do estudo isolado não alterou server/web. A integração posterior de caminhada altera o cliente e tem QA próprio acima:55testes locais; conferir CI atual no QA. Testes de lógica não validam a estética. API econômica, saves e Frutódromo publicado permanecem preservados.

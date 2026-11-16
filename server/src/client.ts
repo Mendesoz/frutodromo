@@ -4,7 +4,7 @@ import { createHash } from 'node:crypto';
 
 // Lista fechada: nunca servir pastas do servidor, banco ou caminhos fornecidos pelo visitante.
 const assets: Record<string, { path: URL; type: string }> = {};
-for (const [name, type] of [['index.html', 'text/html'], ['style.css', 'text/css'], ['app.js', 'text/javascript'], ['map.js', 'text/javascript'], ['market.js', 'text/javascript']] as const)
+for (const [name, type] of [['index.html', 'text/html'], ['style.css', 'text/css'], ['app.js', 'text/javascript'], ['map.js', 'text/javascript'], ['market.js', 'text/javascript'], ['world-art.js', 'text/javascript'], ['locomotion.js', 'text/javascript']] as const)
   assets[name === 'index.html' ? '/play/' : '/play/' + name] = { path: new URL('../web/' + name, import.meta.url), type };
 for (const file of ['reused-art.js', 'sprites.js']) assets['/art/' + file] = { path: new URL('../../prototipo-fazenda/' + file, import.meta.url), type: 'text/javascript' };
 for (const weight of [400, 600, 700]) {
