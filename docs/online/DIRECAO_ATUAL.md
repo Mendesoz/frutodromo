@@ -3,6 +3,8 @@
 15/11/2026. Este registro prevalece sobre os primeiros briefs de frutas e sobre instruções conflitantes de apresentação.
 
 ## Atualização mais recente — base online autorizada
+16/11, revisão de direção pelo Eric: separar **funcionalidade/organização** de **visual da fazenda**. Cenário atual considerado simplório e incongruente com o elenco; os marcos funcionais abaixo não equivalem a aprovação visual. [Direção de arte e duas filas](DIRECAO_ARTE.md): Codex conduz cena de referência isolada, Claude entregou [fila funcional e contrato proposto](FRENTE_FUNCIONAL_2026-11-16.md) em3f743d7. Estudo visual01 preparado; ainda não aprovado ou integrado ao cliente. Identidade dos personagens é a referência para o mundo.
+
 16/11: feira virtual implementada no cliente conectado: anúncios com reserva, compra/cancelamento atômicos e histórico. [QA](QA_MERCADO_2026-11-16.md), código4f4b6cf e cobertura8aedd7c:44testes PostgreSQL17 verdes;43testes locais mais o caso adicional dirigido passaram. Negociação real na UI em duas contas, inclusive telefone em pé. Claude implementou módulo/migração/testes em arquivos delegados; Codex integrou cliente/API e executou QA. Entrada `http://127.0.0.1:8860/play/`; não confundir com hospedagem pública ou prévia antiga. Próxima etapa: automação limitada da produção.
 
 Eric autorizou construir a base proposta pelo Codex, incluindo banco/servidor e colaboração com Claude, com meta de alpha até 30/11/2026. Plano vigente: [PLANO_NOVEMBRO.md](PLANO_NOVEMBRO.md). Branch `codex/fazenda-online-base`, derivada da integração visual bce3379. `server/` contém piloto independente com cliente em `/play/`; a entrada histórica `prototipo-fazenda/` continua separada e local. Comércio usa somente moedas virtuais resetáveis, sem taxa nesta etapa.

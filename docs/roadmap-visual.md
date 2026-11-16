@@ -9,7 +9,6 @@ Antes de começar, marque aqui (e faça push). Ao terminar, apague a linha.
 
 | Agente | Área | Arquivos / funções | Desde |
 |---|---|---|---|
-| Codex | Separação de frentes e estudo de congruência da fazenda | `docs/online/DIRECAO_ARTE.md`, `docs/online/estudo-visual/`, plano/direção/coordenação; sem alterar cliente/API | 16/11/2026 |
 | Claude | Etapa 6A — Personagens | `js/game.js` (`charImg`, `personImg`, `renderCounter` só o `.pw`, loop de 250 ms, `showPortrait`), `css/style.css` (`.pw`, `.chr`, `bob`, `blk`, `.sweat`) | 13/11 14:15 |
 
 ## Pendências abertas (qualquer agente pode pegar, marcando acima)
@@ -38,6 +37,12 @@ Antes de começar, marque aqui (e faça push). Ao terminar, apague a linha.
 
 ## Registro por etapa
 (cada etapa concluída ganha aqui: o que mudou, arquivos, testes, problemas e riscos)
+
+### Duas frentes e estudo de arte da fazenda — 16/11/2026
+- Eric pediu separar funcionalidade/organização do visual; cenário atual considerado simples e incongruente com os personagens. [Direção de arte](online/DIRECAO_ARTE.md) passa a manter fila visual própria; testes funcionais não equivalem a aprovação de arte.
+- Codex preparou [estudo01 isolado](online/estudo-visual/README.md): personagens originais com construções/terreno/vegetação em linguagem de contorno e contraste mais próxima do elenco. Canvas procedural, amostra de corpo humano, sem mexer em servidor/cliente/economia. É proposta visual, **não aprovada ou integrada**. Próximo: feedback da cena e família de ativos, antes de renderer/UI completos.
+- Claude cloud entregou fila funcional/contrato proposto em3f743d7, branch `claude/frente-funcional`; incorporado emce171aa com ressalvas de integração do Codex (capacidade, cronologia global da automação e estados de conclusão). Nenhuma nova automação implementada.
+- Estudo carregado/inspecionado no navegador; quatro viewports sem overflow da página e escala2×inteira, console sem erros. Sintaxe de estudo/jogo e diff passaram. Não repetir/atribuir44testes econômicos ao estudo; backend permanece o validado anteriormente. Área desta rodada liberada.
 
 ### Feira virtual entre contas — Codex + Claude (16/11/2026)
 - Mercado em `/play/`: ofertas, banca e histórico; lote reservado com compra/cancelamento atômicos. Claude entregou módulo/migração004/13testes em arquivos combinados; Codex integrou helpers/API/cliente, acrescentou testeHTTP/resgate e executou QA.

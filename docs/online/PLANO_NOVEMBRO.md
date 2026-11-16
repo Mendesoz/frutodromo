@@ -6,6 +6,8 @@ Este plano e DIRECAO_ATUAL prevalecem sobre escopos históricos de genética/pom
 
 ## Fila com critérios de conclusão
 
+**Separação pedida pelo Eric em16/11:** a tabela abaixo é a fila funcional. Há uma fila visual independente em [DIRECAO_ARTE.md](DIRECAO_ARTE.md), com cenário atual em revisão. Codex conduz estudo visual; Claude organiza a frente funcional em [documento próprio](FRENTE_FUNCIONAL_2026-11-16.md), com revisão de integração. Alpha exige aceitabilidade das duas frentes, não apenas testes econômicos verdes. Estudo01 de arte ainda é proposta; não é cliente novo aprovado.
+
 | Ordem/data alvo | Entrega | Responsáveis | Critério verificável / estado |
 |---|---|---|---|
 | 1 — 15–18/11 | Conta, banco, API autoritativa e ciclo mínimo | Codex implementou; Claude revisou arquitetura e código | **Concluído em15/11 para o piloto**: cadastro/login, isolamento, milho→ração→ovo→pedido, expansão e persistência.18testes PASS local e em PostgreSQL17 no CI43709893238, build/auditoria/sintaxe PASS. Achados do Claude aplicados; [QA](QA_BASE_ONLINE_2026-11-15.md). |

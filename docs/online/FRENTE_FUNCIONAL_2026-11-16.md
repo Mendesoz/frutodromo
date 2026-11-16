@@ -9,6 +9,17 @@ Divisão pedida pelo Eric em 16/11:
 - **Frente funcional e de organização:** este documento.
 - **Fora daqui:** VIP, passe e comissão continuam em descoberta.
 
+### Revisão de integração do Codex
+
+Recebido em3f743d7 e incorporado como especificação proposta, sem iniciar implementação. Antes de converter a proposta em código:
+
+- A condição visual de capacidade precisa usar **estoque + reservas de produção + reservas de mercado**, descontando o insumo do ciclo tentado; `capacity − reservedCapacity` sozinho, citado abaixo, não representa espaço livre. Considerar também fila cheia/início futuro. O servidor permanece autoridade.
+- O acerto automático precisa ordenar **todos** os eventos de produção da fazenda cronologicamente, incluindo novos ciclos inseridos entre eventos já existentes, com desempate determinístico. Tratar cada instalação isoladamente pode alterar consumo/capacidade conforme a frequência do login. O texto de `settle` abaixo é esboço, não algoritmo já validado.
+- Comparar equivalência online/offline por efeitos econômicos/ordem lógica, normalizando UUIDs e timestamps de auditoria de execução. Não exigir igualdade literal de identificadores aleatórios entre duas simulações.
+- `just_done` só é válido com confirmação consistente de produção na mesma fazenda. Ausência de um job numa resposta descartada, troca de conta ou reinício do piloto não é prova de conclusão.
+- Testar em iPhone físico é critério técnico pendente proposto para QA; o pedido explícito do Eric é priorizar telefone em pé e ter boa experiência no iPhone. Não atribuir ao Eric uma nova exigência de aprovação textual que ele não fez.
+- Nada nessa especificação aprova20ciclos/8h, preços novos, pagamentos, abertura pública ou criação de20instalações. Limites por regra e por fazenda ainda serão definidos e medidos.
+
 ## 1. O que existe hoje (lido do código em `a1e29d8`)
 
 | Entidade | Campos reais | Observação para as próximas etapas |
