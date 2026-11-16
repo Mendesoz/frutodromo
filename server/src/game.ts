@@ -99,11 +99,12 @@ export function game(db: Database, clock?: () => Date) {
           nextExpansionCost: land.length * 60, reservedCapacity: jobs.reduce((n, j) => n + j.output_quantity, 0) };
       });
     },
-    async execute(playerId: string, key: string, command: Command) {
+    async execute(playerId: string, key: string, command: Command, expectedFarmId?: string) {
       if (!/^[a-zA-Z0-9_-]{8,100}$/.test(key)) throw new GameError(400, 'INVALID_OPERATION_KEY');
       return db.transaction(async tx => {
         // Todas as mutacoes de uma fazenda seguem esta mesma trava, inclusive leitura com acerto offline.
         const farm = await lockFarm(tx, playerId);
+        if (expectedFarmId && expectedFarmId !== farm.id) throw new GameError(409, 'FARM_CHANGED');
         const hash = fingerprint(command);
         const previous = (await tx.query('SELECT request_hash,result FROM operations WHERE farm_id=$1 AND key=$2', [farm.id, key])).rows[0];
         if (previous) {

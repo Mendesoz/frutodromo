@@ -75,8 +75,9 @@ export async function buildApp(db: Database, options: { origin?: string; product
   });
   app.get('/api/farm', async req => farms.snapshot(await accounts.player(req.cookies.brotalume_session)));
   app.post<{ Body: Command }>('/api/commands', {
-    schema: { body: commandSchema, headers: { type: 'object', required: ['idempotency-key'], properties: { 'idempotency-key': { type: 'string', pattern: '^[a-zA-Z0-9_-]{8,100}$' } } } }
-  }, async req => farms.execute(await accounts.player(req.cookies.brotalume_session), String(req.headers['idempotency-key']), req.body));
+    schema: { body: commandSchema, headers: { type: 'object', required: ['idempotency-key'], properties: { 'idempotency-key': { type: 'string', pattern: '^[a-zA-Z0-9_-]{8,100}$' }, 'x-farm-id': { type: 'string', format: 'uuid' } } } }
+  }, async req => farms.execute(await accounts.player(req.cookies.brotalume_session), String(req.headers['idempotency-key']), req.body,
+    req.headers['x-farm-id'] ? String(req.headers['x-farm-id']) : undefined));
   // Cliente estatico do piloto (Codex). Registrado depois da API, sem mudar
   // os cabecalhos nem as regras de origem definidas acima.
   await registerClient(app);
