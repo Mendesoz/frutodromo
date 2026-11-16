@@ -1,6 +1,6 @@
 # Fazenda conectada e mapa — QA concluído em 16/11/2026
 
-Branch `codex/fazenda-online-base`, [PR #30](https://github.com/Mendesoz/frutodromo/pull/30). Implementação8abb085, revisão final23610f52d479996caeba15935f72535240dd0732. Entrada local: http://127.0.0.1:8860/play/ . Não é um backend hospedado publicamente.
+Branch `codex/fazenda-online-base`, [PR #30](https://github.com/Mendesoz/frutodromo/pull/30). Implementação8abb085, revisão23610f5 e guarda final de conta3d113ecb45435c83291198dd48c2d0e8910677a5. Entrada local: http://127.0.0.1:8860/play/ . Não é um backend hospedado publicamente.
 
 ## Entrega
 
@@ -13,7 +13,7 @@ Branch `codex/fazenda-online-base`, [PR #30](https://github.com/Mendesoz/frutodr
 
 ## Evidência automatizada
 
-`npm run verify` e `npm run build`: **28 testes PASS** no Windows/Node22/PGlite, tipos e sintaxe do cliente incluídos. [CI43849272070](https://github.com/Mendesoz/frutodromo/actions/runs/43849272070), código23610f5: **SUCCESS** em PostgreSQL17 real, tipos, testes, build, auditoria das dependências e sintaxe dos JS originais. A suíte inclui concorrência entre duas instâncias/pools.
+`npm run verify` e `npm run build`: **29 testes PASS** no Windows/Node22/PGlite, tipos e sintaxe do cliente incluídos. [CI43850499270](https://github.com/Mendesoz/frutodromo/actions/runs/43850499270), código3d113ec: **SUCCESS** em PostgreSQL17 real, tipos, testes, build, auditoria das dependências e sintaxe dos JS originais. A suíte inclui concorrência entre duas instâncias/pools.
 
 Novos casos: migração de fazendas anteriores ao layout preservando moedas; cadastro com posições válidas; geometria meia-aberta/terrenos negativos; movimento válido e replay sem tocar em economia; prédio alheio, obstáculos, limites e chão não comprado recusados; duas construções disputando a mesma área; personagem e schema HTTP; lista fechada de arquivos estáticos, MIME/CSP, ETag304 e tentativa de ler .env/banco/código do servidor via URL recusada.
 
@@ -35,6 +35,7 @@ Proxy de QA temporário em localhost:8862, fora do aplicativo/rotas de produçã
 - Compra na contaA:77→74moedas/5→6milhos no servidor, cliente recebeu504 e exibiu “Tentar novamente”. O poll continuou: saldo74 e6milhos apareceram mesmo com pedido pendente. Reenvio pela UI manteve74/6 e liberou controles — efeito único.
 - Nova compra com resposta incerta, seguida de401 simulado na consulta: retorno à entrada descartou o pedido. ContaB cadastrada pela UI entrou com80moedas/4milhos e botão de reenvio oculto. Nenhuma ação da contaA executou naB.
 - O cliente vincula o pedido à fazenda também antes de reenviar, rejeita resposta de geração anterior e aguarda consulta nova após confirmar uma mutação.
+- Reforço final, exercitado por HTTP automatizado local/CI: pedido com cookie da contaB e `X-Farm-Id` da fazendaA retorna409/FARM_CHANGED. Ambas mantêm80moedas e nenhuma operação é gravada. O mesmo comando, explicitamente paraB, é aceito e debita apenasB para77. A checagem fica sob a trava da fazenda no servidor, cobrindo mudança de cookie depois da verificação local. O cliente trata a divergência sincronizando novamente. Não foi necessário alterar o visual das capturas para esse reforço.
 
 ## Dimensões e imagens
 

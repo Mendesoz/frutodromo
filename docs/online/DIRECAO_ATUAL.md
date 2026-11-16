@@ -3,7 +3,7 @@
 15/11/2026. Este registro prevalece sobre os primeiros briefs de frutas e sobre instruções conflitantes de apresentação.
 
 ## Atualização mais recente — base online autorizada
-16/11: mapa e cliente conectados ao servidor concluídos no piloto local, [QA](QA_MAPA_ONLINE_2026-11-16.md). Código23610f5,28testes local/PostgreSQL17 e navegador nas quatro dimensões. Entrada `http://127.0.0.1:8860/play/`; não confundir com hospedagem pública ou com a prévia antiga do protótipo. Claude implementou layout/migração/comandos/testes nos arquivos delegados e revisou o cliente. Próxima etapa: comércio virtual entre duas contas.
+16/11: mapa e cliente conectados ao servidor concluídos no piloto local, [QA](QA_MAPA_ONLINE_2026-11-16.md). Código3d113ec,29testes local/PostgreSQL17 e navegador nas quatro dimensões. Entrada `http://127.0.0.1:8860/play/`; não confundir com hospedagem pública ou com a prévia antiga do protótipo. Claude implementou layout/migração/comandos/testes nos arquivos delegados e revisou o cliente. Próxima etapa: comércio virtual entre duas contas.
 
 Eric autorizou construir a base proposta pelo Codex, incluindo banco/servidor e colaboração com Claude, com meta de alpha até 30/11/2026. Plano vigente: [PLANO_NOVEMBRO.md](PLANO_NOVEMBRO.md). Branch `codex/fazenda-online-base`, derivada da integração visual bce3379. `server/` contém piloto independente com cliente em `/play/`; a entrada histórica `prototipo-fazenda/` continua separada e local. Comércio entre jogadores permanece pendente.
 

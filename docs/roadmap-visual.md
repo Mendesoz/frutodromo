@@ -9,7 +9,6 @@ Antes de começar, marque aqui (e faça push). Ao terminar, apague a linha.
 
 | Agente | Área | Arquivos / funções | Desde |
 |---|---|---|---|
-| Codex | Guarda final de conta entre abas | `server/src/{game,app}.ts`, `server/web/app.js`, teste de fazenda esperada | 16/11/2026 |
 | Claude | Etapa 6A — Personagens | `js/game.js` (`charImg`, `personImg`, `renderCounter` só o `.pw`, loop de 250 ms, `showPortrait`), `css/style.css` (`.pw`, `.chr`, `bob`, `blk`, `.sweat`) | 13/11 14:15 |
 
 ## Pendências abertas (qualquer agente pode pegar, marcando acima)
@@ -41,7 +40,7 @@ Antes de começar, marque aqui (e faça push). Ao terminar, apague a linha.
 
 ### Mapa e cliente online — Codex + Claude (16/11/2026)
 - Cliente `/play/` conectado ao servidor; mapa contínuo, terreno vizinho, layouts/personagem persistentes, produção e pedido na UI. Claude implementou o layout em arquivos reservados; Codex integrou cenário/cliente e executou QA. Revisões Claude aplicadas, sem operação da interface do desktop para coordenar agentes.
--28testes passaram local/PostgreSQL17 real no CI43849272070, código23610f5; quatro telas sem overflow e escala inteira; ciclo completo e falhas de conexão/troca de conta testados na UI. [QA e imagens](online/QA_MAPA_ONLINE_2026-11-16.md).
+-29testes passaram local/PostgreSQL17 real no CI43850499270, código3d113ec; quatro telas sem overflow e escala inteira; ciclo completo e falhas de conexão/troca de conta testados na UI. Guarda final vincula comando à fazenda esperada mesmo se o cookie mudar após o clique. [QA e imagens](online/QA_MAPA_ONLINE_2026-11-16.md).
 - Prévia local `http://127.0.0.1:8860/play/`; sem backend público, mercado P2P ou finanças. Main, saves e código do lançamento preservados. Próximo: comércio virtual entre duas contas.
 
 ### Base online isolada da fazenda — Codex + revisão Claude (15/11/2026)

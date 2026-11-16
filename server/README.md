@@ -16,6 +16,8 @@ Para PostgreSQL convencional, configure `DATABASE_URL` em `.env` (veja `.env.exa
 
 Todos os POSTs exigem `Origin` igual a `PUBLIC_ORIGIN` e `Content-Type: application/json`. Sessão em cookie HttpOnly/SameSite=Lax, Secure em produção; sete dias de validade. Senhas com scrypt (padrão Node: N=16384, r=8, p=1), sal aleatório de 16 bytes, chave de 64 bytes; tokens de 32 bytes são armazenados apenas como SHA-256.
 
+O cliente envia também `X-Farm-Id` nos comandos com a fazenda retornada pelo snapshot. O servidor deriva o dono da sessão e confere essa expectativa dentro da transação; divergência dá409/FARM_CHANGED sem qualquer efeito. O header não permite escolher o dono ou autorizar outra fazenda. Isso cobre uma mudança de cookie em outra aba entre o clique e o envio.
+
 | Rota | Corpo/resultado |
 |---|---|
 | GET `/health` | prontidão do banco |
