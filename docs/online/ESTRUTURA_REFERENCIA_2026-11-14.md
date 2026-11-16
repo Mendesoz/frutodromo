@@ -152,3 +152,7 @@ Leitura do Claude:
 - **Vantagens do VIP sem risco jurídico:** mais farm (estufa e armazém extras, automação, vendedor automático, fila maior no caldeirão, recompensa diária maior).
 - **Ponto de atenção:** "VIP aumenta a chance de item melhor para vender" é pagar por mais sorte em algo que vale dinheiro. É a parte mais exposta ao ECA Digital (art. 20, loot boxes; em vigor desde 17/03/2026) e às regras de jogo de azar; precisa de parecer jurídico antes. Alternativa: o VIP dá mais tempo e mais espaço de produção, não mais sorte por produção.
 - **Preços de partida para testar** (sugestão, não pesquisa de mercado): VIP 30 dias por volta de R$ 9,90; passe da temporada por volta de R$ 14,90; pacotes pequenos de diamantes a partir de R$ 4,90.
+
+## Decisão do Eric — comissão na venda da Ficha VIP (16/11)
+- O Eric gostou da Ficha VIP negociável. Quer que o jogador possa vender a ficha pelo preço que quiser, inclusive mais barato, e que o jogo fique com uma porcentagem de cada venda.
+- **Nota do Claude:** a comissão só vira dinheiro real quando a venda é em gemas, que vêm de depósito. Venda em moedas só tira moedas de circulação, o que é bom para a economia mas não é receita. Referência: o Mercado da Comunidade da Steam cobra 15% do vendedor (5% Steam + 10% do jogo) e não permite saque, só saldo na carteira Steam.
