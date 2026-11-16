@@ -1,0 +1,40 @@
+From 79229b33f5faf90d74f1bf2a4d02de8c998bda54 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sat, 14 Nov 2026 12:31:11 -0300
+Subject: [PATCH] =?UTF-8?q?docs(frutodromo-online):=20decis=C3=B5es=20do?=
+ =?UTF-8?q?=20Eric=20e=20simula=C3=A7=C3=A3o=20de=20reprodu=C3=A7=C3=A3o?=
+ =?UTF-8?q?=20(Claude)?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01J5CqvyeRhN5feFo8ANcpcb
+---
+ projects/FRUTODROMO_ONLINE_EXPLORATION.md | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/projects/FRUTODROMO_ONLINE_EXPLORATION.md b/projects/FRUTODROMO_ONLINE_EXPLORATION.md
+index c4c95bf..0972132 100644
+--- a/projects/FRUTODROMO_ONLINE_EXPLORATION.md
++++ b/projects/FRUTODROMO_ONLINE_EXPLORATION.md
+@@ -42,3 +42,16 @@ Saques e dinheiro real constituem uma etapa própria de produto/operação, suje
+ ## Relação com a fila
+ A versão atual do Frutódromo para o portal permanece com o envio manual assumido pelo Eric.
+ Esta exploração não muda o build aprovado, não confirma envio ao CrazyGames e não substitui automaticamente a ideia de matemática ou os outros projetos da fila.
++
++## Decisões do Eric e simulação — 14/11/2026 (Claude)
++- Decisões do Eric no chat do Claude:
++  - escolha central do protótipo: entregar a fruta rara agora ou usá-la como matriz para cruzar;
++  - reprodução: simular antes de escolher;
++  - protótipo: descartável, com save próprio;
++  - jogo separado ou evolução: em aberto. Ele tem dúvida se um idle de frutas engaja sem um público prévio como o de Pokémon. Proposta: decidir com os dados de retorno do CrazyGames e do protótipo.
++- Simulação de oferta das regras livre, finita, estéril e declínio (200 jogadores-robô, números candidatos, não balanceamento).
++  - Com rendimento alto, todas as regras inundam a oferta.
++  - Com rendimento baixo, a estéril e a de declínio estabilizam a oferta abaixo da demanda; fruta que estraga segura o estoque.
++  - Sugestão: regra estéril mais fruta que estraga.
++  - [Documento](https://github.com/Mendesoz/frutodromo/blob/claude/online-simulacao/docs/online/SIMULACAO_REPRODUCAO_2026-11-14.md); [PR #27](https://github.com/Mendesoz/frutodromo/pull/27) para `codex/frutodromo-online`.
++- Próximo passo: o Eric aprova o recorte do protótipo; depois, Codex e Claude dividem a implementação. Nenhum código de jogo foi escrito.
+-- 
+2.43.0
+
