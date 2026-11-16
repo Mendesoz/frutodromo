@@ -8,6 +8,8 @@ Este plano e DIRECAO_ATUAL prevalecem sobre escopos históricos de genética/pom
 
 ## Fila com critérios de conclusão
 
+**Colaboração inicial do Gabriuus:** [onboarding](ONBOARDING_COLABORADOR.md) e issues [32](https://github.com/Mendesoz/frutodromo/issues/32)–[35](https://github.com/Mendesoz/frutodromo/issues/35). Uma por vez: primeira sessão, texto, QA e enfeites isolados. Acesso read confirmado; atribuição GitHub recusada, fork/PR possível. Não delegar banco/economia/autenticação/produção/publicação nesta entrada. Codex/Eric revisam antes de integrar.
+
 **Separação pedida pelo Eric em16/11:** a tabela abaixo é a fila funcional. Há uma fila visual independente em [DIRECAO_ARTE.md](DIRECAO_ARTE.md), com cenário atual em revisão. Codex conduz estudo visual; Claude organiza a frente funcional em [documento próprio](FRENTE_FUNCIONAL_2026-11-16.md), com revisão de integração. Alpha exige aceitabilidade das duas frentes, não apenas testes econômicos verdes. Estudo01 de arte ainda é proposta; não é cliente novo aprovado.
 
 | Ordem/data alvo | Entrega | Responsáveis | Critério verificável / estado |

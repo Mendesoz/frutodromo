@@ -2,6 +2,8 @@
 
 Branch codex/fazenda-online-base, PR30. Protótipo visual integrado ao cliente /play/, ainda sem aprovação estética do Eric. O estudo01 isolado é histórico; esta rodada implementa movimento solicitado posteriormente. Nenhuma alteração de economia ou API de comandos.
 
+Código validado: **e4df1fbec9b1a3f7d578cd8cf2e238113d6c256c**. **55/55 testes PostgreSQL17 PASS** no [CI43896654461](https://github.com/Mendesoz/frutodromo/actions/runs/43896654461), com tipos/build/auditoria/sintaxe verdes. Esta confirmação substitui a pendência de CI anotada durante a validação local abaixo. Atualização documental posterior não modifica o código validado.
+
 ## Entrega
 - world-art.js separa aparência de estado: construções maiores que o footprint, âncora nos pés, contorno/paleta comuns, vegetação com silhuetas variadas e materiais mais distintos. Molduras, fontes, rostos e decoração originais reutilizados. Pernas CSS removidas; humano recebe corpo/pés em canvas, outras espécies preservam sua silhueta.
 - WASD, câmera acompanhando e botões de 44×44 no telefone em pé. Movimento interrompido em diálogos, campos, organização, perda de foco e aba oculta. Ctrl/Meta/Alt não são capturados. Animação respeita movimento reduzido.
