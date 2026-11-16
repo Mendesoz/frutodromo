@@ -43,3 +43,21 @@ test('mercado HTTP autentica, rejeita total forjado e vincula comando a fazenda 
     assert.equal((await game(db).snapshot(seller.id)).coins, 84);
   } finally { await app.close(); await db.close(); }
 });
+
+test('lote em custodia impede resgate de semente mesmo com estoque e saldo vazios', async () => {
+  const db = await database(testUrl, 'memory://');
+  await migrate(db);
+  try {
+    const user = await auth(db).register('r_'+randomUUID().replace(/-/g,'').slice(0,20), 'teste-seguro-123', 'Resgate na feira');
+    const farms = game(db);
+    const farmId = (await farms.snapshot(user.id)).farm.id;
+    await farms.execute(user.id, randomUUID(), { type: 'market_list', item: 'corn', quantity: 4, unitPrice: 1 });
+    // Fixture de pobreza: sem alterar inventario ou reserva real do anuncio.
+    await db.query('UPDATE wallets SET coins=0 WHERE farm_id=$1', [farmId]);
+    await assert.rejects(farms.execute(user.id, randomUUID(), { type: 'recover_seed' }), (e: any) => e.code === 'SEED_RECOVERY_UNAVAILABLE');
+    const snapshot = await farms.snapshot(user.id);
+    assert.equal(snapshot.inventory.find(i => i.item === 'corn')?.quantity, 0);
+    assert.equal(snapshot.marketReservedCapacity, 4);
+    assert.equal((await db.query("SELECT count(*)::int AS n FROM inventory_events WHERE farm_id=$1 AND reason='recover_seed'", [farmId])).rows[0].n, 0);
+  } finally { await db.close(); }
+});
