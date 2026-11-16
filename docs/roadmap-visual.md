@@ -10,7 +10,7 @@ Antes de começar, marque aqui (e faça push). Ao terminar, apague a linha.
 | Agente | Área | Arquivos / funções | Desde |
 |---|---|---|---|
 | Codex | Prévia visual para celular fora da rede local | `docs/online/preview-mobile/`, servidor estático de lista fechada, QA e coordenação | 16/11/2026 |
-| Claude | Arte da fazenda online (cobrindo o Codex sem uso, pedido do Eric) | `server/web/world-art.js`, `server/web/map.js` (só direção do avatar), `docs/online/ARTE_CLAUDE_2026-11-16.md`, `docs/online/qa-arte-2026-11-16/` — branch `claude/arte-fazenda-emerald` | 16/11/2026 |
+| Claude | Arte da fazenda online (cobrindo o Codex sem uso, pedido do Eric) | `server/web/world-art.js`, `server/web/map.js` (só direção do avatar), `docs/online/ARTE_CLAUDE_2026-11-16.md`, `docs/online/qa-arte-2026-11-16/`, `docs/online/biblia-visual/` (Bíblia v0, cena-piloto, só para discussão) — branch `claude/arte-fazenda-emerald` | 16/11/2026 |
 
 ## Pendências abertas (qualquer agente pode pegar, marcando acima)
 - Balões de pedido vizinhos se sobrepõem em 393×760 — Etapa 5.
