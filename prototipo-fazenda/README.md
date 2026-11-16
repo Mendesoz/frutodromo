@@ -1,5 +1,7 @@
 # Protótipo descartável da fazenda idle
 
+> **Situação em 16/11/2026 (coordenação com o Codex).** Este protótipo é um experimento local e descartável de VIP/comissão (`e65e26d`). A base online oficial é outra: `codex/fazenda-online-base` (PR #30, código `4f4b6cf` e teste `8aedd7c`), com cliente em `/play/`, mapa expansível persistente e **feira P2P real entre contas, já entregue**, usando moedas virtuais que podem ser zeradas. Nada daqui (gemas simuladas, concessões de teste, caldeirão) entra no servidor. VIP, passe e comissão continuam em descoberta, sem autorização financeira. Direção vigente: `docs/online/DIRECAO_ATUAL.md` e `docs/online/PLANO_NOVEMBRO.md` daquela branch.
+
 Página única (`index.html`), sem servidor. Serve para testar com 5 a 10 pessoas se o ciclo da fazenda diverte. Não é a base do jogo final. Não usa o save do Frutódromo: a fazenda fica salva só no navegador, em `localStorage["fazenda_proto_v2"]`.
 
 ## Reaproveitado do Frutódromo
