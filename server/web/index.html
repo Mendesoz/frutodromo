@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#342619"><title>Brotalume — sua fazenda</title>
+  <link rel="stylesheet" href="/play/style.css">
+  <script src="/art/reused-art.js" defer></script><script src="/art/sprites.js" defer></script>
+  <script src="/play/app.js" type="module"></script>
+</head>
+<body>
+<main>
+  <section id="entry" class="entry" aria-labelledby="entryTitle">
+    <div class="welcome frame-wood">
+      <div class="welcome-copy"><span class="eyebrow">UM LUGAR PARA CHAMAR DE SEU</span><h1 id="entryTitle">Brotalume</h1><p>Um pequeno terreno.<br>Uma fazenda cheia de possibilidades.</p></div>
+      <canvas id="welcomeArt" width="360" height="260" aria-label="Fazenda em pixel art, com moinho, galinheiro, horta e personagens originais"></canvas>
+      <div class="welcome-bottom"><span>PLANTE</span><i>·</i><span>PRODUZA</span><i>·</i><span>FAÇA CRESCER</span></div>
+    </div>
+    <div class="entry-form frame-paper">
+      <span class="eyebrow">BEM-VINDO À FAZENDA</span><h2 id="formTitle">Comece seu cantinho</h2>
+      <div class="switcher" aria-label="Acesso à conta"><button id="registerTab" class="button selected" type="button" aria-pressed="true">Criar fazenda</button><button id="loginTab" class="button" type="button" aria-pressed="false">Entrar</button></div>
+      <form id="accountForm">
+        <label for="username">Seu apelido</label><input id="username" name="username" required minlength="3" maxlength="24" pattern="[A-Za-z0-9_]{3,24}" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="ex.: eric_fazendeiro"><small>Letras minúsculas, números e _.</small>
+        <label for="password">Senha</label><input id="password" name="password" type="password" required minlength="10" maxlength="128" autocomplete="new-password" placeholder="Pelo menos 10 caracteres">
+        <div id="farmNameField"><label for="farmName">Nome da fazenda</label><input id="farmName" name="farmName" maxlength="40" value="Boa Vista" autocomplete="off"></div>
+        <p id="entryMessage" class="form-message" role="status" aria-live="polite"></p>
+        <button id="enterButton" class="button primary" type="submit">Criar minha fazenda</button>
+      </form>
+      <p class="fine-print">Versão de teste · progresso pode ser reiniciado.<br>A fazenda fica salva na sua conta.</p>
+    </div>
+  </section>
+
+  <section id="game" class="game" hidden aria-label="Sua fazenda">
+    <header class="topbar frame-wood">
+      <div id="heroPortrait" class="portrait" aria-hidden="true"></div><div class="farm-heading"><span class="brand">BROTALUME</span><h1 id="farmTitle">Minha fazenda</h1></div>
+      <div class="wallet"><i class="coin" aria-hidden="true"></i><b id="coins">0</b><span>moedas</span></div>
+      <div class="storage"><span>Armazém <b id="capacity">0 / 200</b></span><div class="meter"><i id="capacityBar"></i></div></div>
+      <button id="marketShortcut" type="button" class="button compact" aria-controls="marketContent">Feira</button><button id="profileButton" type="button" class="button compact" aria-expanded="false">Personagem</button><button id="logout" type="button" class="button compact">Sair</button>
+    </header>
+    <div id="profilePanel" class="profile-panel frame-paper" hidden><h2>Quem cuida da sua fazenda?</h2><div id="heroChoices" class="hero-choices"></div></div>
+    <div id="notice" class="notice" role="status" aria-live="polite"><span id="noticeText">Sua fazenda está pronta.</span><button id="retry" type="button" class="button compact" hidden>Tentar novamente</button><button id="refresh" type="button" class="button compact" hidden>Reconectar</button></div>
+    <div class="farm-layout">
+      <section class="map-panel frame-wood" aria-label="Mapa da fazenda">
+        <div class="map-heading"><div><span class="eyebrow">SEU CANTO DO MUNDO</span><h2>Pequena agora. Sua para crescer.</h2></div><div class="land-heading"><span id="landCount" class="land-count">1 terreno</span><button id="expand" type="button" class="button compact">Expandir</button></div></div>
+        <div class="map-toolbar" aria-label="Controles do mapa"><button id="home" class="button compact" type="button">Minha fazenda</button><div class="zoom-controls"><button id="zoomOut" class="button square" type="button" aria-label="Afastar mapa">−</button><span id="zoomLabel" aria-live="polite">2×</span><button id="zoomIn" class="button square" type="button" aria-label="Aproximar mapa">+</button></div><button id="organize" class="button compact" type="button" aria-pressed="false">Organizar</button></div>
+        <div id="mapViewport" class="map-viewport" tabindex="0" role="region" aria-label="Mapa da fazenda. Use WASD para andar ou arraste para explorar."><div id="world" class="world"><canvas id="terrain" width="1440" height="1440" aria-hidden="true"></canvas><div id="landLayer"></div><div id="buildingsLayer"></div><div id="sceneryLayer" aria-hidden="true"></div><div id="placementGhost" hidden></div></div><span id="mapHint" class="map-hint">WASD para andar · arraste para explorar</span><div class="walk-pad" aria-label="Andar pela fazenda"><button type="button" data-walk="0,-1" aria-label="Andar para cima">↑</button><button type="button" data-walk="-1,0" aria-label="Andar para esquerda">←</button><button type="button" data-walk="0,1" aria-label="Andar para baixo">↓</button><button type="button" data-walk="1,0" aria-label="Andar para direita">→</button></div></div>
+        <div class="map-footer"><span><i class="online-dot"></i><span id="syncStatus">Salvo na sua conta</span></span><span>Teste · progresso pode ser reiniciado</span></div>
+      </section>
+      <aside class="sidebar" aria-label="Cuidados com a fazenda">
+        <section class="focus-card frame-paper" aria-labelledby="focusTitle"><div class="card-kicker"><span class="eyebrow" id="focusEyebrow">SUA PRIMEIRA COLHEITA</span><span id="focusBadge" class="badge">HORTA</span></div><h2 id="focusTitle">Escolha um canteiro</h2><p id="focusDescription">Toque no cenário para cuidar da fazenda.</p><div id="focusJobs" class="job-list"></div><button id="produce" type="button" class="button primary">Plantar milho</button><p id="productionNote" class="small-note"></p>
+          <form id="moveForm" class="move-form" hidden><span class="eyebrow">POSIÇÃO NO MAPA</span><div class="position-inputs"><label>Coluna<input id="moveX" type="number" min="-24" max="35" step="1" required></label><label>Linha<input id="moveY" type="number" min="-24" max="35" step="1" required></label></div><button class="button" type="submit">Salvar posição</button><button id="choosePlace" type="button" class="button">Escolher lugar no mapa</button><small>Arraste a construção ou escolha um lugar. Você só pode ocupar o seu terreno.</small></form>
+        </section>
+        <section class="inventory-card frame-paper"><span class="eyebrow">GUARDADO COM CARINHO</span><h2>Seu armazém</h2><div id="inventory" class="inventory"></div><p id="reserved" class="small-note"></p><div class="seed-actions"><button id="buySeed" type="button" class="button compact">Semente · 3 moedas</button><button id="recoverSeed" type="button" class="button compact">Preciso de uma semente</button></div></section>
+        <section class="order-card frame-paper"><div class="order-heading"><div class="portrait customer" id="customer" aria-hidden="true"></div><div><span class="eyebrow">ENCOMENDA DA VIZINHA</span><h2>Uma cesta para Iara</h2></div></div><p>“Consegue separar dois ovos fresquinhos?”</p><div class="order-detail"><span id="orderStock">0 / 2 ovos</span><strong>+18 moedas</strong></div><button id="deliver" type="button" class="button primary">Entregar encomenda</button></section>
+      </aside>
+    </div>
+    <section id="marketSection" class="market-section frame-wood" aria-labelledby="marketTitle">
+      <header class="market-heading"><div><span class="eyebrow">DA SUA FAZENDA PARA A VIZINHANÇA</span><h2 id="marketTitle">Feira da vizinhança</h2><p>Troque a colheita por novas possibilidades.</p></div><button id="marketToggle" type="button" class="button" aria-expanded="false" aria-controls="marketContent">Visitar feira</button></header>
+      <div id="marketContent" hidden>
+        <div class="market-status"><span id="marketMessage" role="status" aria-live="polite">Carregando as bancas…</span><button id="marketRefresh" type="button" class="button compact">Atualizar feira</button></div>
+        <div class="market-layout">
+          <section class="market-board frame-paper" aria-label="Bancas e negócios">
+            <div class="market-tabs" role="tablist" aria-label="Seções da feira"><button id="marketTabOffers" type="button" class="button" role="tab" aria-selected="true" aria-controls="marketOffersPanel" data-market-tab="offers">Ofertas</button><button id="marketTabMine" type="button" class="button" role="tab" aria-selected="false" aria-controls="marketMinePanel" data-market-tab="mine">Minha banca</button><button id="marketTabTrades" type="button" class="button" role="tab" aria-selected="false" aria-controls="marketTradesPanel" data-market-tab="trades">Negócios</button></div>
+            <div id="marketOffersPanel" role="tabpanel" aria-labelledby="marketTabOffers"><div id="marketOffers" class="market-cards"></div></div>
+            <div id="marketMinePanel" role="tabpanel" aria-labelledby="marketTabMine" hidden><p class="market-helper">Produtos anunciados ficam reservados até a venda ou o cancelamento.</p><div id="marketMine" class="market-cards"></div></div>
+            <div id="marketTradesPanel" role="tabpanel" aria-labelledby="marketTabTrades" hidden><div id="marketTrades" class="market-history"></div></div>
+          </section>
+          <section class="sell-card frame-paper" aria-labelledby="sellTitle"><span class="eyebrow">ABRA SUA BANCA</span><h3 id="sellTitle">Um bom negócio começa aqui</h3><form id="sellForm"><label for="sellItem">Produto</label><select id="sellItem"><option value="corn">Milho</option><option value="feed">Ração</option><option value="egg">Ovos</option></select><div class="sell-fields"><label>Quantidade<input id="sellQuantity" type="number" min="1" max="100" step="1" required value="1"></label><label>Moedas por unidade<input id="sellPrice" type="number" min="1" max="6" step="1" required value="2"></label></div><p id="sellAvailable" class="small-note"></p><div class="sell-total"><span>Preço do lote</span><strong id="sellTotal">2 moedas</strong></div><button id="sellSubmit" class="button primary" type="submit">Anunciar lote</button></form><p class="small-note">O comprador leva o lote inteiro. Você pode cancelar enquanto ele estiver à venda.</p></section>
+        </div>
+      </div>
+    </section>
+  </section>
+</main>
+<dialog id="landDialog" class="land-dialog frame-paper" aria-labelledby="landTitle"><form method="dialog"><button class="dialog-close button square" aria-label="Fechar expansão">×</button></form><span class="eyebrow">MAIS ESPAÇO PARA SUAS IDEIAS</span><h2 id="landTitle">Um novo pedaço de terra</h2><label for="landSelect">Próximo terreno</label><select id="landSelect"></select><p id="landDescription"></p><div id="landPrice" class="price"></div><p id="landMessage" class="small-note"></p><button id="buyLand" type="button" class="button primary">Comprar terreno</button></dialog>
+<dialog id="tradeDialog" class="land-dialog frame-paper" aria-labelledby="tradeTitle"><form method="dialog"><button class="dialog-close button square" aria-label="Fechar compra">×</button></form><span class="eyebrow">DIRETO DA FAZENDA VIZINHA</span><h2 id="tradeTitle">Levar este lote?</h2><p id="tradeDescription"></p><div id="tradePrice" class="price"></div><p id="tradeMessage" class="small-note"></p><button id="tradeConfirm" class="button primary" type="button">Comprar lote</button></dialog>
+<noscript>Ative o JavaScript para jogar.</noscript>
+</body></html>

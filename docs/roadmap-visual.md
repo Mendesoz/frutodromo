@@ -9,6 +9,7 @@ Antes de começar, marque aqui (e faça push). Ao terminar, apague a linha.
 
 | Agente | Área | Arquivos / funções | Desde |
 |---|---|---|---|
+| Codex | Prévia visual para celular fora da rede local | `docs/online/preview-mobile/`, servidor estático de lista fechada, QA e coordenação | 16/11/2026 |
 | Claude | Etapa 6A — Personagens | `js/game.js` (`charImg`, `personImg`, `renderCounter` só o `.pw`, loop de 250 ms, `showPortrait`), `css/style.css` (`.pw`, `.chr`, `bob`, `blk`, `.sweat`) | 13/11 14:15 |
 
 ## Pendências abertas (qualquer agente pode pegar, marcando acima)
@@ -37,6 +38,34 @@ Antes de começar, marque aqui (e faça push). Ao terminar, apague a linha.
 
 ## Registro por etapa
 (cada etapa concluída ganha aqui: o que mudou, arquivos, testes, problemas e riscos)
+
+### Cenário candidato e caminhada — 16/11/2026
+- Códigoe4df1fb,55/55 testes PostgreSQL17 verdes no CI43896654461. Onboarding do Gabriuus e issues32–35 preparados a pedido do Eric; acesso read confirmado, atribuição recusada pelo GitHub. [Guia](online/ONBOARDING_COLABORADOR.md). Reserva documental liberada; ainda não há tarefa iniciada pelo colaborador.
+- Codex integrou arte procedural coerente com o elenco, âncoras e câmera; Claude entregou locomoção pura/11testes em arquivos reservados. WASD e botões móveis, colisão e organização separados.55testes locais/build/sintaxe PASS; [QA](online/QA_CAMINHADA_2026-11-16.md). Áreas desta rodada liberadas.
+- Referências visuais autorizadas: Stardew Valley, Don't Starve e imagem do Sunflower Land. Arte é candidata, sem aprovação final; próximos: composição/terreno/corpos direcionais. Main/economia/saves preservados.
+
+### Duas frentes e estudo de arte da fazenda — 16/11/2026
+- Eric pediu separar funcionalidade/organização do visual; cenário atual considerado simples e incongruente com os personagens. [Direção de arte](online/DIRECAO_ARTE.md) passa a manter fila visual própria; testes funcionais não equivalem a aprovação de arte.
+- Codex preparou [estudo01 isolado](online/estudo-visual/README.md): personagens originais com construções/terreno/vegetação em linguagem de contorno e contraste mais próxima do elenco. Canvas procedural, amostra de corpo humano, sem mexer em servidor/cliente/economia. É proposta visual, **não aprovada ou integrada**. Próximo: feedback da cena e família de ativos, antes de renderer/UI completos.
+- Claude cloud entregou fila funcional/contrato proposto em3f743d7, branch `claude/frente-funcional`; incorporado emce171aa com ressalvas de integração do Codex (capacidade, cronologia global da automação e estados de conclusão). Nenhuma nova automação implementada.
+- Estudo carregado/inspecionado no navegador; quatro viewports sem overflow da página e escala2×inteira, console sem erros. Sintaxe de estudo/jogo e diff passaram. Não repetir/atribuir44testes econômicos ao estudo; backend permanece o validado anteriormente. Área desta rodada liberada.
+
+### Feira virtual entre contas — Codex + Claude (16/11/2026)
+- Mercado em `/play/`: ofertas, banca e histórico; lote reservado com compra/cancelamento atômicos. Claude entregou módulo/migração004/13testes em arquivos combinados; Codex integrou helpers/API/cliente, acrescentou testeHTTP/resgate e executou QA.
+- Código4f4b6cf, cobertura8aedd7c e correção de aviso a0622d8.44testes PostgreSQL17 verdes no CI43856745064;43locais e caso adicional dirigido passaram. Quatro telas sem overflow; duas contas compraram/venderam na UI com conservação e recarga. [QA e imagens](online/QA_MERCADO_2026-11-16.md).
+- Revisão independente Claude sem bloqueadores; Codex corrigiu erro escondido no diálogo e teto duplicado no schema. Recusa real por saldo gasto em outra aba mostrou o aviso dentro da janela, desabilitou a compra e atualizou o saldo. Riscos de multicontas/vitrine restrita explícitos no QA; piloto resetável, sem operação financeira.
+- Claude cloud recebeu atualização e confirmou separação do experimento VIP no handoff41ef83e. Áreas desta etapa liberadas; próximo marco é automação limitada. Main/saves/jogo publicado preservados.
+
+### Mapa e cliente online — Codex + Claude (16/11/2026)
+- Cliente `/play/` conectado ao servidor; mapa contínuo, terreno vizinho, layouts/personagem persistentes, produção e pedido na UI. Claude implementou o layout em arquivos reservados; Codex integrou cenário/cliente e executou QA. Revisões Claude aplicadas, sem operação da interface do desktop para coordenar agentes.
+-29testes passaram local/PostgreSQL17 real no CI43850499270, código3d113ec; quatro telas sem overflow e escala inteira; ciclo completo e falhas de conexão/troca de conta testados na UI. Guarda final vincula comando à fazenda esperada mesmo se o cookie mudar após o clique. [QA e imagens](online/QA_MAPA_ONLINE_2026-11-16.md).
+- Prévia local `http://127.0.0.1:8860/play/`; sem backend público, mercado P2P ou finanças. Main, saves e código do lançamento preservados. Próximo: comércio virtual entre duas contas.
+
+### Base online isolada da fazenda — Codex + revisão Claude (15/11/2026)
+- Eric autorizou banco/backend, colaboração e plano até30/11. Branch `codex/fazenda-online-base`, [PR#30](https://github.com/Mendesoz/frutodromo/pull/30), [fila#31](https://github.com/Mendesoz/frutodromo/issues/31).
+- `server/`: conta/sessão, PostgreSQL, produção por tempo do banco, comandos transacionais idempotentes, inventário/razões, pedido NPC e expansão. Piloto virtual separado; frontend ainda não conectado.
+- Claude respondeu a duas chamadas dedicadas somente leitura (proposta/código); Codex aplicou achados pertinentes.18testes passaram local e em PostgreSQL17 real, build/auditoria/sintaxe PASS no CI43709893238, código4234e4d. [QA](online/QA_BASE_ONLINE_2026-11-15.md).
+- Próximo: mapa contínuo/cliente online, depois comércio entre duas contas. Automação de checks em cada envio e runner de revisão Claude; sem serviço permanente de desenvolvimento. Main, saves e arte publicados preservados.
 
 ### Fazenda com arte reaproveitada — Codex (15/11/2026)
 - Branch `codex/fazenda-visual` sobre o protótipo do Claude `c7a5903`. Pedido do Eric: reaproveitar o design existente, com fazenda sem caldeirão.
